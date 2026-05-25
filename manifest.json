@@ -1,0 +1,23 @@
+{
+  "name": "TK7 FridayNight",
+  "short_name": "TK7",
+  "description": "ระบบจัดการแข่งขันฟุตบอล TK7 FridayNight",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#121212",
+  "theme_color": "#121212",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/861/861512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://cdn-icons-png.flaticon.com/192/861/861512.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}
