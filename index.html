@@ -205,6 +205,21 @@
                         <h2>👀 ตัวอย่างนัดเปิดสนาม</h2>
                         <div id="schedule-preview-content"></div>
                     </div>
+	<div class="card" id="opener-lock-card" style="display: none; border: 1px solid var(--primary-color);">
+    <h2>🏆 กำหนดนัดเปิดสนาม (เบอร์ 1 & 2)</h2>
+    <div class="form-group">
+        <label>🥇 ทีมหมายเลข 1 (เปิดสนาม - เหย้า)</label>
+        <select id="lock-team-1"></select>
+    </div>
+    <div class="form-group">
+        <label>🥈 ทีมหมายเลข 2 (เปิดสนาม - เยือน)</label>
+        <select id="lock-team-2"></select>
+    </div>
+    <p style="font-size: 12px; color: var(--text-muted); text-align: center;">
+        *ทีมที่เหลือ (เบอร์ 3, 4, 5...) จะถูก<b>สุ่มลำดับ</b>โดยอัตโนมัติเมื่อกดสร้างตาราง
+    </p>
+</div>
+
                     <button id="generate-schedule-btn" class="btn btn-secondary">สร้างตารางแข่งขัน</button>
                 </div>
                 <div id="setup-login-prompt"></div>
@@ -460,10 +475,13 @@
                 document.getElementById('match-date').addEventListener('change', (e) => { shouldRestoreScroll = false; loadDataForDate(e.target.value); });
                 document.getElementById('generate-schedule-btn').addEventListener('click', generateAndSaveSchedule);
                 document.querySelectorAll('.team-switch').forEach(el => el.addEventListener('change', () => {
+	refreshOpenerDropdowns();
                     updateAdvancedOptions(); 
                     renderSchedulePreview(false);
                 }));
-                document.querySelectorAll('#template-selector, #opener-home, #opener-away').forEach(el => el.addEventListener('change', () => renderSchedulePreview(false)));
+                document.querySelectorAll('#template-selector, #lock-team-1, #lock-team-2').forEach(el => {
+    el.addEventListener('change', () => renderSchedulePreview(false));
+});
                 document.querySelectorAll('#page-setup .num-stepper-btn').forEach(btn => btn.addEventListener('click', handleNumberStepper));
                 isInitialSetupDone = true;
             }
@@ -491,21 +509,26 @@
                     return;
                 }
 
-                const templateId = document.getElementById('template-selector').value;
-                const selectedTemplate = dbTemplates.find(t => t.id === templateId);
-                
-                if (selectedTemplate) {
-                    const sortedTeams = getCanonicallySortedTeams(teams);
-                    const m = selectedTemplate.data[0];
-                    if (m) firstMatch = { home: sortedTeams[m.home - 1], away: sortedTeams[m.away - 1] };
+                // ดึงค่าจาก Dropdown 1 และ 2 มาแสดงทันที
+                const t1 = document.getElementById('lock-team-1').value;
+                const t2 = document.getElementById('lock-team-2').value;
+
+                if (t1 && t2) {
+                    firstMatch = { home: t1, away: t2 };
                 }
             }
 
             if (firstMatch && firstMatch.home && firstMatch.away) {
                 const homeTeam = TEAMS.find(t => t.slug === firstMatch.home);
                 const awayTeam = TEAMS.find(t => t.slug === firstMatch.away);
-                previewContent.innerHTML = `<div class="team-emblem ${homeTeam.slug}">${homeTeam.name}</div><span class="vs">VS</span><div class="team-emblem ${awayTeam.slug}">${awayTeam.name}</div>`;
-                previewCard.style.display = 'block';
+                
+                // ป้องกันกรณีหาทีมไม่เจอ
+                if (homeTeam && awayTeam) {
+                    previewContent.innerHTML = `<div class="team-emblem ${homeTeam.slug}">${homeTeam.name}</div><span class="vs">VS</span><div class="team-emblem ${awayTeam.slug}">${awayTeam.name}</div>`;
+                    previewCard.style.display = 'block';
+                } else {
+                    previewCard.style.display = 'none';
+                }
             } else {
                 previewCard.style.display = 'none';
             }
@@ -552,49 +575,52 @@
         
         async function generateAndSaveSchedule() {
             if (!currentUser) return alert('ต้องเป็นผู้ดูแลเท่านั้น');
+            
+            // 1. จัดลำดับทีมใหม่ (1, 2 ตามเลือก ที่เหลือสุ่ม)
+            const finalOrder = getFinalShuffledOrder();
+            if (!finalOrder) return; 
+
             const dayData = appData[currentDateKey];
             if (dayData && dayData.schedule && dayData.schedule.length > 0) {
                 const hasScores = dayData.schedule.some(m => m.homeScore !== null || m.awayScore !== null);
-                const message = hasScores ? 'คำเตือน: การสร้างตารางใหม่จะลบ "ผลการแข่งขัน" ที่มีอยู่ทั้งหมดของวันนี้! คุณแน่ใจหรือไม่ว่าต้องการดำเนินการต่อ?' : 'คุณแน่ใจหรือไม่ว่าต้องการสร้างตารางใหม่ทับของเดิม?';
+                const message = hasScores ? 'คำเตือน: การสร้างตารางใหม่จะลบ "ผลการแข่งขัน" ที่มีอยู่ทั้งหมดของวันนี้!' : 'คุณแน่ใจหรือไม่ว่าต้องการสร้างตารางใหม่ทับของเดิม?';
                 if (!confirm(message)) return;
             }
-            const activeTeams = Array.from(document.querySelectorAll('.team-switch:checked')).map(sw => sw.dataset.teamSlug);
+
             const templateId = document.getElementById('template-selector').value;
+            const date = document.getElementById('match-date').value;
+            if (!date) return alert('กรุณาเลือกวันที่แข่งขัน');
 
             const settings = {
                 timePerMatch: parseInt(document.getElementById('time-per-match').value) + 1,
                 startTime: document.getElementById('start-time').value,
-                activeTeams: activeTeams, 
-                opener: { home: document.getElementById('opener-home').value, away: document.getElementById('opener-away').value },
+                activeTeams: finalOrder, // บันทึกลำดับที่สุ่มแล้ว
                 templateId: templateId
             };
-            const date = document.getElementById('match-date').value;
-            if (!date) return alert('กรุณาเลือกวันที่แข่งขัน');
-            if (settings.activeTeams.length < 2) return alert('ต้องมีอย่างน้อย 2 ทีม');
-            
+
+            // 2. สร้างตารางจาก Template
             let schedule = [];
             const selectedTemplate = dbTemplates.find(t => t.id === templateId);
 
             if (selectedTemplate) {
-                const sortedTeams = getCanonicallySortedTeams(settings.activeTeams);
                 schedule = selectedTemplate.data.map(match => ({
-                    home: sortedTeams[match.home - 1],
-                    away: sortedTeams[match.away - 1]
+                    home: finalOrder[match.home - 1],
+                    away: finalOrder[match.away - 1]
                 })).filter(m => m.home && m.away);
             } else {
-                schedule = generateDoubleRoundRobin(settings.activeTeams);
-                if (settings.opener.home && settings.opener.away) {
-                    const openerIndex = schedule.findIndex(m => m.home === settings.opener.home && m.away === settings.opener.away);
-                    if (openerIndex > 0) {
-                        schedule = [...schedule.slice(openerIndex), ...schedule.slice(0, openerIndex)];
-                    }
-                }
+                schedule = generateDoubleRoundRobin(finalOrder);
             }
             
             const finalSchedule = schedule.map(match => ({...match, homeScore: null, awayScore: null}));
             const { error } = await db.from('match_days').upsert({ match_date: date, settings: settings, schedule: finalSchedule }, { onConflict: 'match_date' });
+            
             if (error) { alert('เกิดข้อผิดพลาด: ' + error.message); } 
-            else { showToast('✅ บันทึกตารางแข่งขันเรียบร้อยแล้ว!'); currentDateKey = date; await loadInitialData(); setActivePage('page-schedule'); }
+            else { 
+                showToast('✅ บันทึกและสุ่มลำดับทีมเรียบร้อย!'); 
+                currentDateKey = date; 
+                await loadInitialData(); 
+                setActivePage('page-schedule'); 
+            }
         }
 
         function showToast(message) { const toast = document.createElement('div'); toast.className = 'toast-notification'; toast.textContent = message; document.body.appendChild(toast); setTimeout(() => { toast.classList.add('fade-out'); setTimeout(() => { document.body.removeChild(toast); }, 2500); }, 2500); }
@@ -900,6 +926,61 @@ function copyToEditForm(template) {
             // เลื่อนลงไปที่ฟอร์มด้านล่างให้เห็นชัดๆ
             document.getElementById('new-template-name').scrollIntoView({ behavior: 'smooth' });
         }
+
+// 1. ฟังก์ชันอัปเดตตัวเลือกทีมหมายเลข 1 และ 2
+function refreshOpenerDropdowns() {
+    const activeTeams = Array.from(document.querySelectorAll('.team-switch:checked')).map(sw => sw.dataset.teamSlug);
+    const s1 = document.getElementById('lock-team-1');
+    const s2 = document.getElementById('lock-team-2');
+    const lockCard = document.getElementById('opener-lock-card');
+
+    if (activeTeams.length < 2) {
+        lockCard.style.display = 'none';
+        return;
+    }
+    lockCard.style.display = 'block';
+
+    const oldVal1 = s1.value;
+    const oldVal2 = s2.value;
+
+    const optionsHtml = activeTeams.map(slug => {
+        const team = TEAMS.find(t => t.slug === slug);
+        return `<option value="${slug}">${team.name}</option>`;
+    }).join('');
+
+    s1.innerHTML = optionsHtml;
+    s2.innerHTML = optionsHtml;
+
+    // คืนค่าเลือกเดิมถ้าทีมนั้นยังอยู่
+    if (activeTeams.includes(oldVal1)) s1.value = oldVal1;
+    if (activeTeams.includes(oldVal2)) s2.value = oldVal2;
+    else if (activeTeams[1]) s2.value = activeTeams[1];
+}
+
+// 2. ฟังก์ชันสำหรับสุ่มลำดับทีม (ยกเว้นเบอร์ 1 และ 2)
+function getFinalShuffledOrder() {
+    const allSelected = Array.from(document.querySelectorAll('.team-switch:checked')).map(sw => sw.dataset.teamSlug);
+    const t1 = document.getElementById('lock-team-1').value;
+    const t2 = document.getElementById('lock-team-2').value;
+
+    if (t1 === t2) {
+        alert("⚠️ ทีมหมายเลข 1 และ 2 ต้องไม่ซ้ำกัน!");
+        return null;
+    }
+
+    // กรองเอาทีม 1 และ 2 ออกจากรายการเพื่อสุ่มส่วนที่เหลือ
+    let others = allSelected.filter(slug => slug !== t1 && slug !== t2);
+
+    // อัลกอริทึมสุ่ม (Shuffle)
+    for (let i = others.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [others[i], others[j]] = [others[j], others[i]];
+    }
+
+    // รวมร่าง: [เบอร์ 1, เบอร์ 2, สุ่มเบอร์ 3, 4, 5...]
+    return [t1, t2, ...others];
+renderSchedulePreview(false);
+}
 
         initializeApp();
     });
