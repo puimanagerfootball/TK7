@@ -190,7 +190,10 @@
                      <div class="card" id="advanced-options-card">
                         <div id="template-selector-container" class="form-group" style="display: none;">
                            <label for="template-selector">📋 รูปแบบตาราง</label>
-                           <select id="template-selector"></select>
+                           <div style="display: flex; gap: 8px;">
+    <select id="template-selector" style="flex-grow: 1;"></select>
+    <button id="manage-templates-btn" class="export-btn" style="background-color: var(--primary-color); color: #000;">⚙️ จัดการ</button>
+</div>
                         </div>
                         <div id="opener-selector-container" style="display: none;">
                             <h2>🏠 นัดเปิดสนาม (ไม่บังคับ)</h2>
@@ -256,18 +259,13 @@
         const SVG_MOVE_TOP = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M7.646 2.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1-.708.708L8 3.707 2.354 9.354a.5.5 0 1 1-.708-.708z"/><path d="M7.646 6.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1-.708.708L8 7.707l-5.646 5.647a.5.5 0 0 1-.708-.708z"/></svg>`;
         const TEAMS = [ { name: 'ทีมเขียว', slug: 'green' }, { name: 'ทีมแดง', slug: 'red' }, { name: 'ทีมขาว', slug: 'white' }, { name: 'ทีมฟ้า', slug: 'blue' }, { name: 'ทีมดำ', slug: 'black' }, { name: 'ทีมเหลือง', slug: 'yellow' }, { name: 'ทีมชมพู', slug: 'pink' }, { name: 'ทีมส้ม', slug: 'orange' }, { name: 'ทีมน้ำเงิน', slug: 'navy' }, { name: 'ทีมม่วง', slug: 'purple' } ];
         
-        // CRITICAL FIX: Create a map to hold the canonical team order.
         const teamOrderMap = new Map(TEAMS.map((team, index) => [team.slug, index]));
         
         let appData = {}, activePage = 'page-schedule', currentDateKey = new Date().toISOString().split('T')[0], currentEditingContext = { index: null, side: null }, currentUser = null, isInitialSetupDone = false, draggedItem = null;
         let lastScrollPosition = 0, shouldRestoreScroll = false;
         const contentContainer = document.getElementById('content');
         const pages = document.querySelectorAll('.page'), navButtons = document.querySelectorAll('.nav-btn'), loginBtn = document.getElementById('login-btn'), logoutBtn = document.getElementById('logout-btn'), userInfo = document.getElementById('user-info'), loginModal = document.getElementById('login-modal'), teamSelectModal = document.getElementById('team-select-modal');
-        const MASTER_TEMPLATES = {
-            '6-teams': [{ name: '6 ทีม', data: [ {home:1,away:6},{home:2,away:5},{home:3,away:4},{home:1,away:5},{home:6,away:4}, {home:2,away:3},{home:1,away:4},{home:5,away:3},{home:6,away:2},{home:1,away:3}, {home:4,away:2},{home:5,away:6},{home:1,away:2},{home:3,away:6},{home:4,away:5}, {home:6,away:1},{home:5,away:2},{home:4,away:3},{home:5,away:1},{home:4,away:6}, {home:3,away:2},{home:4,away:1},{home:3,away:5},{home:2,away:6},{home:3,away:1}, {home:2,away:4},{home:6,away:5},{home:2,away:1},{home:6,away:3},{home:5,away:4} ]}],
-            '5-teams': [ { name: 'ตาราง 1', data: [ {home:1, away:2}, {home:3, away:4}, {home:5, away:1}, {home:2, away:3}, {home:4, away:5}, {home:1, away:3}, {home:2, away:4}, {home:3, away:5}, {home:1, away:4}, {home:2, away:5}, {home:3, away:4}, {home:1, away:2}, {home:5, away:3}, {home:4, away:1}, {home:2, away:5}, {home:3, away:1}, {home:4, away:2}, {home:1, away:5}, {home:3, away:2}, {home:4, away:5} ] }, { name: 'ตาราง 2', data: [ {home:5, away:1}, {home:2, away:3}, {home:4, away:5}, {home:1, away:2}, {home:3, away:4}, {home:5, away:2}, {home:1, away:3}, {home:2, away:4}, {home:5, away:3}, {home:1, away:4}, {home:2, away:3}, {home:5, away:1}, {home:4, away:2}, {home:3, away:5}, {home:1, away:4}, {home:2, away:5}, {home:3, away:1}, {home:5, away:4}, {home:2, away:1}, {home:3, away:4} ] }, { name: 'ตาราง 3', data: [ {home:4, away:5}, {home:1, away:2}, {home:3, away:4}, {home:5, away:1}, {home:2, away:3}, {home:4, away:1}, {home:5, away:2}, {home:1, away:3}, {home:4, away:2}, {home:5, away:3}, {home:1, away:2}, {home:4, away:5}, {home:3, away:1}, {home:2, away:4}, {home:5, away:3}, {home:1, away:4}, {home:2, away:5}, {home:4, away:3}, {home:1, away:5}, {home:2, away:3} ] }, { name: 'ตาราง 4', data: [ {home:3, away:4}, {home:5, away:1}, {home:2, away:3}, {home:4, away:5}, {home:1, away:2}, {home:3, away:5}, {home:4, away:1}, {home:5, away:2}, {home:3, away:1}, {home:4, away:2}, {home:5, away:1}, {home:3, away:4}, {home:2, away:5}, {home:1, away:3}, {home:4, away:2}, {home:5, away:3}, {home:1, away:4}, {home:3, away:2}, {home:5, away:4}, {home:1, away:2} ] }, { name: 'ตาราง 5', data: [ {home:2, away:3}, {home:4, away:5}, {home:1, away:2}, {home:3, away:4}, {home:5, away:1}, {home:2, away:4}, {home:3, away:5}, {home:4, away:1}, {home:2, away:5}, {home:3, away:1}, {home:4, away:5}, {home:2, away:3}, {home:1, away:4}, {home:5, away:2}, {home:3, away:1}, {home:4, away:2}, {home:5, away:3}, {home:2, away:1}, {home:4, away:3}, {home:5, away:1} ] } ],
-            '4-teams': [ { name: 'ตาราง 1', data: [ {home:1, away:2}, {home:3, away:4}, {home:4, away:1}, {home:2, away:3}, {home:3, away:1}, {home:4, away:2}, {home:1, away:3}, {home:2, away:4}, {home:3, away:2}, {home:1, away:4}, {home:2, away:1}, {home:4, away:3} ]}, { name: 'ตาราง 2', data: [ {home:4, away:1}, {home:2, away:3}, {home:3, away:4}, {home:1, away:2}, {home:2, away:4}, {home:3, away:1}, {home:4, away:2}, {home:1, away:3}, {home:2, away:1}, {home:4, away:3}, {home:1, away:4}, {home:3, away:2} ]}, { name: 'ตาราง 3', data: [ {home:3, away:4}, {home:1, away:2}, {home:2, away:3}, {home:4, away:1}, {home:1, away:3}, {home:2, away:4}, {home:3, away:1}, {home:4, away:2}, {home:1, away:4}, {home:3, away:2}, {home:4, away:3}, {home:2, away:1} ]}, { name: 'ตาราง 4', data: [ {home:2, away:3}, {home:4, away:1}, {home:1, away:2}, {home:3, away:4}, {home:4, away:2}, {home:1, away:3}, {home:2, away:4}, {home:3, away:1}, {home:4, away:3}, {home:2, away:1}, {home:3, away:2}, {home:1, away:4} ]} ]
-        };
+        let dbTemplates = []; 
         
         function saveScrollPosition() { lastScrollPosition = contentContainer.scrollTop; }
         function restoreScrollPosition() { if (shouldRestoreScroll) { requestAnimationFrame(() => { contentContainer.scrollTop = lastScrollPosition; }); } shouldRestoreScroll = false; }
@@ -281,6 +279,14 @@
             document.getElementById('export-scores-btn').addEventListener('click', (e) => handleExport('scores-container', `TK7-Scores-${currentDateKey}.png`, e.currentTarget));
             document.getElementById('export-leaderboard-btn').addEventListener('click', (e) => handleExport('leaderboard-container', `TK7-Leaderboard-${currentDateKey}.png`, e.currentTarget));
 
+            // ตั้งค่าปุ่มสำหรับ Template
+            document.getElementById('manage-templates-btn').onclick = openTemplateManager;
+            document.getElementById('add-match-row-btn').onclick = addMatchInputRow;
+            document.getElementById('save-template-btn').onclick = saveTemplate;
+            document.querySelector('#template-manager-modal .close-modal-btn').onclick = () => {
+                document.getElementById('template-manager-modal').style.display = 'none';
+            };
+
             setupNavigation();
             document.querySelector('#login-modal .close-modal-btn').addEventListener('click', () => loginModal.style.display = 'none');
             document.querySelector('#team-select-modal .close-modal-btn').addEventListener('click', () => teamSelectModal.style.display = 'none');
@@ -293,6 +299,7 @@
             toggleAdminView(!!currentUser);
             if (currentUser) { userInfo.textContent = `👤 ${currentUser.email}`; }
 
+            await fetchTemplates(); // ดึง Template ก่อนเริ่ม
             await loadInitialData();
 
             db.auth.onAuthStateChange(async (event, session) => {
@@ -329,6 +336,7 @@
             if (!isLoggedIn) userInfo.textContent = '';
             renderAllPagesForDate(currentDateKey); 
         }
+
         async function handleLogin(e) { e.preventDefault(); const email = document.getElementById('login-email').value; const password = document.getElementById('login-password').value; const { error } = await db.auth.signInWithPassword({ email, password }); if (error) alert('เข้าสู่ระบบไม่สำเร็จ: ' + error.message); }
         async function handleLogout() { const { error } = await db.auth.signOut(); if (error) { alert('ออกจากระบบไม่สำเร็จ: ' + error.message); } else { document.getElementById('login-form').reset(); } }
         async function updateScheduleInDB(newSchedule) { saveScrollPosition(); shouldRestoreScroll = true; if (!currentUser) return; const { error } = await db.from('match_days').update({ schedule: newSchedule }).eq('match_date', currentDateKey); if (error) { alert('เกิดข้อผิดพลาดในการอัปเดตตาราง: ' + error.message); } }
@@ -348,13 +356,14 @@
 
             const { settings } = dayData;
             let templateName = 'ตารางแบบพบกันหมด';
-            if (settings.templateIndex !== undefined && settings.activeTeams) {
-                const teamCount = settings.activeTeams.length;
-                const templateKey = `${teamCount}-teams`;
-                if (MASTER_TEMPLATES[templateKey] && MASTER_TEMPLATES[templateKey][settings.templateIndex]) {
-                    templateName = MASTER_TEMPLATES[templateKey][settings.templateIndex].name;
-                }
+
+            if (settings.templateId) {
+                const tmpl = dbTemplates.find(t => t.id === settings.templateId);
+                if (tmpl) templateName = tmpl.name;
+            } else {
+                templateName = "รูปแบบดั้งเดิม";
             }
+
             templateInfoBadge.textContent = `📋 ${templateName}`;
             templateInfoBadge.style.display = 'inline-block';
 
@@ -476,49 +485,27 @@
                 firstMatch = dayData.schedule[0];
             } 
             else {
-                try {
-                    const teams = Array.from(document.querySelectorAll('.team-switch:checked')).map(sw => sw.dataset.teamSlug);
-                    if (teams.length < 2) {
-                        previewCard.style.display = 'none';
-                        return;
-                    }
-                    const templateIndex = parseInt(document.getElementById('template-selector').value) || 0;
-                    const opener = { home: document.getElementById('opener-home').value, away: document.getElementById('opener-away').value };
-                    const teamCount = teams.length;
-                    const templateKey = `${teamCount}-teams`;
-                    let previewSchedule;
-
-                    if (MASTER_TEMPLATES[templateKey]) {
-                        previewSchedule = generateScheduleFromTemplate(teams, templateIndex, (teamCount === 6) ? opener : null);
-                    } else {
-                        previewSchedule = generateDoubleRoundRobin(teams);
-                        if (opener && opener.home && opener.away) {
-                            const openerIndex = previewSchedule.findIndex(m => m.home === opener.home && m.away === opener.away);
-                            if (openerIndex > 0) {
-                                previewSchedule = [...previewSchedule.slice(openerIndex), ...previewSchedule.slice(0, openerIndex)];
-                            }
-                        }
-                    }
-                    if (previewSchedule && previewSchedule.length > 0) {
-                        firstMatch = previewSchedule[0];
-                    }
-                } catch (error) {
-                    console.error("Could not generate preview:", error);
-                    previewContent.innerHTML = `<span style="color: var(--text-muted);">ไม่สามารถสร้างตัวอย่างได้</span>`;
-                    previewCard.style.display = 'block';
+                const teams = Array.from(document.querySelectorAll('.team-switch:checked')).map(sw => sw.dataset.teamSlug);
+                if (teams.length < 2) {
+                    previewCard.style.display = 'none';
                     return;
+                }
+
+                const templateId = document.getElementById('template-selector').value;
+                const selectedTemplate = dbTemplates.find(t => t.id === templateId);
+                
+                if (selectedTemplate) {
+                    const sortedTeams = getCanonicallySortedTeams(teams);
+                    const m = selectedTemplate.data[0];
+                    if (m) firstMatch = { home: sortedTeams[m.home - 1], away: sortedTeams[m.away - 1] };
                 }
             }
 
-            if (firstMatch) {
+            if (firstMatch && firstMatch.home && firstMatch.away) {
                 const homeTeam = TEAMS.find(t => t.slug === firstMatch.home);
                 const awayTeam = TEAMS.find(t => t.slug === firstMatch.away);
-                if (homeTeam && awayTeam) {
-                    previewContent.innerHTML = `<div class="team-emblem ${homeTeam.slug}">${homeTeam.name}</div><span class="vs">VS</span><div class="team-emblem ${awayTeam.slug}">${awayTeam.name}</div>`;
-                    previewCard.style.display = 'block';
-                } else {
-                    previewCard.style.display = 'none';
-                }
+                previewContent.innerHTML = `<div class="team-emblem ${homeTeam.slug}">${homeTeam.name}</div><span class="vs">VS</span><div class="team-emblem ${awayTeam.slug}">${awayTeam.name}</div>`;
+                previewCard.style.display = 'block';
             } else {
                 previewCard.style.display = 'none';
             }
@@ -527,6 +514,7 @@
         function updateAdvancedOptions() { updateOpenerSelects(); updateTemplateSelector(); }
         function handleNumberStepper(event) { const op = parseInt(event.currentTarget.dataset.op); const targetId = event.currentTarget.dataset.target; const input = document.getElementById(targetId); if (input) { const step = parseFloat(input.step) || 1; const min = parseFloat(input.min); let currentValue = parseFloat(input.value) || 0; let newValue = currentValue + (op * step); if (!isNaN(min) && newValue < min) newValue = min; input.value = parseFloat(newValue.toPrecision(12)); } }
         function updateOpenerSelects() { const openerHomeSelect = document.getElementById('opener-home'), openerAwaySelect = document.getElementById('opener-away'); const activeTeamSlugs = Array.from(document.querySelectorAll('.team-switch:checked')).map(sw => sw.dataset.teamSlug); const currentHome = openerHomeSelect.value, currentAway = openerAwaySelect.value; openerHomeSelect.innerHTML = '<option value="">-- ไม่เลือก --</option>'; openerAwaySelect.innerHTML = '<option value="">-- ไม่เลือก --</option>'; activeTeamSlugs.forEach(slug => { const team = TEAMS.find(t => t.slug === slug); if (team) { const optionHtml = `<option value="${team.slug}">${team.name}</option>`; openerHomeSelect.innerHTML += optionHtml; openerAwaySelect.innerHTML += optionHtml; } }); openerHomeSelect.value = activeTeamSlugs.includes(currentHome) ? currentHome : ''; openerAwaySelect.value = activeTeamSlugs.includes(currentAway) ? currentAway : ''; }
+        
         function renderAllPagesForDate(date) {
             setupPageSetup(); 
             const dayData = appData[date];
@@ -539,31 +527,27 @@
             renderScoresPage(date); 
             renderLeaderboardPage(date); 
         }
-        function updateTemplateSelector() { const templateContainer = document.getElementById('template-selector-container'), openerContainer = document.getElementById('opener-selector-container'); const selector = document.getElementById('template-selector'); const teamCount = document.querySelectorAll('.team-switch:checked').length; const templateKey = `${teamCount}-teams`; const templates = MASTER_TEMPLATES[templateKey]; if (templates && templates.length > 0) { selector.innerHTML = ''; templates.forEach((template, index) => { const option = document.createElement('option'); option.value = index; option.textContent = template.name; selector.appendChild(option); }); templateContainer.style.display = 'block'; } else { templateContainer.style.display = 'none'; } if (teamCount === 4 || teamCount === 5) { openerContainer.style.display = 'none'; } else { openerContainer.style.display = 'block'; } }
+
+        function updateTemplateSelector() {
+            const templateContainer = document.getElementById('template-selector-container');
+            const selector = document.getElementById('template-selector');
+            const teamCount = document.querySelectorAll('.team-switch:checked').length;
+            
+            const filtered = dbTemplates.filter(t => t.team_count === teamCount);
+
+            if (filtered.length > 0) {
+                selector.innerHTML = filtered.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+                templateContainer.style.display = 'block';
+            } else {
+                selector.innerHTML = '<option value="">(ไม่มี Template สำหรับจำนวนทีมนี้)</option>';
+                templateContainer.style.display = 'block';
+            }
+        }
         
         function getCanonicallySortedTeams(teamSlugs) {
             return [...teamSlugs].sort((a, b) => teamOrderMap.get(a) - teamOrderMap.get(b));
         }
 
-        function generateScheduleFromTemplate(teams, templateIndex = 0, opener = null) {
-            const sortedTeams = getCanonicallySortedTeams(teams); // Ensure canonical sort
-            const teamCount = sortedTeams.length;
-            const templateKey = `${teamCount}-teams`;
-            if (!MASTER_TEMPLATES[templateKey] || !MASTER_TEMPLATES[templateKey][templateIndex]) { throw new Error(`Template not found for ${teamCount} teams at index ${templateIndex}.`); }
-            let numberTemplate = [...MASTER_TEMPLATES[templateKey][templateIndex].data];
-            const numberToTeamMap = new Map();
-            sortedTeams.forEach((teamSlug, index) => {
-                numberToTeamMap.set(index + 1, teamSlug);
-            });
-            let translatedSchedule = numberTemplate.map(match => ({ home: numberToTeamMap.get(match.home), away: numberToTeamMap.get(match.away) })).filter(match => match.home && match.away);
-            if (opener && opener.home && opener.away) {
-                const openerIndex = translatedSchedule.findIndex(m => m.home === opener.home && m.away === opener.away);
-                if (openerIndex > 0) {
-                    translatedSchedule = [...translatedSchedule.slice(openerIndex), ...translatedSchedule.slice(0, openerIndex)];
-                }
-            }
-            return translatedSchedule;
-        }
         function generateDoubleRoundRobin(teams) { let teamList = getCanonicallySortedTeams(teams); const BYE = "BYE_TEAM_PLACEHOLDER"; if (teamList.length % 2 !== 0) { teamList.push(BYE); } const numTeams = teamList.length, numRounds = numTeams - 1; const leg1 = []; for (let round = 0; round < numRounds; round++) { for (let i = 0; i < numTeams / 2; i++) { const home = teamList[i], away = teamList[numTeams - 1 - i]; if (home !== BYE && away !== BYE) { leg1.push({ home, away }); } } teamList.splice(1, 0, teamList.pop()); } const leg2 = leg1.map(match => ({ home: match.away, away: match.home })); return [...leg1, ...leg2]; }
         
         async function generateAndSaveSchedule() {
@@ -575,31 +559,36 @@
                 if (!confirm(message)) return;
             }
             const activeTeams = Array.from(document.querySelectorAll('.team-switch:checked')).map(sw => sw.dataset.teamSlug);
+            const templateId = document.getElementById('template-selector').value;
+
             const settings = {
                 timePerMatch: parseInt(document.getElementById('time-per-match').value) + 1,
                 startTime: document.getElementById('start-time').value,
                 activeTeams: activeTeams, 
                 opener: { home: document.getElementById('opener-home').value, away: document.getElementById('opener-away').value },
-                templateIndex: parseInt(document.getElementById('template-selector').value) || 0
+                templateId: templateId
             };
             const date = document.getElementById('match-date').value;
             if (!date) return alert('กรุณาเลือกวันที่แข่งขัน');
             if (settings.activeTeams.length < 2) return alert('ต้องมีอย่างน้อย 2 ทีม');
-            if (settings.opener.home && settings.opener.away && settings.opener.home === settings.opener.away) return alert('ทีมเหย้า-เยือนนัดเปิดสนามต้องไม่ซ้ำกัน');
             
-            let schedule;
-            const teamCount = settings.activeTeams.length, templateKey = `${teamCount}-teams`;
-            if (MASTER_TEMPLATES[templateKey]) { 
-                schedule = generateScheduleFromTemplate(settings.activeTeams, settings.templateIndex, (teamCount === 6) ? settings.opener : null); 
-            } 
-            else { 
-                schedule = generateDoubleRoundRobin(settings.activeTeams); 
-                if (settings.opener && settings.opener.home && settings.opener.away) { 
-                    const openerIndex = schedule.findIndex(m => m.home === settings.opener.home && m.away === settings.opener.away); 
-                    if (openerIndex > 0) { 
-                        schedule = [...schedule.slice(openerIndex), ...schedule.slice(0, openerIndex)]; 
-                    } 
-                } 
+            let schedule = [];
+            const selectedTemplate = dbTemplates.find(t => t.id === templateId);
+
+            if (selectedTemplate) {
+                const sortedTeams = getCanonicallySortedTeams(settings.activeTeams);
+                schedule = selectedTemplate.data.map(match => ({
+                    home: sortedTeams[match.home - 1],
+                    away: sortedTeams[match.away - 1]
+                })).filter(m => m.home && m.away);
+            } else {
+                schedule = generateDoubleRoundRobin(settings.activeTeams);
+                if (settings.opener.home && settings.opener.away) {
+                    const openerIndex = schedule.findIndex(m => m.home === settings.opener.home && m.away === settings.opener.away);
+                    if (openerIndex > 0) {
+                        schedule = [...schedule.slice(openerIndex), ...schedule.slice(0, openerIndex)];
+                    }
+                }
             }
             
             const finalSchedule = schedule.map(match => ({...match, homeScore: null, awayScore: null}));
@@ -700,29 +689,15 @@
         
         function loadSettingsFromData(settings) {
             if (!settings || !currentUser) return;
-        
             document.getElementById('time-per-match').value = settings.timePerMatch ? settings.timePerMatch - 1 : 8;
             document.getElementById('start-time').value = settings.startTime || '20:00';
-        
             document.querySelectorAll('.team-switch').forEach(sw => {
                 sw.checked = settings.activeTeams ? settings.activeTeams.includes(sw.dataset.teamSlug) : true;
             });
-        
             updateAdvancedOptions();
-        
-            const templateSelector = document.getElementById('template-selector');
-            const savedTemplateIndex = settings.templateIndex;
-        
-            const isSavedIndexValid = savedTemplateIndex !== undefined &&
-                                      savedTemplateIndex !== null &&
-                                      templateSelector.options.length > savedTemplateIndex &&
-                                      savedTemplateIndex >= 0;
-        
-            templateSelector.value = isSavedIndexValid ? savedTemplateIndex : '0';
-        
+            document.getElementById('template-selector').value = settings.templateId || '';
             document.getElementById('opener-home').value = settings.opener?.home || '';
             document.getElementById('opener-away').value = settings.opener?.away || '';
-        
             renderSchedulePreview(true);
         }
 
@@ -734,7 +709,7 @@
                 sw.checked = index < 5;
             });
             updateAdvancedOptions();
-            document.getElementById('template-selector').value = '0';
+            document.getElementById('template-selector').selectedIndex = 0;
             document.getElementById('opener-home').value = '';
             document.getElementById('opener-away').value = '';
             renderSchedulePreview(false);
@@ -798,8 +773,152 @@
 
         function calculateLeaderboard(date) { const dayData = appData[date]; if (!dayData || !dayData.schedule) return {}; const stats = {}; dayData.settings.activeTeams.forEach(slug => { const teamInfo = TEAMS.find(t => t.slug === slug); if(teamInfo) { stats[slug] = { name: teamInfo.name, slug: teamInfo.slug, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, gd: 0, pts: 0 }; }}); dayData.schedule.forEach(match => { const { home, away, homeScore, awayScore } = match; if (homeScore === null || awayScore === null || !stats[home] || !stats[away]) return; stats[home].p++; stats[away].p++; stats[home].gf += homeScore; stats[home].ga += awayScore; stats[away].gf += awayScore; stats[away].ga += homeScore; if (homeScore > awayScore) { stats[home].w++; stats[away].l++; stats[home].pts += 3; } else if (awayScore > homeScore) { stats[away].w++; stats[home].l++; stats[away].pts += 3; } else { stats[home].d++; stats[away].d++; stats[home].pts += 1; stats[away].pts += 1; } }); Object.values(stats).forEach(team => { team.gd = team.gf - team.ga; }); return stats; }
 
+        async function fetchTemplates() {
+            const { data, error } = await db.from('match_templates').select('*').order('created_at', { ascending: true });
+            if (!error) dbTemplates = data;
+        }
+
+        async function openTemplateManager() {
+            const activeTeams = Array.from(document.querySelectorAll('.team-switch:checked')).map(sw => sw.dataset.teamSlug);
+            if (activeTeams.length < 2) return alert('โปรดเลือกทีมก่อนอย่างน้อย 2 ทีม');
+            
+            document.getElementById('current-team-count-label').textContent = activeTeams.length;
+            document.getElementById('template-manager-modal').style.display = 'block';
+            document.getElementById('match-input-list').innerHTML = '';
+            addMatchInputRow(); 
+            renderTemplateList(activeTeams.length);
+        }
+
+        function addMatchInputRow(h = "", a = "") {
+            const container = document.getElementById('match-input-list');
+            const div = document.createElement('div');
+            div.className = "match-input-row";
+            div.style = "display:flex; gap:10px; margin-bottom:8px; align-items:center;";
+            div.innerHTML = `
+                <input type="number" class="h-n" placeholder="ทีมที่" style="width:70px" value="${h}"> 
+                <span style="color:var(--text-muted)">VS</span> 
+                <input type="number" class="a-n" placeholder="ทีมที่" style="width:70px" value="${a}">
+                <button class="remove-row-btn" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:18px; padding:0 5px;">✕</button>
+            `;
+            // กด x เพื่อลบแถวนี้
+            div.querySelector('.remove-row-btn').onclick = () => div.remove();
+            container.appendChild(div);
+        }
+
+        async function saveTemplate() {
+            const name = document.getElementById('new-template-name').value;
+            const teamCount = parseInt(document.getElementById('current-team-count-label').textContent);
+            const rows = document.querySelectorAll('.match-input-row');
+            const data = [];
+            rows.forEach(r => {
+                const h = parseInt(r.querySelector('.h-n').value), a = parseInt(r.querySelector('.a-n').value);
+                if(h && a) data.push({home: h, away: a});
+            });
+            if(!name || data.length === 0) return alert('กรุณากรอกข้อมูลให้ครบ');
+
+            const { error } = await db.from('match_templates').insert([{ name, team_count: teamCount, data }]);
+            if(!error) { 
+                alert('บันทึกสำเร็จ!'); 
+                await fetchTemplates(); 
+                openTemplateManager(); 
+                updateTemplateSelector();
+            }
+        }
+
+        function renderTemplateList(teamCount) {
+            const listArea = document.getElementById('template-list-area');
+            const filtered = dbTemplates.filter(t => t.team_count === teamCount);
+            
+            if (filtered.length === 0) {
+                listArea.innerHTML = '<p style="color: var(--text-muted); text-align:center;">ยังไม่มี Template สำหรับ ' + teamCount + ' ทีม</p>';
+                return;
+            }
+
+            listArea.innerHTML = filtered.map(t => `
+                <div style="background:#2a2a2a; border-radius:8px; margin-bottom:8px; border: 1px solid #444; overflow:hidden;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 12px;">
+                        <span style="font-weight:600;">${t.name} <small style="color:var(--text-muted)">(${t.data.length} คู่)</small></span>
+                        <div style="display:flex; gap:8px;">
+                            <button class="action-btn view-detail-btn" data-id="${t.id}" title="ดูรายละเอียด" style="background:none; border:none; cursor:pointer;">👁️</button>
+                            <button class="action-btn copy-template-btn" data-id="${t.id}" title="คัดลอกมาแก้ไข" style="background:none; border:none; cursor:pointer;">📋</button>
+                            <button class="action-btn delete-template-btn" data-id="${t.id}" style="color:var(--team-red)">${SVG_TRASH}</button>
+                        </div>
+                    </div>
+                    <!-- ส่วนแสดงรายละเอียดคู่แข่ง (ซ่อนไว้) -->
+                    <div id="detail-${t.id}" style="display:none; padding:12px; background:#1a1a1a; border-top:1px solid #333; font-size:13px; color:#bbb;">
+                        <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap:8px;">
+                            ${t.data.map((m, idx) => `<div>คู่ที่ ${idx+1}: <b>${m.home}-${m.away}</b></div>`).join('')}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            // ผูกเหตุการณ์ปุ่มต่างๆ
+            listArea.querySelectorAll('.view-detail-btn').forEach(btn => {
+                btn.onclick = () => {
+                    const detailDiv = document.getElementById(`detail-${btn.dataset.id}`);
+                    detailDiv.style.display = detailDiv.style.display === 'none' ? 'block' : 'none';
+                };
+            });
+
+            listArea.querySelectorAll('.copy-template-btn').forEach(btn => {
+                btn.onclick = () => {
+                    const t = dbTemplates.find(x => x.id === btn.dataset.id);
+                    if (t) copyToEditForm(t);
+                };
+            });
+
+            listArea.querySelectorAll('.delete-template-btn').forEach(btn => {
+                btn.onclick = async () => {
+                    if (confirm('คุณแน่ใจหรือไม่ว่าต้องการลบ Template นี้?')) {
+                        const { error } = await db.from('match_templates').delete().eq('id', btn.dataset.id);
+                        if (!error) {
+                            showToast('ลบสำเร็จ');
+                            await fetchTemplates();
+                            renderTemplateList(teamCount);
+                            updateTemplateSelector();
+                        }
+                    }
+                };
+            });
+        }
+function copyToEditForm(template) {
+            // 1. ใส่ชื่อเดิมต่อท้ายด้วย (Copy)
+            document.getElementById('new-template-name').value = template.name + " (Copy)";
+            
+            // 2. ล้างรายการคู่แข่งเดิมในฟอร์มออก
+            const container = document.getElementById('match-input-list');
+            container.innerHTML = '';
+            
+            // 3. วนลูปเอาคู่แข่งจาก Template มาเพิ่มเป็นแถว
+            template.data.forEach(match => {
+                addMatchInputRow(match.home, match.away);
+            });
+            
+            showToast('คัดลอกข้อมูลลงฟอร์มแล้ว');
+            
+            // เลื่อนลงไปที่ฟอร์มด้านล่างให้เห็นชัดๆ
+            document.getElementById('new-template-name').scrollIntoView({ behavior: 'smooth' });
+        }
+
         initializeApp();
     });
     </script>
+
+    <div id="template-manager-modal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <span class="close-modal-btn">×</span>
+            <h2>⚙️ จัดการ Template</h2>
+            <div id="template-list-area" style="margin-bottom: 20px;"></div>
+            <div style="border-top: 1px solid #444; pt-4">
+                <h3 style="margin: 15px 0;">➕ เพิ่ม Template ใหม่ (<span id="current-team-count-label">0</span> ทีม)</h3>
+                <input type="text" id="new-template-name" placeholder="ชื่อตาราง เช่น พบกันหมด 2 รอบ" style="margin-bottom:10px;">
+                <div id="match-input-list"></div>
+                <button id="add-match-row-btn" class="btn-secondary" style="padding: 8px; font-size: 14px; margin: 10px 0;">+ เพิ่มคู่แข่งขัน</button>
+                <button id="save-template-btn" class="btn btn-primary">💾 บันทึก Template</button>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>
