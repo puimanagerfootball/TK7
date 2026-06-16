@@ -26,9 +26,9 @@
 
     #setup-content-wrapper {
         display: grid !important;
-        /* ปรับสัดส่วน: ฝั่งซ้าย 1.2 ส่วน | ฝั่งขวา 0.8 ส่วน (ฝั่งขวาจะหดลง) */
-        grid-template-columns: 1.2fr 0.8fr !important; 
-        gap: 15px 25px !important;
+        /* ใช้ % เพื่อความชัดเจน: ซ้าย 65% ขวา 35% */
+        grid-template-columns: 65% 35% !important; 
+        gap: 15px 20px !important;
         align-items: start;
     }
 
@@ -37,26 +37,26 @@
         grid-column: span 2 !important; 
     }
 
-    /* --- คอลัมน์ที่ 1 (ฝั่งซ้าย): กล่องเลือกทีมที่เข้าร่วม --- */
-    #setup-content-wrapper > .card:nth-child(3) { 
+    /* --- คอลัมน์ที่ 1 (ฝั่งซ้าย - กว้าง): กล่องเลือกทีมที่เข้าร่วม --- */
+    #setup-content-wrapper > .card:nth-of-type(2) { 
         grid-column: 1 !important;
         grid-row: 2 / span 10 !important;
     }
 
-    /* --- คอลัมน์ที่ 2 (ฝั่งขวา): ส่วนตั้งค่าทั้งหมด (จะหดลงตามสัดส่วน) --- */
-    #setup-content-wrapper > .card:nth-child(2),
+    /* --- คอลัมน์ที่ 2 (ฝั่งขวา - แคบ): ส่วนตั้งค่าทั้งหมดจะหดลง --- */
+    #setup-content-wrapper > .card:nth-of-type(1),
     #advanced-options-card,
     #schedule-preview-card,
     #opener-lock-card {
         grid-column: 2 !important;
     }
 
-    /* ปุ่มอัปเดต: กางเต็มด้านล่าง */
+    /* ปุ่มสร้างตาราง: กางเต็มด้านล่าง */
     #generate-schedule-btn { 
         grid-column: span 2 !important; 
     }
 
-    /* หน้าตารางแข่ง/บันทึกผล: แบ่ง 2 คอลัมน์ตามปกติ */
+    /* หน้าตารางแข่ง/บันทึกผล: แบ่ง 2 คอลัมน์ */
     #schedule-container, #scores-container {
         display: grid !important;
         grid-template-columns: 1fr 1fr !important;
@@ -213,7 +213,7 @@
 
     <div id="app">
         <div id="auth-section">
-    <span class="version-tag">Ver 2.1.7</span>
+    <span class="version-tag">Ver 2.1.8</span>
     
     <!-- สร้าง div ครอบส่วนนี้ไว้ -->
     <div class="auth-user-controls">
