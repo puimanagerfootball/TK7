@@ -18,7 +18,7 @@
     <script src="https://cdn.jsdelivr.net/npm/morphdom@2.7.0/dist/morphdom-umd.min.js"></script>
     <style>
 		
-/* --- แก้ไข Ver 2.2.2: ย้าย "เลือกทีม" ขึ้นซ้ายบน และ "วันที่" ไปขวาบน (ปิดช่องว่าง) --- */
+/* --- แก้ไข Ver 2.2.3: ย้ายกล่องสีม่วง (Lock ทีม) ไปใต้กล่องวันที่ฝั่งซ้าย --- */
 @media (min-width: 768px) or (orientation: landscape) {
     body { overflow-y: auto !important; }
     #app { height: auto; min-height: 100vh; }
@@ -37,17 +37,21 @@
         grid-row: 1 !important;
     }
 
-    /* --- ฝั่งซ้าย (คอลัมน์ 1): เริ่มจากแถวที่ 2 --- */
-    #setup-content-wrapper > .card:nth-of-type(2) { /* กล่องเลือกทีม */
+    /* --- ฝั่งซ้าย (คอลัมน์ 1): วันที่ -> กำหนดนัดเปิดสนาม (ย้ายมานี่) --- */
+    #setup-content-wrapper > .card:nth-child(2) { /* กล่องวันที่/เวลา */
         grid-column: 1 !important;
-        grid-row: 2 / span 5 !important; /* อยู่ซ้ายบนสุด และยาวลงมา */
-        margin-bottom: 0;
+        grid-row: 2 !important;
     }
 
-    /* --- ฝั่งขวา (คอลัมน์ 2): เริ่มจากแถวที่ 2 --- */
-    #setup-content-wrapper > .card:nth-of-type(1) { /* กล่องวันที่/เวลา */
+    #opener-lock-card { /* กล่องกำหนดนัดเปิดสนาม (สีม่วง) */
+        grid-column: 1 !important;
+        grid-row: 3 !important; /* ต่อท้ายกล่องวันที่ */
+    }
+
+    /* --- ฝั่งขวา (คอลัมน์ 2): เลือกทีม -> รูปแบบตาราง -> Preview --- */
+    #setup-content-wrapper > .card:nth-child(3) { /* กล่องเลือกทีม */
         grid-column: 2 !important;
-        grid-row: 2 !important; /* อยู่ขวาบนสุด */
+        grid-row: 2 !important;
     }
 
     #advanced-options-card { 
@@ -60,18 +64,13 @@
         grid-row: 4 !important;
     }
 
-    #opener-lock-card { 
-        grid-column: 2 !important;
-        grid-row: 5 !important;
-    }
-
     /* ปุ่มสร้างตาราง: กางเต็มด้านล่างสุด */
     #generate-schedule-btn { 
         grid-column: span 2 !important; 
         margin-top: 15px;
     }
 
-    /* รายชื่อทีมในกล่อง: แบ่ง 2 คอลัมน์เพื่อให้ดูสมมาตร */
+    /* รายชื่อทีมในกล่อง: แบ่ง 2 คอลัมน์เหมือนเดิม */
     #team-toggle-container {
         display: grid !important;
         grid-template-columns: 1fr 1fr !important;
@@ -235,7 +234,7 @@
 
     <div id="app">
         <div id="auth-section">
-    <span class="version-tag">Ver 2.2.2</span>
+    <span class="version-tag">Ver 2.2.3</span>
     
     <!-- สร้าง div ครอบส่วนนี้ไว้ -->
     <div class="auth-user-controls">
