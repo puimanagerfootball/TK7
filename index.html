@@ -17,6 +17,17 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/morphdom@2.7.0/dist/morphdom-umd.min.js"></script>
     <style>
+.version-tag {
+    float: left; /* ให้ลอยไปทางซ้ายของแถบ */
+    font-size: 10px;
+    color: var(--text-muted);
+    background: rgba(255, 255, 255, 0.05);
+    padding: 2px 8px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    margin-top: 5px;
+    font-family: monospace;
+}
         :root {
             --bg-color: #121212;
             --surface-color: #1e1e1e;
@@ -152,6 +163,7 @@
 
     <div id="app">
         <div id="auth-section">
+<span class="version-tag">Ver 2.0.0</span>
             <span id="user-info"></span>
             <button id="login-btn" class="btn-secondary">🔐 เข้าระบบผู้ดูแล</button>
             <button id="logout-btn" class="btn-danger">ออกจากระบบ</button>
