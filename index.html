@@ -26,32 +26,36 @@
 
     #setup-content-wrapper {
         display: grid !important;
-        grid-template-columns: 1fr 1.4fr !important; /* แบ่งซ้าย(ทีม) ขวา(ตั้งค่า) */
+        grid-template-columns: 1fr 1fr !important; /* แบ่งครึ่งซ้าย-ขวา */
         gap: 15px 25px !important;
         align-items: start;
     }
 
-    /* หัวข้อแอป และ ปุ่มสร้างตาราง: กางเต็มความกว้าง */
-    #setup-content-wrapper > .page-header, 
-    #generate-schedule-btn { 
+    /* หัวข้อแอป: กางเต็มความกว้างแถวบนสุด */
+    #setup-content-wrapper > .page-header { 
         grid-column: span 2 !important; 
     }
 
-    /* --- คอลัมน์ที่ 1 (ฝั่งซ้าย): เลือกทีมที่เข้าร่วม เท่านั้น --- */
-    #setup-content-wrapper > .card:nth-of-type(2) {
+    /* --- คอลัมน์ที่ 1 (ฝั่งซ้าย): กล่องเลือกทีมที่เข้าร่วม --- */
+    #setup-content-wrapper > .card:nth-child(3) { 
         grid-column: 1 !important;
-        grid-row: span 10; /* ให้กล่องเลือกทีมคุมพื้นที่ฝั่งซ้ายยาวลงมา */
+        grid-row: 2 / span 10 !important; /* บังคับให้อยู่ซ้ายและยาวลงมา */
     }
 
-    /* --- คอลัมน์ที่ 2 (ฝั่งขวา): วันที่/เวลา, รูปแบบตาราง, Preview, Lock ทีม --- */
-    #setup-content-wrapper > .card:nth-of-type(1), /* วันที่/เวลา */
+    /* --- คอลัมน์ที่ 2 (ฝั่งขวา): วันที่/เวลา และส่วนอื่นๆ ทั้งหมด --- */
+    #setup-content-wrapper > .card:nth-child(2), /* กล่องวันที่/เวลา */
     #advanced-options-card,
     #schedule-preview-card,
     #opener-lock-card {
         grid-column: 2 !important;
     }
 
-    /* ปรับแต่งหน้าตารางแข่ง/บันทึกผล ให้เป็น 2 คอลัมน์ตามปกติ */
+    /* ปุ่มสร้างตาราง: กางเต็มความกว้างแถวล่างสุด */
+    #generate-schedule-btn { 
+        grid-column: span 2 !important; 
+    }
+
+    /* หน้าตารางแข่ง/บันทึกผล: แบ่ง 2 คอลัมน์ตามเดิม */
     #schedule-container, #scores-container {
         display: grid !important;
         grid-template-columns: 1fr 1fr !important;
@@ -208,7 +212,7 @@
 
     <div id="app">
         <div id="auth-section">
-    <span class="version-tag">Ver 2.1.4</span>
+    <span class="version-tag">Ver 2.1.5</span>
     
     <!-- สร้าง div ครอบส่วนนี้ไว้ -->
     <div class="auth-user-controls">
