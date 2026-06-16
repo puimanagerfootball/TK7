@@ -253,6 +253,15 @@
 
     <script>
     document.addEventListener('DOMContentLoaded', () => {
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(function(registrations) {
+            for(let registration of registrations) {
+                registration.unregister();
+                console.log('Service Worker unregistered');
+            }
+            if(registrations.length > 0) location.reload(true);
+        });
+    }
 
         const SUPABASE_URL = 'https://rwsyiiulfbolymxppvmy.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ3c3lpaXVsZmJvbHlteHBwdm15Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwMjAzMDQsImV4cCI6MjA4ODU5NjMwNH0.3CUw-Bjq_wzzCp6YSl3lThr8f0tWXLHVYnaVL8l1TVs';
