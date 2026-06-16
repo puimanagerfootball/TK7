@@ -18,7 +18,7 @@
     <script src="https://cdn.jsdelivr.net/npm/morphdom@2.7.0/dist/morphdom-umd.min.js"></script>
     <style>
 		
-/* --- แก้ไข Ver 2.2.3: ย้ายกล่องสีม่วง (Lock ทีม) ไปใต้กล่องวันที่ฝั่งซ้าย --- */
+/* --- แก้ไขจุดที่ 2: บังคับแบ่ง 2 คอลัมน์สำหรับหน้าจอแนวนอน/คอม --- */
 @media (min-width: 768px) or (orientation: landscape) {
     body { overflow-y: auto !important; }
     #app { height: auto; min-height: 100vh; }
@@ -26,62 +26,44 @@
 
     #setup-content-wrapper {
         display: grid !important;
-        grid-template-columns: 1fr 1fr !important; /* แบ่งครึ่งซ้าย-ขวา */
-        gap: 15px 25px !important;
+        grid-template-columns: 1fr 1fr !important; /* แบ่งครึ่ง 50% เท่ากันเป๊ะ */
+        gap: 20px !important; /* ระยะห่างที่สมมาตร */
         align-items: start;
     }
 
-    /* หัวข้อแอป: แถวที่ 1 กางเต็ม */
+    /* หัวข้อแอป: จัดวางตรงกลางและกางเต็มกึ่งกลาง */
     #setup-content-wrapper > .page-header { 
         grid-column: span 2 !important; 
-        grid-row: 1 !important;
+        text-align: center;
     }
 
-    /* --- ฝั่งซ้าย (คอลัมน์ 1): วันที่ -> กำหนดนัดเปิดสนาม (ย้ายมานี่) --- */
-    #setup-content-wrapper > .card:nth-child(2) { /* กล่องวันที่/เวลา */
+    /* --- คอลัมน์ที่ 1 (ฝั่งซ้าย): กล่องเลือกทีมที่เข้าร่วม --- */
+    #setup-content-wrapper > .card:nth-child(3) { 
         grid-column: 1 !important;
-        grid-row: 2 !important;
+        grid-row: 2 / span 10 !important; /* บังคับให้อยู่ซ้ายเพียงตัวเดียว */
+        margin-bottom: 0;
     }
 
-    #opener-lock-card { /* กล่องกำหนดนัดเปิดสนาม (สีม่วง) */
-        grid-column: 1 !important;
-        grid-row: 3 !important; /* ต่อท้ายกล่องวันที่ */
-    }
-
-    /* --- ฝั่งขวา (คอลัมน์ 2): เลือกทีม -> รูปแบบตาราง -> Preview --- */
-    #setup-content-wrapper > .card:nth-child(3) { /* กล่องเลือกทีม */
+    /* --- คอลัมน์ที่ 2 (ฝั่งขวา): รวมการตั้งค่าทั้งหมดมาไว้ฝั่งนี้ --- */
+    #setup-content-wrapper > .card:nth-child(2), /* วันที่/เวลา */
+    #advanced-options-card,
+    #schedule-preview-card,
+    #opener-lock-card {
         grid-column: 2 !important;
-        grid-row: 2 !important;
+        margin-bottom: 15px; /* ระยะห่างระหว่างการ์ดฝั่งขวา */
     }
 
-    #advanced-options-card { 
-        grid-column: 2 !important;
-        grid-row: 3 !important;
-    }
-
-    #schedule-preview-card { 
-        grid-column: 2 !important;
-        grid-row: 4 !important;
-    }
-
-    /* ปุ่มสร้างตาราง: กางเต็มด้านล่างสุด */
+    /* ปุ่มอัปเดต: กางเต็มด้านล่างให้สมดุล */
     #generate-schedule-btn { 
         grid-column: span 2 !important; 
-        margin-top: 15px;
+        margin-top: 10px;
     }
 
-    /* รายชื่อทีมในกล่อง: แบ่ง 2 คอลัมน์เหมือนเดิม */
-    #team-toggle-container {
-        display: grid !important;
-        grid-template-columns: 1fr 1fr !important;
-        gap: 8px 12px !important;
-    }
-
-    /* หน้าอื่นๆ แบ่ง 2 คอลัมน์ตามปกติ */
+    /* หน้าตารางแข่ง/บันทึกผล: แบ่ง 2 คอลัมน์สมมาตร */
     #schedule-container, #scores-container {
         display: grid !important;
         grid-template-columns: 1fr 1fr !important;
-        gap: 15px !important;
+        gap: 20px !important;
     }
     #add-match-btn { grid-column: span 2 !important; }
 }
@@ -234,7 +216,7 @@
 
     <div id="app">
         <div id="auth-section">
-    <span class="version-tag">Ver 2.2.3</span>
+    <span class="version-tag">Ver 2.1.6</span>
     
     <!-- สร้าง div ครอบส่วนนี้ไว้ -->
     <div class="auth-user-controls">
