@@ -27,22 +27,33 @@
     /* หน้าจัดการทีม */
     #setup-content-wrapper {
         display: grid !important;
-        grid-template-columns: 1fr 1fr !important; /* แบ่งครึ่งเป๊ะๆ */
-        gap: 20px !important;
+        grid-template-columns: 1fr 1fr !important; /* แบ่งครึ่งซ้าย-ขวา */
+        gap: 15px 25px !important; /* ระยะห่างระหว่างกล่อง */
+        align-items: start;
     }
 
-    /* กล่องที่ 1 (Header): ให้กางเต็มแถวบนสุด */
-    #setup-content-wrapper > .page-header { grid-column: span 2; }
-
-    /* กล่องที่ 2 (ตั้งค่าเวลา): จะอยู่ฝั่งซ้ายอัตโนมัติ */
-    /* กล่องที่ 3 (เลือกทีม): จะอยู่ฝั่งขวาอัตโนมัติ */
-
-    /* กล่องที่ 4 เป็นต้นไป (Advanced, Preview, Lock, ปุ่มสร้าง): ให้กางเต็มความกว้างด้านล่าง */
-    #advanced-options-card, 
-    #schedule-preview-card, 
-    #opener-lock-card, 
+    /* หัวข้อแอป และ ปุ่มสร้างตาราง: ให้กางเต็มความกว้าง */
+    #setup-content-wrapper > .page-header, 
     #generate-schedule-btn { 
         grid-column: span 2 !important; 
+    }
+
+    /* ฝั่งซ้าย (คอลัมน์ 1): ตั้งค่าเวลา, รูปแบบตาราง, ตัวอย่างนัดเปิดสนาม */
+    #setup-content-wrapper > .card:nth-of-type(1),
+    #advanced-options-card,
+    #schedule-preview-card {
+        grid-column: 1 !important;
+    }
+
+    /* ฝั่งขวา (คอลัมน์ 2): เลือกทีมที่เข้าร่วม, กำหนดนัดเปิดสนาม (Lock ทีม) */
+    #setup-content-wrapper > .card:nth-of-type(2),
+    #opener-lock-card {
+        grid-column: 2 !important;
+    }
+
+    /* พิเศษ: ให้กล่อง 'กำหนดนัดเปิดสนาม' ยาวลงมาครอบคลุมพื้นที่ฝั่งขวา */
+    #opener-lock-card {
+        grid-row: span 2; 
     }
 
     /* --- หน้าตารางแข่ง และ บันทึกผล: แบ่งเป็น 2 คอลัมน์ --- */
@@ -202,7 +213,7 @@
 
     <div id="app">
         <div id="auth-section">
-    <span class="version-tag">Ver 2.1.0</span>
+    <span class="version-tag">Ver 2.1.1</span>
     
     <!-- สร้าง div ครอบส่วนนี้ไว้ -->
     <div class="auth-user-controls">
