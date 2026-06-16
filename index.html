@@ -10,16 +10,6 @@
     <meta name="apple-mobile-web-app-title" content="TK7">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/861/861512.png">
     <link rel="manifest" href="manifest.json">
-
-    <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('./service-worker.js')
-            .then(reg => console.log('Service Worker registered'))
-            .catch(err => console.log('Service Worker error', err));
-        });
-      }
-    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600;700&display=swap" rel="stylesheet">
@@ -472,6 +462,7 @@
                     const isChecked = index < 5 ? 'checked' : '';
                     return `<div class="team-toggle"><div class="team-emblem ${team.slug}">${team.name}</div><label class="switch"><input type="checkbox" class="team-switch" data-team-slug="${team.slug}" ${isChecked}><span class="slider"></span></label></div>`;
                 }).join('');
+        refreshOpenerDropdowns();
                 document.getElementById('match-date').addEventListener('change', (e) => { shouldRestoreScroll = false; loadDataForDate(e.target.value); });
                 document.getElementById('generate-schedule-btn').addEventListener('click', generateAndSaveSchedule);
                 document.querySelectorAll('.team-switch').forEach(el => el.addEventListener('change', () => {
@@ -714,18 +705,35 @@
         }
         
         function loadSettingsFromData(settings) {
-            if (!settings || !currentUser) return;
-            document.getElementById('time-per-match').value = settings.timePerMatch ? settings.timePerMatch - 1 : 8;
-            document.getElementById('start-time').value = settings.startTime || '20:00';
-            document.querySelectorAll('.team-switch').forEach(sw => {
-                sw.checked = settings.activeTeams ? settings.activeTeams.includes(sw.dataset.teamSlug) : true;
-            });
-            updateAdvancedOptions();
-            document.getElementById('template-selector').value = settings.templateId || '';
-            document.getElementById('opener-home').value = settings.opener?.home || '';
-            document.getElementById('opener-away').value = settings.opener?.away || '';
-            renderSchedulePreview(true);
-        }
+    if (!settings || !currentUser) return;
+    document.getElementById('time-per-match').value = settings.timePerMatch ? settings.timePerMatch - 1 : 8;
+    document.getElementById('start-time').value = settings.startTime || '20:00';
+    
+    // ติ๊กทีมที่เข้าร่วม
+    document.querySelectorAll('.team-switch').forEach(sw => {
+        sw.checked = settings.activeTeams ? settings.activeTeams.includes(sw.dataset.teamSlug) : true;
+    });
+
+    // --- ส่วนที่แก้ไขใหม่ ---
+    // ดึงข้อมูลวันปัจจุบัน
+    const dayData = appData[currentDateKey];
+    let firstTeam = null;
+    let secondTeam = null;
+
+    // ถ้ามีตารางแข่งขันอยู่แล้ว ให้ดึงทีมคู่แรกมาใส่ในตัวแปร
+    if (dayData && dayData.schedule && dayData.schedule.length > 0) {
+        firstTeam = dayData.schedule[0].home;
+        secondTeam = dayData.schedule[0].away;
+    }
+
+    // สั่งรีเฟรช Dropdown โดยส่งทีมจากคู่แรกเข้าไปด้วย
+    refreshOpenerDropdowns(firstTeam, secondTeam);
+    // -----------------------
+
+    updateAdvancedOptions();
+    document.getElementById('template-selector').value = settings.templateId || '';
+    renderSchedulePreview(true);
+}
 
         function resetSettingsForm() {
             if (!currentUser) return;
@@ -734,6 +742,7 @@
             document.querySelectorAll('.team-switch').forEach((sw, index) => {
                 sw.checked = index < 5;
             });
+    refreshOpenerDropdowns();
             updateAdvancedOptions();
             document.getElementById('template-selector').selectedIndex = 0;
             document.getElementById('opener-home').value = '';
@@ -928,7 +937,7 @@ function copyToEditForm(template) {
         }
 
 // 1. ฟังก์ชันอัปเดตตัวเลือกทีมหมายเลข 1 และ 2
-function refreshOpenerDropdowns() {
+function refreshOpenerDropdowns(forceT1 = null, forceT2 = null) {
     const activeTeams = Array.from(document.querySelectorAll('.team-switch:checked')).map(sw => sw.dataset.teamSlug);
     const s1 = document.getElementById('lock-team-1');
     const s2 = document.getElementById('lock-team-2');
@@ -951,10 +960,22 @@ function refreshOpenerDropdowns() {
     s1.innerHTML = optionsHtml;
     s2.innerHTML = optionsHtml;
 
-    // คืนค่าเลือกเดิมถ้าทีมนั้นยังอยู่
-    if (activeTeams.includes(oldVal1)) s1.value = oldVal1;
-    if (activeTeams.includes(oldVal2)) s2.value = oldVal2;
-    else if (activeTeams[1]) s2.value = activeTeams[1];
+    // --- ส่วนที่แก้ไข: ลำดับความสำคัญคือ forceT1 > ค่าเดิมที่เคยเลือก > ค่าแรกในลิสต์ ---
+    if (forceT1 && activeTeams.includes(forceT1)) {
+        s1.value = forceT1;
+    } else if (activeTeams.includes(oldVal1)) {
+        s1.value = oldVal1;
+    }
+
+    if (forceT2 && activeTeams.includes(forceT2)) {
+        s2.value = forceT2;
+    } else if (activeTeams.includes(oldVal2)) {
+        s2.value = oldVal2;
+    } else if (activeTeams[1]) {
+        s2.value = activeTeams[1];
+    }
+
+    renderSchedulePreview(false);
 }
 
 // 2. ฟังก์ชันสำหรับสุ่มลำดับทีม (ยกเว้นเบอร์ 1 และ 2)
