@@ -18,39 +18,34 @@
     <script src="https://cdn.jsdelivr.net/npm/morphdom@2.7.0/dist/morphdom-umd.min.js"></script>
     <style>
 		
-@media (orientation: landscape) {
-    /* ปลดล็อคหน้าจอให้ Scroll ได้อิสระ */
+@media (min-width: 768px) or (orientation: landscape) {
+    /* ปลดล็อคให้ Scroll ได้อิสระ */
     body { overflow-y: auto !important; }
-    #app { height: auto; }
-    main { overflow: visible; padding-bottom: 100px; }
+    #app { height: auto; min-height: 100vh; }
+    main { overflow: visible; padding-bottom: 120px; }
 
-    /* --- หน้าจัดการทีม (2 คอลัมน์) --- */
+    /* --- หน้าจัดการทีม: บังคับแบ่ง 2 คอลัมน์ --- */
     #setup-content-wrapper {
         display: grid;
-        grid-template-columns: 1fr 1fr; /* แบ่งซ้าย-ขวา */
-        gap: 15px;
-        align-items: start;
+        grid-template-columns: 1fr 1fr; /* แบ่งครึ่งเท่ากัน */
+        gap: 20px;
     }
-    /* ให้หัวข้อหน้าและปุ่มสร้างตาราง เต็มความกว้าง */
-    #setup-content-wrapper .page-header, 
-    #generate-schedule-btn { 
-        grid-column: span 2; 
+    /* บังคับหัวข้อ และปุ่มด้านล่าง ให้กางเต็มความกว้าง */
+    #setup-content-wrapper > .page-header, 
+    #setup-content-wrapper > #advanced-options-card,
+    #setup-content-wrapper > #schedule-preview-card,
+    #setup-content-wrapper > #opener-lock-card,
+    #setup-content-wrapper > #generate-schedule-btn { 
+        grid-column: 1 / span 2; 
     }
-    /* ปรับให้ Preview นัดเปิดสนามดูเล็กลงในหน้าจัดการ */
-    #schedule-preview-card { grid-column: span 2; }
 
-    /* --- หน้าตารางแข่ง และ บันทึกผล (2 คอลัมน์) --- */
+    /* --- หน้าตารางแข่ง และ บันทึกผล: แบ่งแมตช์เป็น 2 คอลัมน์ --- */
     #schedule-container, #scores-container {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 15px;
     }
-    #add-match-btn { grid-column: span 2; }
-
-    /* ปรับขนาด UI เล็กน้อยให้ประหยัดพื้นที่ */
-    .nav-btn { padding: 5px 2px; font-size: 10px; }
-    .nav-btn .icon { font-size: 18px; }
-    .card { margin-bottom: 5px; }
+    #add-match-btn { grid-column: 1 / span 2; }
 }
 		
 .version-tag {
@@ -201,7 +196,7 @@
 
     <div id="app">
         <div id="auth-section">
-    <span class="version-tag">Ver 2.0.8</span>
+    <span class="version-tag">Ver 2.0.9</span>
     
     <!-- สร้าง div ครอบส่วนนี้ไว้ -->
     <div class="auth-user-controls">
