@@ -26,93 +26,41 @@
 
     #setup-content-wrapper {
         display: grid !important;
-        grid-template-columns: 60% 40% !important; /* ฝั่งซ้าย 60% | ฝั่งขวา 40% */
-        gap: 15px 20px !important;
+        grid-template-columns: 1fr 1.1fr !important; /* แบ่งครึ่ง ซ้าย-ขวา */
+        gap: 15px 25px !important;
         align-items: start;
     }
 
     /* หัวข้อแอป: กางเต็มความกว้าง */
     #setup-content-wrapper > .page-header { grid-column: span 2 !important; }
 
-    /* --- ฝั่งซ้าย (คอลัมน์ 1): เลือกทีม -> ปุ่มสร้างตาราง --- */
-    #setup-content-wrapper > .card:nth-of-type(2) { 
-        grid-column: 1 !important;
-        margin-bottom: 15px;
-    }
-    
-    /* รายชื่อทีมแบ่ง 2 คอลัมน์เหมือนเดิมเพื่อความสวยงาม */
-    #team-toggle-container {
-        display: grid !important;
-        grid-template-columns: 1fr 1fr !important;
-        gap: 8px 15px !important;
-    }
-
-    /* ย้ายปุ่มมาไว้ฝั่งซ้าย (ต่อท้ายกล่องทีม) */
-    #generate-schedule-btn { 
-        grid-column: 1 !important; 
-        width: 100% !important;
-        margin-top: 0;
-    }
-
-    /* --- ฝั่งขวา (คอลัมน์ 2): วันที่/เวลา -> รูปแบบตาราง -> Preview -> Lock ทีม --- */
-    #setup-content-wrapper > .card:nth-of-type(1),
+    /* --- ฝั่งซ้าย: วันที่/เวลา -> รูปแบบตาราง -> Preview (ย้ายมาที่นี่ตามรูป) --- */
+    #setup-content-wrapper > .card:nth-of-type(1), /* วันที่/เวลา */
     #advanced-options-card,
-    #schedule-preview-card,
-    #opener-lock-card {@media (min-width: 768px) or (orientation: landscape) {
-    body { overflow-y: auto !important; }
-    #app { height: auto; min-height: 100vh; }
-    main { overflow: visible; padding-bottom: 120px; }
-
-    #setup-content-wrapper {
-        display: grid !important;
-        grid-template-columns: 60% 40% !important; /* ฝั่งซ้าย 60% | ฝั่งขวา 40% */
-        gap: 15px 20px !important;
-        align-items: start;
-    }
-
-    /* หัวข้อแอป: กางเต็มความกว้าง */
-    #setup-content-wrapper > .page-header { grid-column: span 2 !important; }
-
-    /* --- ฝั่งซ้าย (คอลัมน์ 1): เลือกทีม -> ปุ่มสร้างตาราง --- */
-    #setup-content-wrapper > .card:nth-of-type(2) { 
+    #schedule-preview-card {
         grid-column: 1 !important;
-        margin-bottom: 15px;
-    }
-    
-    /* รายชื่อทีมแบ่ง 2 คอลัมน์เหมือนเดิมเพื่อความสวยงาม */
-    #team-toggle-container {
-        display: grid !important;
-        grid-template-columns: 1fr 1fr !important;
-        gap: 8px 15px !important;
     }
 
-    /* ย้ายปุ่มมาไว้ฝั่งซ้าย (ต่อท้ายกล่องทีม) */
-    #generate-schedule-btn { 
-        grid-column: 1 !important; 
-        width: 100% !important;
-        margin-top: 0;
-    }
-
-    /* --- ฝั่งขวา (คอลัมน์ 2): วันที่/เวลา -> รูปแบบตาราง -> Preview -> Lock ทีม --- */
-    #setup-content-wrapper > .card:nth-of-type(1),
-    #advanced-options-card,
-    #schedule-preview-card,
+    /* --- ฝั่งขวา: เลือกทีม -> กำหนดนัดเปิดสนาม (Lock ทีม) --- */
+    #setup-content-wrapper > .card:nth-of-type(2), /* เลือกทีม */
     #opener-lock-card {
         grid-column: 2 !important;
     }
 
-    /* หน้าอื่นๆ แบ่ง 2 คอลัมน์ตามปกติ */
-    #schedule-container, #scores-container {
+    /* รายชื่อทีมแบ่ง 2 คอลัมน์เพื่อให้กล่องไม่ยาวเกินไป */
+    #team-toggle-container {
         display: grid !important;
         grid-template-columns: 1fr 1fr !important;
-        gap: 15px !important;
-    }
-    #add-match-btn { grid-column: span 2 !important; }
-}
-        grid-column: 2 !important;
+        gap: 8px 12px !important;
     }
 
-    /* หน้าอื่นๆ แบ่ง 2 คอลัมน์ตามปกติ */
+    /* ปุ่มสร้างตาราง: กางเต็มด้านล่างเหมือนเดิม */
+    #generate-schedule-btn { 
+        grid-column: span 2 !important; 
+        margin-top: 10px;
+    }
+
+    /* หน้าอื่นๆ แบ่ง 2 คอลัมน์ */
     #schedule-container, #scores-container {
         display: grid !important;
         grid-template-columns: 1fr 1fr !important;
