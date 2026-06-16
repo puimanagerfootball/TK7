@@ -26,44 +26,41 @@
 
     #setup-content-wrapper {
         display: grid !important;
-        grid-template-columns: 1fr 1fr !important; /* แบ่งครึ่ง 50% เท่ากันเป๊ะ */
-        gap: 20px !important; /* ระยะห่างที่สมมาตร */
+        /* ปรับสัดส่วน: ฝั่งซ้าย 1.2 ส่วน | ฝั่งขวา 0.8 ส่วน (ฝั่งขวาจะหดลง) */
+        grid-template-columns: 1.2fr 0.8fr !important; 
+        gap: 15px 25px !important;
         align-items: start;
     }
 
-    /* หัวข้อแอป: จัดวางตรงกลางและกางเต็มกึ่งกลาง */
+    /* หัวข้อแอป: กางเต็มความกว้าง */
     #setup-content-wrapper > .page-header { 
         grid-column: span 2 !important; 
-        text-align: center;
     }
 
     /* --- คอลัมน์ที่ 1 (ฝั่งซ้าย): กล่องเลือกทีมที่เข้าร่วม --- */
     #setup-content-wrapper > .card:nth-child(3) { 
         grid-column: 1 !important;
-        grid-row: 2 / span 10 !important; /* บังคับให้อยู่ซ้ายเพียงตัวเดียว */
-        margin-bottom: 0;
+        grid-row: 2 / span 10 !important;
     }
 
-    /* --- คอลัมน์ที่ 2 (ฝั่งขวา): รวมการตั้งค่าทั้งหมดมาไว้ฝั่งนี้ --- */
-    #setup-content-wrapper > .card:nth-child(2), /* วันที่/เวลา */
+    /* --- คอลัมน์ที่ 2 (ฝั่งขวา): ส่วนตั้งค่าทั้งหมด (จะหดลงตามสัดส่วน) --- */
+    #setup-content-wrapper > .card:nth-child(2),
     #advanced-options-card,
     #schedule-preview-card,
     #opener-lock-card {
         grid-column: 2 !important;
-        margin-bottom: 15px; /* ระยะห่างระหว่างการ์ดฝั่งขวา */
     }
 
-    /* ปุ่มอัปเดต: กางเต็มด้านล่างให้สมดุล */
+    /* ปุ่มอัปเดต: กางเต็มด้านล่าง */
     #generate-schedule-btn { 
         grid-column: span 2 !important; 
-        margin-top: 10px;
     }
 
-    /* หน้าตารางแข่ง/บันทึกผล: แบ่ง 2 คอลัมน์สมมาตร */
+    /* หน้าตารางแข่ง/บันทึกผล: แบ่ง 2 คอลัมน์ตามปกติ */
     #schedule-container, #scores-container {
         display: grid !important;
         grid-template-columns: 1fr 1fr !important;
-        gap: 20px !important;
+        gap: 15px !important;
     }
     #add-match-btn { grid-column: span 2 !important; }
 }
@@ -216,7 +213,7 @@
 
     <div id="app">
         <div id="auth-section">
-    <span class="version-tag">Ver 2.1.6</span>
+    <span class="version-tag">Ver 2.1.7</span>
     
     <!-- สร้าง div ครอบส่วนนี้ไว้ -->
     <div class="auth-user-controls">
