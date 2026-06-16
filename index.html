@@ -26,36 +26,32 @@
 
     #setup-content-wrapper {
         display: grid !important;
-        grid-template-columns: 1fr 1fr !important; /* แบ่งครึ่งซ้าย-ขวา */
+        grid-template-columns: 1fr 1.4fr !important; /* แบ่งซ้าย(ทีม) ขวา(ตั้งค่า) */
         gap: 15px 25px !important;
         align-items: start;
     }
 
-    /* หัวข้อแอป: เต็มความกว้าง */
-    #setup-content-wrapper > .page-header { 
+    /* หัวข้อแอป และ ปุ่มสร้างตาราง: กางเต็มความกว้าง */
+    #setup-content-wrapper > .page-header, 
+    #generate-schedule-btn { 
         grid-column: span 2 !important; 
     }
 
-    /* --- คอลัมน์ที่ 1 (ฝั่งซ้าย): วันที่/เวลา -> รูปแบบตาราง -> Preview --- */
-    #setup-content-wrapper > .card:nth-of-type(1), /* วันที่/เวลา */
-    #advanced-options-card,
-    #schedule-preview-card {
+    /* --- คอลัมน์ที่ 1 (ฝั่งซ้าย): เลือกทีมที่เข้าร่วม เท่านั้น --- */
+    #setup-content-wrapper > .card:nth-of-type(2) {
         grid-column: 1 !important;
+        grid-row: span 10; /* ให้กล่องเลือกทีมคุมพื้นที่ฝั่งซ้ายยาวลงมา */
     }
 
-    /* --- คอลัมน์ที่ 2 (ฝั่งขวา): เลือกทีม -> กำหนดนัดเปิดสนาม --- */
-    #setup-content-wrapper > .card:nth-of-type(2), /* เลือกทีม */
+    /* --- คอลัมน์ที่ 2 (ฝั่งขวา): วันที่/เวลา, รูปแบบตาราง, Preview, Lock ทีม --- */
+    #setup-content-wrapper > .card:nth-of-type(1), /* วันที่/เวลา */
+    #advanced-options-card,
+    #schedule-preview-card,
     #opener-lock-card {
         grid-column: 2 !important;
     }
 
-    /* ปุ่มอัปเดต: เต็มความกว้างด้านล่าง */
-    #generate-schedule-btn { 
-        grid-column: span 2 !important; 
-        margin-top: 10px;
-    }
-
-    /* ปรับปรุงหน้าตารางแข่ง/บันทึกผล ให้เป็น 2 คอลัมน์ */
+    /* ปรับแต่งหน้าตารางแข่ง/บันทึกผล ให้เป็น 2 คอลัมน์ตามปกติ */
     #schedule-container, #scores-container {
         display: grid !important;
         grid-template-columns: 1fr 1fr !important;
@@ -212,7 +208,7 @@
 
     <div id="app">
         <div id="auth-section">
-    <span class="version-tag">Ver 2.1.3</span>
+    <span class="version-tag">Ver 2.1.4</span>
     
     <!-- สร้าง div ครอบส่วนนี้ไว้ -->
     <div class="auth-user-controls">
