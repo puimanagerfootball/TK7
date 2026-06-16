@@ -125,11 +125,13 @@
         .reset-score-btn:hover:not(:disabled) svg { transform: rotate(-90deg); }
         .vs { margin: 0; font-size: 20px; color: var(--text-muted); font-weight: 700; }
         .score-line-export { display: none; }
-        #auth-section { padding: 10px 15px; text-align: right; background-color: var(--surface-color); border-bottom: 1px solid var(--border-color); }
+        #auth-section {display: flex; align-items: center; justify-content: space-between;padding: 8px 15px;background-color: var(--surface-color);border-bottom: 1px solid var(--border-color);gap: 10px;}
+       .auth-user-controls {display: flex;align-items: center;gap: 10px;min-width: 0;}
+       .version-tag {float: none; margin-top: 0;flex-shrink: 0;font-size: 10px;color: var(--text-muted);background: rgba(255, 255, 255, 0.05);padding: 2px 8px;border-radius: 6px;border: 1px solid var(--border-color);font-family: monospace;}
         #auth-section button { padding: 8px 15px; font-size: 14px; width: auto; vertical-align: middle; border-radius: 8px; border: 1px solid rgba(0,0,0,0.2); border-bottom: 3px solid rgba(0,0,0,0.4); text-shadow: 0px 1px 2px rgba(0,0,0,0.2); transition: all 0.15s ease-out; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
         #auth-section button:hover { transform: translateY(-2px); filter: brightness(1.1); box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
         #auth-section button:active { transform: translateY(1px); border-bottom-width: 1px; box-shadow: none; }
-        #user-info { margin-right: 15px; vertical-align: middle; color: var(--text-muted); }
+        #user-info {margin-right: 0; color: var(--text-muted);font-size: 13px;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;max-width: 180px;}
         #add-match-btn { margin-top: 20px; }
         #team-select-modal-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; margin-top: 20px; }
         #team-select-modal-list .team-emblem { cursor: pointer; }
@@ -163,11 +165,15 @@
 
     <div id="app">
         <div id="auth-section">
-<span class="version-tag">Ver 2.0.0</span>
-            <span id="user-info"></span>
-            <button id="login-btn" class="btn-secondary">🔐 เข้าระบบผู้ดูแล</button>
-            <button id="logout-btn" class="btn-danger">ออกจากระบบ</button>
-        </div>
+    <span class="version-tag">Ver 2.0.1</span>
+    
+    <!-- สร้าง div ครอบส่วนนี้ไว้ -->
+    <div class="auth-user-controls">
+        <span id="user-info"></span>
+        <button id="login-btn" class="btn-secondary">🔐 เข้าสู่ระบบ</button>
+        <button id="logout-btn" class="btn-danger">ออกจากระบบ</button>
+    </div>
+</div>
 
         <main id="content">
             <div id="page-setup" class="page">
