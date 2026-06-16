@@ -18,34 +18,40 @@
     <script src="https://cdn.jsdelivr.net/npm/morphdom@2.7.0/dist/morphdom-umd.min.js"></script>
     <style>
 		
+/* --- แก้ไขจุดที่ 2: บังคับแบ่ง 2 คอลัมน์สำหรับหน้าจอแนวนอน/คอม --- */
 @media (min-width: 768px) or (orientation: landscape) {
-    /* ปลดล็อคให้ Scroll ได้อิสระ */
     body { overflow-y: auto !important; }
     #app { height: auto; min-height: 100vh; }
     main { overflow: visible; padding-bottom: 120px; }
 
-    /* --- หน้าจัดการทีม: บังคับแบ่ง 2 คอลัมน์ --- */
+    /* หน้าจัดการทีม */
     #setup-content-wrapper {
-        display: grid;
-        grid-template-columns: 1fr 1fr; /* แบ่งครึ่งเท่ากัน */
-        gap: 20px;
-    }
-    /* บังคับหัวข้อ และปุ่มด้านล่าง ให้กางเต็มความกว้าง */
-    #setup-content-wrapper > .page-header, 
-    #setup-content-wrapper > #advanced-options-card,
-    #setup-content-wrapper > #schedule-preview-card,
-    #setup-content-wrapper > #opener-lock-card,
-    #setup-content-wrapper > #generate-schedule-btn { 
-        grid-column: 1 / span 2; 
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important; /* แบ่งครึ่งเป๊ะๆ */
+        gap: 20px !important;
     }
 
-    /* --- หน้าตารางแข่ง และ บันทึกผล: แบ่งแมตช์เป็น 2 คอลัมน์ --- */
-    #schedule-container, #scores-container {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 15px;
+    /* กล่องที่ 1 (Header): ให้กางเต็มแถวบนสุด */
+    #setup-content-wrapper > .page-header { grid-column: span 2; }
+
+    /* กล่องที่ 2 (ตั้งค่าเวลา): จะอยู่ฝั่งซ้ายอัตโนมัติ */
+    /* กล่องที่ 3 (เลือกทีม): จะอยู่ฝั่งขวาอัตโนมัติ */
+
+    /* กล่องที่ 4 เป็นต้นไป (Advanced, Preview, Lock, ปุ่มสร้าง): ให้กางเต็มความกว้างด้านล่าง */
+    #advanced-options-card, 
+    #schedule-preview-card, 
+    #opener-lock-card, 
+    #generate-schedule-btn { 
+        grid-column: span 2 !important; 
     }
-    #add-match-btn { grid-column: 1 / span 2; }
+
+    /* --- หน้าตารางแข่ง และ บันทึกผล: แบ่งเป็น 2 คอลัมน์ --- */
+    #schedule-container, #scores-container {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 15px !important;
+    }
+    #add-match-btn { grid-column: span 2 !important; }
 }
 		
 .version-tag {
@@ -196,7 +202,7 @@
 
     <div id="app">
         <div id="auth-section">
-    <span class="version-tag">Ver 2.0.9</span>
+    <span class="version-tag">Ver 2.1.0</span>
     
     <!-- สร้าง div ครอบส่วนนี้ไว้ -->
     <div class="auth-user-controls">
