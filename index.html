@@ -257,9 +257,11 @@
         navigator.serviceWorker.getRegistrations().then(function(registrations) {
             for(let registration of registrations) {
                 registration.unregister();
-                console.log('Service Worker unregistered');
             }
-            if(registrations.length > 0) location.reload(true);
+            if(registrations.length > 0) {
+                console.log('ล้างระบบเก่าสำเร็จ กำลังโหลดเวอร์ชันใหม่...');
+                location.reload(true);
+            }
         });
     }
 
