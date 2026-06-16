@@ -17,6 +17,32 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/morphdom@2.7.0/dist/morphdom-umd.min.js"></script>
     <style>
+		@media (max-height: 500px) and (orientation: landscape) {
+    /* ลดขนาด Header */
+    h1 { font-size: 20px; margin-bottom: 10px; }
+    
+    /* ลดความสูงของ Bottom Nav เพื่อเพิ่มพื้นที่เนื้อหา */
+    .nav-btn { padding: 5px 2px; font-size: 10px; }
+    .nav-btn .icon { font-size: 18px; }
+    
+    /* ปรับปรุงหน้าตั้งค่าให้เป็น 2 คอลัมน์เพื่อให้ไม่ต้องเลื่อนลงเยอะ */
+    #setup-content-wrapper {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+    #page-setup .btn { grid-column: span 2; }
+
+    /* ปรับหน้าตารางแข่ง/บันทึกผล ให้ดูง่ายขึ้นในแนวนอน */
+    .match-body {
+        gap: 4px;
+    }
+    .team-emblem {
+        min-width: 80px;
+        padding: 4px 8px;
+        font-size: 14px;
+    }
+}
 .version-tag {
     float: left; /* ให้ลอยไปทางซ้ายของแถบ */
     font-size: 10px;
