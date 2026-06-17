@@ -216,7 +216,7 @@
 
     <div id="app">
         <div id="auth-section">
-    <span class="version-tag">Ver 2.1.6</span>
+    <span class="version-tag">Ver 2.1.7</span>
     
     <!-- สร้าง div ครอบส่วนนี้ไว้ -->
     <div class="auth-user-controls">
@@ -317,7 +317,35 @@
         </nav>
     </div>
     
-    <div id="login-modal" class="modal"><div class="modal-content"><span class="close-modal-btn">×</span><h2>🔐 เข้าสู่ระบบผู้ดูแล</h2><form id="login-form"><div class="form-group"><label for="login-email">อีเมล</label><input type="email" id="login-email" required autocomplete="email"></div><div class="form-group"><label for="login-password">รหัสผ่าน</label><input type="password" id="login-password" required autocomplete="current-password"></div><button type="submit" class="btn btn-primary">เข้าสู่ระบบ</button></form></div></div>
+    <div id="login-modal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal-btn">×</span>
+        <h2>🔐 เข้าสู่ระบบผู้ดูแล</h2>
+        <form id="login-form">
+            <div class="form-group"><label for="login-email">อีเมล</label><input type="email" id="login-email" required></div>
+            <div class="form-group"><label for="login-password">รหัสผ่าน</label><input type="password" id="login-password" required></div>
+            <button type="submit" class="btn btn-primary">เข้าสู่ระบบ</button>
+        </form>
+        <!-- เพิ่มส่วนนี้เข้าไป -->
+        <p style="text-align: center; margin-top: 15px;">
+            <a href="#" id="forgot-password-link" style="color: var(--primary-color); font-size: 14px;">ลืมรหัสผ่าน?</a>
+        </p>
+    </div>
+</div>
+
+<!-- เพิ่ม Modal สำหรับตั้งรหัสผ่านใหม่ (ซ่อนไว้ก่อน) -->
+<div id="reset-password-modal" class="modal">
+    <div class="modal-content">
+        <h2>🆕 ตั้งรหัสผ่านใหม่</h2>
+        <form id="reset-password-form">
+            <div class="form-group">
+                <label for="new-password">รหัสผ่านใหม่</label>
+                <input type="password" id="new-password" required minlength="6">
+            </div>
+            <button type="submit" class="btn btn-primary">บันทึกรหัสผ่านใหม่</button>
+        </form>
+    </div>
+</div>
     <div id="team-select-modal" class="modal"><div class="modal-content"><span class="close-modal-btn">×</span><h2 id="team-select-modal-title">เลือกทีม</h2><div id="team-select-modal-list"></div></div></div>
 
     <script>
@@ -1082,6 +1110,53 @@ function getFinalShuffledOrder() {
     return [t1, t2, ...others];
 renderSchedulePreview(false);
 }
+
+document.getElementById('forgot-password-link').onclick = async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('login-email').value;
+    if (!email) {
+        alert('กรุณากรอกอีเมลในช่องด้านบนก่อนกดลืมรหัสผ่าน');
+        return;
+    }
+
+    const { error } = await db.auth.resetPasswordForEmail(email, {
+        redirectTo: 'https://puimanagerfootball.github.io/TK7/', 
+    });
+
+    if (error) {
+        alert('เกิดข้อผิดพลาด: ' + error.message);
+    } else {
+        alert('ระบบส่งลิงก์รีเซ็ตรหัสผ่านไปที่อีเมลของคุณแล้ว (โปรดเช็คใน Junk Mail/อีเมลขยะ ด้วย)');
+        loginModal.style.display = 'none';
+    }
+};
+
+// --- ส่วนที่ 2: ดักจับเหตุการณ์เมื่อคลิกลิงก์มาจากอีเมล ---
+// แก้ไขในส่วน db.auth.onAuthStateChange เดิมที่มีอยู่แล้ว หรือเพิ่มต่อท้าย
+db.auth.onAuthStateChange(async (event, session) => {
+    if (event === "PASSWORD_RECOVERY") {
+        document.getElementById('reset-password-modal').style.display = 'block';
+    }
+    // ... โค้ดเดิมที่มีอยู่ ...
+});
+
+// --- ส่วนที่ 3: บันทึกรหัสผ่านใหม่ลงฐานข้อมูล ---
+document.getElementById('reset-password-form').onsubmit = async (e) => {
+    e.preventDefault();
+    const newPassword = document.getElementById('new-password').value;
+
+    const { error } = await db.auth.updateUser({ password: newPassword });
+
+    if (error) {
+        alert('เปลี่ยนรหัสไม่สำเร็จ: ' + error.message);
+    } else {
+        alert('เปลี่ยนรหัสผ่านใหม่สำเร็จแล้ว! กรุณาเข้าสู่ระบบอีกครั้ง');
+        document.getElementById('reset-password-modal').style.display = 'none';
+        // เคลียร์ session และให้เริ่มใหม่
+        await db.auth.signOut();
+        location.reload();
+    }
+};
 
         initializeApp();
     });
