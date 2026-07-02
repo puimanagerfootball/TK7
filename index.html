@@ -54,7 +54,7 @@
     }
 
     /* ปุ่มอัปเดต: กางเต็มด้านล่างให้สมดุล */
-    #generate-schedule-btn { 
+    #generate-schedule-btn, #copy-reg-template-btn { 
         grid-column: span 2 !important; 
         margin-top: 10px;
     }
@@ -216,7 +216,7 @@
 
     <div id="app">
         <div id="auth-section">
-    <span class="version-tag">Ver 2.1.7</span>
+    <span class="version-tag">Ver 2.1.8</span>
     
     <!-- สร้าง div ครอบส่วนนี้ไว้ -->
     <div class="auth-user-controls">
@@ -280,6 +280,8 @@
 </div>
 
                     <button id="generate-schedule-btn" class="btn btn-secondary">สร้างตารางแข่งขัน</button>
+                    <!-- เพิ่มปุ่มคัดลอกลงทะเบียนใหม่ -->
+                    <button id="copy-reg-template-btn" class="btn btn-warning" style="margin-top: 10px; background-color: #fbc02d; color: #000;">📋 คัดลอกรูปแบบลงทะเบียน</button>
                 </div>
                 <div id="setup-login-prompt"></div>
             </div>
@@ -379,6 +381,20 @@
         const contentContainer = document.getElementById('content');
         const pages = document.querySelectorAll('.page'), navButtons = document.querySelectorAll('.nav-btn'), loginBtn = document.getElementById('login-btn'), logoutBtn = document.getElementById('logout-btn'), userInfo = document.getElementById('user-info'), loginModal = document.getElementById('login-modal'), teamSelectModal = document.getElementById('team-select-modal');
         let dbTemplates = []; 
+
+        // Mapping ชื่อสีและ Emoji สำหรับลงทะเบียน
+        const REG_TEAM_INFO = {
+            green: { emoji: '🟢', label: 'Green Shirt (สีเขียว)' },
+            red: { emoji: '🔴', label: 'Red Shirt (สีแดง)' },
+            white: { emoji: '⚪️', label: 'White Shirt (สีขาว)' },
+            blue: { emoji: '🔵', label: 'Blue Shirt (สีน้ำเงิน)' },
+            black: { emoji: '⚫', label: 'Black Shirt (สีดำ)' },
+            yellow: { emoji: '🟡', label: 'Yellow Shirt (สีเหลือง)' },
+            pink: { emoji: '🩷', label: 'Pink Shirt (สีชมพู)' },
+            orange: { emoji: '🟠', label: 'Orange Shirt (สีส้ม)' },
+            navy: { emoji: '🔵', label: 'Navy Shirt (สีน้ำเงินเข้ม)' },
+            purple: { emoji: '🟣', label: 'Purple Shirt (สีม่วง)' }
+        };
         
         function saveScrollPosition() { lastScrollPosition = contentContainer.scrollTop; }
         function restoreScrollPosition() { if (shouldRestoreScroll) { requestAnimationFrame(() => { contentContainer.scrollTop = lastScrollPosition; }); } shouldRestoreScroll = false; }
@@ -426,6 +442,42 @@
                 }
             });
             listenToRealtimeChanges();
+        }
+
+        // ฟังก์ชันคัดลอกข้อความลงทะเบียน
+        function copyRegistrationTemplate() {
+            const startTime = document.getElementById('start-time').value;
+            const activeTeamSlugs = Array.from(document.querySelectorAll('.team-switch:checked')).map(sw => sw.dataset.teamSlug);
+            
+            if (activeTeamSlugs.length === 0) {
+                alert('กรุณาเลือกทีมที่เข้าร่วมอย่างน้อย 1 ทีม');
+                return;
+            }
+
+            let templateText = `⚽️ FOOTBALL MATCH @ TK7 Stadium\n`;
+            templateText += `📍 Location: https://maps.app.goo.gl/37K6rD4LqWA5Qz5KA\n`;
+            templateText += `🕗 Kick-off: ${startTime} | เวลาเตะ: ${startTime} น.\n\n`;
+
+            let playerCount = 1;
+            activeTeamSlugs.forEach((slug, index) => {
+                const info = REG_TEAM_INFO[slug] || { emoji: '⚽', label: slug };
+                templateText += `${info.emoji} Team ${index + 1}: ${info.label}\n`;
+                for (let i = 0; i < 7; i++) {
+                    templateText += `${playerCount}.\n`;
+                    playerCount++;
+                }
+            });
+
+            templateText += `\n⏱️ Match Duration / เวลาเล่น:\n`;
+            templateText += `• 4 Teams = 2 Hours (เล่น 2 ชม.)\n`;
+            templateText += `• 5 Teams = 3 Hours (เล่น 3 ชม.)\n\n`;
+            templateText += `👇 Please add your name / ลงชื่อต่อลำดับได้เลยครับ`;
+
+            navigator.clipboard.writeText(templateText).then(() => {
+                showToast('📋 คัดลอกรูปแบบลงทะเบียนแล้ว!');
+            }).catch(err => {
+                alert('เกิดข้อผิดพลาดในการคัดลอก');
+            });
         }
         
         async function loadInitialData() {
@@ -573,6 +625,8 @@
         refreshOpenerDropdowns();
                 document.getElementById('match-date').addEventListener('change', (e) => { shouldRestoreScroll = false; loadDataForDate(e.target.value); });
                 document.getElementById('generate-schedule-btn').addEventListener('click', generateAndSaveSchedule);
+                // ผูกปุ่มคัดลอกลงทะเบียน
+                document.getElementById('copy-reg-template-btn').addEventListener('click', copyRegistrationTemplate);
                 document.querySelectorAll('.team-switch').forEach(el => el.addEventListener('change', () => {
 	refreshOpenerDropdowns();
                     updateAdvancedOptions(); 
@@ -1132,12 +1186,10 @@ document.getElementById('forgot-password-link').onclick = async (e) => {
 };
 
 // --- ส่วนที่ 2: ดักจับเหตุการณ์เมื่อคลิกลิงก์มาจากอีเมล ---
-// แก้ไขในส่วน db.auth.onAuthStateChange เดิมที่มีอยู่แล้ว หรือเพิ่มต่อท้าย
 db.auth.onAuthStateChange(async (event, session) => {
     if (event === "PASSWORD_RECOVERY") {
         document.getElementById('reset-password-modal').style.display = 'block';
     }
-    // ... โค้ดเดิมที่มีอยู่ ...
 });
 
 // --- ส่วนที่ 3: บันทึกรหัสผ่านใหม่ลงฐานข้อมูล ---
