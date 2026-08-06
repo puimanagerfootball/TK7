@@ -186,6 +186,15 @@
         #add-match-btn { margin-top: 20px; }
         #team-select-modal-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; margin-top: 20px; }
         #team-select-modal-list .team-emblem { cursor: pointer; }
+        .share-mode-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 16px 0; }
+        .share-mode-btn { padding: 14px 10px; border-radius: 10px; border: 2px solid var(--border-color); background: var(--bg-color); color: var(--text-color); font-family: 'Kanit', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .share-mode-btn:hover { border-color: var(--secondary-color); }
+        .share-mode-btn.active { border-color: var(--secondary-color); background: rgba(3, 218, 198, 0.15); color: var(--secondary-color); }
+        #share-reg-team-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; margin-top: 12px; }
+        #share-reg-team-list .team-emblem { cursor: pointer; width: 100%; min-width: 0; }
+        #share-reg-team-list .team-emblem:hover { filter: brightness(1.15); transform: scale(1.03); }
+        #share-reg-hint { font-size: 13px; color: var(--text-muted); text-align: center; margin-top: 8px; min-height: 1.4em; }
+        .btn-line { background-color: #06C755; color: #fff; } .btn-line:hover { background-color: #05b34c; }
         .match-card.draggable { cursor: move; }
         .match-card.dragging { opacity: 0.5; background: var(--primary-variant); }
         .drag-over-placeholder { background: rgba(3, 218, 198, 0.1); border: 2px dashed var(--secondary-color); border-radius: 12px; margin-bottom: 16px; height: 120px; }
@@ -216,7 +225,7 @@
 
     <div id="app">
         <div id="auth-section">
-    <span class="version-tag">Ver 2.1.8</span>
+    <span class="version-tag">Ver 2.2.2</span>
     
     <!-- สร้าง div ครอบส่วนนี้ไว้ -->
     <div class="auth-user-controls">
@@ -281,7 +290,7 @@
 
                     <button id="generate-schedule-btn" class="btn btn-secondary">สร้างตารางแข่งขัน</button>
                     <!-- เพิ่มปุ่มคัดลอกลงทะเบียนใหม่ -->
-                    <button id="copy-reg-template-btn" class="btn btn-warning" style="margin-top: 10px; background-color: #fbc02d; color: #000;">📋 คัดลอกรูปแบบลงทะเบียน</button>
+                    <button id="copy-reg-template-btn" class="btn btn-warning" style="margin-top: 10px; background-color: #fbc02d; color: #000;">📱 แชร์รูปแบบลงทะเบียน LINE</button>
                 </div>
                 <div id="setup-login-prompt"></div>
             </div>
@@ -349,6 +358,26 @@
     </div>
 </div>
     <div id="team-select-modal" class="modal"><div class="modal-content"><span class="close-modal-btn">×</span><h2 id="team-select-modal-title">เลือกทีม</h2><div id="team-select-modal-list"></div></div></div>
+
+    <div id="share-reg-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal-btn">×</span>
+            <h2>📱 แชร์ลงทะเบียน LINE</h2>
+            <p style="text-align: center; color: var(--text-muted); font-size: 14px; margin-bottom: 4px;">เลือกประเภทการแชร์</p>
+            <div class="share-mode-btns">
+                <button type="button" class="share-mode-btn active" data-mode="all">📢 กลุ่มใหญ่<br><span style="font-size: 12px; font-weight: 400;">ทุกทีม</span></button>
+                <button type="button" class="share-mode-btn" data-mode="single">🎨 กลุ่มย่อย<br><span style="font-size: 12px; font-weight: 400;">เลือกสีเดียว</span></button>
+            </div>
+            <div id="share-reg-all-actions" style="display: block;">
+                <p id="share-reg-hint" style="text-align: center; color: var(--text-muted); font-size: 13px;">รูปแบบลงทะเบียนครบทุกทีม → วางในกลุ่มใหญ่</p>
+                <button type="button" id="share-reg-line-btn" class="btn btn-line" style="margin-top: 12px;">📋 คัดลอกเพื่อวางใน LINE</button>
+            </div>
+            <div id="share-reg-single-panel" style="display: none;">
+                <p id="share-reg-single-hint" style="text-align: center; color: var(--text-muted); font-size: 13px;">เลือกสีทีม → คัดลอกแล้ววางในกลุ่มย่อย</p>
+                <div id="share-reg-team-list"></div>
+            </div>
+        </div>
+    </div>
 
     <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -419,7 +448,24 @@
             setupNavigation();
             document.querySelector('#login-modal .close-modal-btn').addEventListener('click', () => loginModal.style.display = 'none');
             document.querySelector('#team-select-modal .close-modal-btn').addEventListener('click', () => teamSelectModal.style.display = 'none');
-            window.addEventListener('click', (event) => { if (event.target == loginModal || event.target == teamSelectModal) { event.target.style.display = "none"; } });
+            const shareRegModal = document.getElementById('share-reg-modal');
+            document.querySelector('#share-reg-modal .close-modal-btn').addEventListener('click', () => shareRegModal.style.display = 'none');
+            document.querySelectorAll('#share-reg-modal .share-mode-btn').forEach(btn => {
+                btn.addEventListener('click', () => setShareRegMode(btn.dataset.mode));
+            });
+            document.getElementById('share-reg-line-btn').addEventListener('click', () => {
+                if (getActiveRegTeamSlugs().length === 0) {
+                    alert('กรุณาเลือกทีมที่เข้าร่วมอย่างน้อย 1 ทีม');
+                    return;
+                }
+                shareTextToLine(buildRegistrationTemplate('all'));
+                shareRegModal.style.display = 'none';
+            });
+            window.addEventListener('click', (event) => {
+                if (event.target == loginModal || event.target == teamSelectModal || event.target == shareRegModal) {
+                    event.target.style.display = "none";
+                }
+            });
             contentContainer.addEventListener('click', handleMainClick);
             setupDragAndDropListeners(document.getElementById('schedule-container'));
             
@@ -444,40 +490,109 @@
             listenToRealtimeChanges();
         }
 
-        // ฟังก์ชันคัดลอกข้อความลงทะเบียน
-        function copyRegistrationTemplate() {
-            const startTime = document.getElementById('start-time').value;
-            const activeTeamSlugs = Array.from(document.querySelectorAll('.team-switch:checked')).map(sw => sw.dataset.teamSlug);
-            
-            if (activeTeamSlugs.length === 0) {
-                alert('กรุณาเลือกทีมที่เข้าร่วมอย่างน้อย 1 ทีม');
-                return;
+        function getActiveRegTeamSlugs() {
+            return Array.from(document.querySelectorAll('.team-switch:checked')).map(sw => sw.dataset.teamSlug);
+        }
+
+        function buildTeamSlotsBlock(slug, startPlayerNum) {
+            const info = REG_TEAM_INFO[slug] || { emoji: '⚽', label: slug };
+            let text = `${info.emoji} ${info.label}\n`;
+            for (let i = 0; i < 7; i++) {
+                text += `${startPlayerNum + i}.\n`;
+            }
+            return text;
+        }
+
+        // กลุ่มใหญ่ = ข้อความครบ | กลุ่มย่อย = เฉพาะบล็อกสี + เลขผู้เล่น 1–7
+        function buildRegistrationTemplate(mode, teamSlug) {
+            const activeTeamSlugs = getActiveRegTeamSlugs();
+            if (mode === 'single') {
+                return buildTeamSlotsBlock(teamSlug, 1).trimEnd();
             }
 
+            const startTime = document.getElementById('start-time').value;
             let templateText = `⚽️ FOOTBALL MATCH @ TK7 Stadium\n`;
             templateText += `📍 Location: https://maps.app.goo.gl/37K6rD4LqWA5Qz5KA\n`;
             templateText += `🕗 Kick-off: ${startTime} | เวลาเตะ: ${startTime} น.\n\n`;
 
             let playerCount = 1;
-            activeTeamSlugs.forEach((slug, index) => {
-                const info = REG_TEAM_INFO[slug] || { emoji: '⚽', label: slug };
-                templateText += `${info.emoji} Team ${index + 1}: ${info.label}\n`;
-                for (let i = 0; i < 7; i++) {
-                    templateText += `${playerCount}.\n`;
-                    playerCount++;
-                }
+            activeTeamSlugs.forEach((slug) => {
+                templateText += buildTeamSlotsBlock(slug, playerCount);
+                playerCount += 7;
             });
 
             templateText += `\n⏱️ Match Duration / เวลาเล่น:\n`;
             templateText += `• 4 Teams = 2 Hours (เล่น 2 ชม.)\n`;
             templateText += `• 5 Teams = 3 Hours (เล่น 3 ชม.)\n\n`;
             templateText += `👇 Please add your name / ลงชื่อต่อลำดับได้เลยครับ`;
+            return templateText;
+        }
 
-            navigator.clipboard.writeText(templateText).then(() => {
-                showToast('📋 คัดลอกรูปแบบลงทะเบียนแล้ว!');
-            }).catch(err => {
-                alert('เกิดข้อผิดพลาดในการคัดลอก');
+        function isMobileDevice() {
+            return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent || '');
+        }
+
+        // PC: คัดลอกอย่างเดียว (หน้า LINE บนเบราว์เซอร์มักไม่โชว์รายชื่อแชท)
+        // มือถือ: คัดลอก + เปิดแอป LINE ให้เลือกกลุ่ม
+        async function shareTextToLine(text) {
+            try {
+                await navigator.clipboard.writeText(text);
+            } catch (err) {
+                alert('คัดลอกไม่สำเร็จ กรุณาลองอีกครั้ง');
+                return;
+            }
+
+            if (isMobileDevice()) {
+                window.open('https://line.me/R/msg/text/?' + encodeURIComponent(text), '_blank');
+                showToast('📱 เปิด LINE แล้ว — หรือวางด้วยการกดค้าง');
+            } else {
+                showToast('📋 คัดลอกแล้ว! เปิด LINE แล้วกด Ctrl+V วางได้เลย');
+            }
+        }
+
+        function setShareRegMode(mode) {
+            document.querySelectorAll('#share-reg-modal .share-mode-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.mode === mode);
             });
+            document.getElementById('share-reg-all-actions').style.display = mode === 'all' ? 'block' : 'none';
+            document.getElementById('share-reg-single-panel').style.display = mode === 'single' ? 'block' : 'none';
+
+            const mobile = isMobileDevice();
+            document.getElementById('share-reg-line-btn').textContent = mobile
+                ? '💚 แชร์ LINE'
+                : '📋 คัดลอกเพื่อวางใน LINE';
+            document.getElementById('share-reg-hint').textContent = mobile
+                ? 'แชร์รูปแบบลงทะเบียนครบทุกทีมไปกลุ่มใหญ่'
+                : 'บน PC: คัดลอกแล้วไปวางในแชท LINE (Ctrl+V)';
+            document.getElementById('share-reg-single-hint').textContent = mobile
+                ? 'เลือกสีทีมเพื่อแชร์ลงกลุ่มย่อย'
+                : 'เลือกสี → คัดลอกอัตโนมัติ → วางในกลุ่มย่อย (Ctrl+V)';
+        }
+
+        function openShareRegModal() {
+            const activeTeamSlugs = getActiveRegTeamSlugs();
+            if (activeTeamSlugs.length === 0) {
+                alert('กรุณาเลือกทีมที่เข้าร่วมอย่างน้อย 1 ทีม');
+                return;
+            }
+
+            const list = document.getElementById('share-reg-team-list');
+            list.innerHTML = '';
+            activeTeamSlugs.forEach(slug => {
+                const team = TEAMS.find(t => t.slug === slug);
+                const info = REG_TEAM_INFO[slug] || { emoji: '⚽', label: slug };
+                const el = document.createElement('div');
+                el.className = `team-emblem ${slug}`;
+                el.textContent = `${info.emoji} ${team ? team.name : slug}`;
+                el.onclick = () => {
+                    shareTextToLine(buildRegistrationTemplate('single', slug));
+                    document.getElementById('share-reg-modal').style.display = 'none';
+                };
+                list.appendChild(el);
+            });
+
+            setShareRegMode('all');
+            document.getElementById('share-reg-modal').style.display = 'block';
         }
         
         async function loadInitialData() {
@@ -625,8 +740,7 @@
         refreshOpenerDropdowns();
                 document.getElementById('match-date').addEventListener('change', (e) => { shouldRestoreScroll = false; loadDataForDate(e.target.value); });
                 document.getElementById('generate-schedule-btn').addEventListener('click', generateAndSaveSchedule);
-                // ผูกปุ่มคัดลอกลงทะเบียน
-                document.getElementById('copy-reg-template-btn').addEventListener('click', copyRegistrationTemplate);
+                document.getElementById('copy-reg-template-btn').addEventListener('click', openShareRegModal);
                 document.querySelectorAll('.team-switch').forEach(el => el.addEventListener('change', () => {
 	refreshOpenerDropdowns();
                     updateAdvancedOptions(); 
