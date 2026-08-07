@@ -225,14 +225,19 @@
 
     <div id="app">
         <div id="auth-section">
-    <span class="version-tag">Ver 2.2.2</span>
+    <span class="version-tag">Ver 2.3.0</span>
     
     <!-- สร้าง div ครอบส่วนนี้ไว้ -->
     <div class="auth-user-controls">
         <span id="user-info"></span>
+        <button id="claim-superadmin-btn" class="btn-secondary" style="display: none;">👑 ตั้งเป็น Superadmin</button>
+        <button id="members-btn" class="btn-secondary" style="display: none;">👥 สมาชิก</button>
         <button id="login-btn" class="btn-secondary">🔐 เข้าสู่ระบบ</button>
         <button id="logout-btn" class="btn-danger">ออกจากระบบ</button>
     </div>
+</div>
+<div id="pending-approval-banner" style="display: none; background: #5d4037; color: #ffe0b2; text-align: center; padding: 10px 15px; font-size: 14px; border-bottom: 1px solid #6d4c41;">
+    ⏳ บัญชีของคุณรอการอนุมัติจาก Superadmin — ยังไม่สามารถจัดการตารางได้
 </div>
 
         <main id="content">
@@ -331,18 +336,37 @@
     <div id="login-modal" class="modal">
     <div class="modal-content">
         <span class="close-modal-btn">×</span>
-        <h2>🔐 เข้าสู่ระบบผู้ดูแล</h2>
+        <h2 id="auth-modal-title">🔐 เข้าสู่ระบบ</h2>
+        <div class="share-mode-btns" style="margin-top: 0;">
+            <button type="button" class="share-mode-btn active" id="auth-tab-login" data-auth-tab="login">เข้าสู่ระบบ</button>
+            <button type="button" class="share-mode-btn" id="auth-tab-signup" data-auth-tab="signup">สมัคร Admin</button>
+        </div>
         <form id="login-form">
             <div class="form-group"><label for="login-email">อีเมล</label><input type="email" id="login-email" required></div>
-            <div class="form-group"><label for="login-password">รหัสผ่าน</label><input type="password" id="login-password" required></div>
+            <div class="form-group"><label for="login-password">รหัสผ่าน</label><input type="password" id="login-password" required minlength="6"></div>
             <button type="submit" class="btn btn-primary">เข้าสู่ระบบ</button>
         </form>
-        <!-- เพิ่มส่วนนี้เข้าไป -->
-        <p style="text-align: center; margin-top: 15px;">
+        <form id="signup-form" style="display: none;">
+            <div class="form-group"><label for="signup-name">ชื่อที่แสดง</label><input type="text" id="signup-name" required maxlength="40"></div>
+            <div class="form-group"><label for="signup-email">อีเมล</label><input type="email" id="signup-email" required></div>
+            <div class="form-group"><label for="signup-password">รหัสผ่าน</label><input type="password" id="signup-password" required minlength="6"></div>
+            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px; text-align: center;">สมัครแล้วจะได้สิทธิ์ Admin แต่ต้องรอ Superadmin อนุมัติก่อนใช้งาน</p>
+            <button type="submit" class="btn btn-primary">สมัครสมาชิก</button>
+        </form>
+        <p id="forgot-password-wrap" style="text-align: center; margin-top: 15px;">
             <a href="#" id="forgot-password-link" style="color: var(--primary-color); font-size: 14px;">ลืมรหัสผ่าน?</a>
         </p>
     </div>
 </div>
+
+    <div id="members-modal" class="modal">
+        <div class="modal-content" style="max-width: 560px;">
+            <span class="close-modal-btn">×</span>
+            <h2>👥 จัดการสมาชิก</h2>
+            <p style="text-align: center; color: var(--text-muted); font-size: 13px; margin-bottom: 12px;">อนุมัติ Admin ที่สมัครเข้ามา</p>
+            <div id="members-list"></div>
+        </div>
+    </div>
 
 <!-- เพิ่ม Modal สำหรับตั้งรหัสผ่านใหม่ (ซ่อนไว้ก่อน) -->
 <div id="reset-password-modal" class="modal">
@@ -405,11 +429,18 @@
         
         const teamOrderMap = new Map(TEAMS.map((team, index) => [team.slug, index]));
         
-        let appData = {}, activePage = 'page-schedule', currentDateKey = new Date().toISOString().split('T')[0], currentEditingContext = { index: null, side: null }, currentUser = null, isInitialSetupDone = false, draggedItem = null;
+        let appData = {}, activePage = 'page-schedule', currentDateKey = new Date().toISOString().split('T')[0], currentEditingContext = { index: null, side: null }, currentUser = null, userProfile = null, hasSuperadmin = false, isInitialSetupDone = false, draggedItem = null;
         let lastScrollPosition = 0, shouldRestoreScroll = false;
         const contentContainer = document.getElementById('content');
-        const pages = document.querySelectorAll('.page'), navButtons = document.querySelectorAll('.nav-btn'), loginBtn = document.getElementById('login-btn'), logoutBtn = document.getElementById('logout-btn'), userInfo = document.getElementById('user-info'), loginModal = document.getElementById('login-modal'), teamSelectModal = document.getElementById('team-select-modal');
-        let dbTemplates = []; 
+        const pages = document.querySelectorAll('.page'), navButtons = document.querySelectorAll('.nav-btn'), loginBtn = document.getElementById('login-btn'), logoutBtn = document.getElementById('logout-btn'), userInfo = document.getElementById('user-info'), loginModal = document.getElementById('login-modal'), teamSelectModal = document.getElementById('team-select-modal'), membersModal = document.getElementById('members-modal');
+        let dbTemplates = [];
+
+        function canManage() {
+            return !!(currentUser && userProfile && userProfile.status === 'approved' && (userProfile.role === 'admin' || userProfile.role === 'superadmin'));
+        }
+        function isSuperAdmin() {
+            return !!(currentUser && userProfile && userProfile.status === 'approved' && userProfile.role === 'superadmin');
+        } 
 
         // Mapping ชื่อสีและ Emoji สำหรับลงทะเบียน
         const REG_TEAM_INFO = {
@@ -429,9 +460,14 @@
         function restoreScrollPosition() { if (shouldRestoreScroll) { requestAnimationFrame(() => { contentContainer.scrollTop = lastScrollPosition; }); } shouldRestoreScroll = false; }
 
         async function initializeApp() {
-            loginBtn.addEventListener('click', () => loginModal.style.display = 'block');
+            loginBtn.addEventListener('click', () => { setAuthModalTab('login'); loginModal.style.display = 'block'; });
             logoutBtn.addEventListener('click', handleLogout);
             document.getElementById('login-form').addEventListener('submit', handleLogin);
+            document.getElementById('signup-form').addEventListener('submit', handleSignup);
+            document.getElementById('auth-tab-login').addEventListener('click', () => setAuthModalTab('login'));
+            document.getElementById('auth-tab-signup').addEventListener('click', () => setAuthModalTab('signup'));
+            document.getElementById('claim-superadmin-btn').addEventListener('click', handleClaimSuperadmin);
+            document.getElementById('members-btn').addEventListener('click', openMembersModal);
             
             document.getElementById('export-schedule-btn').addEventListener('click', (e) => handleExport('schedule-container', `TK7-Schedule-${currentDateKey}.png`, e.currentTarget));
             document.getElementById('export-scores-btn').addEventListener('click', (e) => handleExport('scores-container', `TK7-Scores-${currentDateKey}.png`, e.currentTarget));
@@ -448,6 +484,7 @@
             setupNavigation();
             document.querySelector('#login-modal .close-modal-btn').addEventListener('click', () => loginModal.style.display = 'none');
             document.querySelector('#team-select-modal .close-modal-btn').addEventListener('click', () => teamSelectModal.style.display = 'none');
+            document.querySelector('#members-modal .close-modal-btn').addEventListener('click', () => membersModal.style.display = 'none');
             const shareRegModal = document.getElementById('share-reg-modal');
             document.querySelector('#share-reg-modal .close-modal-btn').addEventListener('click', () => shareRegModal.style.display = 'none');
             document.querySelectorAll('#share-reg-modal .share-mode-btn').forEach(btn => {
@@ -462,7 +499,7 @@
                 shareRegModal.style.display = 'none';
             });
             window.addEventListener('click', (event) => {
-                if (event.target == loginModal || event.target == teamSelectModal || event.target == shareRegModal) {
+                if (event.target == loginModal || event.target == teamSelectModal || event.target == shareRegModal || event.target == membersModal) {
                     event.target.style.display = "none";
                 }
             });
@@ -471,23 +508,118 @@
             
             const { data: { session } } = await db.auth.getSession();
             currentUser = session ? session.user : null;
-            toggleAdminView(!!currentUser);
-            if (currentUser) { userInfo.textContent = `👤 ${currentUser.email}`; }
-
-            await fetchTemplates(); // ดึง Template ก่อนเริ่ม
+            await refreshUserAccess();
+            await fetchTemplates();
             await loadInitialData();
 
             db.auth.onAuthStateChange(async (event, session) => {
-                const wasLoggedIn = !!currentUser;
+                if (event === 'PASSWORD_RECOVERY') return;
+                const prevId = currentUser?.id || null;
                 currentUser = session ? session.user : null;
-                const isLoggedIn = !!currentUser;
-                if (wasLoggedIn !== isLoggedIn) {
-                    toggleAdminView(isLoggedIn);
-                    if (isLoggedIn) { userInfo.textContent = `👤 ${currentUser.email}`; loginModal.style.display = 'none'; }
+                const nextId = currentUser?.id || null;
+                if (prevId !== nextId) {
+                    if (currentUser) loginModal.style.display = 'none';
+                    await refreshUserAccess();
                     await loadInitialData();
+                } else if (currentUser) {
+                    await refreshUserAccess();
                 }
             });
             listenToRealtimeChanges();
+        }
+
+        function setAuthModalTab(tab) {
+            const isLogin = tab === 'login';
+            document.getElementById('auth-tab-login').classList.toggle('active', isLogin);
+            document.getElementById('auth-tab-signup').classList.toggle('active', !isLogin);
+            document.getElementById('login-form').style.display = isLogin ? 'block' : 'none';
+            document.getElementById('signup-form').style.display = isLogin ? 'none' : 'block';
+            document.getElementById('forgot-password-wrap').style.display = isLogin ? 'block' : 'none';
+            document.getElementById('auth-modal-title').textContent = isLogin ? '🔐 เข้าสู่ระบบ' : '📝 สมัคร Admin';
+        }
+
+        async function loadUserProfile() {
+            userProfile = null;
+            if (!currentUser) return;
+            const { data, error } = await db.from('profiles').select('*').eq('id', currentUser.id).maybeSingle();
+            if (error) {
+                console.error('profiles error:', error);
+                if (error.code === '42P01' || (error.message || '').includes('profiles')) {
+                    showToast('⚠️ ยังไม่ได้รัน SQL ระบบสมาชิกใน Supabase');
+                }
+                return;
+            }
+            if (!data) {
+                const { data: created, error: insertErr } = await db.from('profiles').insert({
+                    id: currentUser.id,
+                    email: currentUser.email,
+                    display_name: currentUser.user_metadata?.display_name || (currentUser.email || '').split('@')[0],
+                    role: 'admin',
+                    status: 'pending'
+                }).select('*').maybeSingle();
+                if (insertErr) console.error('create profile error:', insertErr);
+                userProfile = created || null;
+                return;
+            }
+            userProfile = data;
+        }
+
+        async function refreshSuperadminFlag() {
+            if (isSuperAdmin()) { hasSuperadmin = true; return; }
+            const { data, error } = await db.rpc('superadmin_exists');
+            if (error) {
+                console.error('superadmin_exists error:', error);
+                hasSuperadmin = false;
+                return;
+            }
+            hasSuperadmin = !!data;
+        }
+
+        async function refreshUserAccess() {
+            await loadUserProfile();
+            await refreshSuperadminFlag();
+            refreshAuthUI();
+        }
+
+        function refreshAuthUI() {
+            const loggedIn = !!currentUser;
+            const manage = canManage();
+            loginBtn.style.display = loggedIn ? 'none' : 'inline-block';
+            logoutBtn.style.display = loggedIn ? 'inline-block' : 'none';
+            userInfo.style.display = loggedIn ? 'inline-block' : 'none';
+            document.querySelector('.nav-btn[data-page="page-setup"]').style.display = manage ? 'flex' : 'none';
+            document.getElementById('delete-day-btn').style.display = manage ? 'inline-flex' : 'none';
+            document.getElementById('members-btn').style.display = isSuperAdmin() ? 'inline-block' : 'none';
+            document.getElementById('claim-superadmin-btn').style.display = (loggedIn && !hasSuperadmin && userProfile) ? 'inline-block' : 'none';
+            const pendingBanner = document.getElementById('pending-approval-banner');
+            if (loggedIn && userProfile && userProfile.status === 'pending') {
+                pendingBanner.style.display = 'block';
+                pendingBanner.textContent = '⏳ บัญชีของคุณรอการอนุมัติจาก Superadmin — ยังไม่สามารถจัดการตารางได้';
+            } else if (loggedIn && userProfile && userProfile.status === 'rejected') {
+                pendingBanner.style.display = 'block';
+                pendingBanner.textContent = '❌ บัญชีของคุณถูกปฏิเสธ — ติดต่อ Superadmin หากต้องการใช้งาน';
+            } else {
+                pendingBanner.style.display = 'none';
+            }
+
+            if (loggedIn && userProfile) {
+                const roleLabel = userProfile.role === 'superadmin'
+                    ? 'Superadmin'
+                    : (userProfile.status === 'approved' ? 'Admin' : (userProfile.status === 'rejected' ? 'ถูกปฏิเสธ' : 'รออนุมัติ'));
+                userInfo.textContent = `👤 ${userProfile.display_name || currentUser.email} (${roleLabel})`;
+            } else if (loggedIn) {
+                userInfo.textContent = `👤 ${currentUser.email}`;
+            } else {
+                userInfo.textContent = '';
+            }
+
+            if (!manage && activePage === 'page-setup') {
+                activePage = 'page-schedule';
+                pages.forEach(page => page.classList.remove('active'));
+                document.getElementById('page-schedule').classList.add('active');
+                navButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.page === 'page-schedule'));
+            }
+            if (currentDateKey) renderAllPagesForDate(currentDateKey);
         }
 
         function getActiveRegTeamSlugs() {
@@ -603,23 +735,128 @@
             const initialDate = document.getElementById('schedule-date-selector').value;
             if (initialDate && initialDate !== 'ยังไม่มีข้อมูล') { await loadDataForDate(initialDate); } 
             else { currentDateKey = new Date().toISOString().split('T')[0]; appData = {}; renderAllPagesForDate(currentDateKey); }
-            if(!activePage || (!currentUser && activePage === 'page-setup')) { activePage = 'page-schedule'; }
+            if(!activePage || (!canManage() && activePage === 'page-setup')) { activePage = 'page-schedule'; }
             setActivePage(activePage);
         }
 
-        function toggleAdminView(isLoggedIn) { 
-            loginBtn.style.display = isLoggedIn ? 'none' : 'inline-block'; 
-            logoutBtn.style.display = isLoggedIn ? 'inline-block' : 'none'; 
-            userInfo.style.display = isLoggedIn ? 'inline-block' : 'none'; 
-            document.querySelector('.nav-btn[data-page="page-setup"]').style.display = isLoggedIn ? 'flex' : 'none'; 
-            document.getElementById('delete-day-btn').style.display = isLoggedIn ? 'inline-flex' : 'none'; 
-            if (!isLoggedIn) userInfo.textContent = '';
-            renderAllPagesForDate(currentDateKey); 
+        async function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const { error } = await db.auth.signInWithPassword({ email, password });
+            if (error) alert('เข้าสู่ระบบไม่สำเร็จ: ' + error.message);
         }
 
-        async function handleLogin(e) { e.preventDefault(); const email = document.getElementById('login-email').value; const password = document.getElementById('login-password').value; const { error } = await db.auth.signInWithPassword({ email, password }); if (error) alert('เข้าสู่ระบบไม่สำเร็จ: ' + error.message); }
-        async function handleLogout() { const { error } = await db.auth.signOut(); if (error) { alert('ออกจากระบบไม่สำเร็จ: ' + error.message); } else { document.getElementById('login-form').reset(); } }
-        async function updateScheduleInDB(newSchedule) { saveScrollPosition(); shouldRestoreScroll = true; if (!currentUser) return; const { error } = await db.from('match_days').update({ schedule: newSchedule }).eq('match_date', currentDateKey); if (error) { alert('เกิดข้อผิดพลาดในการอัปเดตตาราง: ' + error.message); } }
+        async function handleSignup(e) {
+            e.preventDefault();
+            const displayName = document.getElementById('signup-name').value.trim();
+            const email = document.getElementById('signup-email').value.trim();
+            const password = document.getElementById('signup-password').value;
+            if (!displayName) { alert('กรุณากรอกชื่อที่แสดง'); return; }
+            const { data, error } = await db.auth.signUp({
+                email,
+                password,
+                options: { data: { display_name: displayName } }
+            });
+            if (error) { alert('สมัครไม่สำเร็จ: ' + error.message); return; }
+            if (data.user && !data.session) {
+                alert('สมัครสำเร็จ! กรุณายืนยันอีเมลก่อน แล้วค่อยเข้าสู่ระบบ (รอ Superadmin อนุมัติหลังล็อกอิน)');
+                setAuthModalTab('login');
+                document.getElementById('login-email').value = email;
+                document.getElementById('signup-form').reset();
+                return;
+            }
+            showToast('สมัครสำเร็จ — รอ Superadmin อนุมัติ');
+            loginModal.style.display = 'none';
+            document.getElementById('signup-form').reset();
+        }
+
+        async function handleLogout() {
+            const { error } = await db.auth.signOut();
+            if (error) { alert('ออกจากระบบไม่สำเร็จ: ' + error.message); return; }
+            userProfile = null;
+            hasSuperadmin = false;
+            document.getElementById('login-form').reset();
+            document.getElementById('signup-form').reset();
+            refreshAuthUI();
+        }
+
+        async function handleClaimSuperadmin() {
+            if (!currentUser) return;
+            if (!confirm('ตั้งบัญชีนี้เป็น Superadmin คนแรกของระบบ?')) return;
+            const { data, error } = await db.rpc('claim_superadmin');
+            if (error) { alert('ตั้ง Superadmin ไม่สำเร็จ: ' + error.message); return; }
+            userProfile = data;
+            hasSuperadmin = true;
+            showToast('👑 ตั้งเป็น Superadmin แล้ว');
+            refreshAuthUI();
+        }
+
+        async function openMembersModal() {
+            if (!isSuperAdmin()) return;
+            await renderMembersList();
+            membersModal.style.display = 'block';
+        }
+
+        async function renderMembersList() {
+            const list = document.getElementById('members-list');
+            list.innerHTML = '<p style="text-align:center;color:var(--text-muted);">กำลังโหลด...</p>';
+            const { data, error } = await db.from('profiles').select('*').order('created_at', { ascending: true });
+            if (error) {
+                list.innerHTML = `<p style="color:var(--team-red);text-align:center;">โหลดไม่สำเร็จ: ${error.message}</p>`;
+                return;
+            }
+            if (!data || data.length === 0) {
+                list.innerHTML = '<p style="text-align:center;color:var(--text-muted);">ยังไม่มีสมาชิก</p>';
+                return;
+            }
+            list.innerHTML = data.map(p => {
+                const statusLabel = p.status === 'approved' ? '✅ อนุมัติแล้ว' : (p.status === 'rejected' ? '❌ ปฏิเสธ' : '⏳ รออนุมัติ');
+                const roleLabel = p.role === 'superadmin' ? '👑 Superadmin' : '🛡️ Admin';
+                const isSelf = currentUser && p.id === currentUser.id;
+                let actions = '';
+                if (p.role !== 'superadmin') {
+                    if (p.status !== 'approved') {
+                        actions += `<button type="button" class="export-btn member-approve-btn" data-id="${p.id}" style="background:#06C755;color:#fff;">อนุมัติ</button>`;
+                    }
+                    if (p.status !== 'rejected') {
+                        actions += `<button type="button" class="export-btn member-reject-btn" data-id="${p.id}" style="background:var(--team-red);color:#fff;">ปฏิเสธ</button>`;
+                    }
+                    if (p.status === 'approved') {
+                        actions += `<button type="button" class="export-btn member-pending-btn" data-id="${p.id}">พักสิทธิ์</button>`;
+                    }
+                }
+                return `<div class="card" style="margin-bottom:10px;padding:12px;">
+                    <div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center;">
+                        <div>
+                            <div style="font-weight:600;">${p.display_name || '-'} ${isSelf ? '(คุณ)' : ''}</div>
+                            <div style="font-size:12px;color:var(--text-muted);">${p.email || ''}</div>
+                            <div style="font-size:12px;margin-top:4px;">${roleLabel} · ${statusLabel}</div>
+                        </div>
+                        <div style="display:flex;gap:6px;flex-wrap:wrap;">${actions}</div>
+                    </div>
+                </div>`;
+            }).join('');
+
+            list.querySelectorAll('.member-approve-btn').forEach(btn => btn.onclick = () => updateMemberStatus(btn.dataset.id, 'approved'));
+            list.querySelectorAll('.member-reject-btn').forEach(btn => btn.onclick = () => updateMemberStatus(btn.dataset.id, 'rejected'));
+            list.querySelectorAll('.member-pending-btn').forEach(btn => btn.onclick = () => updateMemberStatus(btn.dataset.id, 'pending'));
+        }
+
+        async function updateMemberStatus(memberId, status) {
+            if (!isSuperAdmin()) return;
+            const payload = {
+                status,
+                approved_at: status === 'approved' ? new Date().toISOString() : null,
+                approved_by: status === 'approved' ? currentUser.id : null
+            };
+            const { error } = await db.from('profiles').update(payload).eq('id', memberId);
+            if (error) { alert('อัปเดตไม่สำเร็จ: ' + error.message); return; }
+            showToast(status === 'approved' ? '✅ อนุมัติแล้ว' : (status === 'rejected' ? '❌ ปฏิเสธแล้ว' : 'พักสิทธิ์แล้ว'));
+            await renderMembersList();
+        }
+
+        async function updateScheduleInDB(newSchedule) { saveScrollPosition(); shouldRestoreScroll = true; if (!canManage()) return; const { error } = await db.from('match_days').update({ schedule: newSchedule }).eq('match_date', currentDateKey); if (error) { alert('เกิดข้อผิดพลาดในการอัปเดตตาราง: ' + error.message); } }
         function renderWithMorph(container, newHtml) { morphdom(container, `<div>${newHtml}</div>`, { childrenOnly: true }); }
         
         function renderSchedulePage(date) {
@@ -656,19 +893,19 @@
                 const awayTeam = TEAMS.find(t => t.slug === match.away) || { name: 'N/A', slug: 'black' };
 
                 let adminActions = '';
-                if(currentUser) {
+                if(canManage()) {
                     const moveTopBtn = index > 0 ? `<button class="action-btn move-top-btn" data-index="${index}" title="เลื่อนไปแข่งเป็นคู่แรก">${SVG_MOVE_TOP}</button>` : '';
                     const deleteBtn = `<button class="action-btn delete-match-btn" data-index="${index}" title="ลบแมตช์นี้">${SVG_TRASH}</button>`;
                     adminActions = `<div class="match-actions">${moveTopBtn}${deleteBtn}</div>`;
                 }
                 
-                const draggableClass = currentUser ? 'draggable' : '';
-                const draggableAttr = currentUser ? 'draggable="true"' : '';
-                const clickableTeamClass = currentUser ? 'clickable-team' : '';
+                const draggableClass = canManage() ? 'draggable' : '';
+                const draggableAttr = canManage() ? 'draggable="true"' : '';
+                const clickableTeamClass = canManage() ? 'clickable-team' : '';
 
                 return `<div class="card match-card ${draggableClass}" data-index="${index}" ${draggableAttr}><div class="match-header"><span>แมตช์ที่ ${index + 1}</span><span>⏱️ ${timeStr}</span>${adminActions}</div><div class="match-body"><div class="team-emblem ${homeTeam.slug} ${clickableTeamClass}" data-index="${index}" data-side="home">${homeTeam.name}</div><span class="vs">VS</span><div class="team-emblem ${awayTeam.slug} ${clickableTeamClass}" data-index="${index}" data-side="away">${awayTeam.name}</div></div></div>`;
             }).join('');
-            if (currentUser && dayData.schedule) { html += `<button id="add-match-btn" class="btn btn-primary">➕ เพิ่มแมตช์ใหม่</button>`; }
+            if (canManage() && dayData.schedule) { html += `<button id="add-match-btn" class="btn btn-primary">➕ เพิ่มแมตช์ใหม่</button>`; }
             renderWithMorph(container, html);
         }
         
@@ -689,12 +926,12 @@
         function setupDragAndDropListeners(container) { container.addEventListener('dragstart', handleDragStart); container.addEventListener('dragend', handleDragEnd); container.addEventListener('dragover', handleDragOver); container.addEventListener('drop', handleDrop); }
         function getDragAfterElement(container, y) { const draggableElements = [...container.querySelectorAll('.match-card.draggable:not(.dragging)')]; return draggableElements.reduce((closest, child) => { const box = child.getBoundingClientRect(); const offset = y - box.top - box.height / 2; if (offset < 0 && offset > closest.offset) { return { offset: offset, element: child }; } else { return closest; } }, { offset: Number.NEGATIVE_INFINITY }).element; }
         
-        async function handleAddMatch() { if (!currentUser) return; const dayData = appData[currentDateKey]; if (!dayData || !dayData.settings.activeTeams || dayData.settings.activeTeams.length < 2) { alert('ต้องมีทีมที่เข้าร่วมอย่างน้อย 2 ทีมเพื่อเพิ่มแมตช์'); return; } let newSchedule = dayData.schedule ? [...dayData.schedule] : []; newSchedule.push({ home: dayData.settings.activeTeams[0], away: dayData.settings.activeTeams[1], homeScore: null, awayScore: null }); await updateScheduleInDB(newSchedule); }
-        async function handleDeleteMatch(index) { const idx = parseInt(index, 10); if (!currentUser) return; const dayData = appData[currentDateKey]; if (!dayData) return; if (confirm(`คุณแน่ใจหรือไม่ว่าต้องการลบ "แมตช์ที่ ${idx + 1}" ?`)) { let newSchedule = [...dayData.schedule]; newSchedule.splice(idx, 1); await updateScheduleInDB(newSchedule); } }
+        async function handleAddMatch() { if (!canManage()) return; const dayData = appData[currentDateKey]; if (!dayData || !dayData.settings.activeTeams || dayData.settings.activeTeams.length < 2) { alert('ต้องมีทีมที่เข้าร่วมอย่างน้อย 2 ทีมเพื่อเพิ่มแมตช์'); return; } let newSchedule = dayData.schedule ? [...dayData.schedule] : []; newSchedule.push({ home: dayData.settings.activeTeams[0], away: dayData.settings.activeTeams[1], homeScore: null, awayScore: null }); await updateScheduleInDB(newSchedule); }
+        async function handleDeleteMatch(index) { const idx = parseInt(index, 10); if (!canManage()) return; const dayData = appData[currentDateKey]; if (!dayData) return; if (confirm(`คุณแน่ใจหรือไม่ว่าต้องการลบ "แมตช์ที่ ${idx + 1}" ?`)) { let newSchedule = [...dayData.schedule]; newSchedule.splice(idx, 1); await updateScheduleInDB(newSchedule); } }
         
         async function handleMoveMatchToTop(index) {
             const idx = parseInt(index, 10);
-            if (!currentUser || isNaN(idx) || idx === 0) return;
+            if (!canManage() || isNaN(idx) || idx === 0) return;
             const dayData = appData[currentDateKey];
             if (!dayData || !dayData.schedule) return;
 
@@ -707,11 +944,11 @@
             showToast(`✅ ย้ายแมตช์ไปเป็นคู่แรกแล้ว`);
         }
 
-        function openTeamSelectModal(index, side) { if (!currentUser) return; currentEditingContext = { index: parseInt(index), side }; const dayData = appData[currentDateKey]; const activeTeams = dayData.settings.activeTeams; const modalList = document.getElementById('team-select-modal-list'); document.getElementById('team-select-modal-title').textContent = `เลือกทีม${side === 'home' ? 'เหย้า' : 'เยือน'}สำหรับแมตช์ที่ ${currentEditingContext.index + 1}`; modalList.innerHTML = ''; activeTeams.forEach(slug => { const team = TEAMS.find(t => t.slug === slug); if (team) { const teamEl = document.createElement('div'); teamEl.className = `team-emblem ${team.slug} clickable`; teamEl.textContent = team.name; teamEl.dataset.slug = team.slug; teamEl.onclick = () => handleTeamSelection(team.slug); modalList.appendChild(teamEl); } }); teamSelectModal.style.display = 'block'; }
+        function openTeamSelectModal(index, side) { if (!canManage()) return; currentEditingContext = { index: parseInt(index), side }; const dayData = appData[currentDateKey]; const activeTeams = dayData.settings.activeTeams; const modalList = document.getElementById('team-select-modal-list'); document.getElementById('team-select-modal-title').textContent = `เลือกทีม${side === 'home' ? 'เหย้า' : 'เยือน'}สำหรับแมตช์ที่ ${currentEditingContext.index + 1}`; modalList.innerHTML = ''; activeTeams.forEach(slug => { const team = TEAMS.find(t => t.slug === slug); if (team) { const teamEl = document.createElement('div'); teamEl.className = `team-emblem ${team.slug} clickable`; teamEl.textContent = team.name; teamEl.dataset.slug = team.slug; teamEl.onclick = () => handleTeamSelection(team.slug); modalList.appendChild(teamEl); } }); teamSelectModal.style.display = 'block'; }
         async function handleTeamSelection(newTeamSlug) { const { index, side } = currentEditingContext; if (index === null || !side) return; const dayData = appData[currentDateKey]; let newSchedule = [...dayData.schedule]; const match = newSchedule[index]; const otherSide = side === 'home' ? 'away' : 'home'; if (match[otherSide] === newTeamSlug) { alert('ไม่สามารถเลือกทีมซ้ำกันในคู่เดียวกันได้'); return; } match[side] = newTeamSlug; teamSelectModal.style.display = 'none'; await updateScheduleInDB(newSchedule); }
         
         function setActivePage(pageId) { 
-            if (!currentUser && pageId === 'page-setup') { alert('คุณต้องเข้าสู่ระบบผู้ดูแลเพื่อเข้าถึงหน้านี้'); loginModal.style.display = 'block'; return; } 
+            if (!canManage() && pageId === 'page-setup') { alert(currentUser ? 'บัญชีของคุณยังไม่ได้รับอนุมัติจาก Superadmin' : 'คุณต้องเข้าสู่ระบบผู้ดูแลเพื่อเข้าถึงหน้านี้'); if (!currentUser) loginModal.style.display = 'block'; return; } 
             activePage = pageId; shouldRestoreScroll = false; 
             pages.forEach(page => page.classList.remove('active')); 
             document.getElementById(pageId).classList.add('active'); 
@@ -723,10 +960,13 @@
         function setupPageSetup() {
             const contentWrapper = document.getElementById('setup-content-wrapper');
             const loginPrompt = document.getElementById('setup-login-prompt');
-            if (!currentUser) {
+            if (!canManage()) {
                 contentWrapper.style.display = 'none';
                 loginPrompt.style.display = 'block';
-                loginPrompt.innerHTML = createNoDataMessage('กรุณาเข้าสู่ระบบผู้ดูแลเพื่อตั้งค่าการแข่งขัน', '🔐');
+                const msg = currentUser
+                    ? (userProfile?.status === 'pending' ? 'บัญชีของคุณรอการอนุมัติจาก Superadmin' : 'คุณไม่มีสิทธิ์จัดการการแข่งขัน')
+                    : 'กรุณาเข้าสู่ระบบผู้ดูแลเพื่อตั้งค่าการแข่งขัน';
+                loginPrompt.innerHTML = createNoDataMessage(msg, currentUser ? '⏳' : '🔐');
                 return;
             }
             contentWrapper.style.display = 'block';
@@ -810,7 +1050,7 @@
             const dayData = appData[date];
             if (dayData && dayData.settings) {
                 loadSettingsFromData(dayData.settings);
-            } else if (currentUser) {
+            } else if (canManage()) {
                 resetSettingsForm();
             }
             renderSchedulePage(date); 
@@ -841,7 +1081,7 @@
         function generateDoubleRoundRobin(teams) { let teamList = getCanonicallySortedTeams(teams); const BYE = "BYE_TEAM_PLACEHOLDER"; if (teamList.length % 2 !== 0) { teamList.push(BYE); } const numTeams = teamList.length, numRounds = numTeams - 1; const leg1 = []; for (let round = 0; round < numRounds; round++) { for (let i = 0; i < numTeams / 2; i++) { const home = teamList[i], away = teamList[numTeams - 1 - i]; if (home !== BYE && away !== BYE) { leg1.push({ home, away }); } } teamList.splice(1, 0, teamList.pop()); } const leg2 = leg1.map(match => ({ home: match.away, away: match.home })); return [...leg1, ...leg2]; }
         
         async function generateAndSaveSchedule() {
-            if (!currentUser) return alert('ต้องเป็นผู้ดูแลเท่านั้น');
+            if (!canManage()) return alert('ต้องเป็นผู้ดูแลที่อนุมัติแล้วเท่านั้น');
             
             // 1. จัดลำดับทีมใหม่ (1, 2 ตามเลือก ที่เหลือสุ่ม)
             const finalOrder = getFinalShuffledOrder();
@@ -981,7 +1221,7 @@
         }
         
         function loadSettingsFromData(settings) {
-    if (!settings || !currentUser) return;
+    if (!settings || !canManage()) return;
     document.getElementById('time-per-match').value = settings.timePerMatch ? settings.timePerMatch - 1 : 8;
     document.getElementById('start-time').value = settings.startTime || '20:00';
     
@@ -1012,7 +1252,7 @@
 }
 
         function resetSettingsForm() {
-            if (!currentUser) return;
+            if (!canManage()) return;
             document.getElementById('time-per-match').value = 8;
             document.getElementById('start-time').value = '20:00';
             document.querySelectorAll('.team-switch').forEach((sw, index) => {
@@ -1026,7 +1266,7 @@
             renderSchedulePreview(false);
         }
 
-        async function deleteDay() { if (!currentUser) return alert('ต้องเป็นผู้ดูแลเท่านั้น'); const dateToDelete = document.getElementById('schedule-date-selector').value; if (dateToDelete && confirm(`คุณแน่ใจหรือไม่ว่าต้องการลบข้อมูลของวันที่ ${dateToDelete} ทั้งหมด?`)) { const { error } = await db.from('match_days').delete().eq('match_date', dateToDelete); if (error) { alert('เกิดข้อผิดพลาด: ' + error.message); } else { showToast('ลบข้อมูลเรียบร้อยแล้ว'); await loadInitialData(); } } }
+        async function deleteDay() { if (!canManage()) return alert('ต้องเป็นผู้ดูแลที่อนุมัติแล้วเท่านั้น'); const dateToDelete = document.getElementById('schedule-date-selector').value; if (dateToDelete && confirm(`คุณแน่ใจหรือไม่ว่าต้องการลบข้อมูลของวันที่ ${dateToDelete} ทั้งหมด?`)) { const { error } = await db.from('match_days').delete().eq('match_date', dateToDelete); if (error) { alert('เกิดข้อผิดพลาด: ' + error.message); } else { showToast('ลบข้อมูลเรียบร้อยแล้ว'); await loadInitialData(); } } }
         
         function updateDateSelectorsUI(dates) {
             const selectors = [ document.getElementById('schedule-date-selector'), document.getElementById('scores-date-selector'), document.getElementById('leaderboard-date-selector') ];
@@ -1046,7 +1286,7 @@
             if (!dayData || !dayData.schedule || dayData.schedule.length === 0) { renderWithMorph(container, createNoDataMessage('ยังไม่มีข้อมูลการแข่งขันสำหรับวันนี้', '✏️')); return; }
             const svgMinus = `<svg viewBox="0 0 24 24"><path d="M19 13H5v-2h14v2z"/></svg>`, svgPlus = `<svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>`, svgReset = `<svg viewBox="0 0 24 24"><path d="M17.65,6.35C16.2,4.9,14.21,4,12,4c-4.42,0-7.99,3.58-7.99,8s3.57,8,7.99,8c3.73,0,6.84-2.55,7.73-6h-2.08c-0.82,2.33-3.04,4-5.65,4-3.31,0-6-2.69-6-6s2.69-6,6-6c1.66,0,3.14,0.69,4.22,1.78L13,11h7V4L17.65,6.35z"/></svg>`;
             const { schedule, settings } = dayData, startTime = new Date(`${date}T${settings.startTime}`);
-            const isReadOnly = !currentUser, disabledAttr = isReadOnly ? 'disabled' : '';
+            const isReadOnly = !canManage(), disabledAttr = isReadOnly ? 'disabled' : '';
             const html = schedule.map((match, index) => {
                 const timeStr = new Date(startTime.getTime() + index * settings.timePerMatch * 60000).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit'});
                 const homeTeam = TEAMS.find(t => t.slug === match.home) || { name: 'N/A', slug: 'black' }, awayTeam = TEAMS.find(t => t.slug === match.away) || { name: 'N/A', slug: 'black' };
@@ -1069,7 +1309,7 @@
         }
 
         async function updateScore(index, team, value) {
-            if (!currentUser) return;
+            if (!canManage()) return;
             const date = currentDateKey, dayData = appData[date]; if (!dayData) return;
             const newSchedule = [...dayData.schedule], match = newSchedule[index];
             if (team === 'home') match.homeScore = value; else match.awayScore = value;
