@@ -225,7 +225,7 @@
 
     <div id="app">
         <div id="auth-section">
-    <span class="version-tag">Ver 2.3.1</span>
+    <span class="version-tag">Ver 2.3.3</span>
     
     <!-- สร้าง div ครอบส่วนนี้ไว้ -->
     <div class="auth-user-controls">
@@ -372,10 +372,17 @@
 <div id="reset-password-modal" class="modal">
     <div class="modal-content">
         <h2>🆕 ตั้งรหัสผ่านใหม่</h2>
+        <p style="text-align:center;color:var(--text-muted);font-size:14px;margin-bottom:16px;">
+            คุณมาจากลิงก์รีเซ็ตรหัสในอีเมล<br>กรอกรหัสผ่านใหม่ด้านล่าง แล้วกดบันทึก
+        </p>
         <form id="reset-password-form">
             <div class="form-group">
-                <label for="new-password">รหัสผ่านใหม่</label>
-                <input type="password" id="new-password" required minlength="6">
+                <label for="new-password">รหัสผ่านใหม่ (อย่างน้อย 6 ตัว)</label>
+                <input type="password" id="new-password" required minlength="6" autocomplete="new-password">
+            </div>
+            <div class="form-group">
+                <label for="new-password-confirm">ยืนยันรหัสผ่านใหม่</label>
+                <input type="password" id="new-password-confirm" required minlength="6" autocomplete="new-password">
             </div>
             <button type="submit" class="btn btn-primary">บันทึกรหัสผ่านใหม่</button>
         </form>
@@ -421,13 +428,41 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ3c3lpaXVsZmJvbHlteHBwdm15Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwMjAzMDQsImV4cCI6MjA4ODU5NjMwNH0.3CUw-Bjq_wzzCp6YSl3lThr8f0tWXLHVYnaVL8l1TVs';
 
         const { createClient } = supabase;
-        // detectSessionInUrl ต้องเป็น true ไม่งั้นลิงก์รีเซ็ตรหัสจากอีเมลจะไม่ถูกอ่าน
+        let currentUser = null, userProfile = null, hasSuperadmin = false, pendingPasswordRecovery = false;
+
+        // implicit = คลิกลิงก์รีเซ็ตรหัสจากอีเมลแล้วตั้งรหัสได้แม้คนละเครื่อง/เบราว์เซอร์
         const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
             auth: {
                 persistSession: true,
                 autoRefreshToken: true,
                 detectSessionInUrl: true,
-                flowType: 'pkce'
+                flowType: 'implicit'
+            }
+        });
+
+        function openResetPasswordModal() {
+            pendingPasswordRecovery = true;
+            const modal = document.getElementById('reset-password-modal');
+            if (modal) modal.style.display = 'block';
+            const login = document.getElementById('login-modal');
+            if (login) login.style.display = 'none';
+            setTimeout(() => {
+                const input = document.getElementById('new-password');
+                if (input) input.focus();
+            }, 100);
+        }
+
+        function isPasswordRecoveryRedirect() {
+            const hash = new URLSearchParams((window.location.hash || '').replace(/^#/, ''));
+            const query = new URLSearchParams(window.location.search || '');
+            return hash.get('type') === 'recovery' || query.get('type') === 'recovery';
+        }
+
+        // ลงทะเบียนทันที กันพลาด event ตอนเปิดจากลิงก์อีเมล
+        db.auth.onAuthStateChange((event, session) => {
+            if (event === 'PASSWORD_RECOVERY') {
+                currentUser = session ? session.user : null;
+                openResetPasswordModal();
             }
         });
         
@@ -437,7 +472,7 @@
         
         const teamOrderMap = new Map(TEAMS.map((team, index) => [team.slug, index]));
         
-        let appData = {}, activePage = 'page-schedule', currentDateKey = new Date().toISOString().split('T')[0], currentEditingContext = { index: null, side: null }, currentUser = null, userProfile = null, hasSuperadmin = false, isInitialSetupDone = false, draggedItem = null;
+        let appData = {}, activePage = 'page-schedule', currentDateKey = new Date().toISOString().split('T')[0], currentEditingContext = { index: null, side: null }, isInitialSetupDone = false, draggedItem = null;
         let lastScrollPosition = 0, shouldRestoreScroll = false;
         const contentContainer = document.getElementById('content');
         const pages = document.querySelectorAll('.page'), navButtons = document.querySelectorAll('.nav-btn'), loginBtn = document.getElementById('login-btn'), logoutBtn = document.getElementById('logout-btn'), userInfo = document.getElementById('user-info'), loginModal = document.getElementById('login-modal'), teamSelectModal = document.getElementById('team-select-modal'), membersModal = document.getElementById('members-modal');
@@ -514,8 +549,15 @@
             contentContainer.addEventListener('click', handleMainClick);
             setupDragAndDropListeners(document.getElementById('schedule-container'));
             
+            if (isPasswordRecoveryRedirect() || pendingPasswordRecovery) {
+                openResetPasswordModal();
+            }
+
             const { data: { session } } = await db.auth.getSession();
             currentUser = session ? session.user : null;
+            if (isPasswordRecoveryRedirect() || pendingPasswordRecovery) {
+                openResetPasswordModal();
+            }
             await refreshUserAccess();
             await fetchTemplates();
             await loadInitialData();
@@ -523,15 +565,14 @@
             db.auth.onAuthStateChange(async (event, session) => {
                 if (event === 'PASSWORD_RECOVERY') {
                     currentUser = session ? session.user : null;
-                    document.getElementById('reset-password-modal').style.display = 'block';
-                    loginModal.style.display = 'none';
+                    openResetPasswordModal();
                     return;
                 }
                 const prevId = currentUser?.id || null;
                 currentUser = session ? session.user : null;
                 const nextId = currentUser?.id || null;
                 if (prevId !== nextId) {
-                    if (currentUser) loginModal.style.display = 'none';
+                    if (currentUser && !pendingPasswordRecovery) loginModal.style.display = 'none';
                     await refreshUserAccess();
                     await loadInitialData();
                 } else if (currentUser) {
@@ -752,12 +793,26 @@
             setActivePage(activePage);
         }
 
+        function formatAuthError(error, fallback) {
+            const msg = (error && error.message) ? error.message : '';
+            const lower = msg.toLowerCase();
+            if (lower.includes('rate limit') || lower.includes('email rate limit')) {
+                return 'ส่งอีเมลเกินโควต้าของ Supabase (ฟรีส่งได้ประมาณ 2 ฉบับ/ชม.)\n\n'
+                    + 'แก้ชั่วคราว:\n'
+                    + '1) รอ 1 ชม. แล้วลองใหม่ หรือ\n'
+                    + '2) ใน Supabase → Authentication → Providers → Email\n'
+                    + '   ปิด Confirm email (แนะนำ เพราะมีระบบอนุมัติ Admin อยู่แล้ว)\n\n'
+                    + 'รายละเอียด: ' + msg;
+            }
+            return (fallback || 'เกิดข้อผิดพลาด') + ': ' + msg;
+        }
+
         async function handleLogin(e) {
             e.preventDefault();
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
             const { error } = await db.auth.signInWithPassword({ email, password });
-            if (error) alert('เข้าสู่ระบบไม่สำเร็จ: ' + error.message);
+            if (error) alert(formatAuthError(error, 'เข้าสู่ระบบไม่สำเร็จ'));
         }
 
         async function handleSignup(e) {
@@ -771,9 +826,9 @@
                 password,
                 options: { data: { display_name: displayName } }
             });
-            if (error) { alert('สมัครไม่สำเร็จ: ' + error.message); return; }
+            if (error) { alert(formatAuthError(error, 'สมัครไม่สำเร็จ')); return; }
             if (data.user && !data.session) {
-                alert('สมัครสำเร็จ! กรุณายืนยันอีเมลก่อน แล้วค่อยเข้าสู่ระบบ (รอ Superadmin อนุมัติหลังล็อกอิน)');
+                alert('สมัครสำเร็จ! กรุณายืนยันอีเมลก่อน แล้วค่อยเข้าสู่ระบบ (รอ Superadmin อนุมัติหลังล็อกอิน)\n\nถ้าไม่ได้รับเมล: ปิด Confirm email ใน Supabase เพื่อไม่ต้องยืนยันเมล');
                 setAuthModalTab('login');
                 document.getElementById('login-email').value = email;
                 document.getElementById('signup-form').reset();
@@ -1540,15 +1595,14 @@ document.getElementById('forgot-password-link').onclick = async (e) => {
         return;
     }
 
-    // ต้องกดลืมรหัส + เปิดลิงก์อีเมลในเบราว์เซอร์เครื่องเดียวกัน (PKCE)
     const { error } = await db.auth.resetPasswordForEmail(email, {
         redirectTo: 'https://puimanagerfootball.github.io/TK7/',
     });
 
     if (error) {
-        alert('เกิดข้อผิดพลาด: ' + error.message);
+        alert(formatAuthError(error, 'ส่งลิงก์รีเซ็ตรหัสไม่สำเร็จ'));
     } else {
-        alert('ถ้ามีบัญชีนี้ ระบบจะส่งลิงก์รีเซ็ตรหัสไปที่อีเมล\n\nสำคัญ: เปิดลิงก์ด้วยเบราว์เซอร์เครื่องเดียวกับที่กดลืมรหัสผ่าน\n(โปรดเช็ค Junk Mail ด้วย)');
+        alert('ถ้ามีบัญชีนี้ ระบบจะส่งลิงก์ไปที่อีเมล\n\nขั้นตอนถัดไป:\n1) เปิดอีเมล แล้วคลิกลิงก์\n2) เว็บจะเปิดพร้อมฟอร์ม "ตั้งรหัสผ่านใหม่"\n3) กรอกรหัสใหม่ → กดบันทึก → ล็อกอินใหม่\n\n(เช็ค Junk Mail ด้วย / โควต้าเมล ~2 ฉบับต่อชม.)');
         loginModal.style.display = 'none';
     }
 };
@@ -1557,25 +1611,33 @@ document.getElementById('forgot-password-link').onclick = async (e) => {
 document.getElementById('reset-password-form').onsubmit = async (e) => {
     e.preventDefault();
     const newPassword = document.getElementById('new-password').value;
+    const confirmPassword = document.getElementById('new-password-confirm').value;
     if (!newPassword || newPassword.length < 6) {
         alert('รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร');
+        return;
+    }
+    if (newPassword !== confirmPassword) {
+        alert('รหัสผ่านทั้งสองช่องไม่ตรงกัน');
         return;
     }
 
     const { error } = await db.auth.updateUser({ password: newPassword });
 
     if (error) {
-        alert('เปลี่ยนรหัสไม่สำเร็จ: ' + error.message + '\n\nถ้าขึ้น Auth session missing ให้กดลืมรหัสใหม่ แล้วเปิดลิงก์ในเบราว์เซอร์เดิม');
+        alert('เปลี่ยนรหัสไม่สำเร็จ: ' + error.message + '\n\nให้กดลืมรหัสผ่านใหม่ แล้วคลิกลิงก์จากอีเมลอีกครั้ง (ลิงก์ใช้ได้ครั้งเดียว)');
     } else {
-        alert('เปลี่ยนรหัสผ่านใหม่สำเร็จแล้ว! กรุณาเข้าสู่ระบบอีกครั้ง');
+        alert('เปลี่ยนรหัสผ่านใหม่สำเร็จแล้ว!\nกรุณาเข้าสู่ระบบด้วยรหัสใหม่');
+        pendingPasswordRecovery = false;
         document.getElementById('reset-password-modal').style.display = 'none';
         document.getElementById('reset-password-form').reset();
         await db.auth.signOut();
-        // เคลียร์ token ใน URL
         if (window.history.replaceState) {
-            window.history.replaceState(null, '', window.location.pathname);
+            window.history.replaceState(null, '', window.location.pathname + window.location.search.replace(/\?.*$/, ''));
+            // เก็บ path ของ GitHub Pages ให้ถูกต้อง
+            const base = window.location.pathname.endsWith('/') ? window.location.pathname : window.location.pathname.replace(/\/[^/]*$/, '/');
+            window.history.replaceState(null, '', base || '/');
         }
-        location.reload();
+        location.href = 'https://puimanagerfootball.github.io/TK7/';
     }
 };
 
