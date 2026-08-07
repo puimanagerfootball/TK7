@@ -225,7 +225,7 @@
 
     <div id="app">
         <div id="auth-section">
-    <span class="version-tag">Ver 2.3.0</span>
+    <span class="version-tag">Ver 2.3.1</span>
     
     <!-- สร้าง div ครอบส่วนนี้ไว้ -->
     <div class="auth-user-controls">
@@ -421,7 +421,15 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ3c3lpaXVsZmJvbHlteHBwdm15Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwMjAzMDQsImV4cCI6MjA4ODU5NjMwNH0.3CUw-Bjq_wzzCp6YSl3lThr8f0tWXLHVYnaVL8l1TVs';
 
         const { createClient } = supabase;
-        const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false } });
+        // detectSessionInUrl ต้องเป็น true ไม่งั้นลิงก์รีเซ็ตรหัสจากอีเมลจะไม่ถูกอ่าน
+        const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+            auth: {
+                persistSession: true,
+                autoRefreshToken: true,
+                detectSessionInUrl: true,
+                flowType: 'pkce'
+            }
+        });
         
         const SVG_TRASH = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47M8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5"/></svg>`;
         const SVG_MOVE_TOP = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M7.646 2.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1-.708.708L8 3.707 2.354 9.354a.5.5 0 1 1-.708-.708z"/><path d="M7.646 6.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1-.708.708L8 7.707l-5.646 5.647a.5.5 0 0 1-.708-.708z"/></svg>`;
@@ -513,7 +521,12 @@
             await loadInitialData();
 
             db.auth.onAuthStateChange(async (event, session) => {
-                if (event === 'PASSWORD_RECOVERY') return;
+                if (event === 'PASSWORD_RECOVERY') {
+                    currentUser = session ? session.user : null;
+                    document.getElementById('reset-password-modal').style.display = 'block';
+                    loginModal.style.display = 'none';
+                    return;
+                }
                 const prevId = currentUser?.id || null;
                 currentUser = session ? session.user : null;
                 const nextId = currentUser?.id || null;
@@ -1521,45 +1534,47 @@ renderSchedulePreview(false);
 
 document.getElementById('forgot-password-link').onclick = async (e) => {
     e.preventDefault();
-    const email = document.getElementById('login-email').value;
+    const email = document.getElementById('login-email').value.trim();
     if (!email) {
         alert('กรุณากรอกอีเมลในช่องด้านบนก่อนกดลืมรหัสผ่าน');
         return;
     }
 
+    // ต้องกดลืมรหัส + เปิดลิงก์อีเมลในเบราว์เซอร์เครื่องเดียวกัน (PKCE)
     const { error } = await db.auth.resetPasswordForEmail(email, {
-        redirectTo: 'https://puimanagerfootball.github.io/TK7/', 
+        redirectTo: 'https://puimanagerfootball.github.io/TK7/',
     });
 
     if (error) {
         alert('เกิดข้อผิดพลาด: ' + error.message);
     } else {
-        alert('ระบบส่งลิงก์รีเซ็ตรหัสผ่านไปที่อีเมลของคุณแล้ว (โปรดเช็คใน Junk Mail/อีเมลขยะ ด้วย)');
+        alert('ถ้ามีบัญชีนี้ ระบบจะส่งลิงก์รีเซ็ตรหัสไปที่อีเมล\n\nสำคัญ: เปิดลิงก์ด้วยเบราว์เซอร์เครื่องเดียวกับที่กดลืมรหัสผ่าน\n(โปรดเช็ค Junk Mail ด้วย)');
         loginModal.style.display = 'none';
     }
 };
 
-// --- ส่วนที่ 2: ดักจับเหตุการณ์เมื่อคลิกลิงก์มาจากอีเมล ---
-db.auth.onAuthStateChange(async (event, session) => {
-    if (event === "PASSWORD_RECOVERY") {
-        document.getElementById('reset-password-modal').style.display = 'block';
-    }
-});
-
-// --- ส่วนที่ 3: บันทึกรหัสผ่านใหม่ลงฐานข้อมูล ---
+// --- บันทึกรหัสผ่านใหม่หลังคลิกลิงก์จากอีเมล ---
 document.getElementById('reset-password-form').onsubmit = async (e) => {
     e.preventDefault();
     const newPassword = document.getElementById('new-password').value;
+    if (!newPassword || newPassword.length < 6) {
+        alert('รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร');
+        return;
+    }
 
     const { error } = await db.auth.updateUser({ password: newPassword });
 
     if (error) {
-        alert('เปลี่ยนรหัสไม่สำเร็จ: ' + error.message);
+        alert('เปลี่ยนรหัสไม่สำเร็จ: ' + error.message + '\n\nถ้าขึ้น Auth session missing ให้กดลืมรหัสใหม่ แล้วเปิดลิงก์ในเบราว์เซอร์เดิม');
     } else {
         alert('เปลี่ยนรหัสผ่านใหม่สำเร็จแล้ว! กรุณาเข้าสู่ระบบอีกครั้ง');
         document.getElementById('reset-password-modal').style.display = 'none';
-        // เคลียร์ session และให้เริ่มใหม่
+        document.getElementById('reset-password-form').reset();
         await db.auth.signOut();
+        // เคลียร์ token ใน URL
+        if (window.history.replaceState) {
+            window.history.replaceState(null, '', window.location.pathname);
+        }
         location.reload();
     }
 };
