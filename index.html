@@ -195,6 +195,11 @@
         #share-reg-team-list .team-emblem:hover { filter: brightness(1.15); transform: scale(1.03); }
         #share-reg-hint { font-size: 13px; color: var(--text-muted); text-align: center; margin-top: 8px; min-height: 1.4em; }
         .btn-line { background-color: #06C755; color: #fff; } .btn-line:hover { background-color: #05b34c; }
+        #share-image-preview {
+            display: block; max-width: 100%; max-height: 55vh; margin: 0 auto 12px; border-radius: 8px;
+            border: 1px solid var(--border-color); background: #000; object-fit: contain;
+        }
+        #share-image-modal .modal-content { max-width: 640px; margin: 5% auto; }
         .match-card.draggable { cursor: move; }
         .match-card.dragging { opacity: 0.5; background: var(--primary-variant); }
         .drag-over-placeholder { background: rgba(3, 218, 198, 0.1); border: 2px dashed var(--secondary-color); border-radius: 12px; margin-bottom: 16px; height: 120px; }
@@ -225,7 +230,7 @@
 
     <div id="app">
         <div id="auth-section">
-    <span class="version-tag">Ver 2.3.5</span>
+    <span class="version-tag">Ver 2.3.7</span>
     
     <!-- สร้าง div ครอบส่วนนี้ไว้ -->
     <div class="auth-user-controls">
@@ -300,7 +305,7 @@
             </div>
             
             <div id="page-schedule" class="page">
-                <div class="page-header"><h1>📅 ตารางการแข่งขัน</h1><button id="export-schedule-btn" class="export-btn">📸 Export</button></div>
+                <div class="page-header"><h1>📅 ตารางการแข่งขัน</h1><button id="export-schedule-btn" class="export-btn">💚 แชร์ LINE</button></div>
                 <div class="date-selector-container">
                     <select id="schedule-date-selector"></select>
                     <span id="schedule-template-info" class="template-info-badge" style="display: none;"></span>
@@ -312,13 +317,13 @@
             </div>
 
             <div id="page-scores" class="page">
-                <div class="page-header"><h1>📝 ผลการแข่งขัน</h1><button id="export-scores-btn" class="export-btn">📸 Export</button></div>
+                <div class="page-header"><h1>📝 ผลการแข่งขัน</h1><button id="export-scores-btn" class="export-btn">💚 แชร์ LINE</button></div>
                  <div class="date-selector-container"><select id="scores-date-selector"></select></div>
                  <div id="scores-container"></div>
             </div>
 
             <div id="page-leaderboard" class="page">
-                 <div class="page-header"><h1>📊 ตารางคะแนน</h1><button id="export-leaderboard-btn" class="export-btn">📸 Export</button></div>
+                 <div class="page-header"><h1>📊 ตารางคะแนน</h1><button id="export-leaderboard-btn" class="export-btn">💚 แชร์ LINE</button></div>
                  <div class="date-selector-container"><select id="leaderboard-date-selector"></select></div>
                  <div id="leaderboard-container" class="leaderboard-container"></div>
             </div>
@@ -388,6 +393,22 @@
     </div>
 </div>
     <div id="team-select-modal" class="modal"><div class="modal-content"><span class="close-modal-btn">×</span><h2 id="team-select-modal-title">เลือกทีม</h2><div id="team-select-modal-list"></div></div></div>
+
+    <div id="share-image-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal-btn">×</span>
+            <h2>💚 แชร์รูปไป LINE</h2>
+            <p id="share-image-hint" style="text-align:center;color:var(--text-muted);font-size:13px;margin-bottom:12px;line-height:1.5;">
+                บน PC: คลิกขวาที่รูป → <b>Copy image</b> → เปิด LINE แล้ว Ctrl+V<br>
+                หรือกดดาวน์โหลด แล้วแนบรูปในแชท LINE
+            </p>
+            <img id="share-image-preview" alt="preview">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                <button type="button" id="share-image-download-btn" class="btn btn-primary">📥 ดาวน์โหลด</button>
+                <button type="button" id="share-image-close-btn" class="btn btn-secondary">ปิด</button>
+            </div>
+        </div>
+    </div>
 
     <div id="share-reg-modal" class="modal">
         <div class="modal-content">
@@ -580,7 +601,11 @@
             document.querySelector('#team-select-modal .close-modal-btn').addEventListener('click', () => teamSelectModal.style.display = 'none');
             document.querySelector('#members-modal .close-modal-btn').addEventListener('click', () => membersModal.style.display = 'none');
             const shareRegModal = document.getElementById('share-reg-modal');
+            const shareImageModal = document.getElementById('share-image-modal');
             document.querySelector('#share-reg-modal .close-modal-btn').addEventListener('click', () => shareRegModal.style.display = 'none');
+            document.querySelector('#share-image-modal .close-modal-btn').addEventListener('click', closeShareImageModal);
+            document.getElementById('share-image-close-btn').addEventListener('click', closeShareImageModal);
+            document.getElementById('share-image-download-btn').addEventListener('click', downloadShareImage);
             document.querySelectorAll('#share-reg-modal .share-mode-btn').forEach(btn => {
                 btn.addEventListener('click', () => setShareRegMode(btn.dataset.mode));
             });
@@ -596,6 +621,7 @@
                 if (event.target == loginModal || event.target == teamSelectModal || event.target == shareRegModal || event.target == membersModal) {
                     event.target.style.display = "none";
                 }
+                if (event.target == shareImageModal) closeShareImageModal();
             });
             contentContainer.addEventListener('click', handleMainClick);
             setupDragAndDropListeners(document.getElementById('schedule-container'));
@@ -1268,19 +1294,81 @@
 
             try {
                 await loadHtml2Canvas();
-                await exportElementAsPNG(elementId, filename, buttonElement);
+                await shareElementToLine(elementId, filename, buttonElement);
             } catch (error) {
                 console.error("Failed to load html2canvas script:", error);
-                alert("เกิดข้อผิดพลาดในการโหลดเครื่องมือ Export");
+                alert("เกิดข้อผิดพลาดในการโหลดเครื่องมือแชร์");
             } finally {
                 buttonElement.innerHTML = originalText;
                 buttonElement.disabled = false;
             }
         }
 
-        async function exportElementAsPNG(elementId, filename, buttonElement) {
+        let shareImageObjectUrl = null;
+        let shareImageFilename = 'TK7.png';
+
+        function canvasToBlob(canvas, type = 'image/png', quality) {
+            return new Promise((resolve, reject) => {
+                canvas.toBlob((blob) => {
+                    if (blob) resolve(blob);
+                    else reject(new Error('สร้างไฟล์รูปไม่สำเร็จ'));
+                }, type, quality);
+            });
+        }
+
+        function closeShareImageModal() {
+            const modal = document.getElementById('share-image-modal');
+            if (modal) modal.style.display = 'none';
+            if (shareImageObjectUrl) {
+                URL.revokeObjectURL(shareImageObjectUrl);
+                shareImageObjectUrl = null;
+            }
+            const preview = document.getElementById('share-image-preview');
+            if (preview) preview.removeAttribute('src');
+        }
+
+        function openShareImageModal(blob, filename) {
+            shareImageFilename = filename || 'TK7.png';
+            if (shareImageObjectUrl) URL.revokeObjectURL(shareImageObjectUrl);
+            shareImageObjectUrl = URL.createObjectURL(blob);
+            const preview = document.getElementById('share-image-preview');
+            preview.src = shareImageObjectUrl;
+            document.getElementById('share-image-modal').style.display = 'block';
+        }
+
+        function downloadShareImage() {
+            if (!shareImageObjectUrl) return;
+            const link = document.createElement('a');
+            link.download = shareImageFilename;
+            link.href = shareImageObjectUrl;
+            link.click();
+            showToast('📥 ดาวน์โหลดแล้ว — เปิด LINE แล้วแนบรูปได้');
+        }
+
+        async function shareImageBlob(blob, filename, title) {
+            const file = new File([blob], filename, { type: blob.type || 'image/png' });
+
+            // มือถือ: เปิดเมนูแชร์ แล้วเลือก LINE ได้
+            if (isMobileDevice() && navigator.canShare && navigator.canShare({ files: [file] })) {
+                await navigator.share({
+                    files: [file],
+                    title: title || 'TK7',
+                    text: title || 'TK7 FridayNight'
+                });
+                showToast('💚 เปิดเมนูแชร์แล้ว — เลือก LINE ได้เลย');
+                return 'shared';
+            }
+
+            // PC / ไม่รองรับ Web Share: โชว์รูปให้ Copy image หรือดาวน์โหลด
+            // (Clipboard API มักวางใน LINE Desktop ไม่ได้)
+            openShareImageModal(blob, filename);
+            showToast('คลิกขวาที่รูป → Copy image แล้ววางใน LINE');
+            return 'preview';
+        }
+
+        async function shareElementToLine(elementId, filename, buttonElement) {
             const element = document.getElementById(elementId);
-            if (!element || element.innerHTML.includes('no-data-message')) { alert('ไม่มีข้อมูลให้ Export'); return; }
+            if (!element || element.innerHTML.includes('no-data-message')) { alert('ไม่มีข้อมูลให้แชร์'); return; }
             const originalText = buttonElement.innerHTML; buttonElement.innerHTML = '⌛ กำลังสร้าง...'; buttonElement.disabled = true;
             const exportWrapper = document.createElement('div'); exportWrapper.className = 'temp-export-container';
             const headerDiv = document.createElement('div'); headerDiv.className = 'export-header';
@@ -1296,14 +1384,15 @@
             
             try {
                 const canvas = await html2canvas(exportWrapper, { backgroundColor: '#121212', useCORS: true, scale: 2 });
-                const link = document.createElement('a');
-                link.download = filename;
-                link.href = canvas.toDataURL('image/png');
-                link.click();
-                showToast('✅ ดาวน์โหลดสำเร็จ!');
+                const blob = await canvasToBlob(canvas, 'image/png');
+                await shareImageBlob(blob, filename, `TK7 ${title} ${formattedDate}`);
             } catch (err) {
-                console.error('Oops!', err);
-                alert('เกิดข้อผิดพลาดในการสร้างรูปภาพ');
+                if (err && err.name === 'AbortError') {
+                    showToast('ยกเลิกการแชร์');
+                } else {
+                    console.error('Share failed:', err);
+                    alert('เกิดข้อผิดพลาดในการแชร์รูปภาพ');
+                }
             } finally {
                 document.body.removeChild(exportWrapper);
                 buttonElement.innerHTML = originalText;
