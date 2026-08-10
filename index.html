@@ -1125,6 +1125,51 @@
         .match-card.draggable { cursor: move; }
         .match-card.dragging { opacity: 0.5; background: var(--primary-variant); }
         .drag-over-placeholder { background: rgba(46, 125, 50, 0.12); border: 2px dashed var(--primary-color); border-radius: 12px; margin-bottom: 16px; height: 120px; }
+        /* มือถือ: บังคับแนวจอตามหน้า — ถ้าหมุนผิดให้บังคับหมุนกลับ */
+        .orient-hint {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 200000;
+            background: rgba(20, 50, 24, 0.94);
+            color: #fff;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 28px 24px;
+            gap: 12px;
+            font-family: 'Kanit', sans-serif;
+        }
+        body.wrong-orient .orient-hint { display: flex; }
+        .orient-hint .orient-icon {
+            font-size: 56px;
+            line-height: 1;
+            animation: orient-tilt 1.4s ease-in-out infinite;
+        }
+        .orient-hint p {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+            line-height: 1.45;
+            white-space: pre-line;
+        }
+        .orient-hint small {
+            font-size: 13px;
+            color: rgba(255,255,255,0.72);
+        }
+        @keyframes orient-tilt {
+            0%, 100% { transform: rotate(-18deg); }
+            50% { transform: rotate(18deg); }
+        }
+        body.force-orient-landscape.wrong-orient .orient-hint .orient-icon {
+            animation-name: orient-tilt-land;
+        }
+        @keyframes orient-tilt-land {
+            0%, 100% { transform: rotate(72deg); }
+            50% { transform: rotate(108deg); }
+        }
+
         .toast-notification {
             position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
             background: #43a047;
@@ -1676,7 +1721,7 @@
     <div id="app">
         <div id="auth-section">
     <div class="auth-meta">
-        <span class="version-tag">Ver 4.0.1</span>
+        <span class="version-tag">Ver 4.0.2</span>
         <span id="user-info"></span>
     </div>
     <div class="auth-user-controls">
@@ -2345,6 +2390,7 @@
             };
 
             setupNavigation();
+            setupOrientationGuard();
             document.querySelector('#login-modal .close-modal-btn').addEventListener('click', () => loginModal.style.display = 'none');
             document.querySelector('#team-select-modal .close-modal-btn').addEventListener('click', () => teamSelectModal.style.display = 'none');
             document.querySelector('#members-modal .close-modal-btn').addEventListener('click', () => membersModal.style.display = 'none');
@@ -3292,6 +3338,59 @@
             });
         }
         
+        function isPhoneLikeDevice() {
+            const ua = navigator.userAgent || '';
+            if (/Android|iPhone|iPod|Mobile/i.test(ua)) return true;
+            if (/iPad/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) return true;
+            return window.matchMedia('(max-width: 920px) and (hover: none)').matches;
+        }
+
+        function desiredOrientationForPage(pageId) {
+            return pageId === 'page-leaderboard' ? 'landscape' : 'portrait';
+        }
+
+        function updateOrientHint() {
+            const hint = document.getElementById('orient-hint');
+            const textEl = document.getElementById('orient-hint-text');
+            if (!hint || !textEl) return;
+            if (!isPhoneLikeDevice()) {
+                document.body.classList.remove('wrong-orient', 'force-orient-portrait', 'force-orient-landscape');
+                return;
+            }
+            const needLandscape = document.body.classList.contains('force-orient-landscape');
+            const isLandscape = window.matchMedia('(orientation: landscape)').matches;
+            const wrong = needLandscape ? !isLandscape : isLandscape;
+            document.body.classList.toggle('wrong-orient', wrong);
+            textEl.textContent = needLandscape
+                ? 'หมุนเครื่องเป็นแนวนอน\nเพื่อดูตารางคะแนน'
+                : 'หมุนเครื่องเป็นแนวตั้ง';
+        }
+
+        async function applyPageOrientation(pageId = activePage) {
+            const mobile = isPhoneLikeDevice();
+            const want = desiredOrientationForPage(pageId);
+            document.body.classList.toggle('force-orient-portrait', mobile && want === 'portrait');
+            document.body.classList.toggle('force-orient-landscape', mobile && want === 'landscape');
+            updateOrientHint();
+
+            if (!mobile || !screen.orientation) return;
+            try {
+                if (typeof screen.orientation.lock === 'function') {
+                    await screen.orientation.lock(want);
+                }
+            } catch (_) {
+                /* iOS / บางเบราว์เซอร์ล็อกไม่ได้ — ใช้ overlay แทน */
+            }
+        }
+
+        function setupOrientationGuard() {
+            window.addEventListener('orientationchange', () => applyPageOrientation(activePage));
+            window.addEventListener('resize', () => updateOrientHint());
+            if (screen.orientation && typeof screen.orientation.addEventListener === 'function') {
+                screen.orientation.addEventListener('change', () => updateOrientHint());
+            }
+        }
+
         function setActivePage(pageId) { 
             if (!canManage() && pageId === 'page-setup') { alert(currentUser ? 'บัญชีของคุณยังไม่ได้รับอนุมัติจาก Superadmin' : 'คุณต้องเข้าสู่ระบบผู้ดูแลเพื่อเข้าถึงหน้านี้'); if (!currentUser) loginModal.style.display = 'block'; return; } 
             activePage = pageId; shouldRestoreScroll = false; 
@@ -3301,6 +3400,7 @@
             content.scrollTop = 0; 
             if (pageId === 'page-leaderboard') { renderLeaderboardPage(currentDateKey); }
             if (pageId === 'page-lineup') { renderLineupPage(); }
+            applyPageOrientation(pageId);
         }
 
         function getCurrentFormation() {
@@ -4485,6 +4585,12 @@ document.getElementById('reset-password-form').onsubmit = async (e) => {
         initializeApp();
     });
     </script>
+
+    <div id="orient-hint" class="orient-hint" aria-live="polite">
+        <div class="orient-icon" aria-hidden="true">📱</div>
+        <p id="orient-hint-text">หมุนเครื่องเป็นแนวตั้ง</p>
+        <small>หน้าตารางคะแนนใช้แนวนอน · หน้าอื่นใช้แนวตั้ง</small>
+    </div>
 
     <div id="template-manager-modal" class="modal">
         <div class="modal-content" style="max-width: 600px;">
