@@ -574,31 +574,414 @@
         @keyframes toast-out { from { transform: translate(-50%, 0); opacity: 1; } to { transform: translate(-50%, 20px); opacity: 0; } }
         #schedule-preview-content,
         #schedule-opener-content {
-            display: flex; justify-content: center; align-items: center; gap: 15px; padding: 10px; min-height: 60px;
-        }
-        #schedule-preview-content .team-emblem,
-        #schedule-preview-content .opener-pick,
-        #schedule-opener-content .team-emblem,
-        #schedule-opener-content .opener-pick { transform: scale(0.9); }
-        #schedule-preview-content .opener-pick,
-        #schedule-opener-content .opener-pick {
-            cursor: pointer; font-family: 'Kanit', sans-serif; appearance: none;
-            transition: transform 0.15s ease, filter 0.15s ease;
-        }
-        #schedule-preview-content .opener-pick:hover,
-        #schedule-opener-content .opener-pick:hover {
-            filter: brightness(1.12); transform: scale(0.98);
-        }
-        #schedule-preview-content .opener-pick:active,
-        #schedule-opener-content .opener-pick:active { transform: scale(0.92); }
-        #schedule-opener-content .opener-pick:disabled {
-            cursor: default; filter: none; transform: scale(0.9);
+            display: flex; justify-content: center; align-items: center; padding: 6px 4px 10px; min-height: 70px;
         }
         .opener-pick-hint {
             text-align: center; font-size: 12px; color: var(--text-muted);
             margin: -4px 0 8px; line-height: 1.4;
         }
         #schedule-opener-card { margin-bottom: 12px; }
+
+        .opener-slot {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            perspective: 900px;
+        }
+        .opener-slot-machine {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            width: 100%;
+            max-width: 440px;
+            padding: 16px 16px 18px;
+            border-radius: 18px;
+            transform: rotateX(6deg);
+            transform-style: preserve-3d;
+            background:
+                linear-gradient(145deg, rgba(255,255,255,0.14) 0%, transparent 38%),
+                linear-gradient(180deg, #2a2f33 0%, #141618 48%, #0c0e10 100%);
+            border: 1px solid rgba(180, 200, 210, 0.28);
+            box-shadow:
+                0 1px 0 rgba(255,255,255,0.18) inset,
+                0 -10px 18px rgba(0,0,0,0.45) inset,
+                0 14px 0 #070809,
+                0 18px 28px rgba(0,0,0,0.55),
+                0 0 0 1px rgba(0,0,0,0.65);
+        }
+        .opener-slot-machine::before {
+            content: '';
+            position: absolute;
+            inset: 5px;
+            border-radius: 14px;
+            pointer-events: none;
+            background:
+                linear-gradient(180deg, rgba(3,218,198,0.1), transparent 40%),
+                radial-gradient(120% 80% at 50% 0%, rgba(255,255,255,0.08), transparent 55%);
+            box-shadow:
+                0 0 0 1px rgba(3,218,198,0.22) inset,
+                0 0 18px rgba(3,218,198,0.08) inset;
+        }
+        .opener-slot-machine::after {
+            content: '';
+            position: absolute;
+            left: 14px;
+            right: 14px;
+            top: 7px;
+            height: 10px;
+            border-radius: 999px;
+            pointer-events: none;
+            background: linear-gradient(180deg, rgba(255,255,255,0.22), transparent);
+            opacity: 0.55;
+        }
+        .opener-reel {
+            position: relative;
+            flex: 1;
+            min-width: 0;
+            z-index: 1;
+            transform-style: preserve-3d;
+        }
+        .opener-reel-bezel {
+            padding: 4px;
+            border-radius: 14px;
+            background:
+                linear-gradient(160deg, #f2f2f2 0%, #9aa0a6 28%, #4d5258 52%, #cfd3d7 78%, #6b7076 100%);
+            box-shadow:
+                0 1px 0 rgba(255,255,255,0.55) inset,
+                0 -1px 0 rgba(0,0,0,0.45) inset,
+                0 8px 14px rgba(0,0,0,0.45),
+                0 2px 0 #1a1d20;
+        }
+        .opener-reel-window {
+            position: relative;
+            overflow: hidden;
+            border-radius: 10px;
+            min-height: 54px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background:
+                radial-gradient(120% 100% at 50% 0%, rgba(255,255,255,0.08), transparent 45%),
+                linear-gradient(180deg, #0a0c0e, #15191d 55%, #050607);
+            border: 1px solid rgba(0,0,0,0.65);
+            box-shadow:
+                0 0 0 1px rgba(255,255,255,0.08) inset,
+                0 12px 18px rgba(0,0,0,0.65) inset,
+                0 -8px 14px rgba(255,255,255,0.04) inset;
+        }
+        .opener-reel-window::before,
+        .opener-reel-window::after {
+            content: '';
+            position: absolute;
+            left: 0; right: 0;
+            pointer-events: none;
+            z-index: 2;
+        }
+        .opener-reel-window::before {
+            top: 0;
+            height: 16px;
+            background: linear-gradient(180deg, rgba(0,0,0,0.75), transparent);
+        }
+        .opener-reel-window::after {
+            bottom: 0;
+            height: 16px;
+            background: linear-gradient(0deg, rgba(0,0,0,0.75), transparent);
+        }
+        .opener-reel-glass {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 3;
+            background:
+                linear-gradient(115deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.05) 28%, transparent 42%),
+                linear-gradient(180deg, transparent 40%, rgba(3,218,198,0.06));
+            mix-blend-mode: screen;
+            opacity: 0.65;
+        }
+        .opener-reel-window .team-emblem {
+            width: calc(100% - 8px);
+            min-width: 0;
+            margin: 4px;
+            transform: translateZ(0);
+            border-radius: 9px;
+            box-shadow:
+                0 6px 10px rgba(0,0,0,0.4),
+                0 1px 0 rgba(255,255,255,0.18) inset;
+            transition: transform 0.08s linear, filter 0.08s linear, box-shadow 0.15s ease;
+        }
+        .opener-reel-window .team-emblem.opener-pick {
+            cursor: pointer;
+            font-family: 'Kanit', sans-serif;
+            appearance: none;
+            border: none;
+        }
+        .opener-reel-window .team-emblem.opener-pick:hover {
+            filter: brightness(1.14);
+            box-shadow:
+                0 8px 14px rgba(0,0,0,0.45),
+                0 0 0 1px rgba(255,255,255,0.15) inset,
+                0 0 16px rgba(3,218,198,0.25);
+        }
+        .opener-reel-window .team-emblem.opener-pick:active {
+            transform: translateY(1px) scale(0.97);
+        }
+        .opener-slot-machine.spinning .opener-reel-window .team-emblem {
+            filter: brightness(1.2) saturate(1.1);
+            transform: translateY(2px) scale(0.97);
+            pointer-events: none;
+        }
+        .opener-slot-machine .vs {
+            position: relative;
+            z-index: 1;
+            flex-shrink: 0;
+            min-width: 36px;
+            height: 36px;
+            display: grid;
+            place-items: center;
+            border-radius: 50%;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            color: #0b1214;
+            background:
+                radial-gradient(circle at 30% 25%, #ffffff, #b7c0c6 45%, #6d757c 100%);
+            border: 1px solid rgba(255,255,255,0.35);
+            box-shadow:
+                0 1px 0 rgba(255,255,255,0.7) inset,
+                0 -2px 4px rgba(0,0,0,0.35) inset,
+                0 6px 10px rgba(0,0,0,0.45),
+                0 0 12px rgba(3,218,198,0.2);
+            text-shadow: 0 1px 0 rgba(255,255,255,0.35);
+        }
+        /* คันชักแบบคันเร่งเครื่องบิน — เลื่อนขึ้น/ลงตามราง */
+        .opener-lever {
+            --lever-y: 6px;
+            position: relative;
+            width: 64px;
+            height: 100px;
+            flex-shrink: 0;
+            border: none;
+            background: transparent;
+            padding: 0;
+            cursor: grab;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            z-index: 2;
+            transform: translateZ(18px);
+            filter: drop-shadow(0 10px 12px rgba(0,0,0,0.45));
+        }
+        .opener-lever:active { cursor: grabbing; }
+        .opener-lever:disabled {
+            cursor: default;
+            opacity: 0.72;
+        }
+        .opener-lever .lever-console {
+            position: absolute;
+            inset: 0;
+            border-radius: 12px;
+            background:
+                linear-gradient(115deg, rgba(255,255,255,0.2) 0%, transparent 30%),
+                linear-gradient(180deg, #3a4046 0%, #1b1f24 42%, #0d1013 100%);
+            border: 1px solid rgba(210, 220, 230, 0.28);
+            box-shadow:
+                0 1px 0 rgba(255,255,255,0.25) inset,
+                0 -8px 14px rgba(0,0,0,0.55) inset,
+                0 8px 0 #07090b,
+                0 12px 16px rgba(0,0,0,0.4);
+        }
+        .opener-lever .lever-console::after {
+            content: '';
+            position: absolute;
+            left: 8px;
+            right: 8px;
+            top: 6px;
+            height: 8px;
+            border-radius: 999px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.28), transparent);
+            opacity: 0.55;
+        }
+        .opener-lever .lever-rail {
+            position: absolute;
+            left: 50%;
+            top: 12px;
+            bottom: 12px;
+            width: 18px;
+            margin-left: -9px;
+            border-radius: 10px;
+            background:
+                linear-gradient(90deg, #050607 0%, #2f343a 40%, #0b0d10 100%);
+            border: 1px solid rgba(255,255,255,0.12);
+            box-shadow:
+                0 0 0 1px rgba(0,0,0,0.7) inset,
+                0 8px 12px rgba(0,0,0,0.65) inset,
+                0 0 10px rgba(3,218,198,0.08);
+        }
+        .opener-lever .lever-rail::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 5px;
+            bottom: 5px;
+            width: 4px;
+            margin-left: -2px;
+            border-radius: 999px;
+            background:
+                linear-gradient(180deg, #d7dde3 0%, #7a828a 35%, #dce2e7 55%, #4a5056 100%);
+            box-shadow:
+                1px 0 0 rgba(255,255,255,0.25),
+                -1px 0 0 rgba(0,0,0,0.55),
+                0 0 8px rgba(255,255,255,0.12);
+        }
+        .opener-lever .lever-marks {
+            position: absolute;
+            right: 7px;
+            top: 16px;
+            bottom: 16px;
+            width: 9px;
+            background:
+                repeating-linear-gradient(
+                    180deg,
+                    rgba(3,218,198,0.85) 0 2px,
+                    rgba(255,255,255,0.08) 2px 3px,
+                    transparent 3px 11px
+                );
+            opacity: 0.85;
+            border-radius: 1px;
+            filter: drop-shadow(0 0 4px rgba(3,218,198,0.35));
+        }
+        .opener-lever .lever-grip {
+            position: absolute;
+            left: 50%;
+            top: var(--lever-y);
+            width: 52px;
+            height: 48px;
+            margin-left: -26px;
+            z-index: 3;
+            transition: top 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
+            filter: drop-shadow(0 8px 10px rgba(0,0,0,0.65));
+        }
+        .opener-lever .lever-knob {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            width: 46px;
+            height: 34px;
+            margin-left: -23px;
+            border-radius: 14px 14px 12px 12px;
+            background:
+                radial-gradient(circle at 30% 18%, rgba(255,255,255,0.7), transparent 34%),
+                radial-gradient(circle at 70% 85%, rgba(0,80,70,0.55), transparent 45%),
+                linear-gradient(180deg, #6ff7e8 0%, #03dac6 38%, #018786 72%, #004d40 100%);
+            border: 2px solid rgba(255,255,255,0.55);
+            box-shadow:
+                0 2px 0 rgba(255,255,255,0.55) inset,
+                0 -5px 10px rgba(0,0,0,0.45) inset,
+                0 6px 0 #015a54,
+                0 10px 16px rgba(0,0,0,0.5),
+                0 0 18px rgba(3,218,198,0.55);
+        }
+        .opener-lever .lever-knob::before {
+            content: '';
+            position: absolute;
+            left: 6px;
+            right: 6px;
+            top: 4px;
+            height: 10px;
+            border-radius: 999px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.75), rgba(255,255,255,0.05));
+        }
+        .opener-lever .lever-knob::after {
+            content: 'PULL';
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 12px;
+            text-align: center;
+            font-size: 9px;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            color: #00332e;
+            text-shadow: 0 1px 0 rgba(255,255,255,0.35);
+            font-family: 'Kanit', sans-serif;
+        }
+        .opener-lever .lever-stem {
+            position: absolute;
+            left: 50%;
+            top: 28px;
+            width: 12px;
+            height: 18px;
+            margin-left: -6px;
+            border-radius: 0 0 5px 5px;
+            background:
+                linear-gradient(90deg, #5a6168 0%, #f4f7fa 36%, #a7b0b8 58%, #3a4046 100%);
+            border: 1px solid rgba(0,0,0,0.45);
+            box-shadow:
+                0 1px 0 rgba(255,255,255,0.55) inset,
+                0 5px 8px rgba(0,0,0,0.4);
+        }
+        .opener-lever:hover:not(:disabled) .lever-knob {
+            filter: brightness(1.08);
+            box-shadow:
+                0 2px 0 rgba(255,255,255,0.65) inset,
+                0 -5px 10px rgba(0,0,0,0.45) inset,
+                0 6px 0 #015a54,
+                0 10px 16px rgba(0,0,0,0.5),
+                0 0 28px rgba(3,218,198,0.75);
+        }
+        .opener-lever.pulled {
+            --lever-y: 50px;
+        }
+        .opener-lever.pulled .lever-grip {
+            transition-duration: 0.16s;
+            transition-timing-function: cubic-bezier(0.4, 0, 1, 1);
+            filter: drop-shadow(0 3px 4px rgba(0,0,0,0.55));
+        }
+        .opener-lever.pulled .lever-knob {
+            box-shadow:
+                0 1px 0 rgba(255,255,255,0.4) inset,
+                0 -3px 6px rgba(0,0,0,0.5) inset,
+                0 3px 0 #014843,
+                0 5px 8px rgba(0,0,0,0.45),
+                0 0 22px rgba(3,218,198,0.65);
+        }
+        .opener-slot-machine.spinning {
+            box-shadow:
+                0 1px 0 rgba(255,255,255,0.18) inset,
+                0 -10px 18px rgba(0,0,0,0.45) inset,
+                0 14px 0 #070809,
+                0 18px 28px rgba(0,0,0,0.55),
+                0 0 24px rgba(3,218,198,0.18);
+        }
+        .opener-slot-machine.spinning .opener-reel-window {
+            box-shadow:
+                0 0 0 1px rgba(255,255,255,0.08) inset,
+                0 12px 18px rgba(0,0,0,0.65) inset,
+                0 0 18px rgba(3,218,198,0.25);
+        }
+        .opener-slot-machine.spinning .vs {
+            box-shadow:
+                0 1px 0 rgba(255,255,255,0.7) inset,
+                0 -2px 4px rgba(0,0,0,0.35) inset,
+                0 6px 10px rgba(0,0,0,0.45),
+                0 0 18px rgba(3,218,198,0.45);
+        }
+        @media (max-width: 767px) {
+            .opener-slot-machine {
+                gap: 8px;
+                padding: 12px 10px 14px;
+                transform: rotateX(4deg);
+            }
+            .opener-lever { width: 56px; height: 94px; }
+            .opener-lever .lever-knob { width: 44px; height: 32px; margin-left: -22px; }
+            .opener-lever .lever-knob::after { font-size: 8px; top: 11px; }
+            .opener-lever.pulled { --lever-y: 48px; }
+            .opener-reel-window { min-height: 48px; }
+            .opener-reel-window .team-emblem { font-size: 13px; padding: 6px 8px; }
+            .opener-slot-machine .vs { min-width: 32px; height: 32px; font-size: 11px; }
+        }
 
         /* --- STYLES FOR EXPORT ONLY --- */
         .temp-export-container { position: absolute; left: -9999px; top: 0; background-color: var(--bg-color); padding: 20px; width: 840px; }
@@ -621,7 +1004,7 @@
     <div id="app">
         <div id="auth-section">
     <div class="auth-meta">
-        <span class="version-tag">Ver 2.7.9</span>
+        <span class="version-tag">Ver 2.8.4</span>
         <span id="user-info"></span>
     </div>
     <div class="auth-user-controls">
@@ -669,7 +1052,7 @@
                     </div>
                     <div class="card" id="schedule-preview-card" style="display: none;">
                         <h2>🏆 นัดเปิดสนาม</h2>
-                        <p class="opener-pick-hint">แตะสีทีมเพื่อเลือกคู่เปิดตอนสร้างตาราง</p>
+                        <p class="opener-pick-hint">แตะสีทีมเพื่อเลือกเอง หรือดึงคันชักเพื่อสุ่ม</p>
                         <div id="schedule-preview-content"></div>
                         <select id="lock-team-1" hidden aria-hidden="true"></select>
                         <select id="lock-team-2" hidden aria-hidden="true"></select>
@@ -692,7 +1075,7 @@
                 </div>
                 <div class="card" id="schedule-opener-card" style="display: none;">
                     <h2>🏆 นัดเปิดสนาม</h2>
-                    <p class="opener-pick-hint">แตะสีทีมแล้วกดอัปเดตเพื่อสร้างตารางใหม่ทั้งชุด</p>
+                    <p class="opener-pick-hint">แตะสีทีมหรือดึงคันชักสุ่ม แล้วกดอัปเดตเพื่อสร้างตารางใหม่ทั้งชุด</p>
                     <div id="schedule-opener-content"></div>
                     <button type="button" id="schedule-update-btn" class="btn btn-warning" style="display: none; width: 100%; margin-top: 12px;">💾 อัปเดตตารางแข่งขัน</button>
                 </div>
@@ -867,8 +1250,8 @@
                                 <ol>
                                     <li>เลือกวัน / เวลาเริ่ม / นาทีต่อแมตช์</li>
                                     <li>ติ๊กทีมที่ลงแข่ง</li>
-                                    <li>เลือกรูปแบบ + คู่เปิด แล้วกดบันทึก / อัปเดต</li>
-                                    <li>หลังสร้างแล้ว เปลี่ยนคู่เปิดได้ที่ตารางแข่ง</li>
+                                    <li>เลือกรูปแบบ + แตะสีทีมหรือดึงคันชักสุ่มคู่เปิด แล้วกดบันทึก / อัปเดต</li>
+                                    <li>หลังสร้างแล้ว เปลี่ยนคู่เปิดได้ที่ตารางแข่งเช่นกัน</li>
                                     <li>แชร์รูปแบบลงทะเบียน LINE ได้</li>
                                 </ol>
                                 <div class="help-note">เห็นเมนูนี้เฉพาะ Admin ที่อนุมัติแล้ว</div>
@@ -1750,26 +2133,209 @@
             return schedule.map(match => ({ ...match, homeScore: null, awayScore: null }));
         }
 
-        function cycleScheduleOpenerTeam(side) {
-            if (!canManage()) return;
-            const date = currentDateKey;
-            const dayData = appData[date];
-            if (!dayData?.schedule?.length) return;
-            const activeTeams = getScheduleTeamPool(date);
-            if (activeTeams.length < 2) return;
-            const opener = getScheduleOpenerPair(date) || { home: dayData.schedule[0].home, away: dayData.schedule[0].away };
-            const other = side === 'home' ? opener.away : opener.home;
-            const current = side === 'home' ? opener.home : opener.away;
-            const candidates = activeTeams.filter(slug => slug !== other);
-            if (!candidates.length) return;
+        let openerSpinning = false;
+
+        function pickRandomOpenerPair(teamPool, currentPair = null) {
+            if (!Array.isArray(teamPool) || teamPool.length < 2) return null;
+            let home = teamPool[0];
+            let away = teamPool[1];
+            for (let i = 0; i < 12; i++) {
+                home = teamPool[Math.floor(Math.random() * teamPool.length)];
+                const others = teamPool.filter(slug => slug !== home);
+                away = others[Math.floor(Math.random() * others.length)];
+                if (!currentPair || home !== currentPair.home || away !== currentPair.away) break;
+            }
+            return { home, away };
+        }
+
+        function setOpenerReelTeam(reelWindow, slug, { clickable = false, side = '' } = {}) {
+            if (!reelWindow) return;
+            const team = TEAMS.find(t => t.slug === slug);
+            if (!team) return;
+            const clickableClass = clickable ? ' opener-pick' : '';
+            const sideAttr = side ? ` data-side="${side}"` : '';
+            const title = clickable ? ` title="แตะเพื่อเปลี่ยนทีม"` : '';
+            const teamHtml = clickable
+                ? `<button type="button" class="team-emblem ${team.slug}${clickableClass}"${sideAttr}${title}>${escapeHtml(team.name)}</button>`
+                : `<div class="team-emblem ${team.slug}">${escapeHtml(team.name)}</div>`;
+            reelWindow.innerHTML = `${teamHtml}<span class="opener-reel-glass" aria-hidden="true"></span>`;
+        }
+
+        function getOpenerPairFromRoot(root) {
+            const homeBtn = root.querySelector('[data-reel="home"] .team-emblem');
+            const awayBtn = root.querySelector('[data-reel="away"] .team-emblem');
+            const homeSlug = [...(homeBtn?.classList || [])].find(c => TEAMS.some(t => t.slug === c));
+            const awaySlug = [...(awayBtn?.classList || [])].find(c => TEAMS.some(t => t.slug === c));
+            if (!homeSlug || !awaySlug) return null;
+            return { home: homeSlug, away: awaySlug };
+        }
+
+        function cycleOpenerPairSide(currentPair, side, teamPool) {
+            if (!currentPair || !teamPool || teamPool.length < 2) return null;
+            const other = side === 'home' ? currentPair.away : currentPair.home;
+            const current = side === 'home' ? currentPair.home : currentPair.away;
+            const candidates = teamPool.filter(slug => slug !== other);
+            if (!candidates.length) return null;
             const idx = Math.max(0, candidates.indexOf(current));
             const next = candidates[(idx + 1) % candidates.length];
-            scheduleOpenerDraft = {
-                date,
-                home: side === 'home' ? next : opener.home,
-                away: side === 'away' ? next : opener.away
+            return {
+                home: side === 'home' ? next : currentPair.home,
+                away: side === 'away' ? next : currentPair.away
             };
-            renderScheduleOpenerCard(date);
+        }
+
+        function buildOpenerSlotHtml(homeSlug, awaySlug, { showLever = true, clickable = true } = {}) {
+            const homeTeam = TEAMS.find(t => t.slug === homeSlug);
+            const awayTeam = TEAMS.find(t => t.slug === awaySlug);
+            if (!homeTeam || !awayTeam) return '';
+            const leverHtml = showLever
+                ? `<button type="button" class="opener-lever" title="ดึงคันชักสุ่มคู่เปิดสนาม" aria-label="ดึงคันชักสุ่มคู่เปิดสนาม">
+                        <span class="lever-console"></span>
+                        <span class="lever-rail"></span>
+                        <span class="lever-marks"></span>
+                        <span class="lever-grip">
+                            <span class="lever-knob"></span>
+                            <span class="lever-stem"></span>
+                        </span>
+                   </button>`
+                : '';
+            const homeEl = clickable
+                ? `<button type="button" class="team-emblem ${homeTeam.slug} opener-pick" data-side="home" title="แตะเพื่อเปลี่ยนทีม">${escapeHtml(homeTeam.name)}</button>`
+                : `<div class="team-emblem ${homeTeam.slug}">${escapeHtml(homeTeam.name)}</div>`;
+            const awayEl = clickable
+                ? `<button type="button" class="team-emblem ${awayTeam.slug} opener-pick" data-side="away" title="แตะเพื่อเปลี่ยนทีม">${escapeHtml(awayTeam.name)}</button>`
+                : `<div class="team-emblem ${awayTeam.slug}">${escapeHtml(awayTeam.name)}</div>`;
+            return `
+                <div class="opener-slot">
+                    <div class="opener-slot-machine">
+                        <div class="opener-reel" data-reel="home">
+                            <div class="opener-reel-bezel">
+                                <div class="opener-reel-window">
+                                    ${homeEl}
+                                    <span class="opener-reel-glass" aria-hidden="true"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <span class="vs">VS</span>
+                        <div class="opener-reel" data-reel="away">
+                            <div class="opener-reel-bezel">
+                                <div class="opener-reel-window">
+                                    ${awayEl}
+                                    <span class="opener-reel-glass" aria-hidden="true"></span>
+                                </div>
+                            </div>
+                        </div>
+                        ${leverHtml}
+                    </div>
+                </div>
+            `;
+        }
+
+        function wireOpenerSlotControls(root, { teamPool, getPair, onPairChange, enableLever = true, clickable = true } = {}) {
+            if (!root) return;
+            const homeWindow = root.querySelector('[data-reel="home"] .opener-reel-window');
+            const awayWindow = root.querySelector('[data-reel="away"] .opener-reel-window');
+
+            const applyPair = (pair) => {
+                if (!pair) return;
+                setOpenerReelTeam(homeWindow, pair.home, { clickable, side: 'home' });
+                setOpenerReelTeam(awayWindow, pair.away, { clickable, side: 'away' });
+                if (clickable) bindPicks();
+                if (typeof onPairChange === 'function') onPairChange(pair);
+            };
+
+            const bindPicks = () => {
+                root.querySelectorAll('.opener-pick').forEach(btn => {
+                    btn.onclick = () => {
+                        if (openerSpinning) return;
+                        const pool = typeof teamPool === 'function' ? teamPool() : teamPool;
+                        const current = (typeof getPair === 'function' ? getPair() : null) || getOpenerPairFromRoot(root);
+                        const next = cycleOpenerPairSide(current, btn.dataset.side, pool);
+                        if (next) applyPair(next);
+                    };
+                });
+            };
+
+            if (clickable) bindPicks();
+
+            const lever = root.querySelector('.opener-lever');
+            if (lever && enableLever) {
+                lever.onclick = () => {
+                    const pool = typeof teamPool === 'function' ? teamPool() : teamPool;
+                    const current = (typeof getPair === 'function' ? getPair() : null) || getOpenerPairFromRoot(root);
+                    spinOpenerSlotMachine({
+                        root,
+                        teamPool: pool,
+                        currentPair: current,
+                        clickable,
+                        onDone: (result) => applyPair(result)
+                    });
+                };
+            }
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        async function spinOpenerSlotMachine({ root, teamPool, currentPair, onDone, clickable = true }) {
+            if (openerSpinning || !root) return;
+            if (!teamPool || teamPool.length < 2) {
+                alert('ต้องมีทีมอย่างน้อย 2 ทีมเพื่อสุ่มคู่เปิดสนาม');
+                return;
+            }
+            const machine = root.querySelector('.opener-slot-machine');
+            const lever = root.querySelector('.opener-lever');
+            const homeWindow = root.querySelector('[data-reel="home"] .opener-reel-window');
+            const awayWindow = root.querySelector('[data-reel="away"] .opener-reel-window');
+            if (!machine || !homeWindow || !awayWindow) return;
+
+            openerSpinning = true;
+            if (lever) {
+                lever.disabled = true;
+                // ดึงคันลงก่อน แล้วค่อยหมุนวงล้อ
+                lever.classList.add('pulled');
+            }
+            await sleep(180);
+            machine.classList.add('spinning');
+
+            const result = pickRandomOpenerPair(teamPool, currentPair);
+            const homeStopAt = 14 + Math.floor(Math.random() * 4);
+            const awayStopAt = homeStopAt + 4 + Math.floor(Math.random() * 4);
+            let homeSlug = currentPair?.home || teamPool[0];
+            let awaySlug = currentPair?.away || teamPool[1];
+
+            for (let step = 0; step <= awayStopAt; step++) {
+                if (step <= homeStopAt) {
+                    homeSlug = teamPool[Math.floor(Math.random() * teamPool.length)];
+                    setOpenerReelTeam(homeWindow, homeSlug);
+                } else if (step === homeStopAt + 1) {
+                    homeSlug = result.home;
+                    setOpenerReelTeam(homeWindow, homeSlug);
+                }
+                if (step < awayStopAt) {
+                    const awayCandidates = teamPool.filter(slug => slug !== (step >= homeStopAt ? result.home : homeSlug));
+                    awaySlug = (awayCandidates.length ? awayCandidates : teamPool)[Math.floor(Math.random() * (awayCandidates.length || teamPool.length))];
+                    setOpenerReelTeam(awayWindow, awaySlug);
+                } else {
+                    awaySlug = result.away;
+                    setOpenerReelTeam(awayWindow, awaySlug);
+                }
+                await sleep(step < 8 ? 45 : (step < homeStopAt ? 70 : 95));
+            }
+
+            setOpenerReelTeam(homeWindow, result.home, { clickable, side: 'home' });
+            setOpenerReelTeam(awayWindow, result.away, { clickable, side: 'away' });
+            machine.classList.remove('spinning');
+            if (lever) {
+                // คันชักเด้งกลับขึ้นด้านบน
+                await sleep(80);
+                lever.classList.remove('pulled');
+                await sleep(220);
+                lever.disabled = false;
+            }
+            openerSpinning = false;
+            if (typeof onDone === 'function') onDone(result);
         }
 
         async function updateScheduleFromOpenerCard() {
@@ -1811,6 +2377,7 @@
             const content = document.getElementById('schedule-opener-content');
             const updateBtn = document.getElementById('schedule-update-btn');
             if (!card || !content) return;
+            if (openerSpinning && content.querySelector('.opener-slot-machine')) return;
             const dayData = appData[date];
             if (!dayData?.schedule?.length) {
                 card.style.display = 'none';
@@ -1834,17 +2401,20 @@
             const hint = card.querySelector('.opener-pick-hint');
             if (hint) {
                 hint.textContent = editable
-                    ? 'แตะสีทีมแล้วกดอัปเดตเพื่อสร้างตารางใหม่ทั้งชุด'
+                    ? 'แตะสีทีมหรือดึงคันชักสุ่ม แล้วกดอัปเดตเพื่อสร้างตารางใหม่ทั้งชุด'
                     : 'คู่เปิดสนามของวันนี้';
             }
-            content.innerHTML = `
-                <button type="button" class="team-emblem ${homeTeam.slug} opener-pick" data-side="home" title="แตะเพื่อเปลี่ยนทีมเหย้า" ${editable ? '' : 'disabled'}>${escapeHtml(homeTeam.name)}</button>
-                <span class="vs">VS</span>
-                <button type="button" class="team-emblem ${awayTeam.slug} opener-pick" data-side="away" title="แตะเพื่อเปลี่ยนทีมเยือน" ${editable ? '' : 'disabled'}>${escapeHtml(awayTeam.name)}</button>
-            `;
+            content.innerHTML = buildOpenerSlotHtml(homeTeam.slug, awayTeam.slug, {
+                showLever: editable,
+                clickable: editable
+            });
             if (editable) {
-                content.querySelectorAll('.opener-pick').forEach(btn => {
-                    btn.onclick = () => cycleScheduleOpenerTeam(btn.dataset.side);
+                wireOpenerSlotControls(content, {
+                    teamPool: () => getScheduleTeamPool(date),
+                    getPair: () => getScheduleOpenerPair(date),
+                    onPairChange: (pair) => {
+                        scheduleOpenerDraft = { date, home: pair.home, away: pair.away };
+                    }
                 });
             }
             if (updateBtn) {
@@ -2346,27 +2916,12 @@
             renderSchedulePreview(false);
         }
 
-        function cycleOpenerTeam(side) {
-            const activeTeams = Array.from(document.querySelectorAll('.team-switch:checked')).map(sw => sw.dataset.teamSlug);
-            const s1 = document.getElementById('lock-team-1');
-            const s2 = document.getElementById('lock-team-2');
-            if (!s1 || !s2 || activeTeams.length < 2) return;
-            const other = side === 'home' ? s2.value : s1.value;
-            const current = side === 'home' ? s1.value : s2.value;
-            const candidates = activeTeams.filter(slug => slug !== other);
-            if (!candidates.length) return;
-            const idx = Math.max(0, candidates.indexOf(current));
-            const next = candidates[(idx + 1) % candidates.length];
-            if (side === 'home') s1.value = next;
-            else s2.value = next;
-            renderSchedulePreview(false);
-        }
-
         function renderSchedulePreview(isInitialLoad) {
             const previewCard = document.getElementById('schedule-preview-card');
             const previewContent = document.getElementById('schedule-preview-content');
             if (!previewCard || !previewContent) return;
-            const dayData = appData[currentDateKey];
+            if (openerSpinning && previewContent.querySelector('.opener-slot-machine')) return;
+            const dayData = appData[document.getElementById('match-date')?.value || currentDateKey];
             const s1 = document.getElementById('lock-team-1');
             const s2 = document.getElementById('lock-team-2');
 
@@ -2393,13 +2948,17 @@
                 const homeTeam = TEAMS.find(t => t.slug === firstMatch.home);
                 const awayTeam = TEAMS.find(t => t.slug === firstMatch.away);
                 if (homeTeam && awayTeam) {
-                    previewContent.innerHTML = `
-                        <button type="button" class="team-emblem ${homeTeam.slug} opener-pick" data-side="home" title="แตะเพื่อเปลี่ยนทีมเหย้า">${escapeHtml(homeTeam.name)}</button>
-                        <span class="vs">VS</span>
-                        <button type="button" class="team-emblem ${awayTeam.slug} opener-pick" data-side="away" title="แตะเพื่อเปลี่ยนทีมเยือน">${escapeHtml(awayTeam.name)}</button>
-                    `;
-                    previewContent.querySelectorAll('.opener-pick').forEach(btn => {
-                        btn.onclick = () => cycleOpenerTeam(btn.dataset.side);
+                    previewContent.innerHTML = buildOpenerSlotHtml(homeTeam.slug, awayTeam.slug, {
+                        showLever: true,
+                        clickable: true
+                    });
+                    wireOpenerSlotControls(previewContent, {
+                        teamPool: () => Array.from(document.querySelectorAll('.team-switch:checked')).map(sw => sw.dataset.teamSlug),
+                        getPair: () => ({ home: s1?.value, away: s2?.value }),
+                        onPairChange: (pair) => {
+                            if (s1 && [...s1.options].some(o => o.value === pair.home)) s1.value = pair.home;
+                            if (s2 && [...s2.options].some(o => o.value === pair.away)) s2.value = pair.away;
+                        }
                     });
                     previewCard.style.display = 'block';
                 } else {
