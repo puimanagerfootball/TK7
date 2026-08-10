@@ -104,12 +104,73 @@
         h1, h2 { text-align: center; margin-bottom: 25px; color: var(--secondary-color); display: flex; align-items: center; justify-content: center; gap: 10px; }
         .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
         .page-header h1 { margin-bottom: 0; flex-grow: 1; }
-        .export-btn { background-color: var(--primary-variant); color: var(--text-color); border: none; padding: 8px 12px; border-radius: 8px; font-size: 14px; font-family: 'Kanit', sans-serif; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: background-color 0.2s; }
+        .export-btn { background-color: var(--primary-variant); color: var(--text-color); border: none; padding: 8px 12px; border-radius: 8px; font-size: 14px; font-family: 'Kanit', sans-serif; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: background-color 0.2s, box-shadow 0.2s, transform 0.15s; }
         .export-btn:hover { background-color: #4a00e0; }
-        .export-btn:disabled { background-color: #555; cursor: not-allowed; }
+        .export-btn:disabled { background-color: #555; cursor: not-allowed; box-shadow: none; transform: none; }
+        .export-btn.line-share-btn {
+            background: linear-gradient(180deg, #22d96a 0%, #06C755 55%, #05a847 100%);
+            color: #fff;
+            font-weight: 600;
+            gap: 8px;
+            padding: 8px 14px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.22);
+            box-shadow:
+                0 1px 0 rgba(255,255,255,0.28) inset,
+                0 4px 12px rgba(6, 199, 85, 0.35);
+        }
+        .export-btn.line-share-btn:hover {
+            background: linear-gradient(180deg, #36e078 0%, #07d45d 55%, #06b34d 100%);
+            box-shadow:
+                0 1px 0 rgba(255,255,255,0.35) inset,
+                0 6px 16px rgba(6, 199, 85, 0.45);
+            transform: translateY(-1px);
+        }
+        .export-btn.line-share-btn:active { transform: translateY(0); }
+        .export-btn.line-share-btn:disabled {
+            background: #3d5c47;
+            color: rgba(255,255,255,0.7);
+            border-color: transparent;
+        }
+        .export-btn .line-icon,
+        .export-btn .btn-ico {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+            display: block;
+        }
+        .page-title-icon {
+            width: 1.15em;
+            height: 1.15em;
+            flex-shrink: 0;
+            display: block;
+        }
+        .page-title-icon.pitch-icon {
+            width: 1.45em;
+            height: 1.45em;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.35));
+        }
         .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; width: 100%; max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-around; background-color: var(--surface-color); border-top: 1px solid var(--border-color); box-shadow: 0 -5px 15px var(--shadow-color); z-index: 1000; }
         .nav-btn { flex-grow: 1; padding: 10px 5px; background: none; border: none; color: var(--text-muted); font-family: 'Kanit', sans-serif; font-size: 12px; cursor: pointer; transition: all 0.2s ease; display: flex; flex-direction: column; align-items: center; gap: 4px; }
-        .nav-btn .icon { font-size: 24px; }
+        .nav-btn .icon { font-size: 24px; line-height: 1; display: flex; align-items: center; justify-content: center; min-height: 28px; }
+        .nav-btn .icon-svg {
+            width: 26px;
+            height: 26px;
+            display: block;
+        }
+        .nav-btn .icon-svg.pitch-icon {
+            width: 30px;
+            height: 30px;
+            filter: drop-shadow(0 2px 3px rgba(0,0,0,0.4));
+            transition: transform 0.15s ease, filter 0.15s ease;
+        }
+        .nav-btn.active .icon-svg,
+        .nav-btn:hover .icon-svg { filter: drop-shadow(0 0 6px rgba(3,218,198,0.35)); }
+        .nav-btn.active .icon-svg.pitch-icon,
+        .nav-btn:hover .icon-svg.pitch-icon {
+            transform: scale(1.08);
+            filter: drop-shadow(0 0 8px rgba(76,175,80,0.55)) drop-shadow(0 2px 3px rgba(0,0,0,0.4));
+        }
         .nav-btn.active, .nav-btn:hover { color: var(--secondary-color); background-color: rgba(3, 218, 198, 0.1); }
         .card { background-color: var(--surface-color); border-radius: 12px; padding: 16px; margin-bottom: 16px; border: 1px solid var(--border-color); box-shadow: 0 4px 10px var(--shadow-color); transition: transform 0.2s ease, box-shadow 0.2s ease; }
         .card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px var(--shadow-color); }
@@ -221,8 +282,12 @@
                 margin-bottom: 0; flex: 1 1 auto; min-width: 0; justify-content: flex-start;
                 font-size: 1.15em; line-height: 1.25; text-align: left;
             }
-            .page-header .export-btn { flex-shrink: 0; white-space: nowrap; padding: 6px 9px; font-size: 12px; }
+            .page-header .export-btn { flex-shrink: 0; white-space: nowrap; padding: 6px 10px; font-size: 12px; }
             .export-btn { padding: 6px 9px; font-size: 12px; }
+            .export-btn.line-share-btn { padding: 6px 11px; gap: 6px; }
+            .export-btn .line-icon { width: 16px; height: 16px; }
+            .nav-btn .icon-svg { width: 22px; height: 22px; }
+            .nav-btn .icon-svg.pitch-icon { width: 26px; height: 26px; }
             .card { padding: 12px; margin-bottom: 12px; border-radius: 10px; }
             .form-group { margin-bottom: 12px; }
             .form-group label { margin-bottom: 5px; font-size: 13px; }
@@ -758,10 +823,11 @@
         }
         /* คันชักแบบคันเร่งเครื่องบิน — เลื่อนขึ้น/ลงตามราง */
         .opener-lever {
-            --lever-y: 6px;
+            --lever-y: 4px;
+            --lever-y-pulled: 58px;
             position: relative;
             width: 64px;
-            height: 100px;
+            height: 110px;
             flex-shrink: 0;
             border: none;
             background: transparent;
@@ -856,64 +922,41 @@
             position: absolute;
             left: 50%;
             top: var(--lever-y);
-            width: 52px;
-            height: 48px;
-            margin-left: -26px;
+            width: 48px;
+            transform: translateX(-50%);
             z-index: 3;
-            transition: top 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
-            filter: drop-shadow(0 8px 10px rgba(0,0,0,0.65));
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: top 0.18s cubic-bezier(0.2, 0.9, 0.3, 1);
+            filter: drop-shadow(0 6px 8px rgba(0,0,0,0.55));
+            will-change: top;
+            pointer-events: none;
         }
         .opener-lever .lever-knob {
-            position: absolute;
-            left: 50%;
-            top: 0;
-            width: 46px;
-            height: 34px;
-            margin-left: -23px;
-            border-radius: 14px 14px 12px 12px;
-            background:
-                radial-gradient(circle at 30% 18%, rgba(255,255,255,0.7), transparent 34%),
-                radial-gradient(circle at 70% 85%, rgba(0,80,70,0.55), transparent 45%),
-                linear-gradient(180deg, #6ff7e8 0%, #03dac6 38%, #018786 72%, #004d40 100%);
-            border: 2px solid rgba(255,255,255,0.55);
-            box-shadow:
-                0 2px 0 rgba(255,255,255,0.55) inset,
-                0 -5px 10px rgba(0,0,0,0.45) inset,
-                0 6px 0 #015a54,
-                0 10px 16px rgba(0,0,0,0.5),
-                0 0 18px rgba(3,218,198,0.55);
-        }
-        .opener-lever .lever-knob::before {
-            content: '';
-            position: absolute;
-            left: 6px;
-            right: 6px;
-            top: 4px;
-            height: 10px;
-            border-radius: 999px;
-            background: linear-gradient(180deg, rgba(255,255,255,0.75), rgba(255,255,255,0.05));
-        }
-        .opener-lever .lever-knob::after {
-            content: 'PULL';
-            position: absolute;
-            left: 0;
-            right: 0;
-            top: 12px;
+            position: relative;
+            width: 44px;
+            height: 44px;
+            margin: 0;
+            border: none;
+            background: transparent;
+            box-shadow: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 42px;
+            line-height: 1;
             text-align: center;
-            font-size: 9px;
-            font-weight: 800;
-            letter-spacing: 0.08em;
-            color: #00332e;
-            text-shadow: 0 1px 0 rgba(255,255,255,0.35);
-            font-family: 'Kanit', sans-serif;
+            text-shadow: 0 3px 4px rgba(0,0,0,0.45);
+            /* ชดเชย glyph emoji ที่มักเยื้องเล็กน้อย */
+            transform: translateX(0.5px);
         }
+        .opener-lever .lever-knob::before { display: none; }
         .opener-lever .lever-stem {
-            position: absolute;
-            left: 50%;
-            top: 28px;
-            width: 12px;
-            height: 18px;
-            margin-left: -6px;
+            position: relative;
+            width: 10px;
+            height: 16px;
+            margin: -4px 0 0;
             border-radius: 0 0 5px 5px;
             background:
                 linear-gradient(90deg, #5a6168 0%, #f4f7fa 36%, #a7b0b8 58%, #3a4046 100%);
@@ -921,31 +964,23 @@
             box-shadow:
                 0 1px 0 rgba(255,255,255,0.55) inset,
                 0 5px 8px rgba(0,0,0,0.4);
+            flex-shrink: 0;
         }
         .opener-lever:hover:not(:disabled) .lever-knob {
-            filter: brightness(1.08);
-            box-shadow:
-                0 2px 0 rgba(255,255,255,0.65) inset,
-                0 -5px 10px rgba(0,0,0,0.45) inset,
-                0 6px 0 #015a54,
-                0 10px 16px rgba(0,0,0,0.5),
-                0 0 28px rgba(3,218,198,0.75);
+            transform: translateX(0.5px) scale(1.06);
         }
         .opener-lever.pulled {
-            --lever-y: 50px;
+            --lever-y: var(--lever-y-pulled);
         }
         .opener-lever.pulled .lever-grip {
-            transition-duration: 0.16s;
-            transition-timing-function: cubic-bezier(0.4, 0, 1, 1);
-            filter: drop-shadow(0 3px 4px rgba(0,0,0,0.55));
+            /* ดึงลงตามราง — ไม่เอียง ไม่หมุน */
+            transition-duration: 0.14s;
+            transition-timing-function: cubic-bezier(0.55, 0.05, 0.9, 0.45);
+            filter: drop-shadow(0 2px 3px rgba(0,0,0,0.5));
         }
-        .opener-lever.pulled .lever-knob {
-            box-shadow:
-                0 1px 0 rgba(255,255,255,0.4) inset,
-                0 -3px 6px rgba(0,0,0,0.5) inset,
-                0 3px 0 #014843,
-                0 5px 8px rgba(0,0,0,0.45),
-                0 0 22px rgba(3,218,198,0.65);
+        .opener-lever:not(.pulled) .lever-grip {
+            transition-duration: 0.28s;
+            transition-timing-function: cubic-bezier(0.2, 0.85, 0.25, 1);
         }
         .opener-slot-machine.spinning {
             box-shadow:
@@ -974,10 +1009,8 @@
                 padding: 12px 10px 14px;
                 transform: rotateX(4deg);
             }
-            .opener-lever { width: 56px; height: 94px; }
-            .opener-lever .lever-knob { width: 44px; height: 32px; margin-left: -22px; }
-            .opener-lever .lever-knob::after { font-size: 8px; top: 11px; }
-            .opener-lever.pulled { --lever-y: 48px; }
+            .opener-lever { width: 58px; height: 108px; --lever-y-pulled: 52px; }
+            .opener-lever .lever-knob { width: 40px; height: 40px; font-size: 38px; }
             .opener-reel-window { min-height: 48px; }
             .opener-reel-window .team-emblem { font-size: 13px; padding: 6px 8px; }
             .opener-slot-machine .vs { min-width: 32px; height: 32px; font-size: 11px; }
@@ -1000,11 +1033,31 @@
     </style>
 </head>
 <body>
+    <svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute;overflow:hidden" aria-hidden="true">
+        <symbol id="icon-football-pitch" viewBox="0 0 24 24">
+            <rect x="1.5" y="1" width="21" height="22" rx="3" fill="#0d3b12"/>
+            <rect x="2.2" y="1.7" width="19.6" height="20.6" rx="2.2" fill="#2e7d32"/>
+            <rect x="2.2" y="1.7" width="19.6" height="10.3" rx="2.2" fill="#43a047"/>
+            <rect x="2.2" y="1.7" width="19.6" height="3.4" fill="#81c784" opacity=".28"/>
+            <rect x="2.2" y="8.5" width="19.6" height="3.4" fill="#81c784" opacity=".18"/>
+            <rect x="2.2" y="15.3" width="19.6" height="3.4" fill="#81c784" opacity=".18"/>
+            <rect x="3.2" y="2.7" width="17.6" height="18.6" rx="1.2" fill="none" stroke="#fff" stroke-width="1.15"/>
+            <line x1="3.2" y1="12" x2="20.8" y2="12" stroke="#fff" stroke-width="1.05"/>
+            <circle cx="12" cy="12" r="3.1" fill="none" stroke="#fff" stroke-width="1.05"/>
+            <circle cx="12" cy="12" r="0.85" fill="#fff"/>
+            <rect x="7.2" y="2.7" width="9.6" height="4.2" fill="none" stroke="#fff" stroke-width=".95"/>
+            <rect x="7.2" y="17.1" width="9.6" height="4.2" fill="none" stroke="#fff" stroke-width=".95"/>
+            <rect x="9.4" y="2.7" width="5.2" height="1.7" fill="none" stroke="#fff" stroke-width=".85"/>
+            <rect x="9.4" y="19.6" width="5.2" height="1.7" fill="none" stroke="#fff" stroke-width=".85"/>
+            <path d="M9.2 6.9a2.8 2.8 0 0 0 5.6 0" fill="none" stroke="#fff" stroke-width=".8"/>
+            <path d="M9.2 17.1a2.8 2.8 0 0 1 5.6 0" fill="none" stroke="#fff" stroke-width=".8"/>
+        </symbol>
+    </svg>
 
     <div id="app">
         <div id="auth-section">
     <div class="auth-meta">
-        <span class="version-tag">Ver 2.8.4</span>
+        <span class="version-tag">Ver 2.9.4</span>
         <span id="user-info"></span>
     </div>
     <div class="auth-user-controls">
@@ -1065,7 +1118,7 @@
             </div>
             
             <div id="page-schedule" class="page">
-                <div class="page-header"><h1>📅 ตารางการแข่งขัน</h1><button id="export-schedule-btn" class="export-btn">💚 แชร์ LINE</button></div>
+                <div class="page-header"><h1>📅 ตารางการแข่งขัน</h1><button id="export-schedule-btn" class="export-btn line-share-btn" type="button"><svg class="line-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63s-.281.63-.627.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63.349 0 .631.285.631.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.3C24 4.857 18.615.726 12 .726S0 4.857 0 10.3c0 4.812 4.269 8.842 10.03 9.608.391.084.922.258 1.057.469.122.192.08.492.039.682l-.169.975c-.052.303-.231 1.185 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.3"/></svg><span>แชร์ LINE</span></button></div>
                 <div class="date-selector-container">
                     <select id="schedule-date-selector"></select>
                     <span id="schedule-template-info" class="template-info-badge" style="display: none;"></span>
@@ -1083,21 +1136,21 @@
             </div>
 
             <div id="page-scores" class="page">
-                <div class="page-header"><h1>📝 ผลการแข่งขัน</h1><button id="export-scores-btn" class="export-btn">💚 แชร์ LINE</button></div>
+                <div class="page-header"><h1>📝 ผลการแข่งขัน</h1><button id="export-scores-btn" class="export-btn line-share-btn" type="button"><svg class="line-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63s-.281.63-.627.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63.349 0 .631.285.631.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.3C24 4.857 18.615.726 12 .726S0 4.857 0 10.3c0 4.812 4.269 8.842 10.03 9.608.391.084.922.258 1.057.469.122.192.08.492.039.682l-.169.975c-.052.303-.231 1.185 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.3"/></svg><span>แชร์ LINE</span></button></div>
                  <div class="date-selector-container"><select id="scores-date-selector"></select></div>
                  <div id="scores-container"></div>
             </div>
 
             <div id="page-leaderboard" class="page">
-                 <div class="page-header"><h1>📊 ตารางคะแนน</h1><button id="export-leaderboard-btn" class="export-btn">💚 แชร์ LINE</button></div>
+                 <div class="page-header"><h1>📊 ตารางคะแนน</h1><button id="export-leaderboard-btn" class="export-btn line-share-btn" type="button"><svg class="line-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63s-.281.63-.627.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63.349 0 .631.285.631.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.3C24 4.857 18.615.726 12 .726S0 4.857 0 10.3c0 4.812 4.269 8.842 10.03 9.608.391.084.922.258 1.057.469.122.192.08.492.039.682l-.169.975c-.052.303-.231 1.185 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.3"/></svg><span>แชร์ LINE</span></button></div>
                  <div class="date-selector-container"><select id="leaderboard-date-selector"></select></div>
                  <div id="leaderboard-container" class="leaderboard-container"></div>
             </div>
 
             <div id="page-lineup" class="page">
                 <div class="page-header">
-                    <h1>🧭 จัดตำแหน่ง</h1>
-                    <button id="share-lineup-btn" class="export-btn">💚 แชร์ LINE</button>
+                    <h1><svg class="page-title-icon pitch-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-football-pitch"/></svg>จัดตำแหน่ง</h1>
+                    <button id="share-lineup-btn" class="export-btn line-share-btn" type="button"><svg class="line-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63s-.281.63-.627.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63.349 0 .631.285.631.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.3C24 4.857 18.615.726 12 .726S0 4.857 0 10.3c0 4.812 4.269 8.842 10.03 9.608.391.084.922.258 1.057.469.122.192.08.492.039.682l-.169.975c-.052.303-.231 1.185 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.3"/></svg><span>แชร์ LINE</span></button>
                 </div>
                 <div class="card lineup-compact-card">
                     <h2>1) เลือกทีม</h2>
@@ -1125,7 +1178,7 @@
         <nav class="bottom-nav">
             <button class="nav-btn" data-page="page-setup"><span class="icon">⚙️</span>จัดการทีม</button>
             <button class="nav-btn" data-page="page-schedule"><span class="icon">📅</span>ตารางแข่ง</button>
-            <button class="nav-btn" data-page="page-lineup"><span class="icon">🧭</span>จัดตำแหน่ง</button>
+            <button class="nav-btn" data-page="page-lineup"><span class="icon"><svg class="icon-svg pitch-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-football-pitch"/></svg></span>จัดตำแหน่ง</button>
             <button class="nav-btn" data-page="page-scores"><span class="icon">✏️</span>บันทึกผล</button>
             <button class="nav-btn" data-page="page-leaderboard"><span class="icon">🏆</span>ตารางคะแนน</button>
         </nav>
@@ -1191,7 +1244,7 @@
     <div id="share-image-modal" class="modal">
         <div class="modal-content">
             <span class="close-modal-btn">×</span>
-            <h2>💚 แชร์รูปไป LINE</h2>
+            <h2><svg class="page-title-icon" viewBox="0 0 24 24" aria-hidden="true" style="color:#06C755"><path fill="currentColor" d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63s-.281.63-.627.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63.349 0 .631.285.631.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.3C24 4.857 18.615.726 12 .726S0 4.857 0 10.3c0 4.812 4.269 8.842 10.03 9.608.391.084.922.258 1.057.469.122.192.08.492.039.682l-.169.975c-.052.303-.231 1.185 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.3"/></svg>แชร์รูปไป LINE</h2>
             <p id="share-image-hint" style="text-align:center;color:var(--text-muted);font-size:13px;margin-bottom:12px;line-height:1.5;">
                 <b>คัดลอกรูปอัตโนมัติแล้ว</b> — เปิด LINE แล้ววางได้เลย<br>
                 (PC: Ctrl+V · มือถือ: กดค้างในแชทแล้วเลือกวาง)
@@ -1206,7 +1259,7 @@
             <span class="close-modal-btn">×</span>
             <div class="help-modal-toolbar">
                 <h2>❓ วิธีใช้งาน TK7</h2>
-                <button type="button" id="share-help-btn" class="export-btn">💚 แชร์รูป</button>
+                <button type="button" id="share-help-btn" class="export-btn line-share-btn"><svg class="line-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63s-.281.63-.627.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63.349 0 .631.285.631.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.3C24 4.857 18.615.726 12 .726S0 4.857 0 10.3c0 4.812 4.269 8.842 10.03 9.608.391.084.922.258 1.057.469.122.192.08.492.039.682l-.169.975c-.052.303-.231 1.185 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.3"/></svg><span>แชร์รูป</span></button>
             </div>
             <div class="help-scroll">
                 <div id="help-infographic" class="help-infographic">
@@ -1266,7 +1319,7 @@
                                 </ol>
                             </div>
                             <div class="help-card">
-                                <p class="title">🧭 จัดตำแหน่ง</p>
+                                <p class="title">🏟️ จัดตำแหน่ง</p>
                                 <ol>
                                     <li>เลือกทีม (ครบทุกสี)</li>
                                     <li>เลือกแผน เช่น 2-3-1</li>
@@ -2194,7 +2247,7 @@
                         <span class="lever-rail"></span>
                         <span class="lever-marks"></span>
                         <span class="lever-grip">
-                            <span class="lever-knob"></span>
+                            <span class="lever-knob" aria-hidden="true">⚽</span>
                             <span class="lever-stem"></span>
                         </span>
                    </button>`
@@ -2293,10 +2346,10 @@
             openerSpinning = true;
             if (lever) {
                 lever.disabled = true;
-                // ดึงคันลงก่อน แล้วค่อยหมุนวงล้อ
+                // ดึงคันลงตามรางก่อน แล้วค่อยหมุนวงล้อ
                 lever.classList.add('pulled');
             }
-            await sleep(180);
+            await sleep(220);
             machine.classList.add('spinning');
 
             const result = pickRandomOpenerPair(teamPool, currentPair);
@@ -2328,10 +2381,10 @@
             setOpenerReelTeam(awayWindow, result.away, { clickable, side: 'away' });
             machine.classList.remove('spinning');
             if (lever) {
-                // คันชักเด้งกลับขึ้นด้านบน
-                await sleep(80);
+                // ค้างด้านล่างนิดหนึ่ง แล้วเด้งกลับขึ้น
+                await sleep(160);
                 lever.classList.remove('pulled');
-                await sleep(220);
+                await sleep(280);
                 lever.disabled = false;
             }
             openerSpinning = false;
