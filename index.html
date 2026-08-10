@@ -1042,7 +1042,7 @@
         .pitch-slot .slot-dot-face {
             position: absolute; left: 0; top: 0;
             width: 46px; height: 46px; border-radius: 50%;
-            background: #43a047;
+            background: #2e7d32; /* เข้มกว่าสนาม #7cb342 ให้ตัดชัด */
             color: #fff;
             border: 2.5px solid #fff;
             display: flex; align-items: center; justify-content: center;
@@ -1319,6 +1319,7 @@
             width: 18px;
             margin-left: -9px;
             border-radius: 10px;
+            z-index: 1;
             background:
                 linear-gradient(90deg, #050607 0%, #2f343a 40%, #0b0d10 100%);
             border: 1px solid rgba(255,255,255,0.12);
@@ -1349,6 +1350,7 @@
             top: 16px;
             bottom: 16px;
             width: 9px;
+            z-index: 1;
             background:
                 repeating-linear-gradient(
                     180deg,
@@ -1366,7 +1368,7 @@
             top: var(--lever-y);
             width: 48px;
             transform: translateX(-50%);
-            z-index: 3;
+            z-index: 5;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -1377,6 +1379,7 @@
         }
         .opener-lever .lever-knob {
             position: relative;
+            z-index: 2;
             width: 44px;
             height: 44px;
             margin: 0;
@@ -1396,6 +1399,7 @@
         .opener-lever .lever-knob::before { display: none; }
         .opener-lever .lever-stem {
             position: relative;
+            z-index: 1; /* อยู่ใต้ลูกบอล — ก้านเสียบเข้าไปในลูก */
             width: 10px;
             height: 16px;
             margin: -4px 0 0;
@@ -1672,7 +1676,7 @@
     <div id="app">
         <div id="auth-section">
     <div class="auth-meta">
-        <span class="version-tag">Ver 3.0.21</span>
+        <span class="version-tag">Ver 4.0.1</span>
         <span id="user-info"></span>
     </div>
     <div class="auth-user-controls">
@@ -2252,7 +2256,8 @@
         /* สีหมาก hex ตรงทีม — ทาสีที่ .slot-dot-face / .slot-dot-lip (html2canvas อ่านได้ชัวร์) */
         const LINEUP_PITCH_BG = '#7cb342';
         const LINEUP_PIECE_STYLE = {
-            green:  { bg: '#43a047', lip: '#1b5e20', fg: '#ffffff', border: '#ffffff' },
+            /* ทีมเขียวใช้โทนเข้มกว่า emblem เล็กน้อย เพื่อตัดกับสนาม */
+            green:  { bg: '#2e7d32', lip: '#1b5e20', fg: '#ffffff', border: '#ffffff' },
             red:    { bg: '#e53935', lip: '#9a1c1c', fg: '#ffffff', border: '#ffffff' },
             white:  { bg: '#f5f5f5', lip: '#8a8a8a', fg: '#222222', border: '#333333' },
             blue:   { bg: '#1e88e5', lip: '#0d47a1', fg: '#ffffff', border: '#ffffff' },
@@ -3500,6 +3505,7 @@
                 }
             } finally {
                 if (exportCard.parentNode) document.body.removeChild(exportCard);
+                purgeCaptureStages();
                 btn.innerHTML = originalText;
                 btn.disabled = false;
             }
@@ -3511,6 +3517,7 @@
             const originalText = btn.innerHTML;
             btn.innerHTML = '⌛ กำลังสร้าง...';
             btn.disabled = true;
+            purgeCaptureStages();
 
             const pitch = document.getElementById('lineup-pitch');
             if (!pitch) {
@@ -3588,6 +3595,7 @@
                 }
             } finally {
                 if (exportCard.parentNode) document.body.removeChild(exportCard);
+                purgeCaptureStages();
                 lineupActiveSlotId = prevActive;
                 if (prevActive) {
                     const activeEl = pitch.querySelector(`[data-slot-id="${prevActive}"]`);
@@ -3961,16 +3969,38 @@
             return /Android|iPhone|iPad|iPod|Mobile/i.test(ua) || (coarse && 'ontouchstart' in window);
         }
 
+        function purgeCaptureStages() {
+            document.querySelectorAll('body > .capture-stage').forEach((el) => el.remove());
+        }
+
+        async function ensurePngBlob(blob) {
+            if (!blob) return null;
+            if (blob.type === 'image/png') return blob;
+            try {
+                const imgBitmap = await createImageBitmap(blob);
+                const c = document.createElement('canvas');
+                c.width = imgBitmap.width;
+                c.height = imgBitmap.height;
+                c.getContext('2d').drawImage(imgBitmap, 0, 0);
+                return await canvasToBlob(c, 'image/png');
+            } catch (err) {
+                console.warn('ensurePngBlob failed', err);
+                return blob;
+            }
+        }
+
         async function shareImageBlob(blob, filename, title) {
             // มือถือ → แชร์ไฟล์ (เลือก LINE ได้) · PC → คัดลอกคลิปบอร์ด · ไม่เปิดป็อปอัพพรีวิว
+            purgeCaptureStages();
+            const pngBlob = await ensurePngBlob(blob);
             shareImageFilename = filename || 'TK7.png';
-            shareImageBlobRef = blob;
+            shareImageBlobRef = pngBlob;
             if (shareImageObjectUrl) URL.revokeObjectURL(shareImageObjectUrl);
-            shareImageObjectUrl = URL.createObjectURL(blob);
+            shareImageObjectUrl = URL.createObjectURL(pngBlob);
 
             if (isMobileShareDevice() && navigator.canShare) {
                 try {
-                    const file = new File([blob], shareImageFilename, { type: blob.type || 'image/png' });
+                    const file = new File([pngBlob], shareImageFilename, { type: 'image/png' });
                     if (navigator.canShare({ files: [file] })) {
                         await navigator.share({ files: [file], title: title || 'TK7' });
                         showToast('แชร์แล้ว');
@@ -4056,6 +4086,7 @@
                 }
             } finally {
                 if (exportWrapper.parentNode) document.body.removeChild(exportWrapper);
+                purgeCaptureStages();
                 buttonElement.innerHTML = originalText;
                 buttonElement.disabled = false;
             }
