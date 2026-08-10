@@ -200,6 +200,98 @@
             border: 1px solid var(--border-color); background: #000; object-fit: contain;
         }
         #share-image-modal .modal-content { max-width: 640px; margin: 5% auto; }
+        #help-modal .modal-content {
+            max-width: 720px; margin: 4% auto; max-height: 90vh; overflow: hidden;
+            display: flex; flex-direction: column; padding-top: 16px;
+        }
+        #help-modal .help-modal-toolbar {
+            display: flex; gap: 8px; align-items: center; justify-content: space-between;
+            margin-bottom: 12px; padding-right: 36px; flex-shrink: 0;
+        }
+        #help-modal .help-modal-toolbar h2 { margin: 0; font-size: 1.25em; }
+        #help-modal .help-scroll { overflow-y: auto; flex: 1; -webkit-overflow-scrolling: touch; }
+        .help-infographic {
+            background: #121212; color: #e0e0e0; font-family: 'Kanit', sans-serif;
+            padding: 22px 18px 28px; border-radius: 12px; border: 1px solid var(--border-color);
+        }
+        .help-infographic .help-hero {
+            text-align: center; margin-bottom: 22px; padding-bottom: 18px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .help-infographic .help-hero .brand {
+            color: var(--secondary-color); font-size: 1.7em; font-weight: 700; letter-spacing: 0.5px;
+            margin: 0 0 6px;
+        }
+        .help-infographic .help-hero .tagline {
+            color: var(--text-muted); font-size: 14px; margin: 0; line-height: 1.45;
+        }
+        .help-infographic .help-flow {
+            display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;
+            margin: 16px 0 8px;
+        }
+        .help-infographic .help-flow-step {
+            background: rgba(3,218,198,0.1); border: 1px solid rgba(3,218,198,0.35);
+            color: var(--secondary-color); border-radius: 10px; padding: 8px 12px;
+            font-size: 13px; font-weight: 600; text-align: center; min-width: 72px;
+        }
+        .help-infographic .help-flow-arrow {
+            align-self: center; color: var(--text-muted); font-size: 16px; font-weight: 700;
+        }
+        .help-infographic .help-section { margin-top: 20px; }
+        .help-infographic .help-section h3 {
+            margin: 0 0 10px; font-size: 1.05em; color: #fff;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .help-infographic .help-section h3 .num {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 26px; height: 26px; border-radius: 50%;
+            background: var(--secondary-color); color: #00332e; font-size: 13px; font-weight: 700;
+            flex-shrink: 0;
+        }
+        .help-infographic .help-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+        }
+        @media (max-width: 560px) {
+            .help-infographic .help-grid { grid-template-columns: 1fr; }
+            .help-infographic .help-flow-arrow { display: none; }
+        }
+        .help-infographic .help-card {
+            background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px; padding: 12px 12px 10px;
+        }
+        .help-infographic .help-card .title {
+            font-weight: 700; font-size: 14px; margin: 0 0 6px; color: #fff;
+        }
+        .help-infographic .help-card ol,
+        .help-infographic .help-card ul {
+            margin: 0; padding-left: 18px; font-size: 12.5px; color: #cfcfcf; line-height: 1.55;
+        }
+        .help-infographic .help-card li { margin-bottom: 3px; }
+        .help-infographic .help-note {
+            margin-top: 10px; font-size: 12px; color: var(--text-muted);
+            background: rgba(251,192,45,0.08); border: 1px solid rgba(251,192,45,0.28);
+            border-radius: 8px; padding: 8px 10px; line-height: 1.45;
+        }
+        .help-infographic .help-roles {
+            display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;
+        }
+        @media (max-width: 560px) {
+            .help-infographic .help-roles { grid-template-columns: 1fr; }
+        }
+        .help-infographic .role-pill {
+            border-radius: 10px; padding: 10px; border: 1px solid rgba(255,255,255,0.12);
+            background: rgba(255,255,255,0.03);
+        }
+        .help-infographic .role-pill .role-name {
+            font-weight: 700; font-size: 13px; margin-bottom: 4px; color: var(--secondary-color);
+        }
+        .help-infographic .role-pill p {
+            margin: 0; font-size: 12px; color: #c8c8c8; line-height: 1.45;
+        }
+        .help-infographic .help-footer {
+            margin-top: 20px; text-align: center; font-size: 12px; color: var(--text-muted);
+            padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.1);
+        }
 
         /* --- Lineup / Formation --- */
         .pitch-wrap { max-width: 420px; margin: 0 auto 16px; }
@@ -347,11 +439,12 @@
 
     <div id="app">
         <div id="auth-section">
-    <span class="version-tag">Ver 2.5.3</span>
+    <span class="version-tag">Ver 2.5.4</span>
     
     <!-- สร้าง div ครอบส่วนนี้ไว้ -->
     <div class="auth-user-controls">
         <span id="user-info"></span>
+        <button id="help-btn" class="btn-secondary" type="button" title="วิธีใช้งาน">❓ วิธีใช้</button>
         <button id="members-btn" class="btn-secondary" style="display: none;">👥 สมาชิก</button>
         <button id="login-btn" class="btn-secondary">🔐 เข้าสู่ระบบ</button>
         <button id="logout-btn" class="btn-danger">ออกจากระบบ</button>
@@ -551,6 +644,141 @@
             <button type="button" id="share-image-copy-btn" class="btn btn-line" style="margin-bottom:10px;">📋 คัดลอกรูปภาพ</button>
             <button type="button" id="share-image-download-btn" class="btn btn-secondary" style="margin-bottom:10px;">📥 ดาวน์โหลดรูป</button>
             <button type="button" id="share-image-close-btn" class="btn btn-secondary">ปิด</button>
+        </div>
+    </div>
+
+    <div id="help-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal-btn">×</span>
+            <div class="help-modal-toolbar">
+                <h2>❓ วิธีใช้งาน TK7</h2>
+                <button type="button" id="share-help-btn" class="export-btn">💚 แชร์รูป</button>
+            </div>
+            <div class="help-scroll">
+                <div id="help-infographic" class="help-infographic">
+                    <div class="help-hero">
+                        <p class="brand">TK7 FridayNight</p>
+                        <p class="tagline">คู่มือใช้งานฉบับย่อ — จัดการทีม · ตารางแข่ง · ผล · คะแนน · แผนการเล่น</p>
+                        <div class="help-flow">
+                            <div class="help-flow-step">1 ตั้งค่า</div>
+                            <div class="help-flow-arrow">→</div>
+                            <div class="help-flow-step">2 ตาราง</div>
+                            <div class="help-flow-arrow">→</div>
+                            <div class="help-flow-step">3 บันทึกผล</div>
+                            <div class="help-flow-arrow">→</div>
+                            <div class="help-flow-step">4 คะแนน</div>
+                        </div>
+                    </div>
+
+                    <div class="help-section">
+                        <h3><span class="num">1</span> ใครทำอะไรได้บ้าง</h3>
+                        <div class="help-roles">
+                            <div class="role-pill">
+                                <div class="role-name">ผู้เยี่ยมชม</div>
+                                <p>ดูตาราง / ผล / คะแนน · จัดตำแหน่งชั่วคราว · แชร์รูปได้ — แก้ข้อมูลไม่ได้</p>
+                            </div>
+                            <div class="role-pill">
+                                <div class="role-name">Admin (อนุมัติแล้ว)</div>
+                                <p>ตั้งค่าทีม สร้างตาราง แก้คู่แข่ง บันทึกผล แชร์ลงทะเบียน LINE</p>
+                            </div>
+                            <div class="role-pill">
+                                <div class="role-name">Superadmin</div>
+                                <p>ทำได้ทุกอย่างของ Admin + ปุ่ม สมาชิก เพื่ออนุมัติ Admin ใหม่</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="help-section">
+                        <h3><span class="num">2</span> เมนูด้านล่าง 5 หน้า</h3>
+                        <div class="help-grid">
+                            <div class="help-card">
+                                <p class="title">⚙️ จัดการทีม</p>
+                                <ol>
+                                    <li>เลือกวัน / เวลาเริ่ม / นาทีต่อแมตช์</li>
+                                    <li>ติ๊กทีมที่ลงแข่ง</li>
+                                    <li>เลือกรูปแบบตาราง + นัดเปิดสนาม</li>
+                                    <li>กดสร้าง / อัปเดตตาราง</li>
+                                    <li>แชร์รูปแบบลงทะเบียน LINE ได้</li>
+                                </ol>
+                                <div class="help-note">เห็นเมนูนี้เฉพาะ Admin ที่อนุมัติแล้ว</div>
+                            </div>
+                            <div class="help-card">
+                                <p class="title">📅 ตารางแข่ง</p>
+                                <ol>
+                                    <li>เลือกวันจาก dropdown</li>
+                                    <li>ดูคู่แข่ง + เวลาแต่ละแมตช์</li>
+                                    <li>Admin: ลากเรียง / เพิ่ม / ลบ / เปลี่ยนทีม</li>
+                                    <li>กด แชร์ LINE เพื่อส่งรูปตาราง</li>
+                                </ol>
+                            </div>
+                            <div class="help-card">
+                                <p class="title">🧭 จัดตำแหน่ง</p>
+                                <ol>
+                                    <li>เลือกทีม (ครบทุกสี)</li>
+                                    <li>เลือกแผน เช่น 2-3-1</li>
+                                    <li>คลิกวงกลมบนสนาม → พิมพ์ชื่อ → Enter</li>
+                                    <li>แชร์รูปแผนได้ทันที</li>
+                                </ol>
+                                <div class="help-note">ชื่อบนสนามไม่บันทึกลงระบบ — รีเฟรชแล้วหาย</div>
+                            </div>
+                            <div class="help-card">
+                                <p class="title">✏️ บันทึกผล + 🏆 คะแนน</p>
+                                <ol>
+                                    <li>บันทึกผล: กด +/− หรือพิมพ์สกอร์</li>
+                                    <li>ตารางคะแนนคำนวณให้อัตโนมัติ</li>
+                                    <li>เรียงตามแต้ม / ผลต่างประตู</li>
+                                    <li>แชร์รูปผลหรือตารางคะแนนได้</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="help-section">
+                        <h3><span class="num">3</span> สมัคร Admin / เข้าสู่ระบบ</h3>
+                        <div class="help-grid">
+                            <div class="help-card">
+                                <p class="title">สมัครใช้งาน</p>
+                                <ol>
+                                    <li>กด เข้าสู่ระบบ → แท็บ สมัคร Admin</li>
+                                    <li>กรอกชื่อ อีเมล รหัสผ่าน</li>
+                                    <li>รอ Superadmin กดอนุมัติ</li>
+                                    <li>อนุมัติแล้วจึงจัดการตารางได้</li>
+                                </ol>
+                            </div>
+                            <div class="help-card">
+                                <p class="title">ลืมรหัสผ่าน</p>
+                                <ol>
+                                    <li>ในหน้าเข้าสู่ระบบ กด ลืมรหัสผ่าน</li>
+                                    <li>กรอกอีเมล → เปิดลิงก์ในอีเมล</li>
+                                    <li>ตั้งรหัสใหม่ → ล็อกอินอีกครั้ง</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="help-section">
+                        <h3><span class="num">4</span> แชร์ไป LINE</h3>
+                        <div class="help-grid">
+                            <div class="help-card">
+                                <p class="title">มือถือ</p>
+                                <ul>
+                                    <li>กด แชร์ LINE → เลือก LINE จากเมนูแชร์</li>
+                                    <li>ข้อความลงทะเบียน: คัดลอกแล้ววางในแชท</li>
+                                </ul>
+                            </div>
+                            <div class="help-card">
+                                <p class="title">คอมพิวเตอร์</p>
+                                <ul>
+                                    <li>กด คัดลอกรูปภาพ → เปิด LINE → Ctrl+V</li>
+                                    <li>หรือดาวน์โหลดรูปแล้วลากใส่แชท</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="help-footer">TK7 FridayNight · กดปุ่ม ❓ วิธีใช้ มุมบนขวาได้ทุกเมื่อ</div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -803,6 +1031,13 @@
             document.getElementById('auth-tab-login').addEventListener('click', () => setAuthModalTab('login'));
             document.getElementById('auth-tab-signup').addEventListener('click', () => setAuthModalTab('signup'));
             document.getElementById('members-btn').addEventListener('click', openMembersModal);
+            document.getElementById('help-btn').addEventListener('click', () => {
+                document.getElementById('help-modal').style.display = 'block';
+            });
+            document.getElementById('share-help-btn').addEventListener('click', shareHelpInfographic);
+            document.querySelector('#help-modal .close-modal-btn').addEventListener('click', () => {
+                document.getElementById('help-modal').style.display = 'none';
+            });
             
             document.getElementById('export-schedule-btn').addEventListener('click', (e) => handleExport('schedule-container', `TK7-Schedule-${currentDateKey}.png`, e.currentTarget));
             document.getElementById('export-scores-btn').addEventListener('click', (e) => handleExport('scores-container', `TK7-Scores-${currentDateKey}.png`, e.currentTarget));
@@ -1494,6 +1729,62 @@
                 }
                 pitch.appendChild(el);
             });
+        }
+
+        async function shareHelpInfographic() {
+            const btn = document.getElementById('share-help-btn');
+            const source = document.getElementById('help-infographic');
+            if (!btn || !source) return;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '⌛ กำลังสร้าง...';
+            btn.disabled = true;
+
+            const exportCard = document.createElement('div');
+            exportCard.className = 'capture-stage';
+            exportCard.style.width = '720px';
+            exportCard.style.background = '#121212';
+            exportCard.style.padding = '0';
+            const clone = source.cloneNode(true);
+            clone.id = 'help-infographic-export';
+            clone.style.border = 'none';
+            clone.style.borderRadius = '0';
+            exportCard.appendChild(clone);
+            document.body.appendChild(exportCard);
+
+            await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+
+            try {
+                await loadHtml2Canvas();
+                const canvas = await html2canvas(exportCard, {
+                    backgroundColor: '#121212',
+                    useCORS: true,
+                    scale: 2,
+                    logging: false,
+                    onclone: (doc) => {
+                        const stage = doc.querySelector('.capture-stage');
+                        if (stage) {
+                            stage.style.opacity = '1';
+                            stage.style.zIndex = '1';
+                            stage.style.left = '0';
+                            stage.style.top = '0';
+                        }
+                    }
+                });
+                const blob = await canvasToBlob(canvas, 'image/png');
+                if (!blob || blob.size < 500) throw new Error('รูปที่ได้ว่างหรือเล็กเกินไป');
+                await shareImageBlob(blob, 'TK7-HowTo.png', 'TK7 วิธีใช้งาน');
+            } catch (err) {
+                if (err && err.name === 'AbortError') {
+                    showToast('ยกเลิกการแชร์');
+                } else {
+                    console.error('Help share failed:', err);
+                    alert('สร้างรูปคู่มือไม่สำเร็จ: ' + (err.message || err));
+                }
+            } finally {
+                if (exportCard.parentNode) document.body.removeChild(exportCard);
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
         }
 
         async function shareCurrentLineup() {
