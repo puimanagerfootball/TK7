@@ -49,7 +49,7 @@
     #advanced-options-card,
     #schedule-preview-card {
         grid-column: 2 !important;
-        margin-bottom: 15px; /* ระยะห่างระหว่างการ์ดฝั่งขวา */
+        margin-bottom: 15px;
     }
 
     /* ปุ่มอัปเดต: กางเต็มด้านล่างให้สมดุล */
@@ -58,13 +58,16 @@
         margin-top: 10px;
     }
 
-    /* หน้าตารางแข่ง/บันทึกผล: แบ่ง 2 คอลัมน์สมมาตร */
+    /* หน้าตารางแข่ง/บันทึกผล: 2 คอลัมน์ เรียงลงคอลัมน์ซ้ายก่อน แล้วค่อยขวา */
     #schedule-container, #scores-container {
         display: grid !important;
         grid-template-columns: 1fr 1fr !important;
         gap: 20px !important;
+        grid-auto-flow: column;
     }
-    #add-match-btn { grid-column: span 2 !important; }
+    #add-match-btn {
+        grid-column: 1 / -1 !important;
+    }
 }
 		
 .version-tag {
@@ -569,21 +572,33 @@
         .toast-notification.fade-out { animation: toast-out 0.5s ease-in forwards; }
         @keyframes toast-in { from { transform: translate(-50%, 20px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
         @keyframes toast-out { from { transform: translate(-50%, 0); opacity: 1; } to { transform: translate(-50%, 20px); opacity: 0; } }
-        #schedule-preview-content { display: flex; justify-content: center; align-items: center; gap: 15px; padding: 10px; min-height: 60px; }
+        #schedule-preview-content,
+        #schedule-opener-content {
+            display: flex; justify-content: center; align-items: center; gap: 15px; padding: 10px; min-height: 60px;
+        }
         #schedule-preview-content .team-emblem,
-        #schedule-preview-content .opener-pick { transform: scale(0.9); }
-        #schedule-preview-content .opener-pick {
+        #schedule-preview-content .opener-pick,
+        #schedule-opener-content .team-emblem,
+        #schedule-opener-content .opener-pick { transform: scale(0.9); }
+        #schedule-preview-content .opener-pick,
+        #schedule-opener-content .opener-pick {
             cursor: pointer; font-family: 'Kanit', sans-serif; appearance: none;
             transition: transform 0.15s ease, filter 0.15s ease;
         }
-        #schedule-preview-content .opener-pick:hover {
+        #schedule-preview-content .opener-pick:hover,
+        #schedule-opener-content .opener-pick:hover {
             filter: brightness(1.12); transform: scale(0.98);
         }
-        #schedule-preview-content .opener-pick:active { transform: scale(0.92); }
+        #schedule-preview-content .opener-pick:active,
+        #schedule-opener-content .opener-pick:active { transform: scale(0.92); }
+        #schedule-opener-content .opener-pick:disabled {
+            cursor: default; filter: none; transform: scale(0.9);
+        }
         .opener-pick-hint {
             text-align: center; font-size: 12px; color: var(--text-muted);
             margin: -4px 0 8px; line-height: 1.4;
         }
+        #schedule-opener-card { margin-bottom: 12px; }
 
         /* --- STYLES FOR EXPORT ONLY --- */
         .temp-export-container { position: absolute; left: -9999px; top: 0; background-color: var(--bg-color); padding: 20px; width: 840px; }
@@ -606,7 +621,7 @@
     <div id="app">
         <div id="auth-section">
     <div class="auth-meta">
-        <span class="version-tag">Ver 2.7.0</span>
+        <span class="version-tag">Ver 2.7.9</span>
         <span id="user-info"></span>
     </div>
     <div class="auth-user-controls">
@@ -654,13 +669,12 @@
                     </div>
                     <div class="card" id="schedule-preview-card" style="display: none;">
                         <h2>🏆 นัดเปิดสนาม</h2>
-                        <p class="opener-pick-hint">แตะสีทีมเพื่อเปลี่ยน · ทีมอื่นสุ่มอัตโนมัติเมื่อสร้างตาราง</p>
+                        <p class="opener-pick-hint">แตะสีทีมเพื่อเลือกคู่เปิดตอนสร้างตาราง</p>
                         <div id="schedule-preview-content"></div>
                         <select id="lock-team-1" hidden aria-hidden="true"></select>
                         <select id="lock-team-2" hidden aria-hidden="true"></select>
                     </div>
-
-                    <button id="generate-schedule-btn" class="btn btn-secondary">สร้างตารางแข่งขัน</button>
+                    <button id="generate-schedule-btn" class="btn btn-secondary">💾 บันทึกตารางแข่งขัน</button>
                     <!-- เพิ่มปุ่มคัดลอกลงทะเบียนใหม่ -->
                     <button id="copy-reg-template-btn" class="btn btn-warning" style="margin-top: 10px; background-color: #fbc02d; color: #000;">📱 แชร์รูปแบบลงทะเบียน LINE</button>
                 </div>
@@ -675,6 +689,12 @@
                     <button id="delete-day-btn" class="delete-day-btn" title="ลบข้อมูลของวันนี้">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47M8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5"/></svg>
                     </button>
+                </div>
+                <div class="card" id="schedule-opener-card" style="display: none;">
+                    <h2>🏆 นัดเปิดสนาม</h2>
+                    <p class="opener-pick-hint">แตะสีทีมแล้วกดอัปเดตเพื่อสร้างตารางใหม่ทั้งชุด</p>
+                    <div id="schedule-opener-content"></div>
+                    <button type="button" id="schedule-update-btn" class="btn btn-warning" style="display: none; width: 100%; margin-top: 12px;">💾 อัปเดตตารางแข่งขัน</button>
                 </div>
                 <div id="schedule-container"></div>
             </div>
@@ -847,8 +867,8 @@
                                 <ol>
                                     <li>เลือกวัน / เวลาเริ่ม / นาทีต่อแมตช์</li>
                                     <li>ติ๊กทีมที่ลงแข่ง</li>
-                                    <li>เลือกรูปแบบตาราง + นัดเปิดสนาม</li>
-                                    <li>กดสร้าง / อัปเดตตาราง</li>
+                                    <li>เลือกรูปแบบ + คู่เปิด แล้วกดบันทึก / อัปเดต</li>
+                                    <li>หลังสร้างแล้ว เปลี่ยนคู่เปิดได้ที่ตารางแข่ง</li>
                                     <li>แชร์รูปแบบลงทะเบียน LINE ได้</li>
                                 </ol>
                                 <div class="help-note">เห็นเมนูนี้เฉพาะ Admin ที่อนุมัติแล้ว</div>
@@ -1059,7 +1079,11 @@
         
         const teamOrderMap = new Map(TEAMS.map((team, index) => [team.slug, index]));
         
-        let appData = {}, activePage = 'page-schedule', currentDateKey = new Date().toISOString().split('T')[0], currentEditingContext = { index: null, side: null }, isInitialSetupDone = false, draggedItem = null;
+        function todayDateKey() {
+            const d = new Date();
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        }
+        let appData = {}, activePage = 'page-schedule', currentDateKey = todayDateKey(), currentEditingContext = { index: null, side: null }, isInitialSetupDone = false, draggedItem = null;
         let lastScrollPosition = 0, shouldRestoreScroll = false;
         const contentContainer = document.getElementById('content');
         const pages = document.querySelectorAll('.page'), navButtons = document.querySelectorAll('.nav-btn'), loginBtn = document.getElementById('login-btn'), logoutBtn = document.getElementById('logout-btn'), userInfo = document.getElementById('user-info'), loginModal = document.getElementById('login-modal'), teamSelectModal = document.getElementById('team-select-modal'), membersModal = document.getElementById('members-modal');
@@ -1477,14 +1501,59 @@
             document.getElementById('share-reg-modal').style.display = 'block';
         }
         
-        async function loadInitialData() {
+        function updateGenerateButtonForDate(date) {
+            const generateBtn = document.getElementById('generate-schedule-btn');
+            if (!generateBtn) return;
+            const hasSchedule = !!(appData[date]?.schedule && appData[date].schedule.length > 0);
+            if (hasSchedule) {
+                generateBtn.textContent = '💾 อัปเดตตารางแข่งขัน';
+                generateBtn.classList.remove('btn-secondary');
+                generateBtn.classList.add('btn-warning');
+            } else {
+                generateBtn.textContent = '💾 บันทึกตารางแข่งขัน';
+                generateBtn.classList.remove('btn-warning');
+                generateBtn.classList.add('btn-secondary');
+            }
+        }
+
+        async function ensureDateLoaded(date) {
+            if (!date) return null;
+            if (Object.prototype.hasOwnProperty.call(appData, date)) return appData[date];
+            const { data, error } = await db.from('match_days').select('*').eq('match_date', date).maybeSingle();
+            if (error) {
+                console.error('Error fetching match day:', error);
+                return null;
+            }
+            appData[date] = data || null;
+            return appData[date];
+        }
+
+        async function prepareSetupFormForDate(date) {
+            if (!date) return;
+            const matchDateInput = document.getElementById('match-date');
+            if (matchDateInput) matchDateInput.value = date;
+            await ensureDateLoaded(date);
+            updateGenerateButtonForDate(date);
+            if (!canManage()) return;
+            const dayData = appData[date];
+            if (dayData?.settings) loadSettingsFromData(dayData.settings, date);
+            else resetSettingsForm();
+        }
+
+        async function loadInitialData(options = {}) {
+            const { preferDate = null } = options;
             const { data: datesData, error } = await db.from('match_days').select('match_date').order('match_date', { ascending: false });
             if (error) { console.error("Error fetching dates:", error); return; }
             const availableDates = datesData.map(d => d.match_date);
+            const today = todayDateKey();
             updateDateSelectorsUI(availableDates);
-            const initialDate = document.getElementById('schedule-date-selector').value;
-            if (initialDate && initialDate !== 'ยังไม่มีข้อมูล') { await loadDataForDate(initialDate); } 
-            else { currentDateKey = new Date().toISOString().split('T')[0]; appData = {}; renderAllPagesForDate(currentDateKey); }
+            // ตารางแข่ง/ผล/คะแนน → วันที่เพิ่งบันทึก หรือวันล่าสุดที่มีข้อมูล
+            const viewDate = (preferDate && availableDates.includes(preferDate))
+                ? preferDate
+                : (availableDates[0] || today);
+            await loadDataForDate(viewDate, { syncSetupDate: false });
+            // หน้าจัดการทีมใช้วันที่แยกจากหน้าตาราง — ค่าเริ่มต้นเป็นวันนี้ (หรือวันที่เพิ่งบันทึก)
+            await prepareSetupFormForDate(preferDate || today);
             if(!activePage || (!canManage() && activePage === 'page-setup')) { activePage = 'page-schedule'; }
             setActivePage(activePage);
         }
@@ -1616,9 +1685,175 @@
             await renderMembersList();
         }
 
-        async function updateScheduleInDB(newSchedule) { saveScrollPosition(); shouldRestoreScroll = true; if (!canManage()) return; const { error } = await db.from('match_days').update({ schedule: newSchedule }).eq('match_date', currentDateKey); if (error) { alert('เกิดข้อผิดพลาดในการอัปเดตตาราง: ' + error.message); } }
+        async function updateScheduleInDB(newSchedule, options = {}) {
+            const { toastMessage = '✅ อัปเดตตารางแล้ว' } = options;
+            saveScrollPosition();
+            shouldRestoreScroll = true;
+            if (!canManage()) return false;
+            const { error } = await db.from('match_days').update({ schedule: newSchedule }).eq('match_date', currentDateKey);
+            if (error) {
+                alert('เกิดข้อผิดพลาดในการอัปเดตตาราง: ' + error.message);
+                return false;
+            }
+            if (appData[currentDateKey]) appData[currentDateKey].schedule = newSchedule;
+            renderSchedulePage(currentDateKey);
+            renderScoresPage(currentDateKey);
+            renderLeaderboardPage(currentDateKey);
+            if (toastMessage) showToast(toastMessage);
+            return true;
+        }
         function renderWithMorph(container, newHtml) { morphdom(container, `<div>${newHtml}</div>`, { childrenOnly: true }); }
         
+        let scheduleOpenerDraft = null; // { date, home, away }
+
+        function getScheduleTeamPool(date) {
+            const dayData = appData[date];
+            return [...new Set(dayData?.settings?.activeTeams || [])];
+        }
+
+        function getScheduleOpenerPair(date) {
+            if (scheduleOpenerDraft?.date === date) {
+                return { home: scheduleOpenerDraft.home, away: scheduleOpenerDraft.away };
+            }
+            const opener = appData[date]?.schedule?.[0];
+            if (!opener?.home || !opener?.away) return null;
+            return { home: opener.home, away: opener.away };
+        }
+
+        function shuffleTeamSlugs(slugs) {
+            const arr = [...slugs];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function buildTeamOrderFromOpener(teamPool, t1, t2) {
+            if (!Array.isArray(teamPool) || teamPool.length < 2 || !t1 || !t2 || t1 === t2) return null;
+            if (!teamPool.includes(t1) || !teamPool.includes(t2)) return null;
+            const others = shuffleTeamSlugs(teamPool.filter(slug => slug !== t1 && slug !== t2));
+            return [t1, t2, ...others];
+        }
+
+        function buildScheduleFromTeamOrder(finalOrder, templateId) {
+            const selectedTemplate = dbTemplates.find(t => t.id === templateId);
+            let schedule = [];
+            if (selectedTemplate) {
+                schedule = selectedTemplate.data.map(match => ({
+                    home: finalOrder[match.home - 1],
+                    away: finalOrder[match.away - 1]
+                })).filter(m => m.home && m.away);
+            } else {
+                schedule = generateDoubleRoundRobin(finalOrder);
+            }
+            return schedule.map(match => ({ ...match, homeScore: null, awayScore: null }));
+        }
+
+        function cycleScheduleOpenerTeam(side) {
+            if (!canManage()) return;
+            const date = currentDateKey;
+            const dayData = appData[date];
+            if (!dayData?.schedule?.length) return;
+            const activeTeams = getScheduleTeamPool(date);
+            if (activeTeams.length < 2) return;
+            const opener = getScheduleOpenerPair(date) || { home: dayData.schedule[0].home, away: dayData.schedule[0].away };
+            const other = side === 'home' ? opener.away : opener.home;
+            const current = side === 'home' ? opener.home : opener.away;
+            const candidates = activeTeams.filter(slug => slug !== other);
+            if (!candidates.length) return;
+            const idx = Math.max(0, candidates.indexOf(current));
+            const next = candidates[(idx + 1) % candidates.length];
+            scheduleOpenerDraft = {
+                date,
+                home: side === 'home' ? next : opener.home,
+                away: side === 'away' ? next : opener.away
+            };
+            renderScheduleOpenerCard(date);
+        }
+
+        async function updateScheduleFromOpenerCard() {
+            if (!canManage()) return alert('ต้องเป็นผู้ดูแลที่อนุมัติแล้วเท่านั้น');
+            const date = currentDateKey;
+            const dayData = appData[date];
+            if (!dayData?.settings) return alert('ยังไม่มีข้อมูลวันแข่งขัน');
+            const opener = getScheduleOpenerPair(date);
+            if (!opener) return alert('กรุณาเลือกคู่เปิดสนาม');
+            const teamPool = getScheduleTeamPool(date);
+            const finalOrder = buildTeamOrderFromOpener(teamPool, opener.home, opener.away);
+            if (!finalOrder) return alert('กรุณาเลือกทีมเปิดสนามให้ครบ 2 ทีม (ไม่ซ้ำกัน)');
+
+            if (dayData.schedule && dayData.schedule.length > 0) {
+                const hasScores = dayData.schedule.some(m => m.homeScore !== null || m.awayScore !== null);
+                const message = hasScores
+                    ? 'คำเตือน: การอัปเดตตารางใหม่จะลบ "ผลการแข่งขัน" ที่มีอยู่ทั้งหมดของวันนี้!'
+                    : 'คุณแน่ใจหรือไม่ว่าต้องการอัปเดตตารางใหม่ทั้งชุดทับของเดิม?';
+                if (!confirm(message)) return;
+            }
+
+            const settings = { ...dayData.settings, activeTeams: finalOrder };
+            const finalSchedule = buildScheduleFromTeamOrder(finalOrder, settings.templateId);
+            const { error } = await db.from('match_days').upsert(
+                { match_date: date, settings, schedule: finalSchedule },
+                { onConflict: 'match_date' }
+            );
+            if (error) {
+                alert('เกิดข้อผิดพลาด: ' + error.message);
+                return;
+            }
+            scheduleOpenerDraft = null;
+            showToast('✅ อัปเดตตารางแข่งขันแล้ว');
+            await loadDataForDate(date, { syncSetupDate: false });
+        }
+
+        function renderScheduleOpenerCard(date) {
+            const card = document.getElementById('schedule-opener-card');
+            const content = document.getElementById('schedule-opener-content');
+            const updateBtn = document.getElementById('schedule-update-btn');
+            if (!card || !content) return;
+            const dayData = appData[date];
+            if (!dayData?.schedule?.length) {
+                card.style.display = 'none';
+                content.innerHTML = '';
+                if (updateBtn) updateBtn.style.display = 'none';
+                if (scheduleOpenerDraft?.date === date) scheduleOpenerDraft = null;
+                return;
+            }
+            if (scheduleOpenerDraft && scheduleOpenerDraft.date !== date) {
+                scheduleOpenerDraft = null;
+            }
+            const opener = getScheduleOpenerPair(date);
+            const homeTeam = TEAMS.find(t => t.slug === opener?.home);
+            const awayTeam = TEAMS.find(t => t.slug === opener?.away);
+            if (!homeTeam || !awayTeam) {
+                card.style.display = 'none';
+                if (updateBtn) updateBtn.style.display = 'none';
+                return;
+            }
+            const editable = canManage();
+            const hint = card.querySelector('.opener-pick-hint');
+            if (hint) {
+                hint.textContent = editable
+                    ? 'แตะสีทีมแล้วกดอัปเดตเพื่อสร้างตารางใหม่ทั้งชุด'
+                    : 'คู่เปิดสนามของวันนี้';
+            }
+            content.innerHTML = `
+                <button type="button" class="team-emblem ${homeTeam.slug} opener-pick" data-side="home" title="แตะเพื่อเปลี่ยนทีมเหย้า" ${editable ? '' : 'disabled'}>${escapeHtml(homeTeam.name)}</button>
+                <span class="vs">VS</span>
+                <button type="button" class="team-emblem ${awayTeam.slug} opener-pick" data-side="away" title="แตะเพื่อเปลี่ยนทีมเยือน" ${editable ? '' : 'disabled'}>${escapeHtml(awayTeam.name)}</button>
+            `;
+            if (editable) {
+                content.querySelectorAll('.opener-pick').forEach(btn => {
+                    btn.onclick = () => cycleScheduleOpenerTeam(btn.dataset.side);
+                });
+            }
+            if (updateBtn) {
+                updateBtn.style.display = editable ? 'block' : 'none';
+                updateBtn.onclick = () => updateScheduleFromOpenerCard();
+            }
+            card.style.display = 'block';
+        }
+
         function renderSchedulePage(date) {
             const container = document.getElementById('schedule-container');
             const templateInfoBadge = document.getElementById('schedule-template-info');
@@ -1626,8 +1861,10 @@
 
             if (!dayData || !dayData.schedule || dayData.schedule.length === 0) {
                 renderWithMorph(container, createNoDataMessage('ยังไม่มีตารางการแข่งขันสำหรับวันนี้', '📅'));
+                applyColumnMajorGrid(container);
                 templateInfoBadge.textContent = '';
                 templateInfoBadge.style.display = 'none';
+                renderScheduleOpenerCard(date);
                 return;
             }
 
@@ -1654,7 +1891,7 @@
 
                 let adminActions = '';
                 if(canManage()) {
-                    const moveTopBtn = index > 0 ? `<button class="action-btn move-top-btn" data-index="${index}" title="เลื่อนไปแข่งเป็นคู่แรก">${SVG_MOVE_TOP}</button>` : '';
+                    const moveTopBtn = index > 0 ? `<button class="action-btn move-top-btn" data-index="${index}" title="ตั้งเป็นคู่เปิดสนาม">${SVG_MOVE_TOP}</button>` : '';
                     const deleteBtn = `<button class="action-btn delete-match-btn" data-index="${index}" title="ลบแมตช์นี้">${SVG_TRASH}</button>`;
                     adminActions = `<div class="match-actions">${moveTopBtn}${deleteBtn}</div>`;
                 }
@@ -1662,11 +1899,29 @@
                 const draggableClass = canManage() ? 'draggable' : '';
                 const draggableAttr = canManage() ? 'draggable="true"' : '';
                 const clickableTeamClass = canManage() ? 'clickable-team' : '';
+                const matchLabel = `แมตช์ที่ ${index + 1}`;
 
-                return `<div class="card match-card ${draggableClass}" data-index="${index}" ${draggableAttr}><div class="match-header"><span>แมตช์ที่ ${index + 1}</span><span>⏱️ ${timeStr}</span>${adminActions}</div><div class="match-body"><div class="team-emblem ${homeTeam.slug} ${clickableTeamClass}" data-index="${index}" data-side="home">${homeTeam.name}</div><span class="vs">VS</span><div class="team-emblem ${awayTeam.slug} ${clickableTeamClass}" data-index="${index}" data-side="away">${awayTeam.name}</div></div></div>`;
+                return `<div class="card match-card ${draggableClass}" data-index="${index}" ${draggableAttr}><div class="match-header"><span>${matchLabel}</span><span>⏱️ ${timeStr}</span>${adminActions}</div><div class="match-body"><div class="team-emblem ${homeTeam.slug} ${clickableTeamClass}" data-index="${index}" data-side="home">${homeTeam.name}</div><span class="vs">VS</span><div class="team-emblem ${awayTeam.slug} ${clickableTeamClass}" data-index="${index}" data-side="away">${awayTeam.name}</div></div></div>`;
             }).join('');
             if (canManage() && dayData.schedule) { html += `<button id="add-match-btn" class="btn btn-primary">➕ เพิ่มแมตช์ใหม่</button>`; }
             renderWithMorph(container, html);
+            applyColumnMajorGrid(container);
+            renderScheduleOpenerCard(date);
+        }
+
+        function applyColumnMajorGrid(container) {
+            if (!container) return;
+            const cards = container.querySelectorAll(':scope > .match-card');
+            const addBtn = container.querySelector(':scope > #add-match-btn');
+            const wide = window.matchMedia('(min-width: 768px), (orientation: landscape)').matches;
+            if (!wide || cards.length === 0) {
+                container.style.gridTemplateRows = '';
+                if (addBtn) addBtn.style.gridRow = '';
+                return;
+            }
+            const rows = Math.ceil(cards.length / 2);
+            container.style.gridTemplateRows = `repeat(${rows}, auto)`;
+            if (addBtn) addBtn.style.gridRow = String(rows + 1);
         }
         
         async function handleMainClick(event) { 
@@ -1682,7 +1937,21 @@
         function handleDragStart(event) { const draggable = event.target.closest('.match-card.draggable'); if (!draggable) return; draggedItem = draggable; event.dataTransfer.effectAllowed = 'move'; event.dataTransfer.setData('text/plain', draggable.dataset.index); setTimeout(() => { draggedItem.classList.add('dragging'); }, 0); }
         function handleDragEnd(event) { if (!draggedItem) return; draggedItem.classList.remove('dragging'); draggedItem = null; const placeholder = document.querySelector('.drag-over-placeholder'); if (placeholder) { placeholder.remove(); } }
         function handleDragOver(event) { event.preventDefault(); const container = event.currentTarget; const afterElement = getDragAfterElement(container, event.clientY); let placeholder = container.querySelector('.drag-over-placeholder'); if (!placeholder) { placeholder = document.createElement('div'); placeholder.classList.add('drag-over-placeholder'); } container.insertBefore(placeholder, afterElement); }
-        async function handleDrop(event) { event.preventDefault(); const container = event.currentTarget; const placeholder = container.querySelector('.drag-over-placeholder'); if (!placeholder || !draggedItem) return; placeholder.parentNode.insertBefore(draggedItem, placeholder); placeholder.remove(); const originalIndices = Array.from(container.querySelectorAll('.match-card[data-index]')).map(card => parseInt(card.dataset.index, 10)); const oldSchedule = appData[currentDateKey].schedule; const reorderedSchedule = originalIndices.map(originalIndex => oldSchedule.find((match, i) => i === originalIndex)); await updateScheduleInDB(reorderedSchedule); }
+        async function handleDrop(event) {
+            event.preventDefault();
+            const container = event.currentTarget;
+            const placeholder = container.querySelector('.drag-over-placeholder');
+            if (!placeholder || !draggedItem) return;
+            placeholder.parentNode.insertBefore(draggedItem, placeholder);
+            placeholder.remove();
+            const originalIndices = Array.from(container.querySelectorAll('.match-card[data-index]')).map(card => parseInt(card.dataset.index, 10));
+            const oldSchedule = appData[currentDateKey].schedule;
+            const reorderedSchedule = originalIndices.map(originalIndex => oldSchedule.find((match, i) => i === originalIndex));
+            const openerChanged = originalIndices[0] !== 0;
+            await updateScheduleInDB(reorderedSchedule, {
+                toastMessage: openerChanged ? '✅ อัปเดตคู่เปิดสนามแล้ว' : '✅ อัปเดตลำดับแมตช์แล้ว'
+            });
+        }
         function setupDragAndDropListeners(container) { container.addEventListener('dragstart', handleDragStart); container.addEventListener('dragend', handleDragEnd); container.addEventListener('dragover', handleDragOver); container.addEventListener('drop', handleDrop); }
         function getDragAfterElement(container, y) { const draggableElements = [...container.querySelectorAll('.match-card.draggable:not(.dragging)')]; return draggableElements.reduce((closest, child) => { const box = child.getBoundingClientRect(); const offset = y - box.top - box.height / 2; if (offset < 0 && offset > closest.offset) { return { offset: offset, element: child }; } else { return closest; } }, { offset: Number.NEGATIVE_INFINITY }).element; }
         
@@ -1700,12 +1969,27 @@
             const matchesToBecomeFirst = currentSchedule.slice(idx);
             
             const newSchedule = [...matchesToBecomeFirst, ...matchesToBecomeLast];
-            await updateScheduleInDB(newSchedule);
-            showToast(`✅ ย้ายแมตช์ไปเป็นคู่แรกแล้ว`);
+            await updateScheduleInDB(newSchedule, { toastMessage: '✅ อัปเดตคู่เปิดสนามแล้ว' });
         }
 
         function openTeamSelectModal(index, side) { if (!canManage()) return; currentEditingContext = { index: parseInt(index), side }; const dayData = appData[currentDateKey]; const activeTeams = dayData.settings.activeTeams; const modalList = document.getElementById('team-select-modal-list'); document.getElementById('team-select-modal-title').textContent = `เลือกทีม${side === 'home' ? 'เหย้า' : 'เยือน'}สำหรับแมตช์ที่ ${currentEditingContext.index + 1}`; modalList.innerHTML = ''; activeTeams.forEach(slug => { const team = TEAMS.find(t => t.slug === slug); if (team) { const teamEl = document.createElement('div'); teamEl.className = `team-emblem ${team.slug} clickable`; teamEl.textContent = team.name; teamEl.dataset.slug = team.slug; teamEl.onclick = () => handleTeamSelection(team.slug); modalList.appendChild(teamEl); } }); teamSelectModal.style.display = 'block'; }
-        async function handleTeamSelection(newTeamSlug) { const { index, side } = currentEditingContext; if (index === null || !side) return; const dayData = appData[currentDateKey]; let newSchedule = [...dayData.schedule]; const match = newSchedule[index]; const otherSide = side === 'home' ? 'away' : 'home'; if (match[otherSide] === newTeamSlug) { alert('ไม่สามารถเลือกทีมซ้ำกันในคู่เดียวกันได้'); return; } match[side] = newTeamSlug; teamSelectModal.style.display = 'none'; await updateScheduleInDB(newSchedule); }
+        async function handleTeamSelection(newTeamSlug) {
+            const { index, side } = currentEditingContext;
+            if (index === null || !side) return;
+            const dayData = appData[currentDateKey];
+            let newSchedule = [...dayData.schedule];
+            const match = newSchedule[index];
+            const otherSide = side === 'home' ? 'away' : 'home';
+            if (match[otherSide] === newTeamSlug) {
+                alert('ไม่สามารถเลือกทีมซ้ำกันในคู่เดียวกันได้');
+                return;
+            }
+            match[side] = newTeamSlug;
+            teamSelectModal.style.display = 'none';
+            await updateScheduleInDB(newSchedule, {
+                toastMessage: index === 0 ? '✅ อัปเดตคู่เปิดสนามแล้ว' : '✅ อัปเดตตารางแล้ว'
+            });
+        }
         
         function setActivePage(pageId) { 
             if (!canManage() && pageId === 'page-setup') { alert(currentUser ? 'บัญชีของคุณยังไม่ได้รับอนุมัติจาก Superadmin' : 'คุณต้องเข้าสู่ระบบผู้ดูแลเพื่อเข้าถึงหน้านี้'); if (!currentUser) loginModal.style.display = 'block'; return; } 
@@ -2037,14 +2321,19 @@
                     const isChecked = index < 5 ? 'checked' : '';
                     return `<div class="team-toggle"><div class="team-emblem ${team.slug}">${team.name}</div><label class="switch"><input type="checkbox" class="team-switch" data-team-slug="${team.slug}" ${isChecked}><span class="slider"></span></label></div>`;
                 }).join('');
-        refreshOpenerDropdowns();
-                document.getElementById('match-date').addEventListener('change', (e) => { shouldRestoreScroll = false; loadDataForDate(e.target.value); });
+                refreshOpenerDropdowns();
+                document.getElementById('match-date').addEventListener('change', async (e) => {
+                    shouldRestoreScroll = false;
+                    const date = e.target.value;
+                    if (!date) return;
+                    // เปลี่ยนแค่วันในฟอร์มตั้งค่า — ไม่สลับ/ทับวันตารางที่กำลังดู
+                    await prepareSetupFormForDate(date);
+                });
                 document.getElementById('generate-schedule-btn').addEventListener('click', generateAndSaveSchedule);
                 document.getElementById('copy-reg-template-btn').addEventListener('click', openShareRegModal);
                 document.querySelectorAll('.team-switch').forEach(el => el.addEventListener('change', () => {
-	refreshOpenerDropdowns();
-                    updateAdvancedOptions(); 
-                    renderSchedulePreview(false);
+                    refreshOpenerDropdowns();
+                    updateAdvancedOptions();
                 }));
                 document.getElementById('template-selector').addEventListener('change', () => renderSchedulePreview(false));
                 document.querySelectorAll('#page-setup .num-stepper-btn').forEach(btn => btn.addEventListener('click', handleNumberStepper));
@@ -2076,6 +2365,7 @@
         function renderSchedulePreview(isInitialLoad) {
             const previewCard = document.getElementById('schedule-preview-card');
             const previewContent = document.getElementById('schedule-preview-content');
+            if (!previewCard || !previewContent) return;
             const dayData = appData[currentDateKey];
             const s1 = document.getElementById('lock-team-1');
             const s2 = document.getElementById('lock-team-2');
@@ -2124,15 +2414,20 @@
         function handleNumberStepper(event) { const op = parseInt(event.currentTarget.dataset.op); const targetId = event.currentTarget.dataset.target; const input = document.getElementById(targetId); if (input) { const step = parseFloat(input.step) || 1; const min = parseFloat(input.min); let currentValue = parseFloat(input.value) || 0; let newValue = currentValue + (op * step); if (!isNaN(min) && newValue < min) newValue = min; input.value = parseFloat(newValue.toPrecision(12)); } }
         
         function renderAllPagesForDate(date) {
-            setupPageSetup(); 
-            const dayData = appData[date];
-            if (dayData && dayData.settings) {
-                loadSettingsFromData(dayData.settings);
-            } else if (canManage()) {
-                resetSettingsForm();
+            setupPageSetup();
+            const setupDate = document.getElementById('match-date')?.value || date;
+            // ฟอร์มจัดการทีมตามวันที่ในฟอร์มเท่านั้น — ไม่ดึงค่าจากวันตารางที่กำลังดู
+            if (setupDate === date) {
+                const dayData = appData[date];
+                if (dayData && dayData.settings) {
+                    loadSettingsFromData(dayData.settings, date);
+                } else if (canManage()) {
+                    resetSettingsForm();
+                }
+                updateGenerateButtonForDate(date);
             }
-            renderSchedulePage(date); 
-            renderScoresPage(date); 
+            renderSchedulePage(date);
+            renderScoresPage(date);
             renderLeaderboardPage(date);
             if (activePage === 'page-lineup') renderLineupPage();
         }
@@ -2161,51 +2456,46 @@
         
         async function generateAndSaveSchedule() {
             if (!canManage()) return alert('ต้องเป็นผู้ดูแลที่อนุมัติแล้วเท่านั้น');
-            
+
+            const date = document.getElementById('match-date').value;
+            if (!date) return alert('กรุณาเลือกวันที่แข่งขัน');
+
             // 1. จัดลำดับทีมใหม่ (1, 2 ตามเลือก ที่เหลือสุ่ม)
             const finalOrder = getFinalShuffledOrder();
-            if (!finalOrder) return; 
+            if (!finalOrder) return;
 
-            const dayData = appData[currentDateKey];
-            if (dayData && dayData.schedule && dayData.schedule.length > 0) {
-                const hasScores = dayData.schedule.some(m => m.homeScore !== null || m.awayScore !== null);
-                const message = hasScores ? 'คำเตือน: การสร้างตารางใหม่จะลบ "ผลการแข่งขัน" ที่มีอยู่ทั้งหมดของวันนี้!' : 'คุณแน่ใจหรือไม่ว่าต้องการสร้างตารางใหม่ทับของเดิม?';
+            // ตรวจเฉพาะวันที่เลือกในฟอร์ม — ไม่ใช้วันตารางที่กำลังดูอยู่
+            const targetDay = await ensureDateLoaded(date);
+            if (targetDay?.schedule?.length > 0) {
+                const hasScores = targetDay.schedule.some(m => m.homeScore !== null || m.awayScore !== null);
+                const message = hasScores
+                    ? `คำเตือน: การสร้างตารางใหม่จะลบ "ผลการแข่งขัน" ของวันที่ ${date} ทั้งหมด!`
+                    : `คุณแน่ใจหรือไม่ว่าต้องการสร้างตารางใหม่ทับของวันที่ ${date}?`;
                 if (!confirm(message)) return;
             }
 
             const templateId = document.getElementById('template-selector').value;
-            const date = document.getElementById('match-date').value;
-            if (!date) return alert('กรุณาเลือกวันที่แข่งขัน');
-
             const settings = {
                 timePerMatch: parseInt(document.getElementById('time-per-match').value) + 1,
                 startTime: document.getElementById('start-time').value,
-                activeTeams: finalOrder, // บันทึกลำดับที่สุ่มแล้ว
+                activeTeams: finalOrder,
                 templateId: templateId
             };
 
-            // 2. สร้างตารางจาก Template
-            let schedule = [];
-            const selectedTemplate = dbTemplates.find(t => t.id === templateId);
+            const finalSchedule = buildScheduleFromTeamOrder(finalOrder, templateId);
+            const { error } = await db.from('match_days').upsert(
+                { match_date: date, settings, schedule: finalSchedule },
+                { onConflict: 'match_date' }
+            );
 
-            if (selectedTemplate) {
-                schedule = selectedTemplate.data.map(match => ({
-                    home: finalOrder[match.home - 1],
-                    away: finalOrder[match.away - 1]
-                })).filter(m => m.home && m.away);
+            if (error) {
+                alert('เกิดข้อผิดพลาด: ' + error.message);
             } else {
-                schedule = generateDoubleRoundRobin(finalOrder);
-            }
-            
-            const finalSchedule = schedule.map(match => ({...match, homeScore: null, awayScore: null}));
-            const { error } = await db.from('match_days').upsert({ match_date: date, settings: settings, schedule: finalSchedule }, { onConflict: 'match_date' });
-            
-            if (error) { alert('เกิดข้อผิดพลาด: ' + error.message); } 
-            else { 
-                showToast('✅ บันทึกและสุ่มลำดับทีมเรียบร้อย!'); 
-                currentDateKey = date; 
-                await loadInitialData(); 
-                setActivePage('page-schedule'); 
+                scheduleOpenerDraft = null;
+                appData[date] = { match_date: date, settings, schedule: finalSchedule };
+                showToast(targetDay?.schedule?.length ? '✅ อัปเดตตารางเรียบร้อย!' : '✅ บันทึกตารางเรียบร้อย!');
+                await loadInitialData({ preferDate: date });
+                setActivePage('page-schedule');
             }
         }
 
@@ -2402,34 +2692,31 @@
         function listenToRealtimeChanges() { db.channel('match_days_changes', { config: { broadcast: { self: false, }, }, }).on('postgres_changes', { event: '*', schema: 'public', table: 'match_days' }, async (payload) => { console.log('Realtime change received!', payload); const changedDate = payload.new?.match_date || payload.old?.match_date; if (changedDate === currentDateKey) { saveScrollPosition(); shouldRestoreScroll = true; await loadDataForDate(currentDateKey); } else { await loadInitialData(); } }).subscribe(); }
         function setupNavigation() { navButtons.forEach(button => { button.addEventListener('click', () => setActivePage(button.dataset.page)); }); }
         
-        async function loadDataForDate(date) {
+        async function loadDataForDate(date, options = {}) {
+            const { syncSetupDate = true } = options;
             currentDateKey = date;
             [
                 document.getElementById('schedule-date-selector'),
                 document.getElementById('scores-date-selector'),
                 document.getElementById('leaderboard-date-selector')
-            ].forEach(s => { if (s) s.value = date; });
-            if (document.getElementById('match-date')) { document.getElementById('match-date').value = date; }
+            ].forEach(s => { if (s && [...s.options].some(o => o.value === date)) s.value = date; });
+            if (syncSetupDate && document.getElementById('match-date')) {
+                document.getElementById('match-date').value = date;
+            }
             
             const { data: results, error } = await db.from('match_days').select('*').eq('match_date', date);
             if (error) { console.error("Error fetching data for date:", error); alert("เกิดข้อผิดพลาดในการโหลดข้อมูล: " + error.message); return; }
             const data = results && results.length > 0 ? results[0] : null;
 
-            const generateBtn = document.getElementById('generate-schedule-btn');
-            if (data) {
-                appData[date] = data;
-                generateBtn.textContent = '💾 อัปเดตตารางแข่งขัน';
-                generateBtn.classList.remove('btn-secondary'); generateBtn.classList.add('btn-warning');
-            } else {
-                appData[date] = null;
-                generateBtn.textContent = 'สร้างตารางแข่งขัน';
-                generateBtn.classList.remove('btn-warning'); generateBtn.classList.add('btn-secondary');
-            }
+            appData[date] = data;
             renderAllPagesForDate(date);
+            const setupDate = document.getElementById('match-date')?.value;
+            if (setupDate) updateGenerateButtonForDate(setupDate);
+            else updateGenerateButtonForDate(date);
             restoreScrollPosition();
         }
         
-        function loadSettingsFromData(settings) {
+        function loadSettingsFromData(settings, dateKey = null) {
     if (!settings || !canManage()) return;
     document.getElementById('time-per-match').value = settings.timePerMatch ? settings.timePerMatch - 1 : 8;
     document.getElementById('start-time').value = settings.startTime || '20:00';
@@ -2439,22 +2726,15 @@
         sw.checked = settings.activeTeams ? settings.activeTeams.includes(sw.dataset.teamSlug) : true;
     });
 
-    // --- ส่วนที่แก้ไขใหม่ ---
-    // ดึงข้อมูลวันปัจจุบัน
-    const dayData = appData[currentDateKey];
+    const openerDate = dateKey || document.getElementById('match-date')?.value || currentDateKey;
+    const dayData = appData[openerDate];
     let firstTeam = null;
     let secondTeam = null;
-
-    // ถ้ามีตารางแข่งขันอยู่แล้ว ให้ดึงทีมคู่แรกมาใส่ในตัวแปร
     if (dayData && dayData.schedule && dayData.schedule.length > 0) {
         firstTeam = dayData.schedule[0].home;
         secondTeam = dayData.schedule[0].away;
     }
-
-    // สั่งรีเฟรช Dropdown โดยส่งทีมจากคู่แรกเข้าไปด้วย
     refreshOpenerDropdowns(firstTeam, secondTeam);
-    // -----------------------
-
     updateAdvancedOptions();
     document.getElementById('template-selector').value = settings.templateId || '';
     renderSchedulePreview(true);
@@ -2467,7 +2747,7 @@
             document.querySelectorAll('.team-switch').forEach((sw, index) => {
                 sw.checked = index < 5;
             });
-    refreshOpenerDropdowns();
+            refreshOpenerDropdowns();
             updateAdvancedOptions();
             document.getElementById('template-selector').selectedIndex = 0;
             renderSchedulePreview(false);
@@ -2476,6 +2756,7 @@
         async function deleteDay() { if (!canManage()) return alert('ต้องเป็นผู้ดูแลที่อนุมัติแล้วเท่านั้น'); const dateToDelete = document.getElementById('schedule-date-selector').value; if (dateToDelete && confirm(`คุณแน่ใจหรือไม่ว่าต้องการลบข้อมูลของวันที่ ${dateToDelete} ทั้งหมด?`)) { const { error } = await db.from('match_days').delete().eq('match_date', dateToDelete); if (error) { alert('เกิดข้อผิดพลาด: ' + error.message); } else { showToast('ลบข้อมูลเรียบร้อยแล้ว'); await loadInitialData(); } } }
         
         function updateDateSelectorsUI(dates) {
+            const dateList = Array.isArray(dates) ? [...dates] : [];
             const selectors = [
                 document.getElementById('schedule-date-selector'),
                 document.getElementById('scores-date-selector'),
@@ -2484,10 +2765,10 @@
             selectors.forEach(selector => {
                 if (!selector) return;
                 selector.innerHTML = '';
-                if (dates.length === 0) {
+                if (dateList.length === 0) {
                     selector.innerHTML = '<option>ยังไม่มีข้อมูล</option>';
                 } else {
-                    dates.forEach(date => {
+                    dateList.forEach(date => {
                         const option = document.createElement('option');
                         option.value = date;
                         option.textContent = new Date(date + 'T00:00:00').toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' });
@@ -2496,7 +2777,10 @@
                 }
             });
             const mainSelector = document.getElementById('schedule-date-selector');
-            if (dates.includes(currentDateKey)) { mainSelector.value = currentDateKey; } else if (dates.length > 0) { mainSelector.value = dates[0]; }
+            // วันล่าสุดที่มีข้อมูล (เรียงจาก DB แบบใหม่ → เก่า)
+            if (dateList.length > 0) {
+                mainSelector.value = dateList[0];
+            }
             mainSelector.onchange = (e) => { shouldRestoreScroll = false; loadDataForDate(e.target.value); };
             [
                 document.getElementById('scores-date-selector'),
@@ -2514,7 +2798,11 @@
         function renderScoresPage(date) {
             const container = document.getElementById('scores-container');
             const dayData = appData[date];
-            if (!dayData || !dayData.schedule || dayData.schedule.length === 0) { renderWithMorph(container, createNoDataMessage('ยังไม่มีข้อมูลการแข่งขันสำหรับวันนี้', '✏️')); return; }
+            if (!dayData || !dayData.schedule || dayData.schedule.length === 0) {
+                renderWithMorph(container, createNoDataMessage('ยังไม่มีข้อมูลการแข่งขันสำหรับวันนี้', '✏️'));
+                applyColumnMajorGrid(container);
+                return;
+            }
             const svgMinus = `<svg viewBox="0 0 24 24"><path d="M19 13H5v-2h14v2z"/></svg>`, svgPlus = `<svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>`, svgReset = `<svg viewBox="0 0 24 24"><path d="M17.65,6.35C16.2,4.9,14.21,4,12,4c-4.42,0-7.99,3.58-7.99,8s3.57,8,7.99,8c3.73,0,6.84-2.55,7.73-6h-2.08c-0.82,2.33-3.04,4-5.65,4-3.31,0-6-2.69-6-6s2.69-6,6-6c1.66,0,3.14,0.69,4.22,1.78L13,11h7V4L17.65,6.35z"/></svg>`;
             const { schedule, settings } = dayData, startTime = new Date(`${date}T${settings.startTime}`);
             const isReadOnly = !canManage(), disabledAttr = isReadOnly ? 'disabled' : '';
@@ -2527,6 +2815,7 @@
                 return `<div class="card match-card"><div class="match-header"><span>แมตช์ที่ ${index + 1}</span><span>⏱️ ${timeStr}</span></div><div class="score-line-export"><div class="team-emblem ${homeTeam.slug}">${homeTeam.name}</div><div class="score-block"><span class="score-value">${homeScoreText}</span><span class="vs-export">${separator}</span><span class="score-value">${awayScoreText}</span></div><div class="team-emblem ${awayTeam.slug}">${awayTeam.name}</div></div><div class="interactive-controls"><div class="team-score-wrapper"><div class="team-emblem ${homeTeam.slug}">${homeTeam.name}</div><div class="score-control"><button class="score-btn" data-index="${index}" data-team="home" data-op="-1" ${disabledAttr}>${svgMinus}</button><input type="number" class="score-input" value="${match.homeScore === null ? '' : match.homeScore}" data-index="${index}" data-team="home" ${readonlyAttr}><button class="score-btn" data-index="${index}" data-team="home" data-op="1" ${disabledAttr}>${svgPlus}</button></div></div><div class="match-center-controls"><span class="vs">VS</span><button class="reset-score-btn" data-index="${index}" ${disabledAttr}>${svgReset}</button></div><div class="team-score-wrapper"><div class="team-emblem ${awayTeam.slug}">${awayTeam.name}</div><div class="score-control"><button class="score-btn" data-index="${index}" data-team="away" data-op="-1" ${disabledAttr}>${svgMinus}</button><input type="number" class="score-input" value="${match.awayScore === null ? '' : match.awayScore}" data-index="${index}" data-team="away" ${readonlyAttr}><button class="score-btn" data-index="${index}" data-team="away" data-op="1" ${disabledAttr}>${svgPlus}</button></div></div></div></div>`;
             }).join('');
             renderWithMorph(container, html);
+            applyColumnMajorGrid(container);
         }
 
         function renderLeaderboardPage(date) { 
@@ -2688,7 +2977,6 @@ function copyToEditForm(template) {
             document.getElementById('new-template-name').scrollIntoView({ behavior: 'smooth' });
         }
 
-// 1. ฟังก์ชันอัปเดตตัวเลือกทีมหมายเลข 1 และ 2
 function refreshOpenerDropdowns(forceT1 = null, forceT2 = null) {
     const activeTeams = Array.from(document.querySelectorAll('.team-switch:checked')).map(sw => sw.dataset.teamSlug);
     const s1 = document.getElementById('lock-team-1');
@@ -2705,53 +2993,36 @@ function refreshOpenerDropdowns(forceT1 = null, forceT2 = null) {
 
     const oldVal1 = s1.value;
     const oldVal2 = s2.value;
-
     const optionsHtml = activeTeams.map(slug => {
         const team = TEAMS.find(t => t.slug === slug);
         return `<option value="${slug}">${team ? team.name : slug}</option>`;
     }).join('');
-
     s1.innerHTML = optionsHtml;
     s2.innerHTML = optionsHtml;
 
-    if (forceT1 && activeTeams.includes(forceT1)) {
-        s1.value = forceT1;
-    } else if (activeTeams.includes(oldVal1)) {
-        s1.value = oldVal1;
-    } else {
-        s1.value = activeTeams[0];
-    }
+    if (forceT1 && activeTeams.includes(forceT1)) s1.value = forceT1;
+    else if (activeTeams.includes(oldVal1)) s1.value = oldVal1;
+    else s1.value = activeTeams[0];
 
-    if (forceT2 && activeTeams.includes(forceT2) && forceT2 !== s1.value) {
-        s2.value = forceT2;
-    } else if (activeTeams.includes(oldVal2) && oldVal2 !== s1.value) {
-        s2.value = oldVal2;
-    } else {
-        s2.value = activeTeams.find(slug => slug !== s1.value) || activeTeams[1];
-    }
+    if (forceT2 && activeTeams.includes(forceT2) && forceT2 !== s1.value) s2.value = forceT2;
+    else if (activeTeams.includes(oldVal2) && oldVal2 !== s1.value) s2.value = oldVal2;
+    else s2.value = activeTeams.find(slug => slug !== s1.value) || activeTeams[1];
 
     renderSchedulePreview(false);
 }
 
-// 2. ฟังก์ชันสำหรับสุ่มลำดับทีม (ยกเว้นเบอร์ 1 และ 2)
 function getFinalShuffledOrder() {
     const allSelected = Array.from(document.querySelectorAll('.team-switch:checked')).map(sw => sw.dataset.teamSlug);
-    const t1 = document.getElementById('lock-team-1').value;
-    const t2 = document.getElementById('lock-team-2').value;
-
-    if (!t1 || !t2 || t1 === t2) {
-        alert("⚠️ ทีมเปิดสนามต้องเลือกคนละทีม — แตะสีทีมในตัวอย่างเพื่อเปลี่ยน");
+    const s1 = document.getElementById('lock-team-1');
+    const s2 = document.getElementById('lock-team-2');
+    const t1 = s1?.value || allSelected[0];
+    const t2 = s2?.value || allSelected[1];
+    const finalOrder = buildTeamOrderFromOpener(allSelected, t1, t2);
+    if (!finalOrder) {
+        alert('กรุณาเลือกทีมเปิดสนามให้ครบ 2 ทีม (ไม่ซ้ำกัน)');
         return null;
     }
-
-    let others = allSelected.filter(slug => slug !== t1 && slug !== t2);
-
-    for (let i = others.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [others[i], others[j]] = [others[j], others[i]];
-    }
-
-    return [t1, t2, ...others];
+    return finalOrder;
 }
 
 document.getElementById('forgot-password-link').onclick = async (e) => {
