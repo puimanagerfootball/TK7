@@ -439,7 +439,7 @@
 
     <div id="app">
         <div id="auth-section">
-    <span class="version-tag">Ver 2.5.4</span>
+    <span class="version-tag">Ver 2.5.7</span>
     
     <!-- สร้าง div ครอบส่วนนี้ไว้ -->
     <div class="auth-user-controls">
@@ -637,13 +637,11 @@
             <span class="close-modal-btn">×</span>
             <h2>💚 แชร์รูปไป LINE</h2>
             <p id="share-image-hint" style="text-align:center;color:var(--text-muted);font-size:13px;margin-bottom:12px;line-height:1.5;">
-                กด <b>คัดลอกรูปภาพ</b> แล้วเปิด LINE กด Ctrl+V<br>
-                หรือคลิกขวาที่รูป → คัดลอกรูปภาพ
+                <b>คัดลอกรูปอัตโนมัติแล้ว</b> — เปิด LINE แล้ววางได้เลย<br>
+                (PC: Ctrl+V · มือถือ: กดค้างในแชทแล้วเลือกวาง)
             </p>
             <img id="share-image-preview" alt="preview">
-            <button type="button" id="share-image-copy-btn" class="btn btn-line" style="margin-bottom:10px;">📋 คัดลอกรูปภาพ</button>
-            <button type="button" id="share-image-download-btn" class="btn btn-secondary" style="margin-bottom:10px;">📥 ดาวน์โหลดรูป</button>
-            <button type="button" id="share-image-close-btn" class="btn btn-secondary">ปิด</button>
+            <button type="button" id="share-image-download-btn" class="btn btn-secondary">📥 ดาวน์โหลดรูป</button>
         </div>
     </div>
 
@@ -760,17 +758,19 @@
                         <h3><span class="num">4</span> แชร์ไป LINE</h3>
                         <div class="help-grid">
                             <div class="help-card">
-                                <p class="title">มือถือ</p>
+                                <p class="title">ข้อความ / รูป</p>
                                 <ul>
-                                    <li>กด แชร์ LINE → เลือก LINE จากเมนูแชร์</li>
-                                    <li>ข้อความลงทะเบียน: คัดลอกแล้ววางในแชท</li>
+                                    <li>กดแชร์แล้วระบบ<b>คัดลอกอัตโนมัติ</b></li>
+                                    <li>เปิด LINE → วางในแชทได้เลย</li>
+                                    <li>อยากได้ไฟล์ค่อยกด ดาวน์โหลดรูป</li>
                                 </ul>
                             </div>
                             <div class="help-card">
-                                <p class="title">คอมพิวเตอร์</p>
+                                <p class="title">วางยังไง</p>
                                 <ul>
-                                    <li>กด คัดลอกรูปภาพ → เปิด LINE → Ctrl+V</li>
-                                    <li>หรือดาวน์โหลดรูปแล้วลากใส่แชท</li>
+                                    <li>PC: Ctrl+V ในแชท LINE</li>
+                                    <li>มือถือ: กดค้างในแชท → วาง</li>
+                                    <li>อยากได้ไฟล์ค่อยกด ดาวน์โหลดรูป</li>
                                 </ul>
                             </div>
                         </div>
@@ -1060,9 +1060,7 @@
             const shareImageModal = document.getElementById('share-image-modal');
             document.querySelector('#share-reg-modal .close-modal-btn').addEventListener('click', () => shareRegModal.style.display = 'none');
             document.querySelector('#share-image-modal .close-modal-btn').addEventListener('click', closeShareImageModal);
-            document.getElementById('share-image-close-btn').addEventListener('click', closeShareImageModal);
             document.getElementById('share-image-download-btn').addEventListener('click', downloadShareImage);
-            document.getElementById('share-image-copy-btn').addEventListener('click', copyShareImageToClipboard);
             document.querySelectorAll('#share-reg-modal .share-mode-btn').forEach(btn => {
                 btn.addEventListener('click', () => setShareRegMode(btn.dataset.mode));
             });
@@ -1269,8 +1267,7 @@
             return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent || '');
         }
 
-        // PC: คัดลอกอย่างเดียว (หน้า LINE บนเบราว์เซอร์มักไม่โชว์รายชื่อแชท)
-        // มือถือ: คัดลอก + เปิดแอป LINE ให้เลือกกลุ่ม
+        // คัดลอกข้อความอัตโนมัติ — วางใน LINE เอง (มือถือเปิด LINE ให้ด้วยถ้าได้)
         async function shareTextToLine(text) {
             try {
                 await navigator.clipboard.writeText(text);
@@ -1280,10 +1277,12 @@
             }
 
             if (isMobileDevice()) {
-                window.open('https://line.me/R/msg/text/?' + encodeURIComponent(text), '_blank');
-                showToast('📱 เปิด LINE แล้ว — หรือวางด้วยการกดค้าง');
+                try {
+                    window.open('https://line.me/R/msg/text/?' + encodeURIComponent(text), '_blank');
+                } catch (_) { /* ignore */ }
+                showToast('📋 คัดลอกแล้ว — เปิด LINE แล้ววางได้เลย');
             } else {
-                showToast('📋 คัดลอกแล้ว! เปิด LINE แล้วกด Ctrl+V วางได้เลย');
+                showToast('📋 คัดลอกแล้ว! เปิด LINE แล้วกด Ctrl+V');
             }
         }
 
@@ -1294,16 +1293,9 @@
             document.getElementById('share-reg-all-actions').style.display = mode === 'all' ? 'block' : 'none';
             document.getElementById('share-reg-single-panel').style.display = mode === 'single' ? 'block' : 'none';
 
-            const mobile = isMobileDevice();
-            document.getElementById('share-reg-line-btn').textContent = mobile
-                ? '💚 แชร์ LINE'
-                : '📋 คัดลอกเพื่อวางใน LINE';
-            document.getElementById('share-reg-hint').textContent = mobile
-                ? 'แชร์รูปแบบลงทะเบียนครบทุกทีมไปกลุ่มใหญ่'
-                : 'บน PC: คัดลอกแล้วไปวางในแชท LINE (Ctrl+V)';
-            document.getElementById('share-reg-single-hint').textContent = mobile
-                ? 'เลือกสีทีมเพื่อแชร์ลงกลุ่มย่อย'
-                : 'เลือกสี → คัดลอกอัตโนมัติ → วางในกลุ่มย่อย (Ctrl+V)';
+            document.getElementById('share-reg-line-btn').textContent = '📋 คัดลอกอัตโนมัติ';
+            document.getElementById('share-reg-hint').textContent = 'กดแล้วคัดลอกอัตโนมัติ → เปิด LINE แล้ววางในกลุ่มใหญ่';
+            document.getElementById('share-reg-single-hint').textContent = 'เลือกสี → คัดลอกอัตโนมัติ → วางในกลุ่มย่อย';
         }
 
         function openShareRegModal() {
@@ -2109,13 +2101,18 @@
             shareImageObjectUrl = URL.createObjectURL(blob);
             const preview = document.getElementById('share-image-preview');
             preview.src = shareImageObjectUrl;
+            const hint = document.getElementById('share-image-hint');
+            if (hint) {
+                hint.innerHTML = '<b>กำลังคัดลอกรูป...</b> — รอสักครู่';
+            }
             document.getElementById('share-image-modal').style.display = 'block';
         }
 
-        async function copyShareImageToClipboard() {
+        async function copyShareImageToClipboard(options = {}) {
+            const { quiet = false, alertOnFail = true } = options;
             if (!shareImageBlobRef && !shareImageObjectUrl) {
-                alert('ยังไม่มีรูปให้คัดลอก');
-                return;
+                if (alertOnFail) alert('ยังไม่มีรูปให้คัดลอก');
+                return false;
             }
             try {
                 let blob = shareImageBlobRef;
@@ -2136,16 +2133,20 @@
                     })();
 
                 if (!navigator.clipboard || !window.ClipboardItem) {
-                    alert('เบราว์เซอร์นี้คัดลอกรูปไม่ได้ — คลิกขวาที่รูปแล้วเลือก "คัดลอกรูปภาพ"');
-                    return;
+                    if (alertOnFail) alert('เบราว์เซอร์นี้คัดลอกรูปไม่ได้ — คลิกขวาที่รูปแล้วเลือก "คัดลอกรูปภาพ"');
+                    return false;
                 }
                 await navigator.clipboard.write([
                     new ClipboardItem({ 'image/png': pngBlob })
                 ]);
-                showToast('📋 คัดลอกรูปแล้ว — เปิด LINE แล้ว Ctrl+V');
+                if (!quiet) showToast('📋 คัดลอกรูปแล้ว — เปิด LINE แล้ววางได้เลย');
+                return true;
             } catch (err) {
                 console.error('copy image failed', err);
-                alert('คัดลอกรูปไม่สำเร็จ\nให้คลิกขวาที่รูป → คัดลอกรูปภาพ แทน\n\n' + (err.message || ''));
+                if (alertOnFail) {
+                    alert('คัดลอกรูปไม่สำเร็จ\nให้คลิกขวาที่รูป → คัดลอกรูปภาพ แทน\n\n' + (err.message || ''));
+                }
+                return false;
             }
         }
 
@@ -2164,23 +2165,20 @@
         }
 
         async function shareImageBlob(blob, filename, title) {
-            const file = new File([blob], filename, { type: blob.type || 'image/png' });
-
-            // มือถือ: เปิดเมนูแชร์ แล้วเลือก LINE ได้
-            if (isMobileDevice() && navigator.canShare && navigator.canShare({ files: [file] })) {
-                await navigator.share({
-                    files: [file],
-                    title: title || 'TK7',
-                    text: title || 'TK7 FridayNight'
-                });
-                showToast('💚 เปิดเมนูแชร์แล้ว — เลือก LINE ได้เลย');
-                return 'shared';
-            }
-
-            // PC: โชว์รูป ให้กดคัดลอกรูปภาพเอง (ไม่ดาวน์โหลดอัตโนมัติ)
+            // คัดลอกอัตโนมัติ + โชว์พรีวิว (ดาวน์โหลดเฉพาะตอนกดเอง)
             openShareImageModal(blob, filename);
-            showToast('กด "คัดลอกรูปภาพ" แล้ววางใน LINE');
-            return 'preview';
+            const hint = document.getElementById('share-image-hint');
+            const ok = await copyShareImageToClipboard({ quiet: true, alertOnFail: false });
+            if (hint) {
+                if (ok) {
+                    hint.innerHTML = '<b>คัดลอกรูปอัตโนมัติแล้ว</b> — เปิด LINE แล้ววางได้เลย<br>(PC: Ctrl+V · มือถือ: กดค้างในแชทแล้วเลือกวาง)';
+                    showToast('📋 คัดลอกรูปแล้ว — เปิด LINE แล้ววางได้เลย');
+                } else {
+                    hint.innerHTML = 'คัดลอกอัตโนมัติไม่สำเร็จ — คลิกขวาที่รูปแล้วเลือกคัดลอก<br>หรือกด ดาวน์โหลดรูป';
+                    showToast('คัดลอกไม่สำเร็จ — คลิกขวาที่รูป หรือดาวน์โหลด');
+                }
+            }
+            return ok ? 'copied' : 'preview';
         }
 
         async function shareElementToLine(elementId, filename, buttonElement) {
