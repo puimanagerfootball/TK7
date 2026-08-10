@@ -230,7 +230,7 @@
 
     <div id="app">
         <div id="auth-section">
-    <span class="version-tag">Ver 2.3.7</span>
+    <span class="version-tag">Ver 2.3.8</span>
     
     <!-- สร้าง div ครอบส่วนนี้ไว้ -->
     <div class="auth-user-controls">
@@ -768,6 +768,17 @@
             return text;
         }
 
+        function getRegistrationMatchDateLabel() {
+            const raw = document.getElementById('match-date')?.value || currentDateKey;
+            if (!raw) return '';
+            return new Date(raw + 'T00:00:00').toLocaleDateString('th-TH', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        }
+
         // กลุ่มใหญ่ = ข้อความครบ | กลุ่มย่อย = เฉพาะบล็อกสี + เลขผู้เล่น 1–7
         function buildRegistrationTemplate(mode, teamSlug) {
             const activeTeamSlugs = getActiveRegTeamSlugs();
@@ -776,8 +787,12 @@
             }
 
             const startTime = document.getElementById('start-time').value;
+            const dateLabel = getRegistrationMatchDateLabel();
             let templateText = `⚽️ FOOTBALL MATCH @ TK7 Stadium\n`;
             templateText += `📍 Location: https://maps.app.goo.gl/37K6rD4LqWA5Qz5KA\n`;
+            if (dateLabel) {
+                templateText += `📅 Date / วันที่: ${dateLabel}\n`;
+            }
             templateText += `🕗 Kick-off: ${startTime} | เวลาเตะ: ${startTime} น.\n\n`;
 
             let playerCount = 1;
