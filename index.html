@@ -47,8 +47,7 @@
     /* --- คอลัมน์ที่ 2 (ฝั่งขวา): รวมการตั้งค่าทั้งหมดมาไว้ฝั่งนี้ --- */
     #setup-content-wrapper > .card:nth-child(2), /* วันที่/เวลา */
     #advanced-options-card,
-    #schedule-preview-card,
-    #opener-lock-card {
+    #schedule-preview-card {
         grid-column: 2 !important;
         margin-bottom: 15px; /* ระยะห่างระหว่างการ์ดฝั่งขวา */
     }
@@ -207,6 +206,7 @@
             overflow: hidden; text-overflow: ellipsis; max-width: 220px; flex-shrink: 1; min-width: 0;
         }
         .label-short { display: none; }
+        .setup-settings-card .label-short { display: none; }
         #auth-section .version-tag { flex-shrink: 0; }
         #auth-section button { flex-shrink: 0; }
         /* --- Mobile compact (PC คงขนาดเดิม) --- */
@@ -244,10 +244,31 @@
             .interactive-controls { gap: 6px; }
             .leaderboard-table th, .leaderboard-table td { padding: 8px 5px; font-size: 12px; }
             .leaderboard-table .team-name { width: 140px; }
-            #page-setup .team-toggle { padding: 9px 10px; margin-bottom: 6px; }
-            .switch { width: 44px; height: 24px; }
-            .slider:before { height: 18px; width: 18px; left: 3px; bottom: 3px; }
-            input:checked + .slider:before { transform: translateX(20px); }
+            .setup-settings-card {
+                display: grid; grid-template-columns: 1fr 1fr; gap: 8px 10px;
+            }
+            .setup-settings-card .form-group { margin-bottom: 0; }
+            .setup-settings-card .setup-field-date { grid-column: 1 / -1; }
+            .setup-settings-card .setup-field-minutes .label-full,
+            .setup-settings-card .setup-field-start .label-full { display: none; }
+            .setup-settings-card .setup-field-minutes .label-short,
+            .setup-settings-card .setup-field-start .label-short { display: inline; }
+            .setup-settings-card .num-stepper-btn { width: 32px; height: 34px; font-size: 18px; }
+            .setup-settings-card input, .setup-settings-card select { padding: 8px; font-size: 14px; }
+            #team-toggle-container {
+                display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
+            }
+            #page-setup .team-toggle {
+                padding: 6px 7px; margin-bottom: 0; gap: 6px; min-width: 0;
+            }
+            #page-setup .team-toggle .team-emblem {
+                min-width: 0; flex: 1 1 auto; width: auto; font-size: 11px;
+                padding: 5px 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            }
+            #page-setup .team-toggle .switch { flex-shrink: 0; }
+            .switch { width: 40px; height: 22px; }
+            .slider:before { height: 16px; width: 16px; left: 3px; bottom: 3px; }
+            input:checked + .slider:before { transform: translateX(18px); }
             .nav-btn { padding: 7px 3px; font-size: 10px; gap: 2px; }
             .nav-btn .icon { font-size: 20px; }
             #auth-section {
@@ -549,7 +570,20 @@
         @keyframes toast-in { from { transform: translate(-50%, 20px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
         @keyframes toast-out { from { transform: translate(-50%, 0); opacity: 1; } to { transform: translate(-50%, 20px); opacity: 0; } }
         #schedule-preview-content { display: flex; justify-content: center; align-items: center; gap: 15px; padding: 10px; min-height: 60px; }
-        #schedule-preview-content .team-emblem { transform: scale(0.9); }
+        #schedule-preview-content .team-emblem,
+        #schedule-preview-content .opener-pick { transform: scale(0.9); }
+        #schedule-preview-content .opener-pick {
+            cursor: pointer; font-family: 'Kanit', sans-serif; appearance: none;
+            transition: transform 0.15s ease, filter 0.15s ease;
+        }
+        #schedule-preview-content .opener-pick:hover {
+            filter: brightness(1.12); transform: scale(0.98);
+        }
+        #schedule-preview-content .opener-pick:active { transform: scale(0.92); }
+        .opener-pick-hint {
+            text-align: center; font-size: 12px; color: var(--text-muted);
+            margin: -4px 0 8px; line-height: 1.4;
+        }
 
         /* --- STYLES FOR EXPORT ONLY --- */
         .temp-export-container { position: absolute; left: -9999px; top: 0; background-color: var(--bg-color); padding: 20px; width: 840px; }
@@ -572,7 +606,7 @@
     <div id="app">
         <div id="auth-section">
     <div class="auth-meta">
-        <span class="version-tag">Ver 2.6.7</span>
+        <span class="version-tag">Ver 2.7.0</span>
         <span id="user-info"></span>
     </div>
     <div class="auth-user-controls">
@@ -590,17 +624,20 @@
             <div id="page-setup" class="page">
                 <div id="setup-content-wrapper">
                     <div class="page-header"><h1>⚽ ตั้งค่าการแข่งขัน</h1></div>
-                    <div class="card">
-                        <div class="form-group"><label for="match-date">📆 วันที่แข่งขัน</label><input type="date" id="match-date"></div>
-                        <div class="form-group">
-                            <label for="time-per-match">⏱️ เวลาแข่งขัน (นาที)</label>
+                    <div class="card setup-settings-card">
+                        <div class="form-group setup-field-date"><label for="match-date">📆 วันที่แข่งขัน</label><input type="date" id="match-date"></div>
+                        <div class="form-group setup-field-minutes">
+                            <label for="time-per-match"><span class="label-full">⏱️ เวลาแข่งขัน (นาที)</span><span class="label-short">⏱️ นาที/แมตช์</span></label>
                             <div class="custom-number-input">
                                 <button class="num-stepper-btn" data-op="-1" data-target="time-per-match">-</button>
                                 <input type="number" id="time-per-match" value="8" step="1" min="1">
                                 <button class="num-stepper-btn" data-op="1" data-target="time-per-match">+</button>
                             </div>
                         </div>
-                        <div class="form-group"><label for="start-time">🕗 เวลาเริ่มแข่งขัน</label><input type="time" id="start-time" value="20:00"></div>
+                        <div class="form-group setup-field-start">
+                            <label for="start-time"><span class="label-full">🕗 เวลาเริ่มแข่งขัน</span><span class="label-short">🕗 เวลาเริ่ม</span></label>
+                            <input type="time" id="start-time" value="20:00">
+                        </div>
                     </div>
                     <div class="card">
                         <h2>✅ เลือกทีมที่เข้าร่วม</h2>
@@ -614,30 +651,14 @@
     <button id="manage-templates-btn" class="export-btn" style="background-color: var(--primary-color); color: #000;">⚙️ จัดการ</button>
 </div>
                         </div>
-                        <div id="opener-selector-container" style="display: none;">
-                            <h2>🏠 นัดเปิดสนาม (ไม่บังคับ)</h2>
-                            <div class="form-group"><label for="opener-home">ทีมเหย้า</label><select id="opener-home"></select></div>
-                            <div class="form-group"><label for="opener-away">ทีมเยือน</label><select id="opener-away"></select></div>
-                        </div>
                     </div>
                     <div class="card" id="schedule-preview-card" style="display: none;">
-                        <h2>👀 ตัวอย่างนัดเปิดสนาม</h2>
+                        <h2>🏆 นัดเปิดสนาม</h2>
+                        <p class="opener-pick-hint">แตะสีทีมเพื่อเปลี่ยน · ทีมอื่นสุ่มอัตโนมัติเมื่อสร้างตาราง</p>
                         <div id="schedule-preview-content"></div>
+                        <select id="lock-team-1" hidden aria-hidden="true"></select>
+                        <select id="lock-team-2" hidden aria-hidden="true"></select>
                     </div>
-	<div class="card" id="opener-lock-card" style="display: none; border: 1px solid var(--primary-color);">
-    <h2>🏆 กำหนดนัดเปิดสนาม</h2>
-    <div class="form-group">
-        <label>🥇 ทีมหมายเลข 1 (เปิดสนาม - เหย้า)</label>
-        <select id="lock-team-1"></select>
-    </div>
-    <div class="form-group">
-        <label>🥈 ทีมหมายเลข 2 (เปิดสนาม - เยือน)</label>
-        <select id="lock-team-2"></select>
-    </div>
-    <p style="font-size: 12px; color: var(--text-muted); text-align: center;">
-        *ทีมที่เหลือ (เบอร์ 3, 4, 5...) จะถูก<b>สุ่มลำดับ</b>โดยอัตโนมัติเมื่อกดสร้างตาราง
-    </p>
-</div>
 
                     <button id="generate-schedule-btn" class="btn btn-secondary">สร้างตารางแข่งขัน</button>
                     <!-- เพิ่มปุ่มคัดลอกลงทะเบียนใหม่ -->
@@ -2025,9 +2046,7 @@
                     updateAdvancedOptions(); 
                     renderSchedulePreview(false);
                 }));
-                document.querySelectorAll('#template-selector, #lock-team-1, #lock-team-2').forEach(el => {
-    el.addEventListener('change', () => renderSchedulePreview(false));
-});
+                document.getElementById('template-selector').addEventListener('change', () => renderSchedulePreview(false));
                 document.querySelectorAll('#page-setup .num-stepper-btn').forEach(btn => btn.addEventListener('click', handleNumberStepper));
                 isInitialSetupDone = true;
             }
@@ -2038,39 +2057,60 @@
             renderSchedulePreview(false);
         }
 
+        function cycleOpenerTeam(side) {
+            const activeTeams = Array.from(document.querySelectorAll('.team-switch:checked')).map(sw => sw.dataset.teamSlug);
+            const s1 = document.getElementById('lock-team-1');
+            const s2 = document.getElementById('lock-team-2');
+            if (!s1 || !s2 || activeTeams.length < 2) return;
+            const other = side === 'home' ? s2.value : s1.value;
+            const current = side === 'home' ? s1.value : s2.value;
+            const candidates = activeTeams.filter(slug => slug !== other);
+            if (!candidates.length) return;
+            const idx = Math.max(0, candidates.indexOf(current));
+            const next = candidates[(idx + 1) % candidates.length];
+            if (side === 'home') s1.value = next;
+            else s2.value = next;
+            renderSchedulePreview(false);
+        }
+
         function renderSchedulePreview(isInitialLoad) {
             const previewCard = document.getElementById('schedule-preview-card');
             const previewContent = document.getElementById('schedule-preview-content');
             const dayData = appData[currentDateKey];
+            const s1 = document.getElementById('lock-team-1');
+            const s2 = document.getElementById('lock-team-2');
 
             let firstMatch = null;
 
             if (isInitialLoad && dayData && dayData.schedule && dayData.schedule.length > 0) {
                 firstMatch = dayData.schedule[0];
-            } 
-            else {
+                if (s1 && s2 && firstMatch.home && firstMatch.away) {
+                    if ([...s1.options].some(o => o.value === firstMatch.home)) s1.value = firstMatch.home;
+                    if ([...s2.options].some(o => o.value === firstMatch.away)) s2.value = firstMatch.away;
+                }
+            } else {
                 const teams = Array.from(document.querySelectorAll('.team-switch:checked')).map(sw => sw.dataset.teamSlug);
                 if (teams.length < 2) {
                     previewCard.style.display = 'none';
                     return;
                 }
-
-                // ดึงค่าจาก Dropdown 1 และ 2 มาแสดงทันที
-                const t1 = document.getElementById('lock-team-1').value;
-                const t2 = document.getElementById('lock-team-2').value;
-
-                if (t1 && t2) {
-                    firstMatch = { home: t1, away: t2 };
-                }
+                const t1 = s1?.value;
+                const t2 = s2?.value;
+                if (t1 && t2) firstMatch = { home: t1, away: t2 };
             }
 
             if (firstMatch && firstMatch.home && firstMatch.away) {
                 const homeTeam = TEAMS.find(t => t.slug === firstMatch.home);
                 const awayTeam = TEAMS.find(t => t.slug === firstMatch.away);
-                
-                // ป้องกันกรณีหาทีมไม่เจอ
                 if (homeTeam && awayTeam) {
-                    previewContent.innerHTML = `<div class="team-emblem ${homeTeam.slug}">${homeTeam.name}</div><span class="vs">VS</span><div class="team-emblem ${awayTeam.slug}">${awayTeam.name}</div>`;
+                    previewContent.innerHTML = `
+                        <button type="button" class="team-emblem ${homeTeam.slug} opener-pick" data-side="home" title="แตะเพื่อเปลี่ยนทีมเหย้า">${escapeHtml(homeTeam.name)}</button>
+                        <span class="vs">VS</span>
+                        <button type="button" class="team-emblem ${awayTeam.slug} opener-pick" data-side="away" title="แตะเพื่อเปลี่ยนทีมเยือน">${escapeHtml(awayTeam.name)}</button>
+                    `;
+                    previewContent.querySelectorAll('.opener-pick').forEach(btn => {
+                        btn.onclick = () => cycleOpenerTeam(btn.dataset.side);
+                    });
                     previewCard.style.display = 'block';
                 } else {
                     previewCard.style.display = 'none';
@@ -2080,9 +2120,8 @@
             }
         }
 
-        function updateAdvancedOptions() { updateOpenerSelects(); updateTemplateSelector(); }
+        function updateAdvancedOptions() { updateTemplateSelector(); }
         function handleNumberStepper(event) { const op = parseInt(event.currentTarget.dataset.op); const targetId = event.currentTarget.dataset.target; const input = document.getElementById(targetId); if (input) { const step = parseFloat(input.step) || 1; const min = parseFloat(input.min); let currentValue = parseFloat(input.value) || 0; let newValue = currentValue + (op * step); if (!isNaN(min) && newValue < min) newValue = min; input.value = parseFloat(newValue.toPrecision(12)); } }
-        function updateOpenerSelects() { const openerHomeSelect = document.getElementById('opener-home'), openerAwaySelect = document.getElementById('opener-away'); const activeTeamSlugs = Array.from(document.querySelectorAll('.team-switch:checked')).map(sw => sw.dataset.teamSlug); const currentHome = openerHomeSelect.value, currentAway = openerAwaySelect.value; openerHomeSelect.innerHTML = '<option value="">-- ไม่เลือก --</option>'; openerAwaySelect.innerHTML = '<option value="">-- ไม่เลือก --</option>'; activeTeamSlugs.forEach(slug => { const team = TEAMS.find(t => t.slug === slug); if (team) { const optionHtml = `<option value="${team.slug}">${team.name}</option>`; openerHomeSelect.innerHTML += optionHtml; openerAwaySelect.innerHTML += optionHtml; } }); openerHomeSelect.value = activeTeamSlugs.includes(currentHome) ? currentHome : ''; openerAwaySelect.value = activeTeamSlugs.includes(currentAway) ? currentAway : ''; }
         
         function renderAllPagesForDate(date) {
             setupPageSetup(); 
@@ -2431,8 +2470,6 @@
     refreshOpenerDropdowns();
             updateAdvancedOptions();
             document.getElementById('template-selector').selectedIndex = 0;
-            document.getElementById('opener-home').value = '';
-            document.getElementById('opener-away').value = '';
             renderSchedulePreview(false);
         }
 
@@ -2656,38 +2693,41 @@ function refreshOpenerDropdowns(forceT1 = null, forceT2 = null) {
     const activeTeams = Array.from(document.querySelectorAll('.team-switch:checked')).map(sw => sw.dataset.teamSlug);
     const s1 = document.getElementById('lock-team-1');
     const s2 = document.getElementById('lock-team-2');
-    const lockCard = document.getElementById('opener-lock-card');
+    const previewCard = document.getElementById('schedule-preview-card');
+    if (!s1 || !s2) return;
 
     if (activeTeams.length < 2) {
-        lockCard.style.display = 'none';
+        if (previewCard) previewCard.style.display = 'none';
+        s1.innerHTML = '';
+        s2.innerHTML = '';
         return;
     }
-    lockCard.style.display = 'block';
 
     const oldVal1 = s1.value;
     const oldVal2 = s2.value;
 
     const optionsHtml = activeTeams.map(slug => {
         const team = TEAMS.find(t => t.slug === slug);
-        return `<option value="${slug}">${team.name}</option>`;
+        return `<option value="${slug}">${team ? team.name : slug}</option>`;
     }).join('');
 
     s1.innerHTML = optionsHtml;
     s2.innerHTML = optionsHtml;
 
-    // --- ส่วนที่แก้ไข: ลำดับความสำคัญคือ forceT1 > ค่าเดิมที่เคยเลือก > ค่าแรกในลิสต์ ---
     if (forceT1 && activeTeams.includes(forceT1)) {
         s1.value = forceT1;
     } else if (activeTeams.includes(oldVal1)) {
         s1.value = oldVal1;
+    } else {
+        s1.value = activeTeams[0];
     }
 
-    if (forceT2 && activeTeams.includes(forceT2)) {
+    if (forceT2 && activeTeams.includes(forceT2) && forceT2 !== s1.value) {
         s2.value = forceT2;
-    } else if (activeTeams.includes(oldVal2)) {
+    } else if (activeTeams.includes(oldVal2) && oldVal2 !== s1.value) {
         s2.value = oldVal2;
-    } else if (activeTeams[1]) {
-        s2.value = activeTeams[1];
+    } else {
+        s2.value = activeTeams.find(slug => slug !== s1.value) || activeTeams[1];
     }
 
     renderSchedulePreview(false);
@@ -2699,23 +2739,19 @@ function getFinalShuffledOrder() {
     const t1 = document.getElementById('lock-team-1').value;
     const t2 = document.getElementById('lock-team-2').value;
 
-    if (t1 === t2) {
-        alert("⚠️ ทีมหมายเลข 1 และ 2 ต้องไม่ซ้ำกัน!");
+    if (!t1 || !t2 || t1 === t2) {
+        alert("⚠️ ทีมเปิดสนามต้องเลือกคนละทีม — แตะสีทีมในตัวอย่างเพื่อเปลี่ยน");
         return null;
     }
 
-    // กรองเอาทีม 1 และ 2 ออกจากรายการเพื่อสุ่มส่วนที่เหลือ
     let others = allSelected.filter(slug => slug !== t1 && slug !== t2);
 
-    // อัลกอริทึมสุ่ม (Shuffle)
     for (let i = others.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [others[i], others[j]] = [others[j], others[i]];
     }
 
-    // รวมร่าง: [เบอร์ 1, เบอร์ 2, สุ่มเบอร์ 3, 4, 5...]
     return [t1, t2, ...others];
-renderSchedulePreview(false);
 }
 
 document.getElementById('forgot-password-link').onclick = async (e) => {
