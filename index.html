@@ -347,7 +347,7 @@
 
     <div id="app">
         <div id="auth-section">
-    <span class="version-tag">Ver 2.5.2</span>
+    <span class="version-tag">Ver 2.5.3</span>
     
     <!-- สร้าง div ครอบส่วนนี้ไว้ -->
     <div class="auth-user-controls">
@@ -449,9 +449,6 @@
                 <div class="page-header">
                     <h1>🧭 จัดตำแหน่ง</h1>
                     <button id="share-lineup-btn" class="export-btn">💚 แชร์ LINE</button>
-                </div>
-                <div class="date-selector-container">
-                    <select id="lineup-date-selector"></select>
                 </div>
                 <div class="card">
                     <h2 style="margin-bottom:12px;">1) เลือกทีม</h2>
@@ -1346,10 +1343,7 @@
         }
 
         function getLineupTeamOptions() {
-            const dayData = appData[currentDateKey];
-            const active = dayData?.settings?.activeTeams;
-            if (active && active.length) return active;
-            return TEAMS.slice(0, 5).map(t => t.slug);
+            return TEAMS.map(t => t.slug);
         }
 
         function emptyNamesForFormation(formation) {
@@ -1359,7 +1353,7 @@
         }
 
         function lineupDraftKey(teamSlug = lineupTeamSlug) {
-            return `${currentDateKey}|${teamSlug}`;
+            return teamSlug;
         }
 
         function rememberLineupDraft() {
@@ -1523,7 +1517,6 @@
             const formation = getCurrentFormation();
             const info = REG_TEAM_INFO[lineupTeamSlug] || { emoji: '⚽', label: lineupTeamSlug };
             const team = TEAMS.find(t => t.slug === lineupTeamSlug);
-            const dateLabel = getRegistrationMatchDateLabel() || currentDateKey;
             const teamLabel = team ? team.name : (info.label || lineupTeamSlug);
 
             const exportCard = document.createElement('div');
@@ -1533,7 +1526,6 @@
             exportCard.innerHTML = `
                 <h1>แผนการเล่น TK7</h1>
                 <div class="lineup-export-meta">
-                    <div class="meta-line">วันที่ ${escapeHtml(dateLabel)}</div>
                     <div class="meta-line">${escapeHtml(teamLabel)}</div>
                     <div class="meta-line">แผน ${escapeHtml(formation.name)}</div>
                 </div>`;
@@ -1568,7 +1560,7 @@
                 });
                 const blob = await canvasToBlob(canvas, 'image/png');
                 if (!blob || blob.size < 500) throw new Error('รูปที่ได้ว่างหรือเล็กเกินไป');
-                const filename = `TK7-Lineup-${lineupTeamSlug}-${currentDateKey}.png`;
+                const filename = `TK7-Lineup-${lineupTeamSlug}.png`;
                 await shareImageBlob(blob, filename, `TK7 ${teamLabel} ${formation.name}`);
             } catch (err) {
                 if (err && err.name === 'AbortError') {
@@ -1955,8 +1947,7 @@
             [
                 document.getElementById('schedule-date-selector'),
                 document.getElementById('scores-date-selector'),
-                document.getElementById('leaderboard-date-selector'),
-                document.getElementById('lineup-date-selector')
+                document.getElementById('leaderboard-date-selector')
             ].forEach(s => { if (s) s.value = date; });
             if (document.getElementById('match-date')) { document.getElementById('match-date').value = date; }
             
@@ -2030,8 +2021,7 @@
             const selectors = [
                 document.getElementById('schedule-date-selector'),
                 document.getElementById('scores-date-selector'),
-                document.getElementById('leaderboard-date-selector'),
-                document.getElementById('lineup-date-selector')
+                document.getElementById('leaderboard-date-selector')
             ];
             selectors.forEach(selector => {
                 if (!selector) return;
@@ -2052,8 +2042,7 @@
             mainSelector.onchange = (e) => { shouldRestoreScroll = false; loadDataForDate(e.target.value); };
             [
                 document.getElementById('scores-date-selector'),
-                document.getElementById('leaderboard-date-selector'),
-                document.getElementById('lineup-date-selector')
+                document.getElementById('leaderboard-date-selector')
             ].forEach(s => {
                 if (!s) return;
                 s.value = mainSelector.value;
