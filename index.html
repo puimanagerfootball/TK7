@@ -200,6 +200,123 @@
             border: 1px solid var(--border-color); background: #000; object-fit: contain;
         }
         #share-image-modal .modal-content { max-width: 640px; margin: 5% auto; }
+
+        /* --- Lineup / Formation --- */
+        .pitch-wrap { max-width: 420px; margin: 0 auto 16px; }
+        .lineup-export-card {
+            background: #121212; padding: 20px; width: 420px; font-family: 'Kanit', sans-serif; color: #e0e0e0;
+        }
+        .lineup-export-card h1 {
+            color: #03dac6; font-size: 1.5em; margin: 0 0 12px; text-align: center;
+            line-height: 1.3; display: block;
+        }
+        .lineup-export-meta {
+            text-align: center; color: #bbb; font-size: 15px; margin: 0 0 16px;
+            line-height: 1.6; display: block;
+        }
+        .lineup-export-meta .meta-line {
+            display: block; margin: 0 0 6px; line-height: 1.4;
+        }
+        .lineup-export-card .pitch-wrap { max-width: 100%; margin: 0 auto; }
+        .lineup-export-card .pitch-slot { cursor: default; }
+        .lineup-export-card .pitch-slot.active .slot-dot { outline: none; }
+        /* วางในจอแบบมองไม่เห็น — html2canvas จับ left:-9999px ไม่ได้บนบางเครื่อง */
+        .capture-stage {
+            position: fixed; left: 0; top: 0; z-index: -1; opacity: 0.01; pointer-events: none;
+        }
+        .pitch {
+            position: relative; width: 100%; aspect-ratio: 2 / 3; border-radius: 12px; overflow: hidden;
+            background: linear-gradient(180deg, #1b5e20 0%, #2e7d32 45%, #1b5e20 100%);
+            border: 2px solid rgba(255,255,255,0.45);
+            box-shadow: inset 0 0 40px rgba(0,0,0,0.25);
+        }
+        .pitch::before {
+            content: ''; position: absolute; inset: 6%; border: 1.5px solid rgba(255,255,255,0.4); border-radius: 4px; pointer-events: none; z-index: 1;
+        }
+        .pitch::after {
+            content: ''; position: absolute; left: 50%; top: 50%; width: 22%; aspect-ratio: 1; transform: translate(-50%, -50%);
+            border: 1.5px solid rgba(255,255,255,0.4); border-radius: 50%; pointer-events: none; z-index: 1;
+        }
+        .pitch-half { position: absolute; left: 6%; right: 6%; top: 50%; border-top: 1.5px solid rgba(255,255,255,0.4); pointer-events: none; z-index: 1; }
+        /* เขตโทษ */
+        .pitch-box {
+            position: absolute; left: 50%; transform: translateX(-50%);
+            width: 52%; height: 16%;
+            border: 1.5px solid rgba(255,255,255,0.45);
+            pointer-events: none; z-index: 1; box-sizing: border-box;
+        }
+        .pitch-box-top { top: 6%; border-top: none; }
+        .pitch-box-bottom { bottom: 6%; border-bottom: none; }
+        /* กรอบประตูเล็ก (6-yard) */
+        .pitch-six {
+            position: absolute; left: 50%; transform: translateX(-50%);
+            width: 28%; height: 7%;
+            border: 1.5px solid rgba(255,255,255,0.45);
+            pointer-events: none; z-index: 1; box-sizing: border-box;
+        }
+        .pitch-six-top { top: 6%; border-top: none; }
+        .pitch-six-bottom { bottom: 6%; border-bottom: none; }
+        /* เส้นประตูด้านนอก */
+        .pitch-goal {
+            position: absolute; left: 50%; transform: translateX(-50%);
+            width: 16%; height: 3.5%;
+            border: 2px solid rgba(255,255,255,0.7);
+            background: rgba(0,0,0,0.12);
+            pointer-events: none; z-index: 1; box-sizing: border-box;
+        }
+        .pitch-goal-top { top: 2.2%; border-bottom: none; border-radius: 3px 3px 0 0; }
+        .pitch-goal-bottom { bottom: 2.2%; border-top: none; border-radius: 0 0 3px 3px; }
+        .pitch-slot {
+            position: absolute; transform: translate(-50%, -50%); width: 72px; text-align: center; cursor: pointer; z-index: 2;
+        }
+        .pitch-slot .slot-dot {
+            width: 44px; height: 44px; margin: 0 auto 4px; border-radius: 50%;
+            background: var(--lineup-player-bg, rgba(0,0,0,0.45));
+            color: var(--lineup-player-fg, #fff);
+            border: 2px solid #fff;
+            display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.45), 0 0 0 2px rgba(0,0,0,0.25);
+        }
+        .pitch.team-white .pitch-slot .slot-dot,
+        .pitch.team-yellow .pitch-slot .slot-dot { border-color: #222; }
+        /* เขียวบนสนามเขียว — ใช้เขียวอ่อน+ขอบเข้ม ให้แยกจากพื้น */
+        .pitch.team-green .pitch-slot .slot-dot {
+            background: #76ff03;
+            color: #111;
+            border-color: #1b5e20;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.55), 0 0 0 2px rgba(255,255,255,0.65);
+        }
+        .pitch-slot .slot-name {
+            font-size: 11px; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 72px; margin: 0 auto;
+            min-height: 16px;
+        }
+        .pitch-slot.active .slot-dot { outline: 2px solid #ffeb3b; outline-offset: 2px; }
+        .pitch-slot .slot-name-input {
+            width: 70px; padding: 2px 4px; font-size: 12px; font-family: 'Kanit', sans-serif;
+            text-align: center; border-radius: 6px; border: 1px solid #ffeb3b;
+            background: #fff; color: #000;
+        }
+        .pitch.team-green { --lineup-player-bg: #76ff03; --lineup-player-fg: #111; }
+        .pitch.team-red { --lineup-player-bg: var(--team-red); --lineup-player-fg: #fff; }
+        .pitch.team-blue { --lineup-player-bg: var(--team-blue); --lineup-player-fg: #fff; }
+        .pitch.team-white { --lineup-player-bg: var(--team-white); --lineup-player-fg: #111; }
+        .pitch.team-black { --lineup-player-bg: #424242; --lineup-player-fg: #fff; }
+        .pitch.team-yellow { --lineup-player-bg: var(--team-yellow); --lineup-player-fg: #111; }
+        .pitch.team-pink { --lineup-player-bg: var(--team-pink); --lineup-player-fg: #fff; }
+        .pitch.team-orange { --lineup-player-bg: var(--team-orange); --lineup-player-fg: #fff; }
+        .pitch.team-navy { --lineup-player-bg: var(--team-navy); --lineup-player-fg: #fff; }
+        .pitch.team-purple { --lineup-player-bg: var(--team-purple); --lineup-player-fg: #fff; }
+        .formation-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+        .formation-chip {
+            padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-color);
+            background: var(--bg-color); color: var(--text-color); font-family: 'Kanit', sans-serif;
+            font-size: 14px; font-weight: 600; cursor: pointer;
+        }
+        .formation-chip.active { border-color: var(--secondary-color); background: rgba(3,218,198,0.15); color: var(--secondary-color); }
+        .lineup-team-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+        .lineup-team-chip { cursor: pointer; min-width: 90px; font-size: 13px; padding: 6px 10px; }
+        .lineup-team-chip.active-team { outline: 2px solid var(--secondary-color); outline-offset: 2px; }
         .match-card.draggable { cursor: move; }
         .match-card.dragging { opacity: 0.5; background: var(--primary-variant); }
         .drag-over-placeholder { background: rgba(3, 218, 198, 0.1); border: 2px dashed var(--secondary-color); border-radius: 12px; margin-bottom: 16px; height: 120px; }
@@ -230,7 +347,7 @@
 
     <div id="app">
         <div id="auth-section">
-    <span class="version-tag">Ver 2.3.8</span>
+    <span class="version-tag">Ver 2.5.2</span>
     
     <!-- สร้าง div ครอบส่วนนี้ไว้ -->
     <div class="auth-user-controls">
@@ -327,11 +444,42 @@
                  <div class="date-selector-container"><select id="leaderboard-date-selector"></select></div>
                  <div id="leaderboard-container" class="leaderboard-container"></div>
             </div>
+
+            <div id="page-lineup" class="page">
+                <div class="page-header">
+                    <h1>🧭 จัดตำแหน่ง</h1>
+                    <button id="share-lineup-btn" class="export-btn">💚 แชร์ LINE</button>
+                </div>
+                <div class="date-selector-container">
+                    <select id="lineup-date-selector"></select>
+                </div>
+                <div class="card">
+                    <h2 style="margin-bottom:12px;">1) เลือกทีม</h2>
+                    <div id="lineup-team-chips" class="lineup-team-chips"></div>
+                </div>
+                <div class="card">
+                    <h2 style="margin-bottom:12px;">2) เลือกแผน แล้วคลิกตำแหน่งเพื่อใส่ชื่อ</h2>
+                    <div id="formation-chips" class="formation-chips"></div>
+                    <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px;text-align:center;">คลิกวงกลมบนสนาม → พิมพ์ชื่อ → Enter (ไม่บันทึกลงระบบ)</p>
+                    <div class="pitch-wrap">
+                        <div id="lineup-pitch" class="pitch">
+                            <div class="pitch-half"></div>
+                            <div class="pitch-box pitch-box-top"></div>
+                            <div class="pitch-box pitch-box-bottom"></div>
+                            <div class="pitch-six pitch-six-top"></div>
+                            <div class="pitch-six pitch-six-bottom"></div>
+                            <div class="pitch-goal pitch-goal-top"></div>
+                            <div class="pitch-goal pitch-goal-bottom"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </main>
         
         <nav class="bottom-nav">
             <button class="nav-btn" data-page="page-setup"><span class="icon">⚙️</span>จัดการทีม</button>
             <button class="nav-btn" data-page="page-schedule"><span class="icon">📅</span>ตารางแข่ง</button>
+            <button class="nav-btn" data-page="page-lineup"><span class="icon">🧭</span>จัดตำแหน่ง</button>
             <button class="nav-btn" data-page="page-scores"><span class="icon">✏️</span>บันทึกผล</button>
             <button class="nav-btn" data-page="page-leaderboard"><span class="icon">🏆</span>ตารางคะแนน</button>
         </nav>
@@ -399,14 +547,13 @@
             <span class="close-modal-btn">×</span>
             <h2>💚 แชร์รูปไป LINE</h2>
             <p id="share-image-hint" style="text-align:center;color:var(--text-muted);font-size:13px;margin-bottom:12px;line-height:1.5;">
-                บน PC: คลิกขวาที่รูป → <b>Copy image</b> → เปิด LINE แล้ว Ctrl+V<br>
-                หรือกดดาวน์โหลด แล้วแนบรูปในแชท LINE
+                กด <b>คัดลอกรูปภาพ</b> แล้วเปิด LINE กด Ctrl+V<br>
+                หรือคลิกขวาที่รูป → คัดลอกรูปภาพ
             </p>
             <img id="share-image-preview" alt="preview">
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-                <button type="button" id="share-image-download-btn" class="btn btn-primary">📥 ดาวน์โหลด</button>
-                <button type="button" id="share-image-close-btn" class="btn btn-secondary">ปิด</button>
-            </div>
+            <button type="button" id="share-image-copy-btn" class="btn btn-line" style="margin-bottom:10px;">📋 คัดลอกรูปภาพ</button>
+            <button type="button" id="share-image-download-btn" class="btn btn-secondary" style="margin-bottom:10px;">📥 ดาวน์โหลดรูป</button>
+            <button type="button" id="share-image-close-btn" class="btn btn-secondary">ปิด</button>
         </div>
     </div>
 
@@ -571,6 +718,82 @@
             navy: { emoji: '🔵', label: 'Navy Shirt (สีน้ำเงินเข้ม)' },
             purple: { emoji: '🟣', label: 'Purple Shirt (สีม่วง)' }
         };
+
+        // แผน 7 คน (x/y เป็น % บนสนาม — บน = รุก, ล่าง = เซฟ)
+        const FORMATIONS = [
+            {
+                id: '2-3-1',
+                name: '2-3-1',
+                slots: [
+                    { id: 'GK', label: 'GK', x: 50, y: 90 },
+                    { id: 'LB', label: 'LB', x: 28, y: 70 },
+                    { id: 'RB', label: 'RB', x: 72, y: 70 },
+                    { id: 'LM', label: 'LM', x: 22, y: 48 },
+                    { id: 'CM', label: 'CM', x: 50, y: 50 },
+                    { id: 'RM', label: 'RM', x: 78, y: 48 },
+                    { id: 'ST', label: 'ST', x: 50, y: 22 }
+                ]
+            },
+            {
+                id: '3-2-1',
+                name: '3-2-1',
+                slots: [
+                    { id: 'GK', label: 'GK', x: 50, y: 90 },
+                    { id: 'LB', label: 'LB', x: 22, y: 70 },
+                    { id: 'CB', label: 'CB', x: 50, y: 72 },
+                    { id: 'RB', label: 'RB', x: 78, y: 70 },
+                    { id: 'LM', label: 'LM', x: 32, y: 45 },
+                    { id: 'RM', label: 'RM', x: 68, y: 45 },
+                    { id: 'ST', label: 'ST', x: 50, y: 20 }
+                ]
+            },
+            {
+                id: '2-2-2',
+                name: '2-2-2',
+                slots: [
+                    { id: 'GK', label: 'GK', x: 50, y: 90 },
+                    { id: 'LB', label: 'LB', x: 30, y: 70 },
+                    { id: 'RB', label: 'RB', x: 70, y: 70 },
+                    { id: 'CM', label: 'CM', x: 38, y: 48 },
+                    { id: 'AM', label: 'AM', x: 62, y: 48 },
+                    { id: 'LW', label: 'LW', x: 28, y: 22 },
+                    { id: 'RW', label: 'RW', x: 72, y: 22 }
+                ]
+            },
+            {
+                id: '3-1-2',
+                name: '3-1-2',
+                slots: [
+                    { id: 'GK', label: 'GK', x: 50, y: 90 },
+                    { id: 'LB', label: 'LB', x: 22, y: 70 },
+                    { id: 'CB', label: 'CB', x: 50, y: 72 },
+                    { id: 'RB', label: 'RB', x: 78, y: 70 },
+                    { id: 'CM', label: 'CM', x: 50, y: 48 },
+                    { id: 'ST1', label: 'ST', x: 35, y: 22 },
+                    { id: 'ST2', label: 'ST', x: 65, y: 22 }
+                ]
+            },
+            {
+                id: '2-1-3',
+                name: '2-1-3',
+                slots: [
+                    { id: 'GK', label: 'GK', x: 50, y: 90 },
+                    { id: 'LB', label: 'LB', x: 30, y: 70 },
+                    { id: 'RB', label: 'RB', x: 70, y: 70 },
+                    { id: 'CDM', label: 'CDM', x: 50, y: 55 },
+                    { id: 'LW', label: 'LW', x: 22, y: 28 },
+                    { id: 'ST', label: 'ST', x: 50, y: 20 },
+                    { id: 'RW', label: 'RW', x: 78, y: 28 }
+                ]
+            }
+        ];
+
+        let lineupTeamSlug = 'green';
+        let lineupFormationId = '2-3-1';
+        let lineupNames = {};
+        let lineupActiveSlotId = null;
+        // จำคร่าว ๆ ระหว่างเปิดหน้าไว้เท่านั้น (ไม่เซฟ DB)
+        let lineupDrafts = {};
         
         function saveScrollPosition() { lastScrollPosition = contentContainer.scrollTop; }
         function restoreScrollPosition() { if (shouldRestoreScroll) { requestAnimationFrame(() => { contentContainer.scrollTop = lastScrollPosition; }); } shouldRestoreScroll = false; }
@@ -587,6 +810,7 @@
             document.getElementById('export-schedule-btn').addEventListener('click', (e) => handleExport('schedule-container', `TK7-Schedule-${currentDateKey}.png`, e.currentTarget));
             document.getElementById('export-scores-btn').addEventListener('click', (e) => handleExport('scores-container', `TK7-Scores-${currentDateKey}.png`, e.currentTarget));
             document.getElementById('export-leaderboard-btn').addEventListener('click', (e) => handleExport('leaderboard-container', `TK7-Leaderboard-${currentDateKey}.png`, e.currentTarget));
+            document.getElementById('share-lineup-btn').addEventListener('click', shareCurrentLineup);
 
             // ตั้งค่าปุ่มสำหรับ Template
             document.getElementById('manage-templates-btn').onclick = openTemplateManager;
@@ -606,6 +830,7 @@
             document.querySelector('#share-image-modal .close-modal-btn').addEventListener('click', closeShareImageModal);
             document.getElementById('share-image-close-btn').addEventListener('click', closeShareImageModal);
             document.getElementById('share-image-download-btn').addEventListener('click', downloadShareImage);
+            document.getElementById('share-image-copy-btn').addEventListener('click', copyShareImageToClipboard);
             document.querySelectorAll('#share-reg-modal .share-mode-btn').forEach(btn => {
                 btn.addEventListener('click', () => setShareRegMode(btn.dataset.mode));
             });
@@ -1113,6 +1338,255 @@
             navButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.page === pageId)); 
             content.scrollTop = 0; 
             if (pageId === 'page-leaderboard') { renderLeaderboardPage(currentDateKey); }
+            if (pageId === 'page-lineup') { renderLineupPage(); }
+        }
+
+        function getCurrentFormation() {
+            return FORMATIONS.find(f => f.id === lineupFormationId) || FORMATIONS[0];
+        }
+
+        function getLineupTeamOptions() {
+            const dayData = appData[currentDateKey];
+            const active = dayData?.settings?.activeTeams;
+            if (active && active.length) return active;
+            return TEAMS.slice(0, 5).map(t => t.slug);
+        }
+
+        function emptyNamesForFormation(formation) {
+            const names = {};
+            (formation?.slots || []).forEach(s => { names[s.id] = ''; });
+            return names;
+        }
+
+        function lineupDraftKey(teamSlug = lineupTeamSlug) {
+            return `${currentDateKey}|${teamSlug}`;
+        }
+
+        function rememberLineupDraft() {
+            lineupDrafts[lineupDraftKey()] = {
+                formationId: lineupFormationId,
+                names: { ...lineupNames }
+            };
+        }
+
+        function loadLineupStateForCurrent() {
+            const draft = lineupDrafts[lineupDraftKey()];
+            lineupFormationId = draft?.formationId || '2-3-1';
+            const formation = getCurrentFormation();
+            lineupNames = emptyNamesForFormation(formation);
+            if (draft?.names) {
+                formation.slots.forEach(s => {
+                    lineupNames[s.id] = draft.names[s.id] || '';
+                });
+            }
+            lineupActiveSlotId = null;
+        }
+
+        function renderLineupPage() {
+            const teams = getLineupTeamOptions();
+            if (!teams.includes(lineupTeamSlug)) lineupTeamSlug = teams[0];
+            loadLineupStateForCurrent();
+
+            const teamBox = document.getElementById('lineup-team-chips');
+            teamBox.innerHTML = teams.map(slug => {
+                const team = TEAMS.find(t => t.slug === slug);
+                const info = REG_TEAM_INFO[slug] || { emoji: '⚽' };
+                const activeClass = slug === lineupTeamSlug ? 'active-team' : '';
+                return `<div class="team-emblem ${slug} lineup-team-chip ${activeClass}" data-slug="${escapeHtml(slug)}">${info.emoji} ${escapeHtml(team ? team.name : slug)}</div>`;
+            }).join('');
+            teamBox.querySelectorAll('.lineup-team-chip').forEach(el => {
+                el.onclick = () => {
+                    rememberLineupDraft();
+                    lineupTeamSlug = el.dataset.slug;
+                    renderLineupPage();
+                };
+            });
+
+            const formBox = document.getElementById('formation-chips');
+            formBox.innerHTML = FORMATIONS.map(f =>
+                `<button type="button" class="formation-chip ${f.id === lineupFormationId ? 'active' : ''}" data-id="${f.id}">${f.name}</button>`
+            ).join('');
+            formBox.querySelectorAll('.formation-chip').forEach(btn => {
+                btn.onclick = () => {
+                    const oldNames = { ...lineupNames };
+                    lineupFormationId = btn.dataset.id;
+                    const formation = getCurrentFormation();
+                    lineupNames = emptyNamesForFormation(formation);
+                    formation.slots.forEach((s, i) => {
+                        const oldVals = Object.values(oldNames);
+                        lineupNames[s.id] = oldVals[i] || '';
+                    });
+                    rememberLineupDraft();
+                    renderLineupPitchAndNames();
+                    formBox.querySelectorAll('.formation-chip').forEach(b => b.classList.toggle('active', b.dataset.id === lineupFormationId));
+                };
+            });
+
+            renderLineupPitchAndNames();
+        }
+
+        function beginEditLineupSlot(slotId) {
+            const pitch = document.getElementById('lineup-pitch');
+            if (!pitch) return;
+            // ถ้ากำลังแก้ช่องอื่นอยู่ ให้บันทึกก่อน
+            const existing = pitch.querySelector('.slot-name-input');
+            if (existing) {
+                const sid = existing.dataset.slot;
+                lineupNames[sid] = sanitizeDisplayName(existing.value);
+                rememberLineupDraft();
+            }
+            lineupActiveSlotId = slotId;
+            renderLineupPitchAndNames(true);
+            const input = pitch.querySelector(`.slot-name-input[data-slot="${slotId}"]`);
+            if (input) {
+                input.focus();
+                input.select();
+            }
+        }
+
+        function renderLineupPitchAndNames(editing = false) {
+            const formation = getCurrentFormation();
+            const pitch = document.getElementById('lineup-pitch');
+            pitch.className = `pitch team-${lineupTeamSlug}`;
+            pitch.innerHTML = `
+                <div class="pitch-half"></div>
+                <div class="pitch-box pitch-box-top"></div>
+                <div class="pitch-box pitch-box-bottom"></div>
+                <div class="pitch-six pitch-six-top"></div>
+                <div class="pitch-six pitch-six-bottom"></div>
+                <div class="pitch-goal pitch-goal-top"></div>
+                <div class="pitch-goal pitch-goal-bottom"></div>
+            `;
+            formation.slots.forEach(slot => {
+                const name = (lineupNames[slot.id] || '').trim();
+                const isEditing = editing && lineupActiveSlotId === slot.id;
+                const el = document.createElement('div');
+                el.className = `pitch-slot${name ? ' filled' : ''}${lineupActiveSlotId === slot.id ? ' active' : ''}`;
+                el.style.left = slot.x + '%';
+                el.style.top = slot.y + '%';
+                el.dataset.slotId = slot.id;
+                el.innerHTML = `<div class="slot-dot">${escapeHtml(slot.label)}</div>`;
+                if (isEditing) {
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.className = 'slot-name-input';
+                    input.dataset.slot = slot.id;
+                    input.value = lineupNames[slot.id] || '';
+                    input.maxLength = 24;
+                    input.placeholder = 'ชื่อ';
+                    input.onclick = (e) => e.stopPropagation();
+                    const commit = () => {
+                        lineupNames[slot.id] = sanitizeDisplayName(input.value);
+                        rememberLineupDraft();
+                        lineupActiveSlotId = null;
+                        renderLineupPitchAndNames(false);
+                    };
+                    input.onblur = commit;
+                    input.onkeydown = (e) => {
+                        if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+                        if (e.key === 'Escape') {
+                            e.preventDefault();
+                            lineupActiveSlotId = null;
+                            renderLineupPitchAndNames(false);
+                        }
+                    };
+                    el.appendChild(input);
+                } else {
+                    const nameDiv = document.createElement('div');
+                    nameDiv.className = 'slot-name';
+                    nameDiv.textContent = name || 'ว่าง';
+                    el.appendChild(nameDiv);
+                    el.onclick = () => beginEditLineupSlot(slot.id);
+                }
+                pitch.appendChild(el);
+            });
+        }
+
+        async function shareCurrentLineup() {
+            rememberLineupDraft();
+            const btn = document.getElementById('share-lineup-btn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '⌛ กำลังสร้าง...';
+            btn.disabled = true;
+
+            const pitch = document.getElementById('lineup-pitch');
+            if (!pitch) {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                return;
+            }
+
+            const prevActive = lineupActiveSlotId;
+            lineupActiveSlotId = null;
+            pitch.querySelectorAll('.pitch-slot.active').forEach(el => el.classList.remove('active'));
+
+            const formation = getCurrentFormation();
+            const info = REG_TEAM_INFO[lineupTeamSlug] || { emoji: '⚽', label: lineupTeamSlug };
+            const team = TEAMS.find(t => t.slug === lineupTeamSlug);
+            const dateLabel = getRegistrationMatchDateLabel() || currentDateKey;
+            const teamLabel = team ? team.name : (info.label || lineupTeamSlug);
+
+            const exportCard = document.createElement('div');
+            exportCard.className = 'lineup-export-card capture-stage';
+            exportCard.style.width = '420px';
+            // แยกบรรทัดด้วย div ชัด ๆ — html2canvas เรนเดอร์ <br> ใน h2 ทับกันบ่อย
+            exportCard.innerHTML = `
+                <h1>แผนการเล่น TK7</h1>
+                <div class="lineup-export-meta">
+                    <div class="meta-line">วันที่ ${escapeHtml(dateLabel)}</div>
+                    <div class="meta-line">${escapeHtml(teamLabel)}</div>
+                    <div class="meta-line">แผน ${escapeHtml(formation.name)}</div>
+                </div>`;
+            const pitchWrap = document.createElement('div');
+            pitchWrap.className = 'pitch-wrap';
+            const pitchClone = pitch.cloneNode(true);
+            pitchClone.id = 'lineup-pitch-export';
+            pitchClone.querySelectorAll('.pitch-slot').forEach(el => el.classList.remove('active'));
+            pitchWrap.appendChild(pitchClone);
+            exportCard.appendChild(pitchWrap);
+            document.body.appendChild(exportCard);
+
+            // รอ layout สนามก่อนแคป
+            await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+
+            try {
+                await loadHtml2Canvas();
+                const canvas = await html2canvas(exportCard, {
+                    backgroundColor: '#121212',
+                    useCORS: true,
+                    scale: 2,
+                    logging: false,
+                    onclone: (doc) => {
+                        const stage = doc.querySelector('.capture-stage');
+                        if (stage) {
+                            stage.style.opacity = '1';
+                            stage.style.zIndex = '1';
+                            stage.style.left = '0';
+                            stage.style.top = '0';
+                        }
+                    }
+                });
+                const blob = await canvasToBlob(canvas, 'image/png');
+                if (!blob || blob.size < 500) throw new Error('รูปที่ได้ว่างหรือเล็กเกินไป');
+                const filename = `TK7-Lineup-${lineupTeamSlug}-${currentDateKey}.png`;
+                await shareImageBlob(blob, filename, `TK7 ${teamLabel} ${formation.name}`);
+            } catch (err) {
+                if (err && err.name === 'AbortError') {
+                    showToast('ยกเลิกการแชร์');
+                } else {
+                    console.error('Lineup share failed:', err);
+                    alert('สร้างรูปแผนไม่สำเร็จ: ' + (err.message || err));
+                }
+            } finally {
+                if (exportCard.parentNode) document.body.removeChild(exportCard);
+                lineupActiveSlotId = prevActive;
+                if (prevActive) {
+                    const activeEl = pitch.querySelector(`[data-slot-id="${prevActive}"]`);
+                    if (activeEl) activeEl.classList.add('active');
+                }
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
         }
         
         function setupPageSetup() {
@@ -1213,7 +1687,8 @@
             }
             renderSchedulePage(date); 
             renderScoresPage(date); 
-            renderLeaderboardPage(date); 
+            renderLeaderboardPage(date);
+            if (activePage === 'page-lineup') renderLineupPage();
         }
 
         function updateTemplateSelector() {
@@ -1320,6 +1795,7 @@
         }
 
         let shareImageObjectUrl = null;
+        let shareImageBlobRef = null;
         let shareImageFilename = 'TK7.png';
 
         function canvasToBlob(canvas, type = 'image/png', quality) {
@@ -1338,12 +1814,14 @@
                 URL.revokeObjectURL(shareImageObjectUrl);
                 shareImageObjectUrl = null;
             }
+            shareImageBlobRef = null;
             const preview = document.getElementById('share-image-preview');
             if (preview) preview.removeAttribute('src');
         }
 
         function openShareImageModal(blob, filename) {
             shareImageFilename = filename || 'TK7.png';
+            shareImageBlobRef = blob;
             if (shareImageObjectUrl) URL.revokeObjectURL(shareImageObjectUrl);
             shareImageObjectUrl = URL.createObjectURL(blob);
             const preview = document.getElementById('share-image-preview');
@@ -1351,13 +1829,55 @@
             document.getElementById('share-image-modal').style.display = 'block';
         }
 
+        async function copyShareImageToClipboard() {
+            if (!shareImageBlobRef && !shareImageObjectUrl) {
+                alert('ยังไม่มีรูปให้คัดลอก');
+                return;
+            }
+            try {
+                let blob = shareImageBlobRef;
+                if (!blob) {
+                    const res = await fetch(shareImageObjectUrl);
+                    blob = await res.blob();
+                }
+                // Chrome ชอบ image/png สำหรับ Copy image
+                const pngBlob = blob.type === 'image/png'
+                    ? blob
+                    : await (async () => {
+                        const imgBitmap = await createImageBitmap(blob);
+                        const c = document.createElement('canvas');
+                        c.width = imgBitmap.width;
+                        c.height = imgBitmap.height;
+                        c.getContext('2d').drawImage(imgBitmap, 0, 0);
+                        return canvasToBlob(c, 'image/png');
+                    })();
+
+                if (!navigator.clipboard || !window.ClipboardItem) {
+                    alert('เบราว์เซอร์นี้คัดลอกรูปไม่ได้ — คลิกขวาที่รูปแล้วเลือก "คัดลอกรูปภาพ"');
+                    return;
+                }
+                await navigator.clipboard.write([
+                    new ClipboardItem({ 'image/png': pngBlob })
+                ]);
+                showToast('📋 คัดลอกรูปแล้ว — เปิด LINE แล้ว Ctrl+V');
+            } catch (err) {
+                console.error('copy image failed', err);
+                alert('คัดลอกรูปไม่สำเร็จ\nให้คลิกขวาที่รูป → คัดลอกรูปภาพ แทน\n\n' + (err.message || ''));
+            }
+        }
+
         function downloadShareImage() {
-            if (!shareImageObjectUrl) return;
+            if (!shareImageObjectUrl) {
+                alert('ยังไม่มีรูปให้ดาวน์โหลด');
+                return;
+            }
             const link = document.createElement('a');
             link.download = shareImageFilename;
             link.href = shareImageObjectUrl;
+            document.body.appendChild(link);
             link.click();
-            showToast('📥 ดาวน์โหลดแล้ว — เปิด LINE แล้วแนบรูปได้');
+            document.body.removeChild(link);
+            showToast('📥 ดาวน์โหลดแล้ว');
         }
 
         async function shareImageBlob(blob, filename, title) {
@@ -1374,10 +1894,9 @@
                 return 'shared';
             }
 
-            // PC / ไม่รองรับ Web Share: โชว์รูปให้ Copy image หรือดาวน์โหลด
-            // (Clipboard API มักวางใน LINE Desktop ไม่ได้)
+            // PC: โชว์รูป ให้กดคัดลอกรูปภาพเอง (ไม่ดาวน์โหลดอัตโนมัติ)
             openShareImageModal(blob, filename);
-            showToast('คลิกขวาที่รูป → Copy image แล้ววางใน LINE');
+            showToast('กด "คัดลอกรูปภาพ" แล้ววางใน LINE');
             return 'preview';
         }
 
@@ -1385,7 +1904,9 @@
             const element = document.getElementById(elementId);
             if (!element || element.innerHTML.includes('no-data-message')) { alert('ไม่มีข้อมูลให้แชร์'); return; }
             const originalText = buttonElement.innerHTML; buttonElement.innerHTML = '⌛ กำลังสร้าง...'; buttonElement.disabled = true;
-            const exportWrapper = document.createElement('div'); exportWrapper.className = 'temp-export-container';
+            const exportWrapper = document.createElement('div');
+            exportWrapper.className = 'temp-export-container capture-stage';
+            exportWrapper.style.left = '0';
             const headerDiv = document.createElement('div'); headerDiv.className = 'export-header';
             let title = '';
             if (elementId === 'schedule-container') title = 'ตารางการแข่งขัน'; else if (elementId === 'scores-container') title = 'ผลการแข่งขัน'; else if (elementId === 'leaderboard-container') title = 'ตารางคะแนน';
@@ -1396,20 +1917,31 @@
             if (isGridExport) { contentClone.classList.add('export-mode-grid'); const matchCards = contentClone.querySelectorAll('.match-card'); if (matchCards.length > 0) { contentClone.style.gridTemplateRows = `repeat(${Math.ceil(matchCards.length / 2)}, auto)`; } }
             exportWrapper.style.width = (elementId === 'leaderboard-container') ? '1200px' : '840px';
             exportWrapper.appendChild(contentClone); document.body.appendChild(exportWrapper);
+            await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
             
             try {
-                const canvas = await html2canvas(exportWrapper, { backgroundColor: '#121212', useCORS: true, scale: 2 });
+                const canvas = await html2canvas(exportWrapper, {
+                    backgroundColor: '#121212',
+                    useCORS: true,
+                    scale: 2,
+                    logging: false,
+                    onclone: (doc) => {
+                        const stage = doc.querySelector('.capture-stage');
+                        if (stage) { stage.style.opacity = '1'; stage.style.zIndex = '1'; }
+                    }
+                });
                 const blob = await canvasToBlob(canvas, 'image/png');
+                if (!blob || blob.size < 500) throw new Error('รูปที่ได้ว่างหรือเล็กเกินไป');
                 await shareImageBlob(blob, filename, `TK7 ${title} ${formattedDate}`);
             } catch (err) {
                 if (err && err.name === 'AbortError') {
                     showToast('ยกเลิกการแชร์');
                 } else {
                     console.error('Share failed:', err);
-                    alert('เกิดข้อผิดพลาดในการแชร์รูปภาพ');
+                    alert('เกิดข้อผิดพลาดในการแชร์รูปภาพ: ' + (err.message || err));
                 }
             } finally {
-                document.body.removeChild(exportWrapper);
+                if (exportWrapper.parentNode) document.body.removeChild(exportWrapper);
                 buttonElement.innerHTML = originalText;
                 buttonElement.disabled = false;
             }
@@ -1420,7 +1952,12 @@
         
         async function loadDataForDate(date) {
             currentDateKey = date;
-            [document.getElementById('schedule-date-selector'), document.getElementById('scores-date-selector'), document.getElementById('leaderboard-date-selector')].forEach(s => s.value = date);
+            [
+                document.getElementById('schedule-date-selector'),
+                document.getElementById('scores-date-selector'),
+                document.getElementById('leaderboard-date-selector'),
+                document.getElementById('lineup-date-selector')
+            ].forEach(s => { if (s) s.value = date; });
             if (document.getElementById('match-date')) { document.getElementById('match-date').value = date; }
             
             const { data: results, error } = await db.from('match_days').select('*').eq('match_date', date);
@@ -1490,12 +2027,38 @@
         async function deleteDay() { if (!canManage()) return alert('ต้องเป็นผู้ดูแลที่อนุมัติแล้วเท่านั้น'); const dateToDelete = document.getElementById('schedule-date-selector').value; if (dateToDelete && confirm(`คุณแน่ใจหรือไม่ว่าต้องการลบข้อมูลของวันที่ ${dateToDelete} ทั้งหมด?`)) { const { error } = await db.from('match_days').delete().eq('match_date', dateToDelete); if (error) { alert('เกิดข้อผิดพลาด: ' + error.message); } else { showToast('ลบข้อมูลเรียบร้อยแล้ว'); await loadInitialData(); } } }
         
         function updateDateSelectorsUI(dates) {
-            const selectors = [ document.getElementById('schedule-date-selector'), document.getElementById('scores-date-selector'), document.getElementById('leaderboard-date-selector') ];
-            selectors.forEach(selector => { selector.innerHTML = ''; if (dates.length === 0) { selector.innerHTML = '<option>ยังไม่มีข้อมูล</option>'; } else { dates.forEach(date => { const option = document.createElement('option'); option.value = date; option.textContent = new Date(date + 'T00:00:00').toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' }); selector.appendChild(option); }); } });
+            const selectors = [
+                document.getElementById('schedule-date-selector'),
+                document.getElementById('scores-date-selector'),
+                document.getElementById('leaderboard-date-selector'),
+                document.getElementById('lineup-date-selector')
+            ];
+            selectors.forEach(selector => {
+                if (!selector) return;
+                selector.innerHTML = '';
+                if (dates.length === 0) {
+                    selector.innerHTML = '<option>ยังไม่มีข้อมูล</option>';
+                } else {
+                    dates.forEach(date => {
+                        const option = document.createElement('option');
+                        option.value = date;
+                        option.textContent = new Date(date + 'T00:00:00').toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' });
+                        selector.appendChild(option);
+                    });
+                }
+            });
             const mainSelector = document.getElementById('schedule-date-selector');
             if (dates.includes(currentDateKey)) { mainSelector.value = currentDateKey; } else if (dates.length > 0) { mainSelector.value = dates[0]; }
             mainSelector.onchange = (e) => { shouldRestoreScroll = false; loadDataForDate(e.target.value); };
-            [document.getElementById('scores-date-selector'), document.getElementById('leaderboard-date-selector')].forEach(s => s.onchange = (e) => { mainSelector.value = e.target.value; shouldRestoreScroll = false; loadDataForDate(e.target.value); });
+            [
+                document.getElementById('scores-date-selector'),
+                document.getElementById('leaderboard-date-selector'),
+                document.getElementById('lineup-date-selector')
+            ].forEach(s => {
+                if (!s) return;
+                s.value = mainSelector.value;
+                s.onchange = (e) => { mainSelector.value = e.target.value; shouldRestoreScroll = false; loadDataForDate(e.target.value); };
+            });
             document.getElementById('delete-day-btn').onclick = deleteDay;
         }
 
