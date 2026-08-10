@@ -176,13 +176,119 @@
         .reset-score-btn:hover:not(:disabled) svg { transform: rotate(-90deg); }
         .vs { margin: 0; font-size: 20px; color: var(--text-muted); font-weight: 700; }
         .score-line-export { display: none; }
-        #auth-section {display: flex; align-items: center; justify-content: space-between;padding: 8px 15px;background-color: var(--surface-color);border-bottom: 1px solid var(--border-color);gap: 10px;}
-       .auth-user-controls {display: flex;align-items: center;gap: 10px;min-width: 0;}
-       .version-tag {float: none; margin-top: 0;flex-shrink: 0;font-size: 10px;color: var(--text-muted);background: rgba(255, 255, 255, 0.05);padding: 2px 8px;border-radius: 6px;border: 1px solid var(--border-color);font-family: monospace;}
-        #auth-section button { padding: 8px 15px; font-size: 14px; width: auto; vertical-align: middle; border-radius: 8px; border: 1px solid rgba(0,0,0,0.2); border-bottom: 3px solid rgba(0,0,0,0.4); text-shadow: 0px 1px 2px rgba(0,0,0,0.2); transition: all 0.15s ease-out; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        #auth-section {
+            display: flex; align-items: center; justify-content: flex-end;
+            padding: 8px 15px; background-color: var(--surface-color);
+            border-bottom: 1px solid var(--border-color); gap: 10px; flex-wrap: nowrap;
+        }
+        .auth-meta {
+            display: flex; align-items: center; gap: 8px; min-width: 0;
+        }
+        .auth-user-controls {
+            display: flex; align-items: center; gap: 8px; flex-shrink: 0;
+            justify-content: flex-end; flex-wrap: nowrap;
+        }
+        .version-tag {
+            float: none; margin-top: 0; flex-shrink: 0; font-size: 10px; color: var(--text-muted);
+            background: rgba(255, 255, 255, 0.05); padding: 2px 8px; border-radius: 6px;
+            border: 1px solid var(--border-color); font-family: monospace;
+        }
+        #auth-section button {
+            padding: 8px 15px; font-size: 14px; width: auto; max-width: none; vertical-align: middle;
+            border-radius: 8px; border: 1px solid rgba(0,0,0,0.2); border-bottom: 3px solid rgba(0,0,0,0.4);
+            text-shadow: 0px 1px 2px rgba(0,0,0,0.2); transition: all 0.15s ease-out;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2); white-space: nowrap; flex-shrink: 0; line-height: 1.2;
+            font-family: 'Kanit', sans-serif; font-weight: 600; cursor: pointer;
+        }
         #auth-section button:hover { transform: translateY(-2px); filter: brightness(1.1); box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
         #auth-section button:active { transform: translateY(1px); border-bottom-width: 1px; box-shadow: none; }
-        #user-info {margin-right: 0; color: var(--text-muted);font-size: 13px;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;max-width: 180px;}
+        #user-info {
+            margin-right: 0; color: var(--text-muted); font-size: 13px; white-space: nowrap;
+            overflow: hidden; text-overflow: ellipsis; max-width: 220px; flex-shrink: 1; min-width: 0;
+        }
+        .label-short { display: none; }
+        #auth-section .version-tag { flex-shrink: 0; }
+        #auth-section button { flex-shrink: 0; }
+        /* --- Mobile compact (PC คงขนาดเดิม) --- */
+        @media (max-width: 767px) {
+            main { padding: 12px 10px 78px 10px; }
+            h1, h2 { margin-bottom: 14px; gap: 6px; font-size: 1.2em; }
+            .page-header { gap: 8px; margin-bottom: 12px; align-items: center; }
+            .page-header h1 {
+                margin-bottom: 0; flex: 1 1 auto; min-width: 0; justify-content: flex-start;
+                font-size: 1.15em; line-height: 1.25; text-align: left;
+            }
+            .page-header .export-btn { flex-shrink: 0; white-space: nowrap; padding: 6px 9px; font-size: 12px; }
+            .export-btn { padding: 6px 9px; font-size: 12px; }
+            .card { padding: 12px; margin-bottom: 12px; border-radius: 10px; }
+            .form-group { margin-bottom: 12px; }
+            .form-group label { margin-bottom: 5px; font-size: 13px; }
+            input, select { padding: 9px 10px; font-size: 15px; border-radius: 7px; }
+            .btn { padding: 11px; font-size: 15px; }
+            .team-emblem { padding: 6px 8px; font-size: 13px; min-width: 0; }
+            .match-card { gap: 8px; }
+            .match-header { font-size: 12px; padding-bottom: 6px; gap: 6px; }
+            .match-body { gap: 6px; }
+            .vs { font-size: 15px; }
+            .date-selector-container { gap: 8px; margin-bottom: 12px; }
+            .template-info-badge { font-size: 11px; padding: 4px 8px; }
+            .delete-day-btn { width: 38px; height: 38px; }
+            .delete-day-btn svg { width: 18px; height: 18px; }
+            .num-stepper-btn { width: 38px; height: 38px; font-size: 20px; }
+            .score-btn, .reset-score-btn { width: 34px; height: 34px; }
+            .score-btn svg { width: 20px; height: 20px; }
+            .reset-score-btn svg { width: 18px; height: 18px; }
+            .score-input { height: 34px; font-size: 17px; }
+            .score-control { gap: 6px; max-width: 130px; }
+            .team-score-wrapper { gap: 8px; }
+            .interactive-controls { gap: 6px; }
+            .leaderboard-table th, .leaderboard-table td { padding: 8px 5px; font-size: 12px; }
+            .leaderboard-table .team-name { width: 140px; }
+            #page-setup .team-toggle { padding: 9px 10px; margin-bottom: 6px; }
+            .switch { width: 44px; height: 24px; }
+            .slider:before { height: 18px; width: 18px; left: 3px; bottom: 3px; }
+            input:checked + .slider:before { transform: translateX(20px); }
+            .nav-btn { padding: 7px 3px; font-size: 10px; gap: 2px; }
+            .nav-btn .icon { font-size: 20px; }
+            #auth-section {
+                padding: 6px 8px; gap: 6px; flex-direction: column; align-items: stretch;
+            }
+            .auth-meta {
+                width: 100%; gap: 6px; justify-content: flex-end; min-width: 0;
+            }
+            .auth-user-controls {
+                width: 100%; gap: 5px; justify-content: flex-end; flex-wrap: nowrap;
+            }
+            #auth-section button {
+                padding: 5px 7px; font-size: 11px; border-radius: 7px; border-bottom-width: 2px;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            }
+            #auth-section #logout-btn .label-full { display: none; }
+            #auth-section #logout-btn .label-short { display: inline; }
+            #user-info { font-size: 11px; max-width: 55vw; flex: 0 1 auto; }
+            .formation-chip { padding: 6px 9px; font-size: 12px; }
+            .formation-chips { gap: 6px; margin-bottom: 10px; }
+            .lineup-team-chips { gap: 3px; }
+            .lineup-team-dot {
+                max-width: none; border-width: 1.5px;
+                outline-width: 2px; outline-offset: 1px;
+            }
+            .lineup-team-dot.active-team { outline-width: 2px; outline-offset: 1px; }
+            #page-lineup .card { padding: 10px; margin-bottom: 10px; }
+            #page-lineup .lineup-compact-card h2 { font-size: 0.95em; margin-bottom: 8px; }
+            .pitch-wrap { margin-bottom: 10px; }
+            .pitch-slot { width: 64px; }
+            .pitch-slot .slot-dot { width: 38px; height: 38px; font-size: 10px; margin-bottom: 2px; }
+            .pitch-slot .slot-name { font-size: 10px; max-width: 64px; }
+            .pitch-slot .slot-name-input { width: 62px; font-size: 11px; }
+            .modal-content { margin: 8% auto; padding: 14px; }
+            .share-mode-btn { padding: 10px 8px; font-size: 13px; }
+            #no-data-message { padding: 28px 14px; }
+            #no-data-message .icon { font-size: 36px; margin-bottom: 10px; }
+            #add-match-btn { margin-top: 12px; }
+            #pending-approval-banner { font-size: 12px; padding: 8px 10px; }
+        }
+
         #add-match-btn { margin-top: 20px; }
         #team-select-modal-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; margin-top: 20px; }
         #team-select-modal-list .team-emblem { cursor: pointer; }
@@ -406,9 +512,35 @@
             font-size: 14px; font-weight: 600; cursor: pointer;
         }
         .formation-chip.active { border-color: var(--secondary-color); background: rgba(3,218,198,0.15); color: var(--secondary-color); }
-        .lineup-team-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
-        .lineup-team-chip { cursor: pointer; min-width: 90px; font-size: 13px; padding: 6px 10px; }
-        .lineup-team-chip.active-team { outline: 2px solid var(--secondary-color); outline-offset: 2px; }
+        .lineup-team-chips {
+            display: flex; flex-wrap: nowrap; gap: 6px; margin-bottom: 0; justify-content: center;
+            width: 100%;
+        }
+        .lineup-team-dot {
+            flex: 1 1 0; min-width: 0; max-width: 40px; width: auto; aspect-ratio: 1;
+            height: auto; border-radius: 50%; padding: 0; cursor: pointer;
+            border: 2px solid rgba(255,255,255,0.35);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.35), inset 0 0 8px rgba(255,255,255,0.12);
+        }
+        .lineup-team-dot:hover { transform: scale(1.08); filter: brightness(1.08); }
+        .lineup-team-dot.active-team {
+            outline: 3px solid var(--secondary-color); outline-offset: 2px;
+            box-shadow: 0 0 0 2px rgba(3,218,198,0.25), 0 2px 8px rgba(0,0,0,0.4);
+        }
+        .lineup-team-dot.green { background: var(--team-green); }
+        .lineup-team-dot.red { background: var(--team-red); }
+        .lineup-team-dot.white { background: var(--team-white); border-color: #888; }
+        .lineup-team-dot.blue { background: var(--team-blue); }
+        .lineup-team-dot.black { background: #424242; border-color: #999; }
+        .lineup-team-dot.yellow { background: var(--team-yellow); border-color: #c9a000; }
+        .lineup-team-dot.pink { background: var(--team-pink); }
+        .lineup-team-dot.orange { background: var(--team-orange); }
+        .lineup-team-dot.navy { background: var(--team-navy); }
+        .lineup-team-dot.purple { background: var(--team-purple); }
+        #page-lineup .lineup-compact-card h2 { margin-bottom: 10px; font-size: 1.05em; }
+        #page-lineup .lineup-hint {
+            font-size: 12px; color: var(--text-muted); margin: 0 0 10px; text-align: center;
+        }
         .match-card.draggable { cursor: move; }
         .match-card.dragging { opacity: 0.5; background: var(--primary-variant); }
         .drag-over-placeholder { background: rgba(3, 218, 198, 0.1); border: 2px dashed var(--secondary-color); border-radius: 12px; margin-bottom: 16px; height: 120px; }
@@ -439,15 +571,15 @@
 
     <div id="app">
         <div id="auth-section">
-    <span class="version-tag">Ver 2.5.7</span>
-    
-    <!-- สร้าง div ครอบส่วนนี้ไว้ -->
-    <div class="auth-user-controls">
+    <div class="auth-meta">
+        <span class="version-tag">Ver 2.6.7</span>
         <span id="user-info"></span>
-        <button id="help-btn" class="btn-secondary" type="button" title="วิธีใช้งาน">❓ วิธีใช้</button>
-        <button id="members-btn" class="btn-secondary" style="display: none;">👥 สมาชิก</button>
-        <button id="login-btn" class="btn-secondary">🔐 เข้าสู่ระบบ</button>
-        <button id="logout-btn" class="btn-danger">ออกจากระบบ</button>
+    </div>
+    <div class="auth-user-controls">
+        <button id="help-btn" class="btn-secondary" type="button" title="วิธีใช้งาน" aria-label="วิธีใช้งาน">❓ วิธีใช้</button>
+        <button id="members-btn" class="btn-secondary" style="display: none;" title="สมาชิก" aria-label="สมาชิก">👥 สมาชิก</button>
+        <button id="login-btn" class="btn-secondary" title="เข้าสู่ระบบ">🔐 เข้าสู่ระบบ</button>
+        <button id="logout-btn" class="btn-danger" title="ออกจากระบบ"><span class="label-full">ออกจากระบบ</span><span class="label-short">ออก</span></button>
     </div>
 </div>
 <div id="pending-approval-banner" style="display: none; background: #5d4037; color: #ffe0b2; text-align: center; padding: 10px 15px; font-size: 14px; border-bottom: 1px solid #6d4c41;">
@@ -543,14 +675,14 @@
                     <h1>🧭 จัดตำแหน่ง</h1>
                     <button id="share-lineup-btn" class="export-btn">💚 แชร์ LINE</button>
                 </div>
-                <div class="card">
-                    <h2 style="margin-bottom:12px;">1) เลือกทีม</h2>
+                <div class="card lineup-compact-card">
+                    <h2>1) เลือกทีม</h2>
                     <div id="lineup-team-chips" class="lineup-team-chips"></div>
                 </div>
-                <div class="card">
-                    <h2 style="margin-bottom:12px;">2) เลือกแผน แล้วคลิกตำแหน่งเพื่อใส่ชื่อ</h2>
+                <div class="card lineup-compact-card">
+                    <h2>2) เลือกแผน แล้วคลิกตำแหน่งเพื่อใส่ชื่อ</h2>
                     <div id="formation-chips" class="formation-chips"></div>
-                    <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px;text-align:center;">คลิกวงกลมบนสนาม → พิมพ์ชื่อ → Enter (ไม่บันทึกลงระบบ)</p>
+                    <p class="lineup-hint">คลิกวงกลมบนสนาม → พิมพ์ชื่อ → Enter (ไม่บันทึกลงระบบ)</p>
                     <div class="pitch-wrap">
                         <div id="lineup-pitch" class="pitch">
                             <div class="pitch-half"></div>
@@ -1611,11 +1743,11 @@
             const teamBox = document.getElementById('lineup-team-chips');
             teamBox.innerHTML = teams.map(slug => {
                 const team = TEAMS.find(t => t.slug === slug);
-                const info = REG_TEAM_INFO[slug] || { emoji: '⚽' };
+                const name = team ? team.name : slug;
                 const activeClass = slug === lineupTeamSlug ? 'active-team' : '';
-                return `<div class="team-emblem ${slug} lineup-team-chip ${activeClass}" data-slug="${escapeHtml(slug)}">${info.emoji} ${escapeHtml(team ? team.name : slug)}</div>`;
+                return `<button type="button" class="lineup-team-dot ${escapeHtml(slug)} ${activeClass}" data-slug="${escapeHtml(slug)}" title="${escapeHtml(name)}" aria-label="${escapeHtml(name)}"></button>`;
             }).join('');
-            teamBox.querySelectorAll('.lineup-team-chip').forEach(el => {
+            teamBox.querySelectorAll('.lineup-team-dot').forEach(el => {
                 el.onclick = () => {
                     rememberLineupDraft();
                     lineupTeamSlug = el.dataset.slug;
