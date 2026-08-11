@@ -842,13 +842,28 @@
         #add-match-btn { margin-top: 20px; }
         #team-select-modal-list .team-emblem { cursor: pointer; }
         .share-mode-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 16px 0; }
+        #share-reg-modal.modal {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            box-sizing: border-box;
+            overflow: auto;
+        }
+        #share-reg-modal.modal.is-open { display: flex; }
         #share-reg-modal .share-mode-btns { grid-template-columns: 1fr 1fr 1fr; }
         .share-mode-btn { padding: 14px 10px; border-radius: 10px; border: 2px solid var(--border-color); background: var(--bg-color); color: var(--text-color); font-family: 'Kanit', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
         .share-mode-btn:hover { border-color: var(--secondary-color); }
         .share-mode-btn.active { border-color: var(--secondary-color); background: rgba(95, 173, 69, 0.15); color: var(--secondary-color); }
         #share-reg-team-list .team-emblem:hover { filter: brightness(1.15); transform: scale(1.03); }
         #share-reg-hint { font-size: 13px; color: var(--text-muted); text-align: center; margin-top: 8px; min-height: 1.4em; }
-        #share-reg-modal .modal-content { max-width: 560px; max-height: 90vh; overflow-y: auto; }
+        #share-reg-modal .modal-content {
+            margin: 0;
+            width: min(560px, 100%);
+            max-width: 560px;
+            max-height: min(90vh, 100%);
+            overflow-y: auto;
+        }
         .share-reg-merge-label {
             display: block; margin: 12px 0 6px; font-size: 13px; font-weight: 600; color: var(--text-color);
         }
@@ -860,7 +875,20 @@
             font-family: 'Kanit', sans-serif; font-size: 13px; line-height: 1.45;
         }
         .share-reg-merge-ta:focus { outline: none; border-color: var(--secondary-color); }
+        .share-reg-merge-ta.is-ok { border-color: #43a047; }
+        .share-reg-merge-ta.is-error { border-color: #e53935; }
+        .share-reg-merge-ta.is-empty { border-color: var(--border-color); }
         #share-reg-merge-small { min-height: 90px; }
+        .share-reg-status {
+            margin-top: 6px; font-size: 12px; line-height: 1.35; min-height: 1.35em;
+            color: var(--text-muted);
+        }
+        .share-reg-status.is-ok { color: #2e7d32; font-weight: 600; }
+        .share-reg-status.is-error { color: #c62828; font-weight: 600; }
+        #share-reg-merge-btn:disabled {
+            opacity: 0.45; cursor: not-allowed; filter: grayscale(0.25);
+            transform: none; box-shadow: none;
+        }
         #share-image-preview {
             display: block; max-width: 100%; max-height: 55vh; margin: 0 auto 12px; border-radius: 8px;
             border: 1px solid var(--border-color); background: #000; object-fit: contain;
@@ -2092,12 +2120,14 @@
                 <div id="share-reg-team-list"></div>
             </div>
             <div id="share-reg-merge-panel" style="display: none;">
-                <p id="share-reg-merge-hint" style="text-align: center; color: var(--text-muted); font-size: 13px; margin-bottom: 4px;">วางข้อความจาก LINE → รวมชื่อแล้วคัดลอกกลับกลุ่มใหญ่</p>
+                <p id="share-reg-merge-hint" style="text-align: center; color: var(--text-muted); font-size: 13px; margin-bottom: 4px;">วางข้อความจาก LINE → ระบบตรวจรูปแบบให้อัตโนมัติ</p>
                 <label class="share-reg-merge-label" for="share-reg-merge-large">1) กลุ่มใหญ่ล่าสุด <span>(วางจาก LINE)</span></label>
-                <textarea id="share-reg-merge-large" class="share-reg-merge-ta" placeholder="⚽️ FOOTBALL MATCH @ TK7 Stadium&#10;...&#10;🟢 Green Shirt (สีเขียว)&#10;1.ปุ้ย&#10;2.&#10;..."></textarea>
-                <label class="share-reg-merge-label" for="share-reg-merge-small">2) กลุ่มย่อยล่าสุด <span>(วางทีมเดียวหรือหลายทีม)</span></label>
-                <textarea id="share-reg-merge-small" class="share-reg-merge-ta" placeholder="🟢 Green Shirt (สีเขียว)&#10;1.ปุ้ย&#10;2.ตอง&#10;3.วี&#10;4.&#10;5.&#10;6.&#10;7."></textarea>
-                <button type="button" id="share-reg-merge-btn" class="btn btn-line" style="margin-top: 14px;">3) อัปเดตแล้วคัดลอกส่ง LINE</button>
+                <textarea id="share-reg-merge-large" class="share-reg-merge-ta is-empty" spellcheck="false"></textarea>
+                <div id="share-reg-merge-large-status" class="share-reg-status">รอวางข้อความจาก LINE</div>
+                <label class="share-reg-merge-label" for="share-reg-merge-small">2) กลุ่มย่อยล่าสุด <span>(วางจาก LINE)</span></label>
+                <textarea id="share-reg-merge-small" class="share-reg-merge-ta is-empty" spellcheck="false"></textarea>
+                <div id="share-reg-merge-small-status" class="share-reg-status">รอวางข้อความจาก LINE</div>
+                <button type="button" id="share-reg-merge-btn" class="btn btn-line" style="margin-top: 14px;" disabled>3) อัปเดตแล้วคัดลอกส่ง LINE</button>
             </div>
         </div>
     </div>
@@ -2422,7 +2452,7 @@
             document.querySelector('#members-modal .close-modal-btn').addEventListener('click', () => membersModal.style.display = 'none');
             const shareRegModal = document.getElementById('share-reg-modal');
             const shareImageModal = document.getElementById('share-image-modal');
-            document.querySelector('#share-reg-modal .close-modal-btn').addEventListener('click', () => shareRegModal.style.display = 'none');
+            document.querySelector('#share-reg-modal .close-modal-btn').addEventListener('click', closeShareRegModal);
             document.querySelector('#share-image-modal .close-modal-btn').addEventListener('click', closeShareImageModal);
             document.getElementById('share-image-download-btn').addEventListener('click', downloadShareImage);
             document.querySelectorAll('#share-reg-modal .share-mode-btn').forEach(btn => {
@@ -2434,30 +2464,25 @@
                     return;
                 }
                 shareTextToLine(buildRegistrationTemplate('all'));
-                shareRegModal.style.display = 'none';
+                closeShareRegModal();
             });
             document.getElementById('share-reg-merge-btn').addEventListener('click', () => {
+                const check = getShareRegMergeReadiness();
+                if (!check.ready) {
+                    refreshShareRegMergeValidation();
+                    return;
+                }
                 const largeEl = document.getElementById('share-reg-merge-large');
                 const smallEl = document.getElementById('share-reg-merge-small');
-                const largeText = (largeEl?.value || '').trim();
-                const smallText = (smallEl?.value || '').trim();
-                if (!largeText) {
-                    alert('กรุณาวางข้อความกลุ่มใหญ่ล่าสุดจาก LINE');
-                    largeEl?.focus();
-                    return;
-                }
-                if (!smallText) {
-                    alert('กรุณาวางข้อความกลุ่มย่อยล่าสุดจาก LINE');
-                    smallEl?.focus();
-                    return;
-                }
-                const merged = mergeRegistrationFromSmallGroups(largeText, smallText);
+                const merged = mergeRegistrationFromSmallGroups(largeEl.value, smallEl.value);
                 if (!merged.ok) {
+                    refreshShareRegMergeValidation();
                     alert(merged.error);
                     return;
                 }
                 largeEl.value = merged.text;
                 smallEl.value = '';
+                refreshShareRegMergeValidation();
                 const teamLabels = merged.updatedSlugs
                     .map(slug => {
                         const info = REG_TEAM_INFO[slug];
@@ -2466,8 +2491,18 @@
                     .join(', ');
                 shareTextToLine(merged.text, `✅ อัปเดต ${teamLabels} — คัดลอกแล้ว วางในกลุ่มใหญ่ได้เลย`);
             });
+            ['share-reg-merge-large', 'share-reg-merge-small'].forEach(id => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                el.addEventListener('input', refreshShareRegMergeValidation);
+                el.addEventListener('paste', () => setTimeout(refreshShareRegMergeValidation, 0));
+            });
             window.addEventListener('click', (event) => {
-                if (event.target == loginModal || event.target == teamSelectModal || event.target == shareRegModal || event.target == membersModal) {
+                if (event.target == shareRegModal) {
+                    closeShareRegModal();
+                    return;
+                }
+                if (event.target == loginModal || event.target == teamSelectModal || event.target == membersModal) {
                     event.target.style.display = "none";
                 }
                 if (event.target == shareImageModal) closeShareImageModal();
@@ -2665,39 +2700,172 @@
             return { names, nextIdx: i };
         }
 
-        // ดึงชื่อต่อทีมจากข้อความลงทะเบียน (กลุ่มใหญ่หรือกลุ่มย่อย)
-        function parseRegistrationTeamNames(text) {
+        function regTeamShortLabel(slug) {
+            const info = REG_TEAM_INFO[slug];
+            const team = TEAMS.find(t => t.slug === slug);
+            if (info && team) return `${info.emoji} ${team.name}`;
+            return info?.label || slug;
+        }
+
+        // ดึงบล็อกทีม + จำนวนช่องเลขจากข้อความ LINE
+        function parseRegistrationTeamBlocks(text) {
             const lines = String(text || '').replace(/\r\n/g, '\n').split('\n');
-            const blocks = {};
+            const blocks = [];
             for (let i = 0; i < lines.length; i++) {
                 const slug = resolveRegTeamSlugFromLine(lines[i]);
                 if (!slug) continue;
                 const { names, nextIdx } = parseRegSlotNames(lines, i + 1);
-                if (!names.length) continue;
-                while (names.length < 7) names.push('');
-                blocks[slug] = names.slice(0, 7);
-                i = nextIdx - 1;
+                blocks.push({
+                    slug,
+                    names: names.slice(0, 7),
+                    slotCount: names.length,
+                    header: String(lines[i]).trim()
+                });
+                i = Math.max(i, nextIdx - 1);
             }
             return blocks;
         }
 
-        // รวมชื่อจากกลุ่มย่อยเข้ากลุ่มใหญ่ — คงเลขลำดับของกลุ่มใหญ่
-        function mergeRegistrationFromSmallGroups(largeText, smallText) {
-            const smallBlocks = parseRegistrationTeamNames(smallText);
-            const smallSlugs = Object.keys(smallBlocks);
-            if (!smallSlugs.length) {
-                return { ok: false, error: 'ไม่พบบล็อกทีมในข้อความกลุ่มย่อย\nตัวอย่างหัวข้อ: 🟢 Green Shirt (สีเขียว)' };
+        // ดึงชื่อต่อทีมจากข้อความลงทะเบียน (กลุ่มใหญ่หรือกลุ่มย่อย)
+        function parseRegistrationTeamNames(text) {
+            const blocks = {};
+            parseRegistrationTeamBlocks(text).forEach(block => {
+                if (!block.slotCount) return;
+                const names = block.names.slice();
+                while (names.length < 7) names.push('');
+                blocks[block.slug] = names.slice(0, 7);
+            });
+            return blocks;
+        }
+
+        function validateRegistrationPaste(text, kind) {
+            const trimmed = String(text || '').trim();
+            if (!trimmed) {
+                return { ok: false, level: 'empty', message: 'รอวางข้อความจาก LINE' };
             }
 
+            const blocks = parseRegistrationTeamBlocks(trimmed);
+            if (!blocks.length) {
+                return { ok: false, level: 'error', message: 'รูปแบบไม่ถูกต้อง — ไม่พบหัวข้อสีทีม' };
+            }
+
+            const noSlots = blocks.filter(b => b.slotCount === 0);
+            if (noSlots.length) {
+                return {
+                    ok: false,
+                    level: 'error',
+                    message: `รูปแบบไม่ถูกต้อง — ไม่มีเลขลำดับใต้ ${noSlots.map(b => regTeamShortLabel(b.slug)).join(', ')}`
+                };
+            }
+
+            const shortBlocks = blocks.filter(b => b.slotCount < 7);
+            if (shortBlocks.length) {
+                return {
+                    ok: false,
+                    level: 'error',
+                    message: `รูปแบบไม่ครบ — ${shortBlocks.map(b => `${regTeamShortLabel(b.slug)} มี ${b.slotCount}/7 ช่อง`).join(', ')}`
+                };
+            }
+
+            const teamText = blocks.map(b => regTeamShortLabel(b.slug)).join(', ');
+            if (kind === 'large') {
+                return {
+                    ok: true,
+                    level: 'ok',
+                    message: `รูปแบบถูกต้อง — พบ ${blocks.length} ทีม (${teamText})`,
+                    blocks
+                };
+            }
+
+            return {
+                ok: true,
+                level: 'ok',
+                message: `รูปแบบถูกต้อง — ${teamText}`,
+                blocks
+            };
+        }
+
+        function applyShareRegStatus(textareaId, statusId, result) {
+            const ta = document.getElementById(textareaId);
+            const statusEl = document.getElementById(statusId);
+            if (!ta || !statusEl) return;
+            ta.classList.remove('is-ok', 'is-error', 'is-empty');
+            statusEl.classList.remove('is-ok', 'is-error');
+            if (result.level === 'ok') {
+                ta.classList.add('is-ok');
+                statusEl.classList.add('is-ok');
+            } else if (result.level === 'error') {
+                ta.classList.add('is-error');
+                statusEl.classList.add('is-error');
+            } else {
+                ta.classList.add('is-empty');
+            }
+            statusEl.textContent = result.message;
+        }
+
+        function getShareRegMergeReadiness() {
+            const largeEl = document.getElementById('share-reg-merge-large');
+            const smallEl = document.getElementById('share-reg-merge-small');
+            const large = validateRegistrationPaste(largeEl?.value || '', 'large');
+            const small = validateRegistrationPaste(smallEl?.value || '', 'small');
+
+            if (!large.ok || !small.ok) {
+                return { ready: false, large, small };
+            }
+
+            const largeSlugs = new Set((large.blocks || []).map(b => b.slug));
+            const missing = (small.blocks || []).filter(b => !largeSlugs.has(b.slug));
+            if (missing.length) {
+                return {
+                    ready: false,
+                    large,
+                    small: {
+                        ok: false,
+                        level: 'error',
+                        message: `ทีมนี้ไม่มีในกลุ่มใหญ่ — ${missing.map(b => regTeamShortLabel(b.slug)).join(', ')}`,
+                        blocks: small.blocks
+                    }
+                };
+            }
+
+            return { ready: true, large, small };
+        }
+
+        function refreshShareRegMergeValidation() {
+            const check = getShareRegMergeReadiness();
+            applyShareRegStatus('share-reg-merge-large', 'share-reg-merge-large-status', check.large);
+            applyShareRegStatus('share-reg-merge-small', 'share-reg-merge-small-status', check.small);
+            const btn = document.getElementById('share-reg-merge-btn');
+            if (btn) btn.disabled = !check.ready;
+            return check;
+        }
+
+        function closeShareRegModal() {
+            const modal = document.getElementById('share-reg-modal');
+            if (!modal) return;
+            modal.classList.remove('is-open');
+            modal.style.display = 'none';
+        }
+
+        // รวมชื่อจากกลุ่มย่อยเข้ากลุ่มใหญ่ — คงเลขลำดับของกลุ่มใหญ่
+        function mergeRegistrationFromSmallGroups(largeText, smallText) {
+            const readiness = (() => {
+                const large = validateRegistrationPaste(largeText, 'large');
+                const small = validateRegistrationPaste(smallText, 'small');
+                if (!large.ok) return { ok: false, error: large.message };
+                if (!small.ok) return { ok: false, error: small.message };
+                return null;
+            })();
+            if (readiness) return readiness;
+
+            const smallBlocks = parseRegistrationTeamNames(smallText);
+            const smallSlugs = Object.keys(smallBlocks);
             const lines = String(largeText || '').replace(/\r\n/g, '\n').split('\n');
             const updatedSlugs = [];
-            let foundAnyTeamHeader = false;
 
             for (let i = 0; i < lines.length; i++) {
                 const slug = resolveRegTeamSlugFromLine(lines[i]);
-                if (!slug) continue;
-                foundAnyTeamHeader = true;
-                if (!smallBlocks[slug]) continue;
+                if (!slug || !smallBlocks[slug]) continue;
 
                 const smallNames = smallBlocks[slug];
                 let slot = 0;
@@ -2715,12 +2883,9 @@
                 i = j - 1;
             }
 
-            if (!foundAnyTeamHeader) {
-                return { ok: false, error: 'ไม่พบบล็อกทีมในข้อความกลุ่มใหญ่\nกรุณาวางข้อความลงทะเบียนกลุ่มใหญ่ทั้งชุด' };
-            }
             if (!updatedSlugs.length) {
-                const labels = smallSlugs.map(s => REG_TEAM_INFO[s]?.label || s).join(', ');
-                return { ok: false, error: `ไม่พบทีมที่ตรงกันในกลุ่มใหญ่\nจากกลุ่มย่อย: ${labels}` };
+                const labels = smallSlugs.map(regTeamShortLabel).join(', ');
+                return { ok: false, error: `ไม่พบทีมที่ตรงกันในกลุ่มใหญ่ — ${labels}` };
             }
 
             return { ok: true, text: lines.join('\n'), updatedSlugs };
@@ -2789,7 +2954,8 @@
             document.getElementById('share-reg-line-btn').textContent = '📋 คัดลอกอัตโนมัติ';
             document.getElementById('share-reg-hint').textContent = 'กดแล้วคัดลอกอัตโนมัติ → เปิด LINE แล้ววางในกลุ่มใหญ่';
             document.getElementById('share-reg-single-hint').textContent = 'เลือกสี → คัดลอกอัตโนมัติ → วางในกลุ่มย่อย';
-            document.getElementById('share-reg-merge-hint').textContent = '1 วางกลุ่มใหญ่ → 2 วางกลุ่มย่อย → 3 อัปเดตคัดลอกส่ง LINE';
+            document.getElementById('share-reg-merge-hint').textContent = 'วางกลุ่มใหญ่และกลุ่มย่อย — ระบบตรวจรูปแบบให้อัตโนมัติ';
+            if (mode === 'merge') refreshShareRegMergeValidation();
         }
 
         function openShareRegModal() {
@@ -2809,13 +2975,16 @@
                 el.textContent = `${info.emoji} ${team ? team.name : slug}`;
                 el.onclick = () => {
                     shareTextToLine(buildRegistrationTemplate('single', slug));
-                    document.getElementById('share-reg-modal').style.display = 'none';
+                    closeShareRegModal();
                 };
                 list.appendChild(el);
             });
 
             setShareRegMode('all');
-            document.getElementById('share-reg-modal').style.display = 'block';
+            const modal = document.getElementById('share-reg-modal');
+            modal.classList.add('is-open');
+            modal.style.display = 'flex';
+            refreshShareRegMergeValidation();
         }
         
         function updateGenerateButtonForDate(date) {
