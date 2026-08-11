@@ -1,5 +1,5 @@
 /* ==========================================================================
-   TK7 app logic (Ver 4.0.4)
+   TK7 app logic (Ver 4.0.5)
    แยกจาก index.html เพื่อแก้/ค้นหาง่ายขึ้น
    Sections (ค้นหาด้วย // --- SECTION:):
      CONFIG, AUTH, REGISTRATION, SCHEDULE, LINEUP, SETUP,
@@ -423,6 +423,10 @@
                 }
             });
             listenToRealtimeChanges();
+            window.addEventListener('pagehide', () => { flushScoreSave(); });
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'hidden') flushScoreSave();
+            });
         }
 
         function setAuthModalTab(tab) {
@@ -1586,9 +1590,9 @@
             const moveTopBtn = target.closest('.move-top-btn'); if (moveTopBtn) { handleMoveMatchToTop(moveTopBtn.dataset.index); return; }
             /* หน้าตารางแข่ง: ไม่ให้แตะเปลี่ยนทีมจากป้ายสี — ใช้เฉพาะนัดเปิดสนาม / เพิ่มแมตช์ */ 
             const addBtn = target.closest('#add-match-btn'); if (addBtn) { handleAddMatch(); return; } 
-            const scoreBtn = target.closest('.score-btn'); if (scoreBtn) { await updateScoreFromButton(scoreBtn); return; } 
+            const scoreBtn = target.closest('.score-btn'); if (scoreBtn) { updateScoreFromButton(scoreBtn); return; } 
             const scoreInput = target.closest('.score-input'); if (scoreInput) { scoreInput.onchange = () => updateScoreFromInput(scoreInput); return; } 
-            const resetBtn = target.closest('.reset-score-btn'); if (resetBtn) { await resetScore(resetBtn); return; } 
+            const resetBtn = target.closest('.reset-score-btn'); if (resetBtn) { resetScore(resetBtn); return; } 
         }
         function handleDragStart(event) { const draggable = event.target.closest('.match-card.draggable'); if (!draggable) return; draggedItem = draggable; event.dataTransfer.effectAllowed = 'move'; event.dataTransfer.setData('text/plain', draggable.dataset.index); setTimeout(() => { draggedItem.classList.add('dragging'); }, 0); }
         function handleDragEnd(event) { if (!draggedItem) return; draggedItem.classList.remove('dragging'); draggedItem = null; const placeholder = document.querySelector('.drag-over-placeholder'); if (placeholder) { placeholder.remove(); } }
@@ -2526,14 +2530,26 @@
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'match_days' }, async (payload) => {
                     const changedDate = payload.new?.match_date || payload.old?.match_date;
                     if (!changedDate) return;
-                    if (Object.prototype.hasOwnProperty.call(appData, changedDate)) {
-                        delete appData[changedDate];
-                    }
                     if (changedDate === currentDateKey) {
+                        // กำลังแก้คะแนนอยู่ / เพิ่งบันทึกเอง → อย่ารีโหลดทับ UI
+                        if (
+                            localEditingMatchIndex !== null
+                            || pendingScoreSaveTimer
+                            || scoreSaveInFlight
+                            || Date.now() < ignoreRealtimeScoreUntil
+                        ) {
+                            return;
+                        }
+                        if (Object.prototype.hasOwnProperty.call(appData, changedDate)) {
+                            delete appData[changedDate];
+                        }
                         saveScrollPosition();
                         shouldRestoreScroll = true;
                         await loadDataForDate(currentDateKey, { syncSetupDate: false });
                         return;
+                    }
+                    if (Object.prototype.hasOwnProperty.call(appData, changedDate)) {
+                        delete appData[changedDate];
                     }
                     // วันอื่น: รีเฟรชรายการวันที่เท่านั้น — อย่ากระโดดหน้าผู้ใช้
                     const { data: datesData } = await db.from('match_days').select('match_date').order('match_date', { ascending: false });
@@ -2664,6 +2680,13 @@
         let scorePresenceByMatch = {};
         let scoreEditIdleTimer = null;
         const SCORE_EDIT_IDLE_MS = 8000;
+        // บันทึกคะแนนแบบ debounce — อัปเดต UI ทันที ไม่วาดทั้งหน้า
+        let pendingScoreSaveTimer = null;
+        let scoreSaveInFlight = false;
+        let scoreSaveQueue = Promise.resolve();
+        let ignoreRealtimeScoreUntil = 0;
+        let leaderboardRefreshTimer = null;
+        const SCORE_SAVE_DEBOUNCE_MS = 500;
 
         function myPresenceName() {
             return sanitizeDisplayName(userProfile?.display_name || currentUser?.email || 'Admin') || 'Admin';
@@ -2713,7 +2736,9 @@
                         banner.textContent = `⏳ ${foreigners.map((f) => f.name).join(', ')} กำลังบันทึกผลแมตช์นี้`;
                     } else if (localEditingMatchIndex === idx && canManage()) {
                         banner.hidden = false;
-                        banner.textContent = 'กำลังบันทึกผลแมตช์นี้...';
+                        banner.textContent = pendingScoreSaveTimer || scoreSaveInFlight
+                            ? 'กำลังบันทึกผลแมตช์นี้...'
+                            : 'กำลังแก้ผลแมตช์นี้...';
                     } else {
                         banner.hidden = true;
                         banner.textContent = '';
@@ -2731,6 +2756,7 @@
         }
 
         async function tearDownScorePresence() {
+            await flushScoreSave(scorePresenceDate || currentDateKey);
             clearTimeout(scoreEditIdleTimer);
             scoreEditIdleTimer = null;
             localEditingMatchIndex = null;
@@ -2755,7 +2781,6 @@
             });
             const onPresenceChange = () => {
                 rebuildScorePresenceMap();
-                // ถ้าชนกันคนละเครื่อง: คนที่ claim ทีหลังยอมปล่อย
                 if (localEditingMatchIndex !== null) {
                     const others = getForeignScoreEditors(localEditingMatchIndex);
                     if (others.length > 0) {
@@ -2776,14 +2801,7 @@
             channel.on('presence', { event: 'join' }, onPresenceChange);
             channel.on('presence', { event: 'leave' }, onPresenceChange);
             scorePresenceChannel = channel;
-            await new Promise((resolve) => {
-                let done = false;
-                const finish = () => { if (!done) { done = true; resolve(); } };
-                channel.subscribe((status) => {
-                    if (status === 'SUBSCRIBED' || status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') finish();
-                });
-                setTimeout(finish, 2500);
-            });
+            channel.subscribe();
         }
 
         function bumpScoreEditIdleTimer() {
@@ -2794,6 +2812,7 @@
         async function releaseScoreEditClaim() {
             clearTimeout(scoreEditIdleTimer);
             scoreEditIdleTimer = null;
+            await flushScoreSave();
             localEditingMatchIndex = null;
             localScoreClaimAt = 0;
             if (scorePresenceChannel) {
@@ -2802,11 +2821,12 @@
             applyScoreEditLocksUI();
         }
 
-        async function claimScoreEdit(matchIndex) {
+        function claimScoreEdit(matchIndex) {
             if (!canManage() || !currentUser || pendingPasswordRecovery) return false;
             const idx = parseInt(matchIndex, 10);
             if (Number.isNaN(idx)) return false;
-            await ensureScorePresenceChannel(currentDateKey);
+            // เปิด presence แบบไม่บล็อกการกด +/−
+            ensureScorePresenceChannel(currentDateKey);
             rebuildScorePresenceMap();
             const foreigners = getForeignScoreEditors(idx);
             if (foreigners.length > 0) {
@@ -2816,19 +2836,85 @@
             }
             localEditingMatchIndex = idx;
             localScoreClaimAt = Date.now();
-            try {
-                await scorePresenceChannel.track({
-                    matchIndex: idx,
-                    userId: currentUser.id,
-                    name: myPresenceName(),
-                    at: localScoreClaimAt
-                });
-            } catch (err) {
-                console.warn('score presence track failed', err);
+            const payload = {
+                matchIndex: idx,
+                userId: currentUser.id,
+                name: myPresenceName(),
+                at: localScoreClaimAt
+            };
+            if (scorePresenceChannel) {
+                scorePresenceChannel.track(payload).catch((err) => console.warn('score presence track failed', err));
+            } else {
+                // รอแชนเนลพร้อมแล้วค่อย track
+                setTimeout(() => {
+                    if (localEditingMatchIndex === idx && scorePresenceChannel) {
+                        scorePresenceChannel.track(payload).catch(() => {});
+                    }
+                }, 300);
             }
             bumpScoreEditIdleTimer();
             applyScoreEditLocksUI();
             return true;
+        }
+
+        function patchMatchScoreCardUI(index) {
+            const match = appData[currentDateKey]?.schedule?.[index];
+            if (!match) return;
+            const card = document.querySelector(`#scores-container .match-card[data-score-card][data-index="${index}"]`);
+            if (!card) return;
+            const homeInput = card.querySelector('.score-input[data-team="home"]');
+            const awayInput = card.querySelector('.score-input[data-team="away"]');
+            if (homeInput) homeInput.value = match.homeScore === null ? '' : String(match.homeScore);
+            if (awayInput) awayInput.value = match.awayScore === null ? '' : String(match.awayScore);
+            const scoreValues = card.querySelectorAll('.score-line-export .score-value');
+            const vs = card.querySelector('.score-line-export .vs-export');
+            if (scoreValues[0]) scoreValues[0].textContent = match.homeScore !== null ? String(match.homeScore) : '\u00a0';
+            if (scoreValues[1]) scoreValues[1].textContent = match.awayScore !== null ? String(match.awayScore) : '\u00a0';
+            if (vs) vs.textContent = (match.homeScore !== null && match.awayScore !== null) ? '-' : 'vs';
+            applyScoreEditLocksUI();
+        }
+
+        function scheduleLeaderboardRefresh(date = currentDateKey) {
+            clearTimeout(leaderboardRefreshTimer);
+            leaderboardRefreshTimer = setTimeout(() => {
+                renderLeaderboardPage(date);
+            }, 350);
+        }
+
+        function queueScoreSave() {
+            clearTimeout(pendingScoreSaveTimer);
+            pendingScoreSaveTimer = setTimeout(() => {
+                pendingScoreSaveTimer = null;
+                flushScoreSave();
+            }, SCORE_SAVE_DEBOUNCE_MS);
+            applyScoreEditLocksUI();
+        }
+
+        function flushScoreSave(date = currentDateKey) {
+            clearTimeout(pendingScoreSaveTimer);
+            pendingScoreSaveTimer = null;
+            if (!canManage() || pendingPasswordRecovery) return scoreSaveQueue;
+            const dayData = appData[date];
+            if (!dayData?.schedule) return scoreSaveQueue;
+
+            const scheduleSnapshot = dayData.schedule.map((m) => ({ ...m }));
+            scoreSaveQueue = scoreSaveQueue.then(async () => {
+                scoreSaveInFlight = true;
+                ignoreRealtimeScoreUntil = Date.now() + 2500;
+                applyScoreEditLocksUI();
+                try {
+                    const { error } = await db.from('match_days')
+                        .update({ schedule: scheduleSnapshot })
+                        .eq('match_date', date);
+                    if (error) throw error;
+                } catch (error) {
+                    alert('เกิดข้อผิดพลาดในการบันทึกคะแนน: ' + (error.message || error));
+                } finally {
+                    scoreSaveInFlight = false;
+                    applyScoreEditLocksUI();
+                }
+            });
+            return scoreSaveQueue;
         }
 
         function renderScoresPage(date) {
@@ -2866,7 +2952,7 @@
             renderWithMorph(container, html); 
         }
 
-        async function updateScore(index, team, value) {
+        function updateScore(index, team, value) {
             if (!canManage() || pendingPasswordRecovery) return;
             const date = currentDateKey, dayData = appData[date];
             if (!dayData?.schedule) return;
@@ -2883,38 +2969,37 @@
                 if (Number.isNaN(safeValue) || safeValue < 0) safeValue = 0;
             }
             const newSchedule = dayData.schedule.map((m, i) => i === idx ? { ...m } : m);
-            const match = newSchedule[idx];
-            if (team === 'home') match.homeScore = safeValue; else match.awayScore = safeValue;
+            if (team === 'home') newSchedule[idx].homeScore = safeValue;
+            else newSchedule[idx].awayScore = safeValue;
             appData[date].schedule = newSchedule;
-            try {
-                const { error } = await db.from('match_days').update({ schedule: newSchedule }).eq('match_date', currentDateKey);
-                if (error) throw error;
-                bumpScoreEditIdleTimer();
-                renderScoresPage(date);
-                renderLeaderboardPage(date);
-            } catch (error) {
-                alert('เกิดข้อผิดพลาดในการบันทึกคะแนน: ' + error.message);
-            }
+            patchMatchScoreCardUI(idx);
+            scheduleLeaderboardRefresh(date);
+            queueScoreSave();
+            bumpScoreEditIdleTimer();
         }
-        async function updateScoreFromButton(button) {
+        function updateScoreFromButton(button) {
             const { index, team, op } = button.dataset;
-            if (!(await claimScoreEdit(index))) return;
-            const input = document.querySelector(`.score-input[data-index="${index}"][data-team="${team}"]`);
-            const currentValue = Number.parseInt(input?.value || '0', 10) || 0;
+            if (!claimScoreEdit(index)) return;
+            const dayData = appData[currentDateKey];
+            const idx = parseInt(index, 10);
+            const match = dayData?.schedule?.[idx];
+            const currentValue = match
+                ? (Number.parseInt(team === 'home' ? match.homeScore : match.awayScore, 10) || 0)
+                : 0;
             const newValue = (op === '1') ? currentValue + 1 : Math.max(0, currentValue - 1);
-            await updateScore(index, team, newValue);
+            updateScore(index, team, newValue);
         }
-        async function updateScoreFromInput(input) {
+        function updateScoreFromInput(input) {
             const { index, team } = input.dataset;
-            if (!(await claimScoreEdit(index))) return;
-            if (input.value === '') { await updateScore(index, team, null); return; }
+            if (!claimScoreEdit(index)) return;
+            if (input.value === '') { updateScore(index, team, null); return; }
             const parsed = Number.parseInt(input.value, 10);
-            await updateScore(index, team, Number.isNaN(parsed) ? 0 : Math.max(0, parsed));
+            updateScore(index, team, Number.isNaN(parsed) ? 0 : Math.max(0, parsed));
         }
-        async function resetScore(button) {
+        function resetScore(button) {
             const { index } = button.dataset;
             if (!canManage() || pendingPasswordRecovery) return;
-            if (!(await claimScoreEdit(index))) return;
+            if (!claimScoreEdit(index)) return;
             const date = currentDateKey, dayData = appData[date];
             if (!dayData?.schedule) return;
             const idx = parseInt(index, 10);
@@ -2923,17 +3008,13 @@
                 showToast('⏳ มีคนกำลังบันทึกแมตช์นี้อยู่');
                 return;
             }
-            const newSchedule = dayData.schedule.map((m, i) => i === idx ? { ...m, homeScore: null, awayScore: null } : m);
-            appData[date].schedule = newSchedule;
-            try {
-                const { error } = await db.from('match_days').update({ schedule: newSchedule }).eq('match_date', currentDateKey);
-                if (error) throw error;
-                bumpScoreEditIdleTimer();
-                renderScoresPage(date);
-                renderLeaderboardPage(date);
-            } catch (error) {
-                alert('เกิดข้อผิดพลาดในการรีเซ็ตคะแนน: ' + error.message);
-            }
+            appData[date].schedule = dayData.schedule.map((m, i) => (
+                i === idx ? { ...m, homeScore: null, awayScore: null } : m
+            ));
+            patchMatchScoreCardUI(idx);
+            scheduleLeaderboardRefresh(date);
+            queueScoreSave();
+            bumpScoreEditIdleTimer();
         }
 
         function calculateLeaderboard(date) { const dayData = appData[date]; if (!dayData || !dayData.schedule) return {}; const stats = {}; dayData.settings.activeTeams.forEach(slug => { const teamInfo = TEAMS.find(t => t.slug === slug); if(teamInfo) { stats[slug] = { name: teamInfo.name, slug: teamInfo.slug, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, gd: 0, pts: 0 }; }}); dayData.schedule.forEach(match => { const { home, away, homeScore, awayScore } = match; if (homeScore === null || awayScore === null || !stats[home] || !stats[away]) return; stats[home].p++; stats[away].p++; stats[home].gf += homeScore; stats[home].ga += awayScore; stats[away].gf += awayScore; stats[away].ga += homeScore; if (homeScore > awayScore) { stats[home].w++; stats[away].l++; stats[home].pts += 3; } else if (awayScore > homeScore) { stats[away].w++; stats[home].l++; stats[away].pts += 3; } else { stats[home].d++; stats[away].d++; stats[home].pts += 1; stats[away].pts += 1; } }); Object.values(stats).forEach(team => { team.gd = team.gf - team.ga; }); return stats; }
