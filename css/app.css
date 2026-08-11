@@ -507,27 +507,6 @@
         input:checked + .slider { background: var(--primary-color); }
         input:checked + .slider:before { transform: translateX(22px); }
         .match-card { display: flex; flex-direction: column; gap: 12px; }
-        .match-card.is-locked-by-other {
-            outline: 2px solid rgba(240, 178, 122, 0.85);
-            outline-offset: 2px;
-        }
-        .score-edit-banner {
-            display: none;
-            margin: 0;
-            padding: 8px 10px;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 600;
-            line-height: 1.35;
-            color: #2a3d2e;
-            background: rgba(240, 178, 122, 0.55);
-            border: 1px solid rgba(180, 120, 60, 0.35);
-        }
-        .score-edit-banner:not([hidden]) { display: block; }
-        .score-edit-banner.is-self {
-            background: rgba(126, 179, 224, 0.45);
-            border-color: rgba(61, 107, 74, 0.25);
-        }
         .match-header {
             display: flex; justify-content: space-between; align-items: center;
             color: var(--text-muted); font-size: 14px; padding-bottom: 8px; gap: 10px;
