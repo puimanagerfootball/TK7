@@ -1148,9 +1148,6 @@
         #page-lineup .lineup-hint {
             font-size: 12px; color: var(--text-muted); margin: 0 0 10px; text-align: center;
         }
-        .match-card.draggable { cursor: move; }
-        .match-card.dragging { opacity: 0.5; background: var(--primary-variant); }
-        .drag-over-placeholder { background: rgba(46, 125, 50, 0.12); border: 2px dashed var(--primary-color); border-radius: 12px; margin-bottom: 16px; height: 120px; }
         /* มือถือ: บังคับแนวจอตามหน้า — ถ้าหมุนผิดให้บังคับหมุนกลับ */
         .orient-hint {
             display: none;

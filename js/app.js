@@ -1,5 +1,5 @@
 /* ==========================================================================
-   TK7 app logic (Ver 4.0.6)
+   TK7 app logic (Ver 4.0.7)
    แยกจาก index.html เพื่อแก้/ค้นหาง่ายขึ้น
    Sections (ค้นหาด้วย // --- SECTION:):
      CONFIG, AUTH, REGISTRATION, SCHEDULE, LINEUP, SETUP,
@@ -110,7 +110,7 @@
             const d = new Date();
             return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
         }
-        let appData = {}, activePage = 'page-schedule', currentDateKey = todayDateKey(), currentEditingContext = { index: null, side: null }, isInitialSetupDone = false, draggedItem = null;
+        let appData = {}, activePage = 'page-schedule', currentDateKey = todayDateKey(), currentEditingContext = { index: null, side: null }, isInitialSetupDone = false;
         let lastScrollPosition = 0, shouldRestoreScroll = false;
         const contentContainer = document.getElementById('content');
         const pages = document.querySelectorAll('.page'), navButtons = document.querySelectorAll('.nav-btn'), loginBtn = document.getElementById('login-btn'), logoutBtn = document.getElementById('logout-btn'), userInfo = document.getElementById('user-info'), loginModal = document.getElementById('login-modal'), teamSelectModal = document.getElementById('team-select-modal'), membersModal = document.getElementById('members-modal');
@@ -387,7 +387,6 @@
                 if (event.target == shareImageModal) closeShareImageModal();
             });
             contentContainer.addEventListener('click', handleMainClick);
-            setupDragAndDropListeners(document.getElementById('schedule-container'));
             
             // ลิงก์รีเซ็ตรหัสหมดอายุ/ใช้แล้ว → แจ้งชัด ๆ แทนการเงียบ
             if (handleAuthRedirectError()) {
@@ -1557,11 +1556,9 @@
                     adminActions = `<div class="match-actions">${moveTopBtn}${deleteBtn}</div>`;
                 }
                 
-                const draggableClass = canManage() ? 'draggable' : '';
-                const draggableAttr = canManage() ? 'draggable="true"' : '';
                 const matchLabel = `แมตช์ที่ ${index + 1}`;
 
-                return `<div class="card match-card ${draggableClass}" data-index="${index}" ${draggableAttr}><div class="match-header"><span>${matchLabel}</span><span>⏱️ ${timeStr}</span>${adminActions}</div><div class="match-body"><div class="team-emblem ${homeTeam.slug}">${homeTeam.name}</div><span class="vs">VS</span><div class="team-emblem ${awayTeam.slug}">${awayTeam.name}</div></div></div>`;
+                return `<div class="card match-card" data-index="${index}"><div class="match-header"><span>${matchLabel}</span><span>⏱️ ${timeStr}</span>${adminActions}</div><div class="match-body"><div class="team-emblem ${homeTeam.slug}">${homeTeam.name}</div><span class="vs">VS</span><div class="team-emblem ${awayTeam.slug}">${awayTeam.name}</div></div></div>`;
             }).join('');
             if (canManage() && dayData.schedule) { html += `<button id="add-match-btn" class="btn btn-primary">➕ เพิ่มแมตช์ใหม่</button>`; }
             renderWithMorph(container, html);
@@ -1594,26 +1591,6 @@
             const scoreInput = target.closest('.score-input'); if (scoreInput) { scoreInput.onchange = () => updateScoreFromInput(scoreInput); return; } 
             const resetBtn = target.closest('.reset-score-btn'); if (resetBtn) { resetScore(resetBtn); return; } 
         }
-        function handleDragStart(event) { const draggable = event.target.closest('.match-card.draggable'); if (!draggable) return; draggedItem = draggable; event.dataTransfer.effectAllowed = 'move'; event.dataTransfer.setData('text/plain', draggable.dataset.index); setTimeout(() => { draggedItem.classList.add('dragging'); }, 0); }
-        function handleDragEnd(event) { if (!draggedItem) return; draggedItem.classList.remove('dragging'); draggedItem = null; const placeholder = document.querySelector('.drag-over-placeholder'); if (placeholder) { placeholder.remove(); } }
-        function handleDragOver(event) { event.preventDefault(); const container = event.currentTarget; const afterElement = getDragAfterElement(container, event.clientY); let placeholder = container.querySelector('.drag-over-placeholder'); if (!placeholder) { placeholder = document.createElement('div'); placeholder.classList.add('drag-over-placeholder'); } container.insertBefore(placeholder, afterElement); }
-        async function handleDrop(event) {
-            event.preventDefault();
-            const container = event.currentTarget;
-            const placeholder = container.querySelector('.drag-over-placeholder');
-            if (!placeholder || !draggedItem) return;
-            placeholder.parentNode.insertBefore(draggedItem, placeholder);
-            placeholder.remove();
-            const originalIndices = Array.from(container.querySelectorAll('.match-card[data-index]')).map(card => parseInt(card.dataset.index, 10));
-            const oldSchedule = appData[currentDateKey].schedule;
-            const reorderedSchedule = originalIndices.map(originalIndex => oldSchedule.find((match, i) => i === originalIndex));
-            const openerChanged = originalIndices[0] !== 0;
-            await updateScheduleInDB(reorderedSchedule, {
-                toastMessage: openerChanged ? '✅ อัปเดตคู่เปิดสนามแล้ว' : '✅ อัปเดตลำดับแมตช์แล้ว'
-            });
-        }
-        function setupDragAndDropListeners(container) { container.addEventListener('dragstart', handleDragStart); container.addEventListener('dragend', handleDragEnd); container.addEventListener('dragover', handleDragOver); container.addEventListener('drop', handleDrop); }
-        function getDragAfterElement(container, y) { const draggableElements = [...container.querySelectorAll('.match-card.draggable:not(.dragging)')]; return draggableElements.reduce((closest, child) => { const box = child.getBoundingClientRect(); const offset = y - box.top - box.height / 2; if (offset < 0 && offset > closest.offset) { return { offset: offset, element: child }; } else { return closest; } }, { offset: Number.NEGATIVE_INFINITY }).element; }
         
         async function handleAddMatch() { if (!canManage()) return; const dayData = appData[currentDateKey]; if (!dayData || !dayData.settings.activeTeams || dayData.settings.activeTeams.length < 2) { alert('ต้องมีทีมที่เข้าร่วมอย่างน้อย 2 ทีมเพื่อเพิ่มแมตช์'); return; } let newSchedule = dayData.schedule ? [...dayData.schedule] : []; newSchedule.push({ home: dayData.settings.activeTeams[0], away: dayData.settings.activeTeams[1], homeScore: null, awayScore: null }); await updateScheduleInDB(newSchedule); }
         async function handleDeleteMatch(index) { const idx = parseInt(index, 10); if (!canManage()) return; const dayData = appData[currentDateKey]; if (!dayData) return; if (confirm(`คุณแน่ใจหรือไม่ว่าต้องการลบ "แมตช์ที่ ${idx + 1}" ?`)) { let newSchedule = [...dayData.schedule]; newSchedule.splice(idx, 1); await updateScheduleInDB(newSchedule); } }
@@ -2472,7 +2449,7 @@
             exportWrapper.appendChild(headerDiv);
             const contentClone = element.cloneNode(true);
             contentClone.querySelectorAll('.match-actions, .action-btn, #add-match-btn, .interactive-controls').forEach(el => el.remove());
-            contentClone.querySelectorAll('.match-card').forEach(card => card.classList.remove('draggable', 'dragging'));
+            contentClone.querySelectorAll('.match-card').forEach(card => card.classList.remove('dragging'));
             const isGridExport = (elementId === 'schedule-container' || elementId === 'scores-container');
             if (isGridExport) {
                 contentClone.classList.add('export-mode-grid');
