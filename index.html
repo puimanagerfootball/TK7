@@ -2121,9 +2121,9 @@
             </div>
             <div id="share-reg-merge-panel" style="display: none;">
                 <p id="share-reg-merge-hint" style="text-align: center; color: var(--text-muted); font-size: 13px; margin-bottom: 4px;">วางข้อความจาก LINE → ระบบตรวจรูปแบบให้อัตโนมัติ</p>
-                <label class="share-reg-merge-label" for="share-reg-merge-large">1) กลุ่มใหญ่ล่าสุด <span>(วางจาก LINE)</span></label>
+                <label class="share-reg-merge-label" for="share-reg-merge-large">1) กลุ่มใหญ่ล่าสุด <span>(ว่างได้ถ้าลงชื่อคนแรก)</span></label>
                 <textarea id="share-reg-merge-large" class="share-reg-merge-ta is-empty" spellcheck="false"></textarea>
-                <div id="share-reg-merge-large-status" class="share-reg-status">รอวางข้อความจาก LINE</div>
+                <div id="share-reg-merge-large-status" class="share-reg-status">ว่างได้ถ้าเป็นคนแรก — หรือวางกลุ่มใหญ่ล่าสุดจาก LINE</div>
                 <label class="share-reg-merge-label" for="share-reg-merge-small">2) กลุ่มย่อยล่าสุด <span>(วางจาก LINE)</span></label>
                 <textarea id="share-reg-merge-small" class="share-reg-merge-ta is-empty" spellcheck="false"></textarea>
                 <div id="share-reg-merge-small-status" class="share-reg-status">รอวางข้อความจาก LINE</div>
@@ -2483,13 +2483,11 @@
                 largeEl.value = merged.text;
                 smallEl.value = '';
                 refreshShareRegMergeValidation();
-                const teamLabels = merged.updatedSlugs
-                    .map(slug => {
-                        const info = REG_TEAM_INFO[slug];
-                        return info ? `${info.emoji} ${TEAMS.find(t => t.slug === slug)?.name || slug}` : slug;
-                    })
-                    .join(', ');
-                shareTextToLine(merged.text, `✅ อัปเดต ${teamLabels} — คัดลอกแล้ว วางในกลุ่มใหญ่ได้เลย`);
+                const teamLabels = merged.updatedSlugs.map(regTeamShortLabel).join(', ');
+                const toastMsg = merged.firstEntry
+                    ? `✅ ลงชื่อคนแรก — สร้างกลุ่มใหญ่แล้ว (${teamLabels})`
+                    : `✅ อัปเดต ${teamLabels} — คัดลอกแล้ว วางในกลุ่มใหญ่ได้เลย`;
+                shareTextToLine(merged.text, toastMsg);
             });
             ['share-reg-merge-large', 'share-reg-merge-small'].forEach(id => {
                 const el = document.getElementById(id);
@@ -2806,11 +2804,75 @@
         function getShareRegMergeReadiness() {
             const largeEl = document.getElementById('share-reg-merge-large');
             const smallEl = document.getElementById('share-reg-merge-small');
-            const large = validateRegistrationPaste(largeEl?.value || '', 'large');
-            const small = validateRegistrationPaste(smallEl?.value || '', 'small');
+            const largeRaw = largeEl?.value || '';
+            const smallRaw = smallEl?.value || '';
+            const largeEmpty = !String(largeRaw).trim();
+            const small = validateRegistrationPaste(smallRaw, 'small');
 
+            // วางแค่กลุ่มย่อย = ลงชื่อคนแรก → สร้างกลุ่มใหญ่จากทีมที่เลือก
+            if (largeEmpty) {
+                if (!small.ok) {
+                    return {
+                        ready: false,
+                        firstEntry: true,
+                        large: {
+                            ok: false,
+                            level: 'empty',
+                            message: 'ว่างได้ถ้าเป็นคนแรก — วางกลุ่มย่อยได้เลย'
+                        },
+                        small
+                    };
+                }
+
+                const activeSlugs = getActiveRegTeamSlugs();
+                if (!activeSlugs.length) {
+                    return {
+                        ready: false,
+                        firstEntry: true,
+                        large: {
+                            ok: false,
+                            level: 'error',
+                            message: 'ยังไม่ได้เลือกทีมที่เข้าร่วมในหน้าจัดการทีม'
+                        },
+                        small
+                    };
+                }
+
+                const activeSet = new Set(activeSlugs);
+                const missing = (small.blocks || []).filter(b => !activeSet.has(b.slug));
+                if (missing.length) {
+                    return {
+                        ready: false,
+                        firstEntry: true,
+                        large: {
+                            ok: false,
+                            level: 'error',
+                            message: 'ทีมในกลุ่มย่อยไม่อยู่ในทีมที่เลือกวันนี้'
+                        },
+                        small: {
+                            ok: false,
+                            level: 'error',
+                            message: `ทีมนี้ไม่ได้ถูกเลือกวันนี้ — ${missing.map(b => regTeamShortLabel(b.slug)).join(', ')}`,
+                            blocks: small.blocks
+                        }
+                    };
+                }
+
+                return {
+                    ready: true,
+                    firstEntry: true,
+                    large: {
+                        ok: true,
+                        level: 'ok',
+                        message: `ลงชื่อคนแรก — จะสร้างกลุ่มใหญ่ใหม่ (${activeSlugs.length} ทีม)`
+                    },
+                    small
+                };
+            }
+
+            const large = validateRegistrationPaste(largeRaw, 'large');
             if (!large.ok || !small.ok) {
-                return { ready: false, large, small };
+                return { ready: false, firstEntry: false, large, small };
             }
 
             const largeSlugs = new Set((large.blocks || []).map(b => b.slug));
@@ -2818,6 +2880,7 @@
             if (missing.length) {
                 return {
                     ready: false,
+                    firstEntry: false,
                     large,
                     small: {
                         ok: false,
@@ -2828,7 +2891,7 @@
                 };
             }
 
-            return { ready: true, large, small };
+            return { ready: true, firstEntry: false, large, small };
         }
 
         function refreshShareRegMergeValidation() {
@@ -2848,19 +2911,36 @@
         }
 
         // รวมชื่อจากกลุ่มย่อยเข้ากลุ่มใหญ่ — คงเลขลำดับของกลุ่มใหญ่
+        // ถ้าว่างกลุ่มใหญ่ = ลงชื่อคนแรก → สร้างเทมเพลตจากทีมที่เลือก
         function mergeRegistrationFromSmallGroups(largeText, smallText) {
-            const readiness = (() => {
-                const large = validateRegistrationPaste(largeText, 'large');
-                const small = validateRegistrationPaste(smallText, 'small');
+            const small = validateRegistrationPaste(smallText, 'small');
+            if (!small.ok) return { ok: false, error: small.message };
+
+            let baseText = String(largeText || '').trim();
+            let firstEntry = false;
+
+            if (!baseText) {
+                if (!getActiveRegTeamSlugs().length) {
+                    return { ok: false, error: 'ยังไม่ได้เลือกทีมที่เข้าร่วมในหน้าจัดการทีม' };
+                }
+                const activeSet = new Set(getActiveRegTeamSlugs());
+                const missing = (small.blocks || []).filter(b => !activeSet.has(b.slug));
+                if (missing.length) {
+                    return {
+                        ok: false,
+                        error: `ทีมนี้ไม่ได้ถูกเลือกวันนี้ — ${missing.map(b => regTeamShortLabel(b.slug)).join(', ')}`
+                    };
+                }
+                baseText = buildRegistrationTemplate('all');
+                firstEntry = true;
+            } else {
+                const large = validateRegistrationPaste(baseText, 'large');
                 if (!large.ok) return { ok: false, error: large.message };
-                if (!small.ok) return { ok: false, error: small.message };
-                return null;
-            })();
-            if (readiness) return readiness;
+            }
 
             const smallBlocks = parseRegistrationTeamNames(smallText);
             const smallSlugs = Object.keys(smallBlocks);
-            const lines = String(largeText || '').replace(/\r\n/g, '\n').split('\n');
+            const lines = baseText.replace(/\r\n/g, '\n').split('\n');
             const updatedSlugs = [];
 
             for (let i = 0; i < lines.length; i++) {
@@ -2888,7 +2968,7 @@
                 return { ok: false, error: `ไม่พบทีมที่ตรงกันในกลุ่มใหญ่ — ${labels}` };
             }
 
-            return { ok: true, text: lines.join('\n'), updatedSlugs };
+            return { ok: true, text: lines.join('\n'), updatedSlugs, firstEntry };
         }
 
         // กลุ่มใหญ่ = ข้อความครบ | กลุ่มย่อย = เฉพาะบล็อกสี + เลขผู้เล่น 1–7
@@ -2954,7 +3034,7 @@
             document.getElementById('share-reg-line-btn').textContent = '📋 คัดลอกอัตโนมัติ';
             document.getElementById('share-reg-hint').textContent = 'กดแล้วคัดลอกอัตโนมัติ → เปิด LINE แล้ววางในกลุ่มใหญ่';
             document.getElementById('share-reg-single-hint').textContent = 'เลือกสี → คัดลอกอัตโนมัติ → วางในกลุ่มย่อย';
-            document.getElementById('share-reg-merge-hint').textContent = 'วางกลุ่มใหญ่และกลุ่มย่อย — ระบบตรวจรูปแบบให้อัตโนมัติ';
+            document.getElementById('share-reg-merge-hint').textContent = 'วางแค่กลุ่มย่อยได้ถ้าเป็นคนแรก — หรือวางกลุ่มใหญ่แล้วค่อยอัปเดตจากกลุ่มย่อย';
             if (mode === 'merge') refreshShareRegMergeValidation();
         }
 
