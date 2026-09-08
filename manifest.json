@@ -4,8 +4,8 @@
   "description": "ระบบจัดการแข่งขันฟุตบอล TK7 FridayNight",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#121212",
-  "theme_color": "#121212",
+  "background_color": "#4a9c42",
+  "theme_color": "#4a9c42",
   "orientation": "any",
   "icons": [
     {

@@ -1,0 +1,104 @@
+/* Motion layer: CSS only, with no dependency on data or rendering events. */
+:root {
+    --motion-ease: cubic-bezier(.22, 1, .36, 1);
+}
+
+@keyframes tk7-appear {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+@keyframes tk7-fade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+@keyframes tk7-pop {
+    from { opacity: 0; transform: translateY(18px) scale(.97); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes tk7-nav-bounce {
+    0% { transform: translateY(0) scale(1); }
+    45% { transform: translateY(-5px) scale(1.1); }
+    75% { transform: translateY(1px) scale(.98); }
+    100% { transform: translateY(0) scale(1); }
+}
+@keyframes tk7-sunlight {
+    from { opacity: .45; transform: translateY(-2%); }
+    to { opacity: .85; transform: translateY(2%); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    body::before {
+        background:
+            radial-gradient(ellipse at 18% 15%, rgba(255, 239, 180, .24), transparent 55%),
+            linear-gradient(180deg, rgba(255,255,255,.12), transparent 40%),
+            linear-gradient(0deg, rgba(27,94,32,.12), transparent 35%);
+        animation: tk7-sunlight 9s ease-in-out 2 alternate;
+    }
+    .page.active { animation: tk7-fade 240ms ease-out; }
+    .page.active .page-header { animation: tk7-appear 480ms var(--motion-ease) backwards; }
+    .page.active .card {
+        animation: tk7-appear 520ms var(--motion-ease) backwards;
+        animation-delay: 40ms;
+    }
+    .page.active .card:nth-child(2) { animation-delay: 80ms; }
+    .page.active .card:nth-child(3) { animation-delay: 120ms; }
+    .page.active .card:nth-child(4) { animation-delay: 160ms; }
+    .page.active .card:nth-child(n+5) { animation-delay: 200ms; }
+    .modal { animation: tk7-fade 200ms ease-out; }
+    .modal-content { animation: tk7-pop 360ms var(--motion-ease) backwards; }
+    .nav-btn.active .icon { animation: tk7-nav-bounce 480ms var(--motion-ease); }
+}
+
+.nav-btn { position: relative; }
+.nav-btn::after {
+    content: '';
+    position: absolute;
+    bottom: 2px;
+    width: 20px;
+    height: 3px;
+    border-radius: 4px;
+    background: var(--primary-variant);
+    transform: scaleX(0);
+    transition: transform 280ms var(--motion-ease);
+}
+.nav-btn.active::after { transform: scaleX(1); }
+.nav-btn .icon { transition: transform 220ms var(--motion-ease); }
+.formation-chip, .lineup-team-dot, .team-toggle .team-emblem {
+    transition: transform 220ms var(--motion-ease), box-shadow 220ms ease;
+}
+input, select, textarea {
+    transition: border-color 180ms ease, box-shadow 180ms ease;
+}
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+    outline: 3px solid #255b86;
+    outline-offset: 3px;
+}
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+    .nav-btn:hover .icon { transform: translateY(-3px); }
+    .formation-chip:not(:disabled):hover, .lineup-team-dot:not(:disabled):hover {
+        transform: translateY(-2px) scale(1.04);
+    }
+    .team-toggle:hover .team-emblem { transform: rotate(-4deg) scale(1.04); }
+}
+@media (hover: none) {
+    .card:hover { transform: none; box-shadow: var(--depth-2); }
+}
+
+/* Keep exported cards still, including clones used by html2canvas. */
+.export-mode-grid .card, .export-mode-grid .match-card {
+    animation: none !important;
+    transform: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: .01ms !important;
+        animation-delay: 0ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+        scroll-behavior: auto !important;
+    }
+    .toast-notification { opacity: 1; }
+}
+@media print {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+}
