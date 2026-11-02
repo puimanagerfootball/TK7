@@ -3032,5 +3032,6 @@ document.getElementById('reset-password-form').onsubmit = async (e) => {
 };
 
 // --- SECTION: BOOT ---
+        window.TK7Admin?.mount({db,canManage});
         initializeApp();
     });
