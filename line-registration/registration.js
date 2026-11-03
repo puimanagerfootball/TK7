@@ -118,7 +118,6 @@ function openRegister(slug){
  addBtn.onclick=()=>{addRow().focus()};
  submit.onclick=async()=>{
   const names=values();
-  if(new Set(names.map(n=>n.toLocaleLowerCase())).size!==names.length)return toast(T("dupNames"),true);
   if(names.length>left)return toast(T("onlyLeft",{n:left}),true);
   const key=JSON.stringify([sessionId,slug,names]);if(requestId.key!==key){requestId.key=key;requestId.value=crypto.randomUUID()}
   busy=true;sync();submit.textContent=T("saving");
