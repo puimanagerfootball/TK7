@@ -1,9 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {buildMenuMessage} from './share-menu.mjs';
+import {buildMenuMessage,shareAvailability} from './share-menu.mjs';
 test('custom signup URL is retained in card CTA',()=>{
  const m=buildMenuMessage('https://example.test/join');
  assert.equal(m.contents.footer.contents[0].action.uri,'https://example.test/join');
+});
+test('share diagnostics distinguish permission and browser without exposing identity or tokens',()=>{
+ const d=shareAvailability({id:'public-id',getContext:()=>({liffId:'public-id',userId:'private-user',accessTokenHash:'private-token',availability:{shareTargetPicker:{permission:false}}}),isApiAvailable:()=>false,getLineVersion:()=>null,getOS:()=>'web',isInClient:()=>false});
+ assert.equal(d.permission,false);assert.equal(d.available,false);assert.equal(d.line,'external');
+ assert.doesNotMatch(JSON.stringify(d),/private-user|private-token|userId|accessTokenHash/);
 });
 test('card keeps map separate from signup and contains no recipient or credentials',()=>{
  const m=buildMenuMessage();

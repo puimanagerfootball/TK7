@@ -1,3 +1,17 @@
+export function shareAvailability(liff) {
+ const context=liff.getContext?.()||{};
+ const feature=context.availability?.shareTargetPicker;
+ return {
+  release:'share-check-2',
+  available:liff.isApiAvailable('shareTargetPicker'),
+  permission:feature?.permission??'unknown',
+  line:liff.getLineVersion?.()||'external',
+  os:liff.getOS?.()||'unknown',
+  inLine:liff.isInClient?.()??false,
+  liffId:context.liffId||liff.id||'unknown',
+ };
+}
+
 export function buildMenuMessage(url='https://liff.line.me/2012278818-W0pIi2y0') {
  const row=(icon,label,value,extra={})=>({type:'box',layout:'horizontal',spacing:'md',alignItems:'center',backgroundColor:'#f2f6f4',cornerRadius:'12px',paddingAll:'16px',contents:[{type:'text',text:icon,size:'xl',flex:0},{type:'box',layout:'vertical',spacing:'xs',flex:1,contents:[{type:'text',text:label,size:'xs',color:'#71867c',wrap:true},{type:'text',text:value,size:'lg',weight:'bold',color:'#142b20',wrap:true,...extra}]}]});
  const location=row('📍','Location / สถานที่','Google Maps ›',{color:'#1674ed'});
@@ -20,7 +34,7 @@ if(typeof document!=='undefined') {
  const button=document.createElement('button');
  button.type='button';button.textContent='↗ เลือกกลุ่มเพื่อแชร์ / Share to LINE';
  button.style.cssText='display:block;width:100%;padding:15px 10px;border:0;border-radius:12px;background:#b9ed83;color:#123d2b;font:inherit;font-size:15px;font-weight:bold;cursor:pointer';
- const status=document.createElement('p');status.setAttribute('role','status');status.style.cssText='text-align:center;padding:0 16px';
+ const status=document.createElement('p');status.setAttribute('role','status');status.style.cssText='text-align:center;padding:0 8px;white-space:pre-line;overflow-wrap:anywhere;font-size:12px;line-height:1.6';
  panel.querySelector('.tk7-share-inner').append(button,status);
  button.addEventListener('click',async()=>{
   button.disabled=true;status.textContent='กำลังเปิดเมนูแชร์… / Opening share picker…';
@@ -29,7 +43,13 @@ if(typeof document!=='undefined') {
    if(!liff)throw new Error('กรุณาเปิดผ่าน LINE / Please open in LINE');
    if(liff.ready)await liff.ready;
    if(!liff.isLoggedIn()){liff.login();return;}
-   if(!liff.isApiAvailable('shareTargetPicker'))throw new Error('ยังใช้เมนูแชร์ไม่ได้ กรุณาเปิดผ่าน LINE และตรวจสอบว่าเปิด Share target picker ใน LINE Developers แล้ว');
+   const diagnostic=shareAvailability(liff);
+   if(!diagnostic.available){
+    const reason=diagnostic.permission===false
+     ?'LINE ยังแจ้งว่าไม่ได้เปิดสิทธิ์แชร์สำหรับแอปนี้ / Sharing permission is not enabled for this app.'
+     :'LINE ยังไม่รองรับการแชร์ในหน้าที่เปิดอยู่ / Sharing is unavailable in this browser or LINE version.';
+    throw new Error(reason+'\nส่งรหัสด้านล่างให้ผู้ดูแล / Share this check with the admin:\n'+JSON.stringify(diagnostic));
+   }
    const result=await liff.shareTargetPicker([buildMenuMessage()]);
    status.textContent=result?.status==='success'?'แชร์การ์ดแล้ว / Card shared':'ยกเลิกการแชร์ / Sharing cancelled';
   }catch(error){status.textContent=error.message||'แชร์เมนูไม่สำเร็จ กรุณาลองอีกครั้ง';}
