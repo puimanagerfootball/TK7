@@ -101,7 +101,16 @@ window.TK7Admin={mount({db,canManage}){
  const status=el('p',{class:'tk7l-status',role:'status'});
 
  let shareWindow=null;
- function openCardShare(){
+ async function openCardShare(){
+  const direct=window.TK7DirectShare;
+  if(window.TK7_DIRECT_SHARE_CONFIG?.liffId&&!direct){say('กำลังเชื่อมต่อ LINE กรุณารอสักครู่แล้วกดแชร์อีกครั้ง');return;}
+  if(direct?.configured){
+   try{
+    const result=await direct.share();
+    say(result?.login?'เข้าสู่ระบบ LINE แล้วกดแชร์อีกครั้ง':result?.status==='success'?'แชร์ลงทะเบียนแล้ว':'ยกเลิกการแชร์');
+   }catch(error){say(error?.message||'แชร์ไม่สำเร็จ กรุณาลองอีกครั้ง',true);}
+   return;
+  }
   const url=LIFF+'?share=1&quick=1&v=20261103-quick-picker&returnOrigin='+encodeURIComponent(location.origin);
   if(shareWindow&&!shareWindow.closed){shareWindow.focus();return;}
   shareWindow=window.open(url,'tk7-card-share','popup=yes,width=480,height=460');
