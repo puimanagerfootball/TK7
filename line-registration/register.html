@@ -146,6 +146,16 @@ button.chip{border:1px solid transparent}
 .label{font-size:14px;font-weight:600;margin:12px 0 2px}
 .skeleton{height:132px;border-radius:16px;background:rgba(255,255,255,.08);animation:pulse 1.2s ease-in-out infinite}
 @keyframes pulse{50%{opacity:.5}}
+.band{cursor:pointer;user-select:none}
+.band .count{margin-left:auto}
+.recolor-btn{display:inline-flex;align-items:center;gap:4px;background:rgba(0,0,0,.22);color:#fff;border:1px solid rgba(255,255,255,.45);border-radius:999px;padding:4px 10px;font:600 13px Kanit,sans-serif;cursor:pointer;flex:0 0 auto}
+.c-white .recolor-btn,.c-yellow .recolor-btn{background:rgba(0,0,0,.08);color:#1b2a20;border-color:rgba(0,0,0,.25)}
+.recolor-btn:active{transform:scale(.96)}
+.band .fold{width:28px;height:28px;flex:0 0 28px;display:grid;place-items:center;border-radius:50%;background:rgba(255,255,255,.9);color:#1b2a20;font-size:14px}
+.psum{display:flex;flex-wrap:wrap;gap:5px;padding:10px 12px 4px}
+.team.collapsed .cta{margin-top:8px}
+.section-label .fold-all{order:3;background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:999px;padding:3px 10px;font:500 12px Kanit,sans-serif;cursor:pointer}
+.section-label::after{order:2}
 </style>
 </head>
 <body>
@@ -166,6 +176,6 @@ button.chip{border:1px solid transparent}
 <div class="toast" id="toast" role="status"></div>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <script src="config.js"></script>
-<script src="registration.js?v=20261103-11"></script>
+<script src="registration.js?v=20261103-12"></script>
 </body>
 </html>
