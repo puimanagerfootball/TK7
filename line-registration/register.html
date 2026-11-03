@@ -90,7 +90,9 @@ button.chip{border:1px solid transparent}
 .team{height:100%}
 .team .cta{margin-top:auto}
 .prow .num{color:var(--muted);font-size:13px;min-width:18px}
-.prow .pname{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.prow .pname{flex:1;min-width:0;white-space:normal;overflow-wrap:anywhere;word-break:break-word;line-height:1.25}
+.team{min-width:0}
+@media(max-width:420px){.prow{font-size:14px;gap:6px;padding:6px 4px}.plist{padding:4px 6px 8px}.prow .num{min-width:14px;font-size:12px}.band{padding:0 8px;gap:5px}.band .shirt{width:20px;height:20px}.band .name{font-size:15px}.band .count{font-size:13px;padding:1px 7px}.band .chev{font-size:11px}}
 .tap-hint{color:#cfe3d5;font-size:12.5px;margin:-2px 2px 8px}
 .more{width:100%;margin-top:12px;background:rgba(255,255,255,.12);color:#fff;border:1px dashed rgba(255,255,255,.35);border-radius:12px;padding:12px;font-size:15px}
 .selbar{position:fixed;left:0;right:0;bottom:0;max-width:560px;margin:0 auto;background:#fff;border-radius:18px 18px 0 0;box-shadow:0 -8px 24px rgba(0,0,0,.3);padding:12px 14px calc(12px + env(safe-area-inset-bottom));transform:translateY(110%);visibility:hidden;transition:transform .2s,visibility .2s;z-index:15}
@@ -164,6 +166,6 @@ button.chip{border:1px solid transparent}
 <div class="toast" id="toast" role="status"></div>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <script src="config.js"></script>
-<script src="registration.js?v=20261103-10"></script>
+<script src="registration.js?v=20261103-11"></script>
 </body>
 </html>
