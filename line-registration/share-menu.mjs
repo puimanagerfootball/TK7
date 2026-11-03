@@ -29,7 +29,7 @@ if(typeof document!=='undefined') {
  // Keep outside #board, which registration.js replaces on every refresh.
  (document.querySelector('.top')||document.body).append(panel);
  const shareRequested=()=>{const q=new URLSearchParams(location.search);return q.get('share')==='1'||new URLSearchParams((q.get('liff.state')||'').split('?')[1]||'').get('share')==='1'};
- if(document.body.dataset.menuPreview==='true'||shareRequested())panel.open=true;
+ if(document.body.dataset.menuPreview==='true'||shareRequested()||window.TK7_SHARE_ONLY)panel.open=true;
  if(shareRequested())requestAnimationFrame(()=>panel.scrollIntoView({block:'start',behavior:'smooth'}));
  const button=document.createElement('button');
  button.type='button';button.textContent='↗ เลือกกลุ่มเพื่อแชร์ / Share to LINE';
@@ -52,7 +52,16 @@ if(typeof document!=='undefined') {
    }
    const result=await liff.shareTargetPicker([buildMenuMessage()]);
    status.textContent=result?.status==='success'?'แชร์การ์ดแล้ว / Card shared':'ยกเลิกการแชร์ / Sharing cancelled';
+   if(result?.status==='success'&&window.TK7_SHARE_ONLY&&window.opener){
+    window.opener.postMessage({type:'tk7-card-shared'},window.TK7_SHARE_RETURN_ORIGIN||location.origin);
+    window.close();
+   }
   }catch(error){status.textContent=error.message||'แชร์เมนูไม่สำเร็จ กรุณาลองอีกครั้ง';}
   finally{button.disabled=false;}
  });
+ // Browsers may require a second user gesture for LINE's own picker.
+ // Keep the explicit share button available when automatic opening is blocked.
+ if(window.TK7_SHARE_ONLY&&window.liff?.ready){
+  window.liff.ready.then(()=>{if(window.liff.isLoggedIn())button.click();});
+ }
 }

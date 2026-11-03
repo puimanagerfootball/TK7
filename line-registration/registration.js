@@ -334,6 +334,7 @@ function fail(msg){$("board").replaceChildren(el("div",{class:"notice",text:msg}
    try{myName=liff.getDecodedIDToken()?.name||""}catch{}
    try{if(!localStorage.getItem(LANG_KEY)){const l=(liff.getLanguage()||"").toLowerCase();if(l){lang=l.startsWith("th")?"th":"en";applyLang()}}}catch{}
   }
+  if(window.TK7_SHARE_ONLY)return;
   const r=await api("dates");dates=r.dates||[];
   if(!dates.length)return fail(T("noDates"));
   // เปิดจากปุ่มของวันไหน ให้เลือกวันนั้น (?date=YYYY-MM-DD) ไม่งั้นเลือกวันที่ใกล้ที่สุด

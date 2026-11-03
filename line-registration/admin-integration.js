@@ -13,7 +13,7 @@ window.TK7Admin={mount({db,canManage}){
   #tk7-line-card{background:#f5faf6!important;border:1px solid #d9e8dc!important;border-radius:22px!important;padding:24px!important;box-shadow:0 12px 28px #183c1812!important}
   .tk7l-sharebar{display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:center;background:#123d2b;border-radius:16px;padding:20px;color:white}
   .tk7l-sharebar strong{font-size:18px}.tk7l-sharebar p{font-size:12px;color:#c5dacd;margin:5px 0 0}
-  #tk7-line-card .tk7l-sharecta{display:block;background:#b9ed83;color:#123d2b;text-decoration:none;border-radius:12px;padding:14px 18px;font-weight:700;text-align:center}
+  #tk7-line-card .tk7l-sharecta{display:block;background:#b9ed83;color:#123d2b;text-decoration:none;border:0;cursor:pointer;font:inherit;border-radius:12px;padding:14px 18px;font-weight:700;text-align:center}
   #tk7-line-card .tk7l-copylink{margin:0;border:1px solid #ffffff40;border-radius:12px;padding:13px;background:transparent;color:white;font:inherit;font-size:13px;cursor:pointer;box-shadow:none}
   #tk7-line-card :focus-visible{outline:3px solid #74b54e;outline-offset:3px}
   @media(max-width:680px){.tk7l-sharebar{grid-template-columns:1fr}.tk7l-actions{grid-template-columns:1fr!important}#tk7-line-card{padding:18px!important}}
@@ -94,9 +94,23 @@ window.TK7Admin={mount({db,canManage}){
  const actions=el('div',{class:'tk7l-actions'});
  const status=el('p',{class:'tk7l-status',role:'status'});
  const groupBox=el('details');
+ let shareWindow=null;
+ function openCardShare(){
+  const url=LIFF+'?share=1&quick=1&returnOrigin='+encodeURIComponent(location.origin);
+  if(shareWindow&&!shareWindow.closed){shareWindow.focus();return;}
+  shareWindow=window.open(url,'tk7-card-share','popup=yes,width=520,height=800');
+  if(!shareWindow){window.location.assign(url);return;}
+  say('เลือกกลุ่มในหน้าต่างแชร์ / Choose recipients in the share window');
+ }
+ window.addEventListener('message',event=>{
+  const origins=[location.origin,'https://tk7-line-registration-odf.md-8887.chatgpt.site','https://tk7-line-registration-odf.joviallemur25.chatgpt.site'];
+  if(shareWindow&&origins.includes(event.origin)&&event.source===shareWindow&&event.data?.type==='tk7-card-shared'){
+   say('แชร์การ์ดแล้ว / Card shared');shareWindow=null;
+  }
+ });
  const share=el('div',{class:'tk7l-sharebar'},
   el('div',{},el('strong',{text:'ชวนเพื่อนลงสนาม / Invite your team'}),el('p',{text:'การ์ดสองภาษา ไม่ระบุวัน · แชร์เข้ากลุ่มที่คุณเลือก'})),
-  el('a',{href:LIFF+'?share=1',target:'_blank',rel:'noopener',class:'tk7l-sharecta',text:'↗ แชร์การ์ด / Share card'}),
+  el('button',{type:'button',class:'tk7l-sharecta',text:'↗ แชร์การ์ด / Share card',onclick:openCardShare}),
   el('button',{type:'button',class:'tk7l-copylink',text:'คัดลอกลิงก์ / Copy link',onclick:async()=>{try{await navigator.clipboard.writeText(LIFF);say('คัดลอกลิงก์ลงชื่อแล้ว / Link copied')}catch{say('ลิงก์ลงชื่อ: '+LIFF)}}}));
  const logBox=el('details',{class:'tk7l-log'});
  card.append(el('h2',{},el('span',{text:'⚽ ลงชื่อเตะบอล / Registration'}),pill),dateTabs,summary,hint,share,main,actions,status,logBox,groupBox);
@@ -190,18 +204,7 @@ window.TK7Admin={mount({db,canManage}){
    del.onclick=()=>{if(!confirm('ลบวันลงทะเบียน '+thai(date())+' ?\nรายชื่อทั้งหมดของวันนี้จะหายและกู้คืนไม่ได้'))return;
     act(del,async()=>{await rpc('tk7_admin_delete_session',{p_session:s.id});lastSig='';return 'ลบวันลงทะเบียน '+thai(date())+' แล้ว'})};
    actions.append(toggle,clear,del);
-   // สีที่เปิดให้เลือกใน LINE (ปิดสีที่ไม่ใช้)
-   const allowed=s.teams||ORDER;
-   const chips=el('div',{class:'tk7l-colors'});
-   for(const t of ORDER){
-    const on=allowed.includes(t);const has=playersOf(s,t).length>0;
-    const b=el('button',{type:'button',class:'tk7l-chip team-emblem '+t+(on?'':' off'),'aria-pressed':String(on),title:has?'มีคนลงอยู่ ปิดไม่ได้':'',text:(on?'✓ ':'✕ ')+COLORS[t]});
-    b.onclick=()=>{if(has&&on){say('สี'+COLORS[t]+' มีคนลงอยู่ — ย้ายคนออกก่อนจึงปิดได้',true);return}
-     const next=on?allowed.filter(x=>x!==t):[...allowed,t];
-     act(b,async()=>{await rpc('tk7_admin_set_teams',{p_session:s.id,p_teams:next});await logWeb(s.id,'teams',(on?'ปิด':'เปิด')+'สี'+COLORS[t]+'ในหน้าลงชื่อ');return (on?'ปิด':'เปิด')+'สี'+COLORS[t]+'ในหน้าลงชื่อแล้ว'})};
-    chips.append(b);
-   }
-   actions.after(el('div',{class:'tk7l-colorbox'},el('div',{class:'tk7l-hint',text:'สีที่ให้เลือกในหน้าลงชื่อ (แตะเพื่อเปิด/ปิด):'}),chips));
+
   }
   renderDateTabs();renderTeams(s);renderLog(s);renderGroup();pullFormFrom(s);
  }
