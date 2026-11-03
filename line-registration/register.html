@@ -25,14 +25,30 @@ button{font:inherit;cursor:pointer;border:0}
 .lang button{background:none;color:#cfe3d5;font-size:13px;padding:4px 12px;border-radius:999px}
 .lang button[aria-pressed=true]{background:var(--lime);color:#13301e;font-weight:600}
 .kicker{font-size:12px;letter-spacing:.12em;color:var(--lime);font-weight:600}
-h1{font-size:26px;margin:2px 0 0;font-weight:700}
+h1{font-size:20px;margin:4px 0 0;font-weight:600;color:#e6f3ea}
+[hidden]{display:none!important}
 .dates{display:flex;gap:8px;overflow-x:auto;padding:12px 2px 4px;scrollbar-width:none}
 .dates::-webkit-scrollbar{display:none}
 .date{flex:0 0 auto;background:rgba(255,255,255,.1);color:#fff;border-radius:14px;padding:8px 14px;text-align:left;line-height:1.2;border:1px solid rgba(255,255,255,.14)}
 .date b{display:block;font-size:15px;font-weight:600}
 .date small{font-size:12px;opacity:.8}
 .date[aria-pressed=true]{background:var(--lime);color:#13301e;border-color:var(--lime)}
-.info{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 14px}
+.info{margin:12px 0 16px}
+.match{background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 10px 28px rgba(0,0,0,.35)}
+.m-head{background:linear-gradient(135deg,#1f6b3a,#2a8a4c);padding:16px 16px 14px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.m-title{color:#fff;font-weight:700;font-size:20px;letter-spacing:.02em}
+.m-sub{color:var(--lime);font-weight:600;font-size:14px}
+.m-badge{background:rgba(255,255,255,.18);color:#fff;border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:3px 10px;font-size:12px;font-weight:600;white-space:nowrap}
+.m-badge.off{background:var(--warn);color:#3b2a00;border-color:var(--warn)}
+.m-rows{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px}
+.m-row{display:flex;align-items:center;gap:10px;background:#f3f7f4;border-radius:12px;padding:10px;color:var(--ink);text-decoration:none;min-width:0}
+.m-ico{font-size:22px;line-height:1}
+.m-txt{display:flex;flex-direction:column;min-width:0}
+.m-txt small{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.m-txt b{font-size:16px;font-weight:700}
+.m-txt b.link{color:#1f6fd1}
+.m-foot{display:flex;justify-content:space-between;align-items:center;padding:0 12px 12px;gap:8px;font-size:14px;color:var(--muted)}
+.m-hist{background:#eaf5ee;color:var(--brand);font-weight:600;font-size:13px;padding:7px 12px;border-radius:999px}
 .pill{background:rgba(0,0,0,.28);color:#e9f5ec;border-radius:999px;padding:5px 11px;font-size:13px}
 .pill.closed{background:var(--warn);color:#3b2a00}
 button.pill.hist{background:rgba(255,255,255,.16);color:#fff;border:1px solid rgba(255,255,255,.25)}
@@ -134,9 +150,9 @@ button.chip{border:1px solid transparent}
 <div class="wrap">
  <header class="top">
   <div class="toprow"><div class="kicker">TK7 FOOTBALL · 7 A SIDE</div><div class="lang" id="lang" role="group" aria-label="Language"><button type="button" data-lang="th">ไทย</button><button type="button" data-lang="en">EN</button></div></div>
-  <h1 id="title">⚽ เลือกสีเสื้อ ลงชื่อเตะบอล</h1>
   <nav class="dates" id="dates" aria-label="วันแข่ง"></nav>
   <div class="info" id="info"></div>
+  <h1 id="title">👇 เลือกสีเสื้อ แล้วลงชื่อ</h1>
  </header>
  <main id="board">
   <div class="grid"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>
@@ -148,6 +164,6 @@ button.chip{border:1px solid transparent}
 <div class="toast" id="toast" role="status"></div>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <script src="config.js"></script>
-<script src="registration.js?v=20261103-6"></script>
+<script src="registration.js?v=20261103-7"></script>
 </body>
 </html>

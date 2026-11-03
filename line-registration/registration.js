@@ -5,12 +5,12 @@ const $=id=>document.getElementById(id);
 // ---------- 2 ภาษา (ไทย / English) ----------
 const COLORS=[["green","เขียว","Green"],["red","แดง","Red"],["white","ขาว","White"],["blue","น้ำเงิน","Blue"],["black","ดำ","Black"],["yellow","เหลือง","Yellow"],["pink","ชมพู","Pink"],["orange","ส้ม","Orange"],["navy","น้ำเงินเข้ม","Navy"],["purple","ม่วง","Purple"]];
 const I18N={
- th:{title:"⚽ เลือกสีเสื้อ ลงชื่อเตะบอล",relogin:"กำลังเข้าสู่ระบบใหม่…",down:"ระบบไม่พร้อม กรุณาลองใหม่",closedShort:" · ปิดแล้ว",start:"🕗 เริ่ม {t} น.",perMatch:"⏱️ {n} นาที/แมตช์",teams:"👥 {t} ทีม · {p} คน",closed:"🔒 ปิดรับลงชื่อแล้ว",
+ th:{title:"👇 เลือกสีเสื้อ แล้วลงชื่อ",relogin:"กำลังเข้าสู่ระบบใหม่…",down:"ระบบไม่พร้อม กรุณาลองใหม่",closedShort:" · ปิดแล้ว",start:"🕗 เริ่ม {t} น.",perMatch:"⏱️ {n} นาที/แมตช์",teams:"👥 {t} ทีม · {p} คน",closed:"🔒 ปิดรับลงชื่อแล้ว",
   joinColor:"ลงชื่อสี{c}",closedCta:"ปิดรับแล้ว",full:"เต็มแล้ว ✓",joinLeft:"＋ ลงสีนี้ (ว่าง {n})",openTeam:"＋ เปิดทีมสี{c}",openSec:"ทีมที่เปิดแล้ว",otherSec:"สีอื่น · แตะเพื่อเปิดทีมใหม่",firstSec:"ยังไม่มีใครลง · เลือกสีเปิดทีมแรกได้เลย",closedEmpty:"ปิดรับลงชื่อแล้ว และยังไม่มีรายชื่อ",
   addFriend:"＋ เพิ่มชื่อเพื่อน",confirmJoin:"ยืนยันลงสี{c} ({n} คน)",needName:"ใส่ชื่ออย่างน้อย 1 ชื่อ",friend:"ชื่อเพื่อน",you:"ชื่อของคุณ",removeRow:"ลบช่องนี้",dupNames:"มีชื่อซ้ำกันในรายการ",onlyLeft:"สีนี้ว่างแค่ {n} ที่",saving:"กำลังบันทึก…",joined:"ลงชื่อสำเร็จ",
   seatsInfo:"ว่าง {n} จาก 7 ที่",has:" · มี ",joinHint:"ลงให้ตัวเองและเพื่อนได้พร้อมกัน · ถ้าที่ว่างไม่พอ ระบบจะไม่บันทึกบางส่วน",cancel:"ยกเลิก",pickTarget:"เลือกสีปลายทาง หรือคนที่จะสลับ",moveTo:"ย้ายไปสี{c}",swapWith:"สลับกับ {n}",orSwap:"หรือสลับกับ",saved:"บันทึกแล้ว",
   removeName:"ยกเลิกชื่อ {n}",tapAgain:"แตะอีกครั้งเพื่อยืนยันยกเลิก",inColor:"อยู่สี{c} · ลำดับ {n}",moveLabel:"ย้ายไปสี",close:"ปิด",noConfig:"ยังไม่ได้ตั้งค่า LIFF ID และ API",noDates:"ยังไม่มีวันเปิดรับลงชื่อ\nรอผู้ดูแลเปิดวันแข่งในเว็บ TK7",connFail:"เชื่อมต่อไม่สำเร็จ: ",refresh:"รีเฟรชรายชื่อ",selected:"เลือก {n} คน",moveSel:"ย้ายไปสี…",cancelSel:"ยกเลิกชื่อ",swapSel:"สลับ…",clearSel:"ล้างที่เลือก",moveSelTitle:"ย้าย {n} คนไปสี",cancelConfirm:"แตะอีกครั้ง: ยกเลิก {n} ชื่อ",recolorTitle:"เปลี่ยนสีทีม{c}ทั้งทีม",recolorHint:"สีที่มีคนอยู่แล้ว = สลับสีกันทั้งทีม",recolorTo:"เปลี่ยนเป็น",swapTeams:"สลับกับ",moreColors:"＋ สีอื่น ({n})",lessColors:"ซ่อนสีอื่น",tapHint:"แตะชื่อเพื่อเลือก (หลายคนได้) · แตะแถบสีเพื่อเปลี่ยนสีทั้งทีม",history:"🕘 ประวัติ",emptySlot:"ว่าง",historyTitle:"ประวัติการแก้ไข",noHistory:"ยังไม่มีประวัติ"},
- en:{title:"⚽ Pick your shirt colour & sign up",relogin:"Signing in again…",down:"Service unavailable, please try again",closedShort:" · closed",start:"🕗 Kick-off {t}",perMatch:"⏱️ {n} min/match",teams:"👥 {t} teams · {p} players",closed:"🔒 Registration closed",
+ en:{title:"👇 Pick a shirt colour & sign up",relogin:"Signing in again…",down:"Service unavailable, please try again",closedShort:" · closed",start:"🕗 Kick-off {t}",perMatch:"⏱️ {n} min/match",teams:"👥 {t} teams · {p} players",closed:"🔒 Registration closed",
   joinColor:"Join {c}",closedCta:"Closed",full:"Full ✓",joinLeft:"＋ Join ({n} left)",openTeam:"＋ Start {c} team",openSec:"Open teams",otherSec:"Other colours · tap to start a new team",firstSec:"No one yet · pick a colour to start the first team",closedEmpty:"Registration closed, no players yet",
   addFriend:"＋ Add a friend",confirmJoin:"Join {c} ({n} players)",needName:"Enter at least 1 name",friend:"Friend's name",you:"Your name",removeRow:"Remove",dupNames:"Duplicate names in the list",onlyLeft:"Only {n} spots left in this colour",saving:"Saving…",joined:"Signed up",
   seatsInfo:"{n} of 7 spots left",has:" · ",joinHint:"Sign up yourself and friends together · if there aren't enough spots, nothing is saved",cancel:"Cancel",pickTarget:"Choose a colour or a player to swap",moveTo:"Move to {c}",swapWith:"Swap with {n}",orSwap:"Or swap with",saved:"Saved",
@@ -60,16 +60,25 @@ function renderDates(){
  }
  nav.hidden=dates.length<2;
 }
+// การ์ดข้อมูลแมตช์ (ดีไซน์เดียวกับการ์ดตอบกลับในไลน์)
+const dmy=d=>{const [y,m,dd]=String(d||"").split("-").map(Number);return y?dd+"-"+m+"-"+y:""};
 function renderInfo(){
  const info=$("info");info.replaceChildren();if(!roster)return;
  const d=dates.find(x=>x.id===sessionId)||{};
  const teams=new Set([...roster.entries.map(e=>e.team),...(roster.presetTeams||[])]).size;
- if(dates.length<2)info.append(el("span",{class:"pill",text:"📅 "+(roster.matchDate?dateLabel(roster.matchDate):d.label)}));
- info.append(el("span",{class:"pill",text:T("start",{t:roster.startTime||d.startTime||"20:00"})}),
-  el("span",{class:"pill",text:T("perMatch",{n:roster.timePerMatch||d.timePerMatch||8})}),
-  el("span",{class:"pill",text:T("teams",{t:teams,p:roster.entries.length})}));
- if(!roster.isOpen)info.append(el("span",{class:"pill closed",text:T("closed")}));
- info.append(el("button",{type:"button",class:"pill hist",text:T("history"),onclick:openHistory}));
+ const row=(icon,lab,val,href)=>el(href?"a":"div",{class:"m-row",href:href||null,target:href?"_blank":null,rel:href?"noopener":null},
+  el("span",{class:"m-ico",text:icon}),el("span",{class:"m-txt"},el("small",{text:lab}),el("b",{class:href?"link":"",text:val})));
+ const card=el("div",{class:"match"},
+  el("div",{class:"m-head"},el("div",{},el("div",{class:"m-title",text:"⚽ FOOTBALL MATCH"}),el("div",{class:"m-sub",text:"@ TK7 Stadium"})),
+   roster.isOpen?el("span",{class:"m-badge",text:lang==="en"?"OPEN":"เปิดรับ"}):el("span",{class:"m-badge off",text:lang==="en"?"CLOSED":"ปิดรับแล้ว"})),
+  el("div",{class:"m-rows"},
+   row("📅","Date / วันที่",dmy(roster.matchDate||d.date)),
+   row("🕗","Kick-off / เวลาเตะ",(roster.startTime||d.startTime||"20:00")+(lang==="en"?"":" น.")),
+   row("⏱️",lang==="en"?"Per match":"เวลาต่อแมตช์",(roster.timePerMatch||d.timePerMatch||8)+(lang==="en"?" min":" นาที")),
+   row("📍","Location / สถานที่",lang==="en"?"Open map ›":"เปิดแผนที่ ›","https://maps.app.goo.gl/37K6rD4LqWA5Qz5KA")),
+  el("div",{class:"m-foot"},el("span",{text:T("teams",{t:teams,p:roster.entries.length})}),
+   el("button",{type:"button",class:"m-hist",text:T("history"),onclick:openHistory})));
+ info.append(card);
 }
 function teamCard(slug){
  const players=roster.entries.filter(e=>e.team===slug).sort((a,b)=>a.slot-b.slot);
