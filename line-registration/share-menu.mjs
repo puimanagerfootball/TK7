@@ -26,9 +26,10 @@ export function closeSharedView(result,liff,view,shareOnly){
  }
  // A mobile LIFF window usually has no window.opener. Close it via LINE.
  if(liff.isInClient?.()){
-  try{liff.closeWindow();return true;}catch{return false;}
+  try{liff.closeWindow();return true;}catch{ /* Try the browser close below. */ }
  }
- if(view.opener){try{view.close();return true;}catch{}}
+ // LINE's login redirects may clear opener even for a script-created popup.
+ try{view.close();return true;}catch{}
  return false;
 }
 
@@ -55,7 +56,8 @@ if(typeof document!=='undefined') {
  button.type='button';button.textContent='↗ เลือกกลุ่มเพื่อแชร์ / Share to LINE';
  button.style.cssText='display:block;width:100%;padding:15px 10px;border:0;border-radius:12px;background:#b9ed83;color:#123d2b;font:inherit;font-size:15px;font-weight:bold;cursor:pointer';
  const status=document.createElement('p');status.setAttribute('role','status');status.style.cssText='text-align:center;padding:0 8px;white-space:pre-line;overflow-wrap:anywhere;font-size:12px;line-height:1.6';
- panel.querySelector('.tk7-share-inner').append(button,status);
+ const back=document.createElement('a');back.href='https://puimanagerfootball.github.io/TK7/';back.textContent='กลับ TK7 / Back to TK7';back.style.cssText='display:none;text-align:center;margin-top:12px;padding:12px;color:#b9ed83';
+ panel.querySelector('.tk7-share-inner').append(button,status,back);
  let sdkReady=false;
  button.disabled=true;status.textContent='กำลังเตรียม LINE… / Preparing LINE…';
  if(window.liff?.ready)window.liff.ready.then(()=>{
@@ -79,6 +81,7 @@ if(typeof document!=='undefined') {
    }
    const result=await liff.shareTargetPicker([buildMenuMessage()]);
    status.textContent=result?.status==='success'?'แชร์การ์ดแล้ว / Card shared':'ยกเลิกการแชร์ / Sharing cancelled';
+   if(result?.status==='success')back.style.display='block';
    closeSharedView(result,liff,window,window.TK7_SHARE_ONLY||shareRequested());
   }catch(error){status.textContent=shareErrorText(error);}
   finally{button.disabled=false;}

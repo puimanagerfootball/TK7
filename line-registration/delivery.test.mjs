@@ -33,6 +33,11 @@ test('cancelled shares and the ordinary signup page never close',()=>{
 test('close failures do not turn a completed share into a send error',()=>{
  assert.equal(closeSharedView({status:'success'},{isInClient:()=>true,closeWindow:()=>{throw Error('cannot close')}},{},true),false);
 });
+test('desktop popup still closes if LINE login cleared its opener',()=>{
+ let closed=0;
+ assert.equal(closeSharedView({status:'success'},{isInClient:()=>false},{opener:null,close:()=>closed++},true),true);
+ assert.equal(closed,1);
+});
 test('card keeps map separate from signup and contains no recipient or credentials',()=>{
  const m=buildMenuMessage();
  const location=m.contents.body.contents.find(x=>x.action);
