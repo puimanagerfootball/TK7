@@ -324,7 +324,7 @@ window.TK7Admin={mount({db,canManage}){
  function renderLog(s){
   const open=logBox.open;logBox.replaceChildren();
   const rows=s?.log||[];logBox.hidden=!s;
-  logBox.append(el('summary',{text:'🕘 ประวัติการแก้ไข'+(rows.length?' ('+rows.length+')':'')}));
+  logBox.append(el('summary',{text:'🕘 แก้ไขล่าสุด (3 รายการ)'}));
   if(!rows.length){logBox.append(el('p',{class:'tk7l-hint',style:'margin-top:8px',text:'ยังไม่มีประวัติ'}));logBox.open=open;return}
   const ul=el('ul',{class:'tk7l-loglist'});
   for(const r of rows){

@@ -249,7 +249,7 @@ function createHandler(env,fetcher=fetch){
    if(!s)return reply({error:L('ไม่พบวันแข่งขันของกลุ่มนี้','Match date not found')},404);
    if(b.action==='roster')return reply(await db('rpc/tk7_read_roster',{p_session:s.id}));
    if(b.action==='log'){
-    const rows=await db('tk7_signup_log?select=actor_name,action,detail,created_at&session_id=eq.'+s.id+'&order=created_at.desc&limit=30');
+    const rows=await db('tk7_signup_log?select=actor_name,action,detail,created_at&session_id=eq.'+s.id+'&order=created_at.desc&limit=3');
     return reply({log:rows||[]});
    }
    // ชื่อ/สีก่อนแก้ไข ใช้เขียนประวัติ
