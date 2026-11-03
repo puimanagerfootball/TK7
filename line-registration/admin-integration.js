@@ -27,7 +27,9 @@ window.TK7Admin={mount({db,canManage}){
   #tk7-line-card summary{cursor:pointer;font-weight:600;font-size:14px;color:#2d4a37}
   .tk7l-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
   #tk7-line-card select{font:inherit;font-size:14px;padding:9px;border-radius:10px;border:1px solid rgba(0,0,0,.18);background:#fff;min-width:0;width:100%}
-  .tk7l-check{display:flex;gap:8px;align-items:flex-start;font-size:13px;color:#4a6151;margin-top:8px;line-height:1.5}
+  #tk7-line-card .tk7l-check{display:flex!important;width:100%;gap:10px;align-items:flex-start;justify-content:flex-start;text-align:left;font-size:14px;color:#3d5545;margin-top:10px;line-height:1.5;cursor:pointer}
+  #tk7-line-card .tk7l-check input{appearance:auto;-webkit-appearance:checkbox;width:20px!important;height:20px!important;min-width:20px;min-height:0!important;flex:0 0 20px;margin:1px 0 0!important;padding:0!important;accent-color:#1f7a43;box-shadow:none!important}
+  #tk7-line-card .tk7l-check span{flex:1;min-width:0}
   /* ข้อมูล LINE ในรายการทีม */
   #page-setup .team-toggle{gap:10px}
   .tk7l-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;font-size:12.5px;line-height:1.35;color:#3d5545}
@@ -213,8 +215,8 @@ window.TK7Admin={mount({db,canManage}){
   groupBox.append(
    el('p',{class:'tk7l-hint',style:'margin-top:8px',text:'ย้ายกลุ่ม: เชิญบอทเข้ากลุ่มใหม่ (ใครสร้างกลุ่มก็ได้) → พิมพ์ "ลงชื่อ" ในกลุ่ม 1 ครั้ง → โหลดใหม่ → เลือกกลุ่ม'}),
    el('div',{class:'tk7l-grid'},sel,env,save,reload),
-   el('label',{class:'tk7l-check',for:'tk7l-move'},moveChk,'ย้ายวันแข่งที่ยังไม่ถึงไปกลุ่มใหม่ด้วย'),
-   el('label',{class:'tk7l-check',for:'tk7l-push'},pushChk,'ส่งการ์ดสรุปเข้ากลุ่มอัตโนมัติหลังมีคนลง (รวมทุก ~1 นาที)'));
+   el('label',{class:'tk7l-check',for:'tk7l-move'},moveChk,el('span',{text:'ย้ายวันแข่งที่ยังไม่ถึงไปกลุ่มใหม่ด้วย'})),
+   el('label',{class:'tk7l-check',for:'tk7l-push'},pushChk,el('span',{text:'ส่งสรุปรายชื่อเข้ากลุ่มอัตโนมัติหลังมีคนลง (รวมทุก ~1 นาที)'})));
  }
 
  async function act(btn,fn){
