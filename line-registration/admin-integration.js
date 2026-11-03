@@ -10,6 +10,14 @@ window.TK7Admin={mount({db,canManage}){
  const el=(tag,props={},...kids)=>{const n=document.createElement(tag);for(const[k,v]of Object.entries(props)){if(k==='class')n.className=v;else if(k==='text')n.textContent=v;else if(k==='style')n.style.cssText=v;else if(k.startsWith('on'))n[k]=v;else if(v!=null&&v!==false)n.setAttribute(k,v===true?'':v)}for(const c of kids.flat())if(c!=null)n.append(c);return n};
 
  document.head.append(el('style',{text:`
+  #tk7-line-card{background:#f5faf6!important;border:1px solid #d9e8dc!important;border-radius:22px!important;padding:24px!important;box-shadow:0 12px 28px #183c1812!important}
+  .tk7l-sharebar{display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:center;background:#123d2b;border-radius:16px;padding:20px;color:white}
+  .tk7l-sharebar strong{font-size:18px}.tk7l-sharebar p{font-size:12px;color:#c5dacd;margin:5px 0 0}
+  #tk7-line-card .tk7l-sharecta{display:block;background:#b9ed83;color:#123d2b;text-decoration:none;border-radius:12px;padding:14px 18px;font-weight:700;text-align:center}
+  #tk7-line-card .tk7l-copylink{margin:0;border:1px solid #ffffff40;border-radius:12px;padding:13px;background:transparent;color:white;font:inherit;font-size:13px;cursor:pointer;box-shadow:none}
+  #tk7-line-card :focus-visible{outline:3px solid #74b54e;outline-offset:3px}
+  @media(max-width:680px){.tk7l-sharebar{grid-template-columns:1fr}.tk7l-actions{grid-template-columns:1fr!important}#tk7-line-card{padding:18px!important}}
+
   #tk7-line-card{display:flex;flex-direction:column;gap:12px;text-align:left}
   #tk7-line-card h2{margin:0;display:flex;align-items:center;justify-content:space-between;gap:8px}
   .tk7l-pill{font-size:13px;font-weight:600;padding:4px 12px;border-radius:999px;background:#dff3e4;color:#1f6b3a;white-space:nowrap}
@@ -86,8 +94,12 @@ window.TK7Admin={mount({db,canManage}){
  const actions=el('div',{class:'tk7l-actions'});
  const status=el('p',{class:'tk7l-status',role:'status'});
  const groupBox=el('details');
+ const share=el('div',{class:'tk7l-sharebar'},
+  el('div',{},el('strong',{text:'ชวนเพื่อนลงสนาม / Invite your team'}),el('p',{text:'การ์ดสองภาษา ไม่ระบุวัน · แชร์เข้ากลุ่มที่คุณเลือก'})),
+  el('a',{href:LIFF+'?share=1',target:'_blank',rel:'noopener',class:'tk7l-sharecta',text:'↗ แชร์การ์ด / Share card'}),
+  el('button',{type:'button',class:'tk7l-copylink',text:'คัดลอกลิงก์ / Copy link',onclick:async()=>{try{await navigator.clipboard.writeText(LIFF);say('คัดลอกลิงก์ลงชื่อแล้ว / Link copied')}catch{say('ลิงก์ลงชื่อ: '+LIFF)}}}));
  const logBox=el('details',{class:'tk7l-log'});
- card.append(el('h2',{},el('span',{text:'📲 ลงชื่อผ่าน LINE'}),pill),dateTabs,summary,hint,main,actions,status,logBox,groupBox);
+ card.append(el('h2',{},el('span',{text:'⚽ ลงชื่อเตะบอล / Registration'}),pill),dateTabs,summary,hint,share,main,actions,status,logBox,groupBox);
  // มือถือ: ใต้ช่องวันที่/เวลา · คอม: กว้างเต็มหน้า ใต้สองคอลัมน์ (เหนือปุ่มบันทึกตาราง)
  const wide=matchMedia('(min-width: 768px), (orientation: landscape)');
  // การ์ด LINE อยู่ล่างสุดของหน้าจัดการทีม (ใต้ปุ่มบันทึก/แชร์) ทั้งมือถือและคอม
@@ -104,7 +116,7 @@ window.TK7Admin={mount({db,canManage}){
  const startTime=()=>$('start-time')?.value||'20:00';
  const say=(t,err)=>{status.textContent=t||'';status.classList.toggle('err',!!err)};
  const thai=d=>new Date(d+'T00:00:00').toLocaleDateString('th-TH',{weekday:'short',day:'numeric',month:'short'});
- const errText=e=>({'Choose a LINE group first':'เลือกกลุ่ม LINE ก่อน (ด้านล่าง)','Group not verified':'ยังไม่พบกลุ่มนี้ — เชิญบอทเข้ากลุ่มแล้วพิมพ์ "ลงชื่อ" 1 ครั้ง','Target group already has one of these dates':'กลุ่มปลายทางมีวันเดียวกันอยู่แล้ว','Admin required':'ต้องเป็นผู้ดูแลที่อนุมัติแล้ว'}[e?.message]||e?.message||String(e));
+ const errText=e=>({'Choose a LINE group first':'ยังไม่ได้ติดตั้งการตั้งค่าระบบลงชื่อ','Target group already has one of these dates':'กลุ่มปลายทางมีวันเดียวกันอยู่แล้ว','Admin required':'ต้องเป็นผู้ดูแลที่อนุมัติแล้ว'}[e?.message]||e?.message||String(e));
  async function rpc(name,args){const {data:d,error}=await db.rpc(name,args);if(error)throw error;return d}
  const cfg=()=>data?.settings||{};
  const session=()=>(data?.sessions||[]).find(s=>s.match_date===date()&&s.group_id===cfg().group_id&&s.environment===cfg().environment);
@@ -112,27 +124,13 @@ window.TK7Admin={mount({db,canManage}){
  const playersOf=(s,t)=>entriesOf(s).filter(e=>e.team===t).sort((a,b)=>a.slot-b.slot);
  const presetOf=s=>s?.preset_teams||[];
  const checkedTeams=()=>[...document.querySelectorAll('.team-switch:checked')].map(x=>x.dataset.teamSlug);
- // สรุปแบบเดียวกับปุ่ม "แชร์รูปแบบลงทะเบียน LINE" แต่มีชื่อจาก LINE
- const REG={green:['🟢','Green Shirt (สีเขียว)'],red:['🔴','Red Shirt (สีแดง)'],white:['⚪️','White Shirt (สีขาว)'],blue:['🔵','Blue Shirt (สีน้ำเงิน)'],black:['⚫','Black Shirt (สีดำ)'],yellow:['🟡','Yellow Shirt (สีเหลือง)'],pink:['🩷','Pink Shirt (สีชมพู)'],orange:['🟠','Orange Shirt (สีส้ม)'],navy:['🔵','Navy Shirt (สีน้ำเงินเข้ม)'],purple:['🟣','Purple Shirt (สีม่วง)']};
- function summaryText(s){
-  const st=String(s.start_time).slice(0,5);
-  const d=new Date(s.match_date+'T00:00:00').toLocaleDateString('th-TH',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
-  let t='⚽️ FOOTBALL MATCH @ TK7 Stadium\n📍 Location: https://maps.app.goo.gl/37K6rD4LqWA5Qz5KA\n📅 Date / วันที่: '+d+'\n🕗 Kick-off: '+st+' | เวลาเตะ: '+st+' น.\n\n';
-  let n=1;
-  for(const team of ORDER.filter(x=>presetOf(s).includes(x)||playersOf(s,x).length)){
-   t+=REG[team][0]+' '+REG[team][1]+'\n';
-   for(let i=1;i<=7;i++)t+=(n+i-1)+'.'+(entriesOf(s).find(e=>e.team===team&&e.slot===i)?.name||'')+'\n';
-   n+=7;
-  }
-  return t+'\n⏱️ Match Duration / เวลาเล่น:\n• 4 Teams = 2 Hours (เล่น 2 ชม.)\n• 5 Teams = 3 Hours (เล่น 3 ชม.)\n\n👇 Please add your name / ลงชื่อต่อลำดับได้เลยครับ\n'+LIFF;
- }
 
  async function load(){
   if(!canManage()){card.style.display='none';return}
   card.style.display='';
   if(loading)return;loading=true;
   try{data=await rpc('tk7_admin_overview');if(pickLatestOpenDate())return;render()}
-  catch(e){say('โหลดข้อมูล LINE ไม่สำเร็จ: '+errText(e),true)}
+  catch(e){say('โหลดข้อมูลลงชื่อไม่สำเร็จ: '+errText(e),true)}
   finally{loading=false}
  }
 
@@ -166,26 +164,26 @@ window.TK7Admin={mount({db,canManage}){
   const s=session();const c=cfg();
   actions.replaceChildren();card.querySelector('.tk7l-colorbox')?.remove();main.hidden=false;
   if(!c.group_id){
-   pill.className='tk7l-pill none';pill.textContent='ยังไม่เลือกกลุ่ม';
-   summary.textContent='';hint.textContent='เลือกกลุ่ม LINE ที่ "👥 กลุ่ม LINE" ด้านล่างก่อน';main.hidden=true;
+   pill.className='tk7l-pill none';pill.textContent='รอตั้งค่า';
+   summary.textContent='';hint.textContent='ยังไม่ได้ตั้งค่าระบบลงชื่อ กรุณาติดต่อผู้ดูแล';main.hidden=true;
   }else if(!date()){
    pill.className='tk7l-pill none';pill.textContent='—';summary.textContent='';hint.textContent='เลือกวันที่แข่งขันด้านบน';main.hidden=true;
   }else if(!s){
    pill.className='tk7l-pill none';pill.textContent='ยังไม่เปิด';
    summary.replaceChildren(el('b',{text:thai(date())}),' · เริ่ม '+startTime()+' · '+minutes()+' นาที/แมตช์');
-   hint.textContent='สีที่เปิดสวิตช์ไว้ทางซ้าย = เปิดทีมไว้ล่วงหน้า (ขึ้นในสรุปพร้อมช่องว่าง 7 ช่อง) · ผู้เล่นยังเลือกสีอื่นเพิ่มได้';
-   main.textContent='📲 เปิดรับลงชื่อใน LINE';
-   main.onclick=()=>act(main,async()=>{const sid=await rpc('tk7_admin_open_session',{p_date:date(),p_time_per_match:minutes(),p_start_time:startTime(),p_open:true});await rpc('tk7_admin_set_preset',{p_session:sid,p_teams:checkedTeams()});await logWeb(sid,'open','เปิดรับลงชื่อ · เริ่ม '+startTime()+' · '+minutes()+' นาที/แมตช์');return 'เปิดรับลงชื่อแล้ว · ทุกคนในกลุ่มกดปุ่มในการ์ดหรือพิมพ์ "ลงชื่อ" ได้เลย'});
+   hint.textContent='เลือกวันและเวลา แล้วเปิดรับลงชื่อ · แชร์การ์ดเดียวให้ผู้เล่นเลือกวันและทีมในหน้าเว็บ';
+   main.textContent='＋ เปิดรับลงชื่อ / Open registration';
+   main.onclick=()=>act(main,async()=>{const sid=await rpc('tk7_admin_open_session',{p_date:date(),p_time_per_match:minutes(),p_start_time:startTime(),p_open:true});await rpc('tk7_admin_set_preset',{p_session:sid,p_teams:checkedTeams()});await logWeb(sid,'open','เปิดรับลงชื่อ · เริ่ม '+startTime()+' · '+minutes()+' นาที/แมตช์');return 'เปิดรับลงชื่อแล้ว · แชร์การ์ดหรือลิงก์ให้ผู้เล่นได้เลย'});
   }else{
    const teams=ORDER.filter(t=>playersOf(s,t).length||presetOf(s).includes(t));const total=entriesOf(s).length;
    pill.className='tk7l-pill'+(s.is_open?'':' off');pill.textContent=s.is_open?'🟢 เปิดรับ':'🔒 ปิดรับแล้ว';
    summary.replaceChildren(el('b',{text:thai(date())}),' · เริ่ม '+String(s.start_time).slice(0,5)+' · '+s.time_per_match+' นาที/แมตช์',el('br'),
     el('b',{text:teams.length+' ทีม · '+total+' คน'}),teams.length?' ('+teams.map(t=>COLORS[t]+' '+playersOf(s,t).length).join(', ')+')':'');
-   hint.textContent='เปิด/ปิดสวิตช์สีทางซ้าย = เปิดทีมไว้ล่วงหน้าใน LINE · แก้นาที/เวลาเริ่มด้านบน = อัปเดตใน LINE อัตโนมัติ';
+   hint.textContent='จัดการวัน เวลา และสีทีมที่นี่ · ผู้เล่นดูข้อมูลล่าสุดในหน้าลงชื่อ · แชร์การ์ดเข้ากลุ่มด้วยตัวเอง';
    main.hidden=true;
    const toggle=el('button',{type:'button',class:'btn btn-secondary',text:s.is_open?'🔒 ปิดรับลงชื่อ':'🔓 เปิดรับอีกครั้ง'});
    toggle.onclick=()=>act(toggle,async()=>{await rpc('tk7_admin_set_open',{p_session:s.id,p_open:!s.is_open});await logWeb(s.id,s.is_open?'close':'reopen',s.is_open?'ปิดรับลงชื่อ':'เปิดรับลงชื่ออีกครั้ง');return s.is_open?'ปิดรับแล้ว (รายชื่อยังอยู่)':'เปิดรับอีกครั้งแล้ว'});
-   const clear=el('button',{type:'button',class:'btn tk7l-danger',text:'🗑 ล้างรายชื่อ LINE',disabled:total?null:true});
+   const clear=el('button',{type:'button',class:'btn tk7l-danger',text:'🗑 ล้างรายชื่อ',disabled:total?null:true});
    clear.onclick=()=>{if(!confirm('ล้างรายชื่อทั้งหมด '+total+' คน ของวันที่ '+thai(date())+' ?\n(ลบแล้วกู้คืนไม่ได้)'))return;
     act(clear,async()=>{const n=await rpc('tk7_admin_clear_session',{p_session:s.id});await logWeb(s.id,'clear','ล้างรายชื่อ '+n+' คน');lastSig='';return 'ล้างรายชื่อแล้ว '+n+' คน'})};
    const del=el('button',{type:'button',class:'btn tk7l-danger',text:'🗓 ลบวันลงทะเบียน'});
@@ -263,7 +261,7 @@ window.TK7Admin={mount({db,canManage}){
    for(const t of ORDER){if(t===slug)continue;const n=playersOf(s,t).length;
     grid.append(el('button',{type:'button',class:'team-emblem '+t,onclick:()=>{closeTeam();recolor(s,slug,t)}},el('span',{text:COLORS[t]}),el('small',{text:n?'⇄ '+n+' คน':'ว่าง'})))}
    body.append(grid);
-  }else body.append(el('p',{class:'tk7l-empty',text:'ยังไม่มีคนลงสีนี้ใน LINE'}));
+  }else body.append(el('p',{class:'tk7l-empty',text:'ยังไม่มีคนลงสีนี้'}));
   box.append(body);modal.replaceChildren(box);modal.hidden=false;
  }
 
@@ -300,33 +298,22 @@ window.TK7Admin={mount({db,canManage}){
   syncTimer=setTimeout(async()=>{
    const s=session();if(!s)return render();
    if(s.time_per_match===minutes()&&String(s.start_time).slice(0,5)===startTime())return;
-   try{await rpc('tk7_admin_open_session',{p_date:date(),p_time_per_match:minutes(),p_start_time:startTime(),p_open:s.is_open});await logWeb(s.id,'time','เปลี่ยนเวลาเป็น '+startTime()+' · '+minutes()+' นาที/แมตช์');await load();say('อัปเดตเวลาใน LINE แล้ว: เริ่ม '+startTime()+' · '+minutes()+' นาที/แมตช์')}
+   try{await rpc('tk7_admin_open_session',{p_date:date(),p_time_per_match:minutes(),p_start_time:startTime(),p_open:s.is_open});await logWeb(s.id,'time','เปลี่ยนเวลาเป็น '+startTime()+' · '+minutes()+' นาที/แมตช์');await load();say('อัปเดตเวลาในหน้าลงชื่อแล้ว: เริ่ม '+startTime()+' · '+minutes()+' นาที/แมตช์')}
    catch(e){say(errText(e),true)}
   },900);
  }
 
  function renderGroup(){
-  const c=cfg();const groups=data?.groups||[];
-  groupBox.replaceChildren(el('summary',{text:'👥 กลุ่ม LINE: '+(c.group_name||c.group_id||'ยังไม่ได้เลือก')+(c.environment==='test'?' (ทดสอบ)':'')}));
-  const sel=el('select',{'aria-label':'กลุ่ม LINE'});
-  for(const g of groups)sel.append(el('option',{value:g.group_id,text:(g.group_name||g.group_id)+(g.group_id===c.group_id?' ✓':''),selected:g.group_id===c.group_id?true:null}));
-  const env=el('select',{'aria-label':'ประเภทกลุ่ม'});
-  for(const [v,t] of [['production','กลุ่มจริง'],['test','กลุ่มทดสอบ']])env.append(el('option',{value:v,text:t,selected:(c.environment||'test')===v?true:null}));
-  const moveChk=el('input',{type:'checkbox',id:'tk7l-move',checked:true});
-  const save=el('button',{type:'button',class:'btn btn-primary',text:'ใช้กลุ่มนี้',disabled:groups.length?null:true});
-  save.onclick=()=>act(save,async()=>{const r=await rpc('tk7_admin_set_group',{p_group:sel.value,p_environment:env.value,p_move_upcoming:moveChk.checked});return 'เปลี่ยนกลุ่มแล้ว'+(r?.moved?' · ย้าย '+r.moved+' วันไปด้วย':'')});
-  const reload=el('button',{type:'button',class:'btn btn-secondary',text:'↻ โหลดใหม่'});reload.onclick=()=>load().then(()=>say('โหลดรายชื่อกลุ่มแล้ว'));
-  groupBox.append(
-   el('p',{class:'tk7l-hint',style:'margin-top:8px',text:'ย้ายกลุ่ม: เชิญบอทเข้ากลุ่มใหม่ (ใครสร้างกลุ่มก็ได้) → พิมพ์ "ลงชื่อ" ในกลุ่ม 1 ครั้ง → โหลดใหม่ → เลือกกลุ่ม'}),
-   el('div',{class:'tk7l-grid'},sel,env,save,reload),
-   el('label',{class:'tk7l-check',for:'tk7l-move'},moveChk,el('span',{text:'ย้ายวันแข่งที่ยังไม่ถึงไปกลุ่มใหม่ด้วย'})));
+  groupBox.replaceChildren(el('summary',{text:'🔐 การเข้าใช้งาน / Access'}),
+   el('p',{class:'tk7l-hint',style:'margin-top:10px',text:'ผู้ที่มีลิงก์และเข้าสู่ระบบ LINE ลงชื่อได้ ไม่ต้องเพิ่มเพื่อน OA หรือเชิญบอทเข้ากลุ่ม · ผู้ดูแลเปิด–ปิดวันได้เหมือนเดิม'}),
+   el('p',{class:'tk7l-hint',text:'ประวัติยังแสดงชื่อผู้แก้ไข วันเวลา และรายละเอียด · ไม่มีการส่งข้อความเข้ากลุ่มอัตโนมัติ'}));
  }
 
  const logWeb=(sid,action,detail)=>rpc('tk7_admin_log',{p_session:sid,p_action:action,p_detail:detail}).catch(()=>{});
  function logItem(r){
   const t=new Date(r.created_at);
   return el('li',{},el('time',{text:t.toLocaleDateString('th-TH',{day:'numeric',month:'short'})+' '+t.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'})}),
-   el('span',{},el('span',{class:'who',text:r.actor_name||'-'}),el('span',{class:'src'+(r.source==='web'?' web':''),text:r.source==='web'?'เว็บ':'LINE'})),
+   el('span',{},el('span',{class:'who',text:r.actor_name||'-'}),el('span',{class:'src'+(r.source==='web'?' web':''),text:r.source==='web'?'ผู้ดูแล':'LINE Login'})),
    el('span',{class:'what',text:r.detail||r.action}));
  }
  function renderLog(s){
@@ -360,9 +347,9 @@ window.TK7Admin={mount({db,canManage}){
  document.addEventListener('change',e=>{
   if(applying||!e.target?.classList?.contains('team-switch'))return;
   const sw=e.target;const s=session();if(!s)return;
-  if(!sw.checked&&playersOf(s,sw.dataset.teamSlug).length){say('สี'+COLORS[sw.dataset.teamSlug]+' มีคนลงอยู่ — ยังแสดงใน LINE จนกว่าจะย้ายคนออก')}
+  if(!sw.checked&&playersOf(s,sw.dataset.teamSlug).length){say('สี'+COLORS[sw.dataset.teamSlug]+' มีคนลงอยู่ — ยังแสดงในหน้าลงชื่อจนกว่าจะย้ายคนออก')}
   clearTimeout(presetTimer);
-  presetTimer=setTimeout(async()=>{try{await rpc('tk7_admin_set_preset',{p_session:s.id,p_teams:checkedTeams()});await load();say('อัปเดตสีที่เปิดไว้ใน LINE แล้ว')}catch(err){say(errText(err),true)}},700);
+  presetTimer=setTimeout(async()=>{try{await rpc('tk7_admin_set_preset',{p_session:s.id,p_teams:checkedTeams()});await load();say('อัปเดตสีในหน้าลงชื่อแล้ว')}catch(err){say(errText(err),true)}},700);
  },true);
  new IntersectionObserver(es=>{if(es.some(e=>e.isIntersecting))load()}).observe(card);
  const setupVisible=()=>!!$('page-setup')?.offsetParent;
@@ -370,3 +357,4 @@ window.TK7Admin={mount({db,canManage}){
  document.querySelectorAll('.nav-btn').forEach(b=>b.addEventListener('click',()=>setTimeout(()=>setupVisible()&&load(),200)));
  db.auth.onAuthStateChange?.(()=>setTimeout(load,1200));
 }};
+
