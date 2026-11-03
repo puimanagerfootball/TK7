@@ -66,6 +66,7 @@ window.TK7Admin={mount({db,canManage}){
   .tk7l-loglist .who{font-weight:600}
   .tk7l-loglist .src{font-size:10.5px;font-weight:600;padding:1px 6px;border-radius:999px;background:#06c755;color:#fff;margin-left:6px;vertical-align:1px}
   .tk7l-loglist .src.web{background:#5b7bd5}
+  #tk7-line-card .tk7l-more{font:inherit;font-size:13px;margin:8px 0 0;padding:6px 14px;border-radius:999px;border:1px solid rgba(31,122,67,.35);background:#fff;color:#1f4d30;cursor:pointer;min-height:0;box-shadow:none}
   .tk7l-loglist .what{grid-column:2;color:#3d5545;word-break:break-word}
   #tk7-line-card .tk7l-chip{font-size:13px!important;padding:6px 6px!important;min-width:0!important;height:auto!important;border-radius:999px!important;cursor:pointer;box-shadow:none!important;transform:none!important}
   #tk7-line-card .tk7l-chip.off{opacity:.35;filter:grayscale(.6)}
@@ -321,19 +322,25 @@ window.TK7Admin={mount({db,canManage}){
  }
 
  const logWeb=(sid,action,detail)=>rpc('tk7_admin_log',{p_session:sid,p_action:action,p_detail:detail}).catch(()=>{});
+ function logItem(r){
+  const t=new Date(r.created_at);
+  return el('li',{},el('time',{text:t.toLocaleDateString('th-TH',{day:'numeric',month:'short'})+' '+t.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'})}),
+   el('span',{},el('span',{class:'who',text:r.actor_name||'-'}),el('span',{class:'src'+(r.source==='web'?' web':''),text:r.source==='web'?'เว็บ':'LINE'})),
+   el('span',{class:'what',text:r.detail||r.action}));
+ }
  function renderLog(s){
   const open=logBox.open;logBox.replaceChildren();
   const rows=s?.log||[];logBox.hidden=!s;
   logBox.append(el('summary',{text:'🕘 แก้ไขล่าสุด (3 รายการ)'}));
   if(!rows.length){logBox.append(el('p',{class:'tk7l-hint',style:'margin-top:8px',text:'ยังไม่มีประวัติ'}));logBox.open=open;return}
   const ul=el('ul',{class:'tk7l-loglist'});
-  for(const r of rows){
-   const t=new Date(r.created_at);
-   ul.append(el('li',{},el('time',{text:t.toLocaleDateString('th-TH',{day:'numeric',month:'short'})+' '+t.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'})}),
-    el('span',{},el('span',{class:'who',text:r.actor_name||'-'}),el('span',{class:'src'+(r.source==='web'?' web':''),text:r.source==='web'?'เว็บ':'LINE'})),
-    el('span',{class:'what',text:r.detail||r.action})));
-  }
-  logBox.append(ul);logBox.open=open;
+  for(const r of rows)ul.append(logItem(r));
+  logBox.append(ul);
+  const more=el('button',{type:'button',class:'tk7l-more',text:'ดูทั้งหมด'});
+  more.onclick=async()=>{more.disabled=true;more.textContent='กำลังโหลด…';
+   try{const all=await rpc('tk7_admin_session_log',{p_session:s.id});ul.replaceChildren(...(all||[]).map(logItem));more.remove();logBox.querySelector('summary').textContent='🕘 ประวัติทั้งหมด ('+(all||[]).length+' รายการ)'}
+   catch(e){more.disabled=false;more.textContent='ดูทั้งหมด';say(errText(e),true)}};
+  logBox.append(more);logBox.open=open;
  }
 
  async function act(btn,fn){
