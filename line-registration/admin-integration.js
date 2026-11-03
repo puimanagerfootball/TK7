@@ -36,6 +36,8 @@ window.TK7Admin={mount({db,canManage}){
   .tk7l-info .names{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#5f7466}
   .tk7l-recolor{font:inherit;font-size:12px;padding:3px 6px;border-radius:8px;border:1px solid rgba(0,0,0,.15);background:#fff;color:#2d4a37;max-width:150px;align-self:flex-start;margin-top:2px}
   #page-setup .team-toggle.tk7l-has{box-shadow:inset 3px 0 0 #2e8b57}
+  /* คอม: การ์ด LINE อยู่ล่างสุดของคอลัมน์ขวา (ใต้รูปแบบตาราง + นัดเปิดสนาม) */
+  @media (min-width:768px), (orientation:landscape){#setup-content-wrapper > .setup-right-col > #tk7-line-card{order:99}}
  `}));
 
  const card=el('div',{class:'card',id:'tk7-line-card'});
