@@ -54,6 +54,12 @@ if(typeof document!=='undefined') {
  if(shareRequested())requestAnimationFrame(()=>panel.scrollIntoView({block:'start',behavior:'smooth'}));
  const button=document.createElement('button');
  button.type='button';button.textContent='↗ เลือกกลุ่มเพื่อแชร์ / Share to LINE';
+ if(window.TK7_SHARE_ONLY){
+  panel.querySelector('.tk7-card').remove();
+  const title=document.createElement('h2');title.textContent='แชร์ลงทะเบียน / Share signup';title.style.cssText='font-size:20px;margin:20px 0';
+  panel.querySelector('.tk7-share-inner').prepend(title);
+  button.textContent='↗ เลือกกลุ่ม LINE / Choose recipients';
+ }
  button.style.cssText='display:block;width:100%;padding:15px 10px;border:0;border-radius:12px;background:#b9ed83;color:#123d2b;font:inherit;font-size:15px;font-weight:bold;cursor:pointer';
  const status=document.createElement('p');status.setAttribute('role','status');status.style.cssText='text-align:center;padding:0 8px;white-space:pre-line;overflow-wrap:anywhere;font-size:12px;line-height:1.6';
  const back=document.createElement('a');back.href='https://puimanagerfootball.github.io/TK7/';back.textContent='กลับ TK7 / Back to TK7';back.style.cssText='display:none;text-align:center;margin-top:12px;padding:12px;color:#b9ed83';

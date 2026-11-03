@@ -102,9 +102,9 @@ window.TK7Admin={mount({db,canManage}){
 
  let shareWindow=null;
  function openCardShare(){
-  const url=LIFF+'?share=1&quick=1&v=20261103-mobile-close&returnOrigin='+encodeURIComponent(location.origin);
+  const url=LIFF+'?share=1&quick=1&v=20261103-quick-picker&returnOrigin='+encodeURIComponent(location.origin);
   if(shareWindow&&!shareWindow.closed){shareWindow.focus();return;}
-  shareWindow=window.open(url,'tk7-card-share','popup=yes,width=520,height=800');
+  shareWindow=window.open(url,'tk7-card-share','popup=yes,width=480,height=460');
   if(!shareWindow){window.location.assign(url);return;}
   say('เลือกกลุ่มในหน้าต่างแชร์ / Choose recipients in the share window');
  }
