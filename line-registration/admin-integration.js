@@ -18,7 +18,7 @@ window.TK7Admin={mount({db,canManage}){
   .tk7l-sum{font-size:15px;line-height:1.6;margin:0;color:#2d4a37}
   .tk7l-sum b{font-weight:600}
   .tk7l-hint{font-size:13px;line-height:1.6;margin:0;color:#5f7466}
-  .tk7l-actions{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+  .tk7l-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
   #tk7-line-card .tk7l-actions .btn,#tk7-line-card .tk7l-main{margin:0!important;width:100%;font-size:14px;min-height:44px;padding:10px 8px}
   .tk7l-actions .tk7l-danger{background:#fdeaea!important;color:#b3261e!important;box-shadow:0 3px 0 #e8b4b0!important}
   .tk7l-status{font-size:14px;margin:0;min-height:1.2em;color:#2d4a37}
@@ -31,12 +31,16 @@ window.TK7Admin={mount({db,canManage}){
   #tk7-line-card .tk7l-check input{appearance:auto;-webkit-appearance:checkbox;width:20px!important;height:20px!important;min-width:20px;min-height:0!important;flex:0 0 20px;margin:1px 0 0!important;padding:0!important;accent-color:#1f7a43;box-shadow:none!important}
   #tk7-line-card .tk7l-check span{flex:1;min-width:0}
   /* ข้อมูล LINE ในรายการทีม */
+  #page-setup .team-toggle.tk7l-has{flex-wrap:wrap;row-gap:6px}
+  #page-setup .team-toggle.tk7l-has .tk7l-info{order:3;flex:1 1 100%}
+  #page-setup .team-toggle.tk7l-has > .team-emblem{flex:1 1 0;min-width:0}
+  #page-setup .team-toggle.tk7l-has > .switch,#page-setup .team-toggle.tk7l-has > label{order:2;flex:0 0 auto}
   #page-setup .team-toggle{gap:10px}
   .tk7l-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;font-size:12.5px;line-height:1.35;color:#3d5545}
   .tk7l-info .cnt{font-weight:600;font-size:13px;color:#1f4d30}
   .tk7l-info .cnt.full{color:#1b7a3a}
   .tk7l-info .names{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#5f7466}
-  .tk7l-recolor{font:inherit;font-size:12px;padding:3px 6px;border-radius:8px;border:1px solid rgba(0,0,0,.15);background:#fff;color:#2d4a37;max-width:150px;align-self:flex-start;margin-top:2px}
+  #page-setup .tk7l-recolor{font:inherit;font-size:13px;padding:6px 8px;border-radius:8px;border:1px solid rgba(0,0,0,.15);background:#fff;color:#2d4a37;width:100%;max-width:220px;min-height:0;height:auto;align-self:flex-start;margin-top:2px;appearance:auto}
   #page-setup .team-toggle.tk7l-has{box-shadow:inset 3px 0 0 #2e8b57}
   .tk7l-colorbox{display:flex;flex-direction:column;gap:6px}
   .tk7l-colors{display:flex;flex-wrap:wrap;gap:6px}
@@ -45,7 +49,6 @@ window.TK7Admin={mount({db,canManage}){
   /* คอม: การ์ด LINE อยู่ล่างสุดของคอลัมน์ขวา (ใต้รูปแบบตาราง + นัดเปิดสนาม) */
   /* คอม: การ์ด LINE กว้างเต็มหน้า ใต้สองคอลัมน์ */
   #setup-content-wrapper > #tk7-line-card{grid-column:1 / -1 !important;grid-row:3 !important;margin:0}
-  #setup-content-wrapper > #tk7-line-card .tk7l-actions{grid-template-columns:repeat(4,1fr)}
   #setup-content-wrapper > #tk7-line-card .tk7l-main{max-width:420px}
   #setup-content-wrapper > #tk7-line-card .tk7l-grid{grid-template-columns:2fr 1fr 1fr 1fr}
  `}));
@@ -143,14 +146,13 @@ window.TK7Admin={mount({db,canManage}){
    main.hidden=true;
    const toggle=el('button',{type:'button',class:'btn btn-secondary',text:s.is_open?'🔒 ปิดรับลงชื่อ':'🔓 เปิดรับอีกครั้ง'});
    toggle.onclick=()=>act(toggle,async()=>{await rpc('tk7_admin_set_open',{p_session:s.id,p_open:!s.is_open});return s.is_open?'ปิดรับแล้ว (รายชื่อยังอยู่)':'เปิดรับอีกครั้งแล้ว'});
-   const push=el('button',{type:'button',class:'btn btn-secondary',text:'📤 ส่งสรุปเข้ากลุ่ม'});
-   push.onclick=()=>act(push,async()=>{await rpc('tk7_admin_push_summary',{p_session:s.id});return 'เข้าคิวแล้ว · ขึ้นในกลุ่มภายใน ~1 นาที'});
-   const copy=el('button',{type:'button',class:'btn btn-secondary',text:'📋 คัดลอกสรุปรายชื่อ'});
-   copy.onclick=async()=>{try{await navigator.clipboard.writeText(summaryText(s));say('คัดลอกสรุปแล้ว (รูปแบบเดียวกับแชร์ลงทะเบียน) · วางในไลน์ได้เลย')}catch{say('คัดลอกไม่สำเร็จ',true)}};
-   const clear=el('button',{type:'button',class:'btn tk7l-danger',text:'🗑 ล้างรายชื่อ',disabled:total?null:true});
+   const clear=el('button',{type:'button',class:'btn tk7l-danger',text:'🗑 ล้างรายชื่อ LINE',disabled:total?null:true});
    clear.onclick=()=>{if(!confirm('ล้างรายชื่อทั้งหมด '+total+' คน ของวันที่ '+thai(date())+' ?\n(ลบแล้วกู้คืนไม่ได้)'))return;
     act(clear,async()=>{const n=await rpc('tk7_admin_clear_session',{p_session:s.id});lastSig='';return 'ล้างรายชื่อแล้ว '+n+' คน'})};
-   actions.append(toggle,push,copy,clear);
+   const del=el('button',{type:'button',class:'btn tk7l-danger',text:'🗓 ลบวันลงทะเบียน'});
+   del.onclick=()=>{if(!confirm('ลบวันลงทะเบียน '+thai(date())+' ?\nรายชื่อทั้งหมดของวันนี้จะหายและกู้คืนไม่ได้'))return;
+    act(del,async()=>{await rpc('tk7_admin_delete_session',{p_session:s.id});lastSig='';return 'ลบวันลงทะเบียน '+thai(date())+' แล้ว'})};
+   actions.append(toggle,clear,del);
    // สีที่เปิดให้เลือกใน LINE (ปิดสีที่ไม่ใช้)
    const allowed=s.teams||ORDER;
    const chips=el('div',{class:'tk7l-colors'});
@@ -183,7 +185,7 @@ window.TK7Admin={mount({db,canManage}){
     for(const t of ORDER){if(t===slug)continue;const n=playersOf(s,t).length;sel.append(el('option',{value:t,text:(n?'⇄ สลับกับ':'→ ')+COLORS[t]+(n?' ('+n+')':'')}))}
     sel.onchange=()=>{const to=sel.value;if(!to)return;recolor(s,slug,to);sel.value=''};
     info.append(sel);
-   }else info.append(el('span',{class:'names',text:presetOf(s).includes(slug)?'เปิดไว้ · ยังไม่มีคนลง':'ยังไม่มีคนลง'}));
+   }else{row.querySelector('.tk7l-info')?.remove();continue}
    const emblem=row.querySelector('.team-emblem');emblem?emblem.after(info):row.prepend(info);
   }
   // ติ๊กอัตโนมัติเมื่อสีที่มีคนลงเปลี่ยน

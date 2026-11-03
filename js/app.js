@@ -550,7 +550,7 @@
             const info = REG_TEAM_INFO[slug] || { emoji: '⚽', label: slug };
             let text = `${info.emoji} ${info.label}\n`;
             for (let i = 0; i < 7; i++) {
-                text += `${startPlayerNum + i}.\n`;
+                text += `${startPlayerNum + i}. \n`;
             }
             return text;
         }
@@ -558,12 +558,9 @@
         function getRegistrationMatchDateLabel() {
             const raw = document.getElementById('match-date')?.value || currentDateKey;
             if (!raw) return '';
-            return new Date(raw + 'T00:00:00').toLocaleDateString('th-TH', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            });
+            // รูปแบบ 6-11-2026
+            const [y, m, d] = raw.split('-').map(Number);
+            return `${d}-${m}-${y}`;
         }
 
         // จับหัวข้อสีทีมจากข้อความ LINE (ลำดับสำคัญ: navy ก่อน blue)
@@ -886,11 +883,11 @@
             const startTime = document.getElementById('start-time').value;
             const dateLabel = getRegistrationMatchDateLabel();
             let templateText = `⚽️ FOOTBALL MATCH @ TK7 Stadium\n`;
-            templateText += `📍 Location: https://maps.app.goo.gl/37K6rD4LqWA5Qz5KA\n`;
             if (dateLabel) {
-                templateText += `📅 Date / วันที่: ${dateLabel}\n`;
+                templateText += `📅 Date / วันที่ : ${dateLabel}\n`;
             }
-            templateText += `🕗 Kick-off: ${startTime} | เวลาเตะ: ${startTime} น.\n\n`;
+            templateText += `🕗 Kick-off / เวลาเตะ : ${startTime}\n`;
+            templateText += `📍 Location: https://maps.app.goo.gl/37K6rD4LqWA5Qz5KA\n\n`;
 
             let playerCount = 1;
             activeTeamSlugs.forEach((slug) => {
@@ -898,10 +895,9 @@
                 playerCount += 7;
             });
 
-            templateText += `\n⏱️ Match Duration / เวลาเล่น:\n`;
-            templateText += `• 4 Teams = 2 Hours (เล่น 2 ชม.)\n`;
-            templateText += `• 5 Teams = 3 Hours (เล่น 3 ชม.)\n\n`;
-            templateText += `👇 Please add your name / ลงชื่อต่อลำดับได้เลยครับ`;
+            templateText += `\n⏱️ Match Duration / เวลาเล่น :\n`;
+            templateText += `• 4 Teams = 2 Hours\n`;
+            templateText += `• 5 Teams = 3 Hours`;
             return templateText;
         }
 
