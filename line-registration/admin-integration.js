@@ -38,6 +38,10 @@ window.TK7Admin={mount({db,canManage}){
   .tk7l-info .names{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#5f7466}
   .tk7l-recolor{font:inherit;font-size:12px;padding:3px 6px;border-radius:8px;border:1px solid rgba(0,0,0,.15);background:#fff;color:#2d4a37;max-width:150px;align-self:flex-start;margin-top:2px}
   #page-setup .team-toggle.tk7l-has{box-shadow:inset 3px 0 0 #2e8b57}
+  .tk7l-colorbox{display:flex;flex-direction:column;gap:6px}
+  .tk7l-colors{display:flex;flex-wrap:wrap;gap:6px}
+  #tk7-line-card .tk7l-chip{font-size:13px!important;padding:5px 10px!important;min-width:0!important;width:auto!important;height:auto!important;border-radius:999px!important;cursor:pointer;box-shadow:none!important;transform:none!important}
+  #tk7-line-card .tk7l-chip.off{opacity:.35;filter:grayscale(.6)}
   /* คอม: การ์ด LINE อยู่ล่างสุดของคอลัมน์ขวา (ใต้รูปแบบตาราง + นัดเปิดสนาม) */
   /* คอม: การ์ด LINE กว้างเต็มหน้า ใต้สองคอลัมน์ */
   #setup-content-wrapper > #tk7-line-card{grid-column:1 / -1 !important;grid-row:3 !important;margin:0}
@@ -118,7 +122,7 @@ window.TK7Admin={mount({db,canManage}){
  // ---------- render ----------
  function render(){
   const s=session();const c=cfg();
-  actions.replaceChildren();main.hidden=false;
+  actions.replaceChildren();card.querySelector('.tk7l-colorbox')?.remove();main.hidden=false;
   if(!c.group_id){
    pill.className='tk7l-pill none';pill.textContent='ยังไม่เลือกกลุ่ม';
    summary.textContent='';hint.textContent='เลือกกลุ่ม LINE ที่ "👥 กลุ่ม LINE" ด้านล่างก่อน';main.hidden=true;
@@ -147,6 +151,18 @@ window.TK7Admin={mount({db,canManage}){
    clear.onclick=()=>{if(!confirm('ล้างรายชื่อทั้งหมด '+total+' คน ของวันที่ '+thai(date())+' ?\n(ลบแล้วกู้คืนไม่ได้)'))return;
     act(clear,async()=>{const n=await rpc('tk7_admin_clear_session',{p_session:s.id});lastSig='';return 'ล้างรายชื่อแล้ว '+n+' คน'})};
    actions.append(toggle,push,copy,clear);
+   // สีที่เปิดให้เลือกใน LINE (ปิดสีที่ไม่ใช้)
+   const allowed=s.teams||ORDER;
+   const chips=el('div',{class:'tk7l-colors'});
+   for(const t of ORDER){
+    const on=allowed.includes(t);const has=playersOf(s,t).length>0;
+    const b=el('button',{type:'button',class:'tk7l-chip team-emblem '+t+(on?'':' off'),'aria-pressed':String(on),title:has?'มีคนลงอยู่ ปิดไม่ได้':'',text:(on?'✓ ':'✕ ')+COLORS[t]});
+    b.onclick=()=>{if(has&&on){say('สี'+COLORS[t]+' มีคนลงอยู่ — ย้ายคนออกก่อนจึงปิดได้',true);return}
+     const next=on?allowed.filter(x=>x!==t):[...allowed,t];
+     act(b,async()=>{await rpc('tk7_admin_set_teams',{p_session:s.id,p_teams:next});return (on?'ปิด':'เปิด')+'สี'+COLORS[t]+'ในหน้าลงชื่อแล้ว'})};
+    chips.append(b);
+   }
+   actions.after(el('div',{class:'tk7l-colorbox'},el('div',{class:'tk7l-hint',text:'สีที่ให้เลือกในหน้าลงชื่อ (แตะเพื่อเปิด/ปิด):'}),chips));
   }
   renderTeams(s);renderGroup();pullFormFrom(s);
  }

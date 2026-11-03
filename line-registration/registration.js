@@ -6,15 +6,15 @@ const $=id=>document.getElementById(id);
 const COLORS=[["green","เขียว","Green"],["red","แดง","Red"],["white","ขาว","White"],["blue","น้ำเงิน","Blue"],["black","ดำ","Black"],["yellow","เหลือง","Yellow"],["pink","ชมพู","Pink"],["orange","ส้ม","Orange"],["navy","น้ำเงินเข้ม","Navy"],["purple","ม่วง","Purple"]];
 const I18N={
  th:{title:"⚽ เลือกสีเสื้อ ลงชื่อเตะบอล",relogin:"กำลังเข้าสู่ระบบใหม่…",down:"ระบบไม่พร้อม กรุณาลองใหม่",closedShort:" · ปิดแล้ว",start:"🕗 เริ่ม {t} น.",perMatch:"⏱️ {n} นาที/แมตช์",teams:"👥 {t} ทีม · {p} คน",closed:"🔒 ปิดรับลงชื่อแล้ว",
-  joinColor:"ลงชื่อสี{c}",closedCta:"ปิดรับแล้ว",full:"เต็มแล้ว ✓",joinLeft:"＋ ลงสีนี้ (ว่าง {n})",openTeam:"＋ เปิดทีมสี{c}",openSec:"ทีมที่เปิดแล้ว · แตะชื่อเพื่อย้าย/ยกเลิก",otherSec:"สีอื่น · แตะเพื่อเปิดทีมใหม่",firstSec:"ยังไม่มีใครลง · เลือกสีเปิดทีมแรกได้เลย",closedEmpty:"ปิดรับลงชื่อแล้ว และยังไม่มีรายชื่อ",
+  joinColor:"ลงชื่อสี{c}",closedCta:"ปิดรับแล้ว",full:"เต็มแล้ว ✓",joinLeft:"＋ ลงสีนี้ (ว่าง {n})",openTeam:"＋ เปิดทีมสี{c}",openSec:"ทีมที่เปิดแล้ว",otherSec:"สีอื่น · แตะเพื่อเปิดทีมใหม่",firstSec:"ยังไม่มีใครลง · เลือกสีเปิดทีมแรกได้เลย",closedEmpty:"ปิดรับลงชื่อแล้ว และยังไม่มีรายชื่อ",
   addFriend:"＋ เพิ่มชื่อเพื่อน",confirmJoin:"ยืนยันลงสี{c} ({n} คน)",needName:"ใส่ชื่ออย่างน้อย 1 ชื่อ",friend:"ชื่อเพื่อน",you:"ชื่อของคุณ",removeRow:"ลบช่องนี้",dupNames:"มีชื่อซ้ำกันในรายการ",onlyLeft:"สีนี้ว่างแค่ {n} ที่",saving:"กำลังบันทึก…",joined:"ลงชื่อสำเร็จ",
   seatsInfo:"ว่าง {n} จาก 7 ที่",has:" · มี ",joinHint:"ลงให้ตัวเองและเพื่อนได้พร้อมกัน · ถ้าที่ว่างไม่พอ ระบบจะไม่บันทึกบางส่วน",cancel:"ยกเลิก",pickTarget:"เลือกสีปลายทาง หรือคนที่จะสลับ",moveTo:"ย้ายไปสี{c}",swapWith:"สลับกับ {n}",orSwap:"หรือสลับกับ",saved:"บันทึกแล้ว",
-  removeName:"ยกเลิกชื่อ {n}",tapAgain:"แตะอีกครั้งเพื่อยืนยันยกเลิก",inColor:"อยู่สี{c} · ลำดับ {n}",moveLabel:"ย้ายไปสี",close:"ปิด",noConfig:"ยังไม่ได้ตั้งค่า LIFF ID และ API",noDates:"ยังไม่มีวันเปิดรับลงชื่อ\nรอผู้ดูแลเปิดวันแข่งในเว็บ TK7",connFail:"เชื่อมต่อไม่สำเร็จ: ",refresh:"รีเฟรชรายชื่อ"},
+  removeName:"ยกเลิกชื่อ {n}",tapAgain:"แตะอีกครั้งเพื่อยืนยันยกเลิก",inColor:"อยู่สี{c} · ลำดับ {n}",moveLabel:"ย้ายไปสี",close:"ปิด",noConfig:"ยังไม่ได้ตั้งค่า LIFF ID และ API",noDates:"ยังไม่มีวันเปิดรับลงชื่อ\nรอผู้ดูแลเปิดวันแข่งในเว็บ TK7",connFail:"เชื่อมต่อไม่สำเร็จ: ",refresh:"รีเฟรชรายชื่อ",selected:"เลือก {n} คน",moveSel:"ย้ายไปสี…",cancelSel:"ยกเลิกชื่อ",swapSel:"สลับ…",clearSel:"ล้างที่เลือก",moveSelTitle:"ย้าย {n} คนไปสี",cancelConfirm:"แตะอีกครั้ง: ยกเลิก {n} ชื่อ",recolorTitle:"เปลี่ยนสีทีม{c}ทั้งทีม",recolorHint:"สีที่มีคนอยู่แล้ว = สลับสีกันทั้งทีม",recolorTo:"เปลี่ยนเป็น",swapTeams:"สลับกับ",moreColors:"＋ สีอื่น ({n})",lessColors:"ซ่อนสีอื่น",tapHint:"แตะชื่อเพื่อเลือก (หลายคนได้) · แตะแถบสีเพื่อเปลี่ยนสีทั้งทีม"},
  en:{title:"⚽ Pick your shirt colour & sign up",relogin:"Signing in again…",down:"Service unavailable, please try again",closedShort:" · closed",start:"🕗 Kick-off {t}",perMatch:"⏱️ {n} min/match",teams:"👥 {t} teams · {p} players",closed:"🔒 Registration closed",
-  joinColor:"Join {c}",closedCta:"Closed",full:"Full ✓",joinLeft:"＋ Join ({n} left)",openTeam:"＋ Start {c} team",openSec:"Open teams · tap a name to move/remove",otherSec:"Other colours · tap to start a new team",firstSec:"No one yet · pick a colour to start the first team",closedEmpty:"Registration closed, no players yet",
+  joinColor:"Join {c}",closedCta:"Closed",full:"Full ✓",joinLeft:"＋ Join ({n} left)",openTeam:"＋ Start {c} team",openSec:"Open teams",otherSec:"Other colours · tap to start a new team",firstSec:"No one yet · pick a colour to start the first team",closedEmpty:"Registration closed, no players yet",
   addFriend:"＋ Add a friend",confirmJoin:"Join {c} ({n} players)",needName:"Enter at least 1 name",friend:"Friend's name",you:"Your name",removeRow:"Remove",dupNames:"Duplicate names in the list",onlyLeft:"Only {n} spots left in this colour",saving:"Saving…",joined:"Signed up",
   seatsInfo:"{n} of 7 spots left",has:" · ",joinHint:"Sign up yourself and friends together · if there aren't enough spots, nothing is saved",cancel:"Cancel",pickTarget:"Choose a colour or a player to swap",moveTo:"Move to {c}",swapWith:"Swap with {n}",orSwap:"Or swap with",saved:"Saved",
-  removeName:"Remove {n}",tapAgain:"Tap again to confirm",inColor:"{c} · spot {n}",moveLabel:"Move to",close:"Close",noConfig:"LIFF ID / API not configured",noDates:"No match open for sign-up yet\nPlease wait for the admin",connFail:"Connection failed: ",refresh:"Refresh"}
+  removeName:"Remove {n}",tapAgain:"Tap again to confirm",inColor:"{c} · spot {n}",moveLabel:"Move to",close:"Close",noConfig:"LIFF ID / API not configured",noDates:"No match open for sign-up yet\nPlease wait for the admin",connFail:"Connection failed: ",refresh:"Refresh",selected:"{n} selected",moveSel:"Move to…",cancelSel:"Remove",swapSel:"Swap…",clearSel:"Clear",moveSelTitle:"Move {n} to",cancelConfirm:"Tap again: remove {n}",recolorTitle:"Change {c} team colour",recolorHint:"A colour that already has players = swap the two teams",recolorTo:"Change to",swapTeams:"Swap with",moreColors:"＋ Other colours ({n})",lessColors:"Hide other colours",tapHint:"Tap names to select (multiple) · tap the colour bar to recolour the whole team"}
 };
 const LANG_KEY="tk7.lang";
 let lang=(()=>{try{const v=localStorage.getItem(LANG_KEY);if(v)return v}catch{}const n=(navigator.language||"th").toLowerCase();return n.startsWith("th")?"th":"en"})();
@@ -23,7 +23,8 @@ const label=slug=>{const c=COLORS.find(c=>c[0]===slug);return c?(lang==="en"?c[2
 const dateLabel=d=>{try{return new Date(d+"T00:00:00+07:00").toLocaleDateString(lang==="en"?"en-GB":"th-TH",{weekday:"short",day:"numeric",month:"short",timeZone:"Asia/Bangkok"})}catch{return d}};
 const MAX=7;
 const demo=new URLSearchParams(location.search).has("demo");
-let dates=[],sessionId="",roster=null,busy=false,loadSeq=0,myName="";
+let dates=[],sessionId="",roster=null,busy=false,loadSeq=0,myName="",showMore=false;
+const selected=new Set();
 
 function el(tag,props={},...kids){const n=document.createElement(tag);for(const[k,v]of Object.entries(props)){if(k==="class")n.className=v;else if(k==="text")n.textContent=v;else if(k.startsWith("on"))n[k]=v;else if(v!==undefined&&v!==null&&v!==false)n.setAttribute(k,v===true?"":v)}for(const k of kids.flat())if(k!=null)n.append(k);return n}
 function shirt(slug){
@@ -73,30 +74,90 @@ function teamCard(slug){
  const players=roster.entries.filter(e=>e.team===slug).sort((a,b)=>a.slot-b.slot);
  const allowed=roster.teams.includes(slug);
  const full=players.length>=MAX;
+ const preset=(roster.presetTeams||[]).includes(slug);
  const canJoin=roster.isOpen&&allowed&&!full;
- const card=el("div",{class:"team"+(full?" full":"")+(players.length?"":" empty")+(canJoin?" joinable":"")});
- const join=()=>canJoin&&openRegister(slug);
- const band=el("div",{class:"band c-"+slug,onclick:join},shirt(slug),el("span",{class:"name",text:label(slug)}),el("span",{class:"count",text:players.length+"/"+MAX}));
- const dots=el("div",{class:"dots",onclick:join});for(let i=0;i<MAX;i++)dots.append(el("i",{class:i<players.length?"on":""}));
- card.append(band,dots);
+ const active=players.length||preset;
+ const card=el("div",{class:"team"+(full?" full":"")+(players.length?"":" empty")});
+ const band=el("button",{type:"button",class:"band c-"+slug,"aria-label":active?T("recolorTitle",{c:label(slug)}):T("joinColor",{c:label(slug)}),
+  onclick:()=>{if(!roster.isOpen)return;if(players.length)openRecolor(slug);else if(canJoin)openRegister(slug)}},
+  shirt(slug),el("span",{class:"name",text:label(slug)}),el("span",{class:"count",text:players.length+"/"+MAX}));
+ card.append(band);
+ const dots=el("div",{class:"dots"});for(let i=0;i<MAX;i++)dots.append(el("i",{class:i<players.length?"on":""}));card.append(dots);
  if(players.length){
-  const list=el("div",{class:"players"});
-  for(const p of players)list.append(roster.isOpen?el("button",{type:"button",class:"chip",text:p.name,onclick:()=>openManage(p)}):el("span",{class:"chip",text:p.name}));
+  const list=el("div",{class:"plist"});
+  for(const p of players){
+   const on=selected.has(p.id);
+   const row=el("button",{type:"button",class:"prow"+(on?" on":""),"aria-pressed":String(on),disabled:roster.isOpen?null:true,onclick:()=>{on?selected.delete(p.id):selected.add(p.id);renderBoard()}},
+    el("span",{class:"box",text:on?"✓":""}),el("span",{class:"num",text:p.slot+"."}),el("span",{class:"pname",text:p.name}));
+   list.append(row);
+  }
   card.append(list);
  }
- card.append(el("button",{type:"button",class:"cta",disabled:canJoin?null:true,onclick:join,"aria-label":T("joinColor",{c:label(slug)}),
-  text:!roster.isOpen?T("closedCta"):full?T("full"):(players.length||(roster.presetTeams||[]).includes(slug))?T("joinLeft",{n:MAX-players.length}):T("openTeam",{c:label(slug)})}));
+ card.append(el("button",{type:"button",class:"cta",disabled:canJoin?null:true,onclick:()=>canJoin&&openRegister(slug),"aria-label":T("joinColor",{c:label(slug)}),
+  text:!roster.isOpen?T("closedCta"):full?T("full"):active?T("joinLeft",{n:MAX-players.length}):T("openTeam",{c:label(slug)})}));
  return card;
 }
 function renderBoard(){
  const board=$("board");board.replaceChildren();renderInfo();
  if(!roster)return;
+ for(const id of [...selected])if(!roster.entries.some(e=>e.id===id))selected.delete(id);
  const preset=roster.presetTeams||[];
  const used=COLORS.map(c=>c[0]).filter(s=>roster.entries.some(e=>e.team===s)||preset.includes(s));
  const free=COLORS.map(c=>c[0]).filter(s=>!used.includes(s)&&roster.teams.includes(s));
- if(used.length){board.append(el("div",{class:"section-label",text:T("openSec")}),el("div",{class:"grid"},used.map(teamCard)))}
- if(free.length&&roster.isOpen){board.append(el("div",{class:"section-label",text:used.length?T("otherSec"):T("firstSec")}),el("div",{class:"grid empty-grid"},free.map(teamCard)))}
+ if(used.length){board.append(el("div",{class:"section-label",text:T("openSec")}));if(roster.isOpen&&roster.entries.length)board.append(el("p",{class:"tap-hint",text:T("tapHint")}));board.append(el("div",{class:"grid"},used.map(teamCard)))}
+ if(free.length&&roster.isOpen){
+  if(!used.length||showMore){board.append(el("div",{class:"section-label",text:used.length?T("otherSec"):T("firstSec")}),el("div",{class:"grid empty-grid"},free.map(teamCard)))}
+  if(used.length)board.append(el("button",{type:"button",class:"more",text:showMore?T("lessColors"):T("moreColors",{n:free.length}),onclick:()=>{showMore=!showMore;renderBoard()}}));
+ }
  if(!used.length&&!roster.isOpen)board.append(el("div",{class:"notice",text:T("closedEmpty")}));
+ renderBar();
+}
+// แถบคำสั่งเมื่อเลือกชื่อ
+function renderBar(){
+ let bar=$("selbar");if(!bar){bar=el("div",{class:"selbar",id:"selbar"});document.body.append(bar)}
+ bar.replaceChildren();
+ const n=selected.size;bar.classList.toggle("show",n>0&&!!roster?.isOpen);$("refresh").classList.toggle("lift",n>0);
+ if(!n)return;
+ let armed=false;
+ const cancel=el("button",{type:"button",class:"b-danger",text:T("cancelSel")});
+ cancel.onclick=()=>{if(!armed){armed=true;cancel.textContent=T("cancelConfirm",{n});return}runTeam("bulk",{op:"cancel",entryIds:[...selected]})};
+ bar.append(el("div",{class:"sel-n",text:T("selected",{n})}),
+  el("div",{class:"sel-actions"},
+   el("button",{type:"button",class:"b-main",text:T("moveSel"),onclick:openBulkMove}),
+   n===1?el("button",{type:"button",class:"b-soft",text:T("swapSel"),onclick:()=>openManage(roster.entries.find(e=>e.id===[...selected][0]))}):null,
+   cancel,
+   el("button",{type:"button",class:"b-soft",text:"✕","aria-label":T("clearSel"),onclick:()=>{selected.clear();renderBoard()}})));
+}
+async function runTeam(action,payload){
+ if(busy)return;busy=true;
+ try{const r=await api(action,{...payload,revision:roster.revision,requestId:crypto.randomUUID()});selected.clear();closeSheet();toast(r.message||T("saved"))}
+ catch(e){closeSheet();toast(e.message,true)}
+ finally{busy=false;await loadRoster()}
+}
+function colorGrid(exclude,onPick,{swapOk}={}){
+ const grid=el("div",{class:"move-grid"});
+ for(const [slug] of COLORS){
+  if(exclude.includes(slug)||!roster.teams.includes(slug))continue;
+  const n=roster.entries.filter(e=>e.team===slug).length;
+  const b=el("button",{type:"button",class:"c-"+slug,disabled:swapOk?null:(n>=MAX?true:null)},el("div",{text:label(slug)}),el("small",{text:n+"/7"}));
+  b.onclick=()=>onPick(slug,n);grid.append(b);
+ }
+ return grid;
+}
+function openBulkMove(){
+ const ids=[...selected];const from=new Set(roster.entries.filter(e=>ids.includes(e.id)).map(e=>e.team));
+ const box=el("div",{},el("div",{class:"sheet-head"},el("div",{},el("h2",{text:T("moveSelTitle",{n:ids.length})}))),
+  el("div",{class:"sheet-body"},colorGrid(from.size===1?[...from]:[],slug=>runTeam("bulk",{op:"move",team:slug,entryIds:ids})),
+   el("button",{class:"ghost",type:"button",text:T("cancel"),onclick:closeSheet})));
+ openSheet(box);
+}
+function openRecolor(slug){
+ const box=el("div",{},el("div",{class:"sheet-head"},el("div",{class:"band c-"+slug,style:"height:auto;padding:4px;border-radius:10px"},shirt(slug)),
+   el("div",{},el("h2",{text:T("recolorTitle",{c:label(slug)})}),el("p",{text:T("recolorHint")}))),
+  el("div",{class:"sheet-body"},el("div",{class:"label",text:T("recolorTo")}),
+   colorGrid([slug],to=>runTeam("recolor",{from:slug,team:to}),{swapOk:true}),
+   el("button",{class:"ghost",type:"button",text:T("cancel"),onclick:closeSheet})));
+ openSheet(box);
 }
 
 // ---------- register sheet ----------
@@ -226,6 +287,9 @@ async function demoApi(action,p){
  if(action==="cancel")s.entries=s.entries.filter(e=>e!==a);
  if(action==="move"){a.team=p.team;a.slot=free(p.team)[0]}
  if(action==="swap"){const b=s.entries.find(e=>e.id===p.otherId);[a.team,a.slot,b.team,b.slot]=[b.team,b.slot,a.team,a.slot]}
+ if(action==="recolor"){for(const e of s.entries){if(e.team===p.from)e.team=p.team;else if(e.team===p.team)e.team=p.from}}
+ if(action==="bulk"&&p.op==="cancel")s.entries=s.entries.filter(e=>!p.entryIds.includes(e.id));
+ if(action==="bulk"&&p.op==="move"){const mv=s.entries.filter(e=>p.entryIds.includes(e.id)&&e.team!==p.team);const f=free(p.team);if(f.length<mv.length)throw Error(T("onlyLeft",{n:f.length}));mv.forEach((e,i)=>{e.team=p.team;e.slot=f[i]})}
  s.revision++;return{ok:true,message:"บันทึกแล้ว ✓ (โหมดตัวอย่าง)"};
 }
 })();
