@@ -1000,11 +1000,13 @@
             const matchDateInput = document.getElementById('match-date');
             if (matchDateInput) matchDateInput.value = date;
             await ensureDateLoaded(date);
+            if (matchDateInput && matchDateInput.value !== date) return;
             updateGenerateButtonForDate(date);
             if (!canManage()) return;
             const dayData = appData[date];
             if (dayData?.settings) loadSettingsFromData(dayData.settings, date);
             else resetSettingsForm();
+            document.dispatchEvent(new CustomEvent('tk7:setup-date-ready', { detail: { date } }));
         }
 
         async function loadInitialData(options = {}) {

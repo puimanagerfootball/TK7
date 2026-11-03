@@ -1,3 +1,17 @@
+// Serialize refreshes and discard a read started before a confirmed change.
+function createTK7OverviewLoader(read,apply,onError){
+ let running=null,epoch=0;
+ const refresh=async(fresh=false)=>{
+  if(fresh)epoch++;
+  while(running){if(!fresh)return running;await running;}
+  const started=epoch;
+  const job=Promise.resolve().then(read).then(value=>{if(started===epoch)apply(value);return true;},error=>{onError(error);return false;});
+  running=job;
+  try{return await job;}finally{if(running===job)running=null;}
+ };
+ refresh.invalidate=()=>{epoch++;};
+ return refresh;
+}
 // TK7 admin: เชื่อมหน้าจัดการทีมกับการลงชื่อใน LINE
 // - วันที่ / นาทีต่อแมตช์ / เวลาเริ่ม ในฟอร์ม = ค่าใน LINE (แก้ที่เดียว อัปเดตอัตโนมัติ)
 // - รายการ "เลือกทีมที่เข้าร่วม" แสดงจำนวน/ชื่อคนจาก LINE และติ๊กทีมที่มีคนลงให้เอง
@@ -119,7 +133,7 @@ window.TK7Admin={mount({db,canManage}){
  place();wide.addEventListener?.('change',place);
 
  let autoDated=false;
- let data=null,loading=false,lastSig='',syncTimer=null,pulledFor='',presetTimer=null,applying=false;
+ let data=null,mutating=false,lastSig='',syncTimer=null,pulledFor='',presetTimer=null,applying=false;
  const date=()=>$('match-date')?.value||'';
  const minutes=()=>parseInt($('time-per-match')?.value,10)||8;
  const startTime=()=>$('start-time')?.value||'20:00';
@@ -134,13 +148,29 @@ window.TK7Admin={mount({db,canManage}){
  const presetOf=s=>s?.preset_teams||[];
  const checkedTeams=()=>[...document.querySelectorAll('.team-switch:checked')].map(x=>x.dataset.teamSlug);
 
- async function load(){
-  if(!canManage()){card.style.display='none';return}
+ const refreshOverview=createTK7OverviewLoader(
+  ()=>rpc('tk7_admin_overview'),
+  next=>{if(!canManage())return;data=next;pickLatestOpenDate();render();},
+  error=>say('โหลดข้อมูลลงชื่อไม่สำเร็จ: '+errText(error),true)
+ );
+ async function load(fresh=false){
+  if(!canManage()){card.style.display='none';return;}
   card.style.display='';
-  if(loading)return;loading=true;
-  try{data=await rpc('tk7_admin_overview');if(pickLatestOpenDate())return;render()}
-  catch(e){say('โหลดข้อมูลลงชื่อไม่สำเร็จ: '+errText(e),true)}
-  finally{loading=false}
+  if(mutating&&!fresh)return;
+  return refreshOverview(fresh);
+ }
+ function removeDeletedSession(deleted){
+  refreshOverview.invalidate();
+  data={...data,sessions:(data?.sessions||[]).filter(row=>row.id!==deleted.id)};
+  lastSig='';pulledFor='';
+  if(date()===deleted.match_date){
+   const c=cfg();const remaining=data.sessions.filter(row=>row.group_id===c.group_id&&row.environment===c.environment).sort((a,b)=>a.match_date.localeCompare(b.match_date));
+   const today=new Date(Date.now()+7*3600e3).toISOString().slice(0,10);
+   const next=remaining.find(row=>row.match_date>=today)||remaining[remaining.length-1];
+   const input=$('match-date');
+   if(input){input.value=next?.match_date||'';input.dispatchEvent(new Event('change',{bubbles:true}));}
+  }
+  render();
  }
 
  // หลายวันเปิดรับ: ปุ่มสลับวัน
@@ -189,7 +219,7 @@ window.TK7Admin={mount({db,canManage}){
   const del=el('button',{type:'button',class:'btn tk7l-danger',text:'🗓 ลบวันลงทะเบียน',disabled:!s});
   del.onclick=()=>{
    if(!s||!confirm('ลบวันลงทะเบียน '+thai(date())+' ?\nรายชื่อและประวัติของวันนี้จะถูกลบและกู้คืนไม่ได้'))return;
-   act(del,async()=>{await rpc('tk7_admin_delete_session',{p_session:s.id});lastSig='';return 'ลบวันลงทะเบียนแล้ว'});
+   act(del,async()=>{await rpc('tk7_admin_delete_session',{p_session:s.id});removeDeletedSession(s);return 'ลบวันลงทะเบียนแล้ว'});
   };
   actions.append(share,main,del);
   renderDateTabs();renderTeams(s);renderLog(s);pullFormFrom(s);
@@ -261,7 +291,7 @@ window.TK7Admin={mount({db,canManage}){
   try{
    await rpc('tk7_admin_recolor',{p_session:s.id,p_from:from,p_to:to});await logWeb(s.id,'recolor','ทีมสี'+COLORS[from]+(nTo?' ⇄ ':' → ')+'สี'+COLORS[to]);
    const sched=await swapScheduleColors(s.match_date,from,to);
-   lastSig='';await load();
+   lastSig='';await load(true);
    say('เปลี่ยนสีแล้ว: '+COLORS[from]+(nTo?' ⇄ ':' → ')+COLORS[to]+(sched?' · อัปเดตตารางแข่งที่บันทึกไว้ด้วย':''));
   }catch(e){say(errText(e),true)}
  }
@@ -287,7 +317,7 @@ window.TK7Admin={mount({db,canManage}){
   syncTimer=setTimeout(async()=>{
    const s=session();if(!s)return render();
    if(s.time_per_match===minutes()&&String(s.start_time).slice(0,5)===startTime())return;
-   try{await rpc('tk7_admin_open_session',{p_date:date(),p_time_per_match:minutes(),p_start_time:startTime(),p_open:s.is_open});await logWeb(s.id,'time','เปลี่ยนเวลาเป็น '+startTime()+' · '+minutes()+' นาที/แมตช์');await load();say('อัปเดตเวลาในหน้าลงชื่อแล้ว: เริ่ม '+startTime()+' · '+minutes()+' นาที/แมตช์')}
+   try{await rpc('tk7_admin_open_session',{p_date:date(),p_time_per_match:minutes(),p_start_time:startTime(),p_open:s.is_open});await logWeb(s.id,'time','เปลี่ยนเวลาเป็น '+startTime()+' · '+minutes()+' นาที/แมตช์');await load(true);say('อัปเดตเวลาในหน้าลงชื่อแล้ว: เริ่ม '+startTime()+' · '+minutes()+' นาที/แมตช์')}
    catch(e){say(errText(e),true)}
   },900);
  }
@@ -316,13 +346,21 @@ window.TK7Admin={mount({db,canManage}){
  }
 
  async function act(btn,fn){
-  btn.disabled=true;say('กำลังบันทึก…');
-  try{const msg=await fn();await load();say(msg)}
+  btn.disabled=true;mutating=true;refreshOverview.invalidate();say('กำลังบันทึก…');
+  try{const msg=await fn();const refreshed=await load(true);if(refreshed!==false)say(msg)}
   catch(e){say(errText(e),true);btn.disabled=false}
+  finally{mutating=false;}
  }
 
  // events
- $('match-date')?.addEventListener('change',()=>{pulledFor='';lastSig='';setTimeout(()=>data?render():load(),1200)});
+ $('match-date')?.addEventListener('change',()=>{
+  clearTimeout(syncTimer);clearTimeout(presetTimer);autoDated=true;pulledFor='';lastSig='';
+  if(data)render();else load();
+ });
+ document.addEventListener('tk7:setup-date-ready',event=>{
+  if(event.detail?.date!==date())return;
+  pulledFor='';lastSig='';if(data)render();
+ });
  $('time-per-match')?.addEventListener('input',pushFormSoon);
  $('time-per-match')?.addEventListener('change',pushFormSoon);
  $('start-time')?.addEventListener('change',pushFormSoon);
@@ -333,7 +371,7 @@ window.TK7Admin={mount({db,canManage}){
   const sw=e.target;const s=session();if(!s)return;
   if(!sw.checked&&playersOf(s,sw.dataset.teamSlug).length){say('สี'+COLORS[sw.dataset.teamSlug]+' มีคนลงอยู่ — ยังแสดงในหน้าลงชื่อจนกว่าจะย้ายคนออก')}
   clearTimeout(presetTimer);
-  presetTimer=setTimeout(async()=>{try{await rpc('tk7_admin_set_preset',{p_session:s.id,p_teams:checkedTeams()});await load();say('อัปเดตสีในหน้าลงชื่อแล้ว')}catch(err){say(errText(err),true)}},700);
+  presetTimer=setTimeout(async()=>{try{await rpc('tk7_admin_set_preset',{p_session:s.id,p_teams:checkedTeams()});await load(true);say('อัปเดตสีในหน้าลงชื่อแล้ว')}catch(err){say(errText(err),true)}},700);
  },true);
  new IntersectionObserver(es=>{if(es.some(e=>e.isIntersecting))load()}).observe(card);
  const setupVisible=()=>!!$('page-setup')?.offsetParent;
