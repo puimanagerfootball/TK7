@@ -39,7 +39,11 @@ window.TK7Admin={mount({db,canManage}){
   .tk7l-recolor{font:inherit;font-size:12px;padding:3px 6px;border-radius:8px;border:1px solid rgba(0,0,0,.15);background:#fff;color:#2d4a37;max-width:150px;align-self:flex-start;margin-top:2px}
   #page-setup .team-toggle.tk7l-has{box-shadow:inset 3px 0 0 #2e8b57}
   /* คอม: การ์ด LINE อยู่ล่างสุดของคอลัมน์ขวา (ใต้รูปแบบตาราง + นัดเปิดสนาม) */
-  @media (min-width:768px), (orientation:landscape){#setup-content-wrapper > .setup-right-col > #tk7-line-card{order:99}}
+  /* คอม: การ์ด LINE กว้างเต็มหน้า ใต้สองคอลัมน์ */
+  #setup-content-wrapper > #tk7-line-card{grid-column:1 / -1 !important;grid-row:3 !important;margin:0}
+  #setup-content-wrapper > #tk7-line-card .tk7l-actions{grid-template-columns:repeat(4,1fr)}
+  #setup-content-wrapper > #tk7-line-card .tk7l-main{max-width:420px}
+  #setup-content-wrapper > #tk7-line-card .tk7l-grid{grid-template-columns:2fr 1fr 1fr 1fr}
  `}));
 
  const card=el('div',{class:'card',id:'tk7-line-card'});
@@ -51,9 +55,16 @@ window.TK7Admin={mount({db,canManage}){
  const status=el('p',{class:'tk7l-status',role:'status'});
  const groupBox=el('details');
  card.append(el('h2',{},el('span',{text:'📲 ลงชื่อผ่าน LINE'}),pill),summary,hint,main,actions,status,groupBox);
- const anchor=document.querySelector('.setup-settings-card');
- if(anchor)anchor.after(card);else $('copy-reg-template-btn')?.after(card);
+ // มือถือ: ใต้ช่องวันที่/เวลา · คอม: กว้างเต็มหน้า ใต้สองคอลัมน์ (เหนือปุ่มบันทึกตาราง)
+ const wide=matchMedia('(min-width: 768px), (orientation: landscape)');
+ function place(){
+  if(wide.matches){const btn=$('generate-schedule-btn');if(btn&&btn.parentElement?.id==='setup-content-wrapper'){btn.before(card);return}}
+  const anchor=document.querySelector('.setup-settings-card');
+  if(anchor)anchor.after(card);else $('copy-reg-template-btn')?.after(card);
+ }
+ place();wide.addEventListener?.('change',place);
 
+ let autoDated=false;
  let data=null,loading=false,lastSig='',syncTimer=null,pulledFor='',presetTimer=null,applying=false;
  const date=()=>$('match-date')?.value||'';
  const minutes=()=>parseInt($('time-per-match')?.value,10)||8;
@@ -87,9 +98,21 @@ window.TK7Admin={mount({db,canManage}){
   if(!canManage()){card.style.display='none';return}
   card.style.display='';
   if(loading)return;loading=true;
-  try{data=await rpc('tk7_admin_overview');render()}
+  try{data=await rpc('tk7_admin_overview');if(pickLatestOpenDate())return;render()}
   catch(e){say('โหลดข้อมูล LINE ไม่สำเร็จ: '+errText(e),true)}
   finally{loading=false}
+ }
+
+ // ครั้งแรกที่โหลด: ตั้งวันที่แข่งเป็นวันล่าสุดที่เปิดรับลงชื่อ
+ function pickLatestOpenDate(){
+  if(autoDated)return false;autoDated=true;
+  const c=cfg();
+  const open=(data?.sessions||[]).filter(s=>s.is_open&&s.group_id===c.group_id&&s.environment===c.environment).map(s=>s.match_date).sort();
+  const latest=open[open.length-1];const input=$('match-date');
+  if(!latest||!input||input.value===latest)return false;
+  input.value=latest;input.dispatchEvent(new Event('change',{bubbles:true}));
+  say('เลือกวันที่ '+thai(latest)+' ให้แล้ว (วันล่าสุดที่เปิดรับลงชื่อ)');
+  return true;
  }
 
  // ---------- render ----------
