@@ -287,7 +287,9 @@ function fail(msg){$("board").replaceChildren(el("div",{class:"notice",text:msg}
   }
   const r=await api("dates");dates=r.dates||[];
   if(!dates.length)return fail(T("noDates"));
-  sessionId=(dates.find(d=>d.isOpen)||dates[0]).id;
+  // เปิดจากปุ่มของวันไหน ให้เลือกวันนั้น (?date=YYYY-MM-DD) ไม่งั้นเลือกวันที่ใกล้ที่สุด
+  const want=(()=>{try{const q=new URLSearchParams(location.search);let d=q.get("date");if(!d&&q.get("liff.state"))d=new URLSearchParams(q.get("liff.state").split("?")[1]||"").get("date");return d}catch{return null}})();
+  sessionId=(dates.find(d=>d.date===want)||dates.find(d=>d.isOpen)||dates[0]).id;
   renderDates();await loadRoster();
  }catch(e){fail(T("connFail")+e.message)}
 })();

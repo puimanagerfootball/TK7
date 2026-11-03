@@ -52,6 +52,9 @@ window.TK7Admin={mount({db,canManage}){
   .tk7l-colorgrid .team-emblem{max-width:none!important;display:flex!important;flex-direction:column;align-items:center;justify-content:center;width:auto!important;min-width:0!important;height:auto!important;padding:10px 4px!important;font-size:14px!important;line-height:1.2;cursor:pointer;border:0}
   .tk7l-colorgrid small{font-size:11px;opacity:.85;font-weight:400}
   .tk7l-empty{margin:4px 0 6px;color:#5f7466}
+  .tk7l-dates{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+  #tk7-line-card .tk7l-dtab{font:inherit;font-size:13px;padding:6px 12px;border-radius:999px;border:1px solid rgba(31,122,67,.35);background:#fff;color:#1f4d30;cursor:pointer;min-height:0;margin:0;box-shadow:none}
+  #tk7-line-card .tk7l-dtab.on{background:#1f7a43;color:#fff;border-color:#1f7a43}
   .tk7l-colorbox{display:flex;flex-direction:column;gap:6px}
   .tk7l-colors{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
   #tk7-line-card .tk7l-chip{width:100%!important;max-width:none!important;display:flex!important;justify-content:center;align-items:center;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -76,13 +79,14 @@ window.TK7Admin={mount({db,canManage}){
  const card=el('div',{class:'card',id:'tk7-line-card'});
  const pill=el('span',{class:'tk7l-pill none',text:'—'});
  const summary=el('p',{class:'tk7l-sum'});
+ const dateTabs=el('div',{class:'tk7l-dates'});
  const hint=el('p',{class:'tk7l-hint'});
  const main=el('button',{type:'button',class:'btn btn-primary tk7l-main'});
  const actions=el('div',{class:'tk7l-actions'});
  const status=el('p',{class:'tk7l-status',role:'status'});
  const groupBox=el('details');
  const logBox=el('details',{class:'tk7l-log'});
- card.append(el('h2',{},el('span',{text:'📲 ลงชื่อผ่าน LINE'}),pill),summary,hint,main,actions,status,logBox,groupBox);
+ card.append(el('h2',{},el('span',{text:'📲 ลงชื่อผ่าน LINE'}),pill),dateTabs,summary,hint,main,actions,status,logBox,groupBox);
  // มือถือ: ใต้ช่องวันที่/เวลา · คอม: กว้างเต็มหน้า ใต้สองคอลัมน์ (เหนือปุ่มบันทึกตาราง)
  const wide=matchMedia('(min-width: 768px), (orientation: landscape)');
  // การ์ด LINE อยู่ล่างสุดของหน้าจัดการทีม (ใต้ปุ่มบันทึก/แชร์) ทั้งมือถือและคอม
@@ -129,6 +133,18 @@ window.TK7Admin={mount({db,canManage}){
   try{data=await rpc('tk7_admin_overview');if(pickLatestOpenDate())return;render()}
   catch(e){say('โหลดข้อมูล LINE ไม่สำเร็จ: '+errText(e),true)}
   finally{loading=false}
+ }
+
+ // หลายวันเปิดรับ: ปุ่มสลับวัน
+ function renderDateTabs(){
+  const c=cfg();dateTabs.replaceChildren();
+  const list=(data?.sessions||[]).filter(x=>x.is_open&&x.group_id===c.group_id&&x.environment===c.environment).sort((a,b)=>a.match_date.localeCompare(b.match_date));
+  if(list.length<2&&!(list.length===1&&list[0].match_date!==date())){dateTabs.hidden=true;return}
+  dateTabs.hidden=false;
+  dateTabs.append(el('span',{class:'tk7l-hint',text:'วันที่เปิดรับ:'}));
+  for(const x of list){const on=x.match_date===date();
+   dateTabs.append(el('button',{type:'button',class:'tk7l-dtab'+(on?' on':''),'aria-pressed':String(on),text:thai(x.match_date)+' · '+entriesOf(x).length+' คน',
+    onclick:()=>{const i=$('match-date');if(!i||on)return;i.value=x.match_date;i.dispatchEvent(new Event('change',{bubbles:true}))}}))}
  }
 
  // ครั้งแรกที่โหลด: ตั้งวันที่แข่งเป็นวันล่าสุดที่เปิดรับลงชื่อ
@@ -187,7 +203,7 @@ window.TK7Admin={mount({db,canManage}){
    }
    actions.after(el('div',{class:'tk7l-colorbox'},el('div',{class:'tk7l-hint',text:'สีที่ให้เลือกในหน้าลงชื่อ (แตะเพื่อเปิด/ปิด):'}),chips));
   }
-  renderTeams(s);renderLog(s);renderGroup();pullFormFrom(s);
+  renderDateTabs();renderTeams(s);renderLog(s);renderGroup();pullFormFrom(s);
  }
 
  // รายการทีมด้านซ้าย: แสดงคนจาก LINE + เปลี่ยนสี + ติ๊กอัตโนมัติ

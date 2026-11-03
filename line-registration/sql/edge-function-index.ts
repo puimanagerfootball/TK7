@@ -40,6 +40,12 @@ function buildSummaryText(session,entries,liffUrl=DEFAULT_LIFF_URL){
  return t;
 }
 
+// หลายวันเปิดรับพร้อมกัน → ส่งเป็นการ์ดเลื่อนได้ (carousel) วันละใบ
+function buildSignupCards(sessions,liffUrl=DEFAULT_LIFF_URL){
+ if(sessions.length===1)return buildSignupCard(sessions[0],liffUrl);
+ const cards=sessions.slice(0,10).map(s=>buildSignupCard(s,liffUrl));
+ return {type:"flex",altText:"⚽ TK7 · เปิดรับลงชื่อ "+sessions.length+" วัน: "+sessions.map(s=>dmy(s.match_date)).join(", "),contents:{type:"carousel",contents:cards.map(c=>c.contents)}};
+}
 // การ์ดสั้นในกลุ่ม: หัวข้อ + ปุ่มลงชื่อ (ไม่โชว์รายชื่อ กันคนพิมพ์ต่อในไลน์)
 function dmy(date){const [y,m,d]=String(date||"").split("-").map(Number);return y?d+"-"+m+"-"+y:""}
 function headerText(session){
@@ -72,7 +78,7 @@ function buildSignupCard(session,liffUrl=DEFAULT_LIFF_URL){
    row("📍","Location / สถานที่","Google Maps ›",{action:{type:"uri",label:"Map",uri:MAP}})
   ]},
   footer:{type:"box",layout:"vertical",paddingAll:"12px",paddingTop:"4px",contents:[
-   {type:"button",style:"primary",color:"#247A43",height:"md",action:{type:"uri",label:open?"✍️ ลงชื่อ / Sign up":"👀 ดูรายชื่อ / View",uri:liffUrl}}
+   {type:"button",style:"primary",color:"#247A43",height:"md",action:{type:"uri",label:open?"✍️ ลงชื่อ / Sign up":"👀 ดูรายชื่อ / View",uri:liffUrl+"?date="+(session.match_date||session.matchDate||"")}}
   ]}}};
 }
 
@@ -171,10 +177,9 @@ function createHandler(env,fetcher=fetch){
   await fetcher('https://api.line.me/v2/bot/message/reply',{method:'POST',signal:AbortSignal.timeout(10000),headers:{Authorization:'Bearer '+get('LINE_CHANNEL_ACCESS_TOKEN'),'Content-Type':'application/json'},body:JSON.stringify({replyToken,messages})});
  }
  async function rosterCard(a){
-  const sessions=await db('tk7_signup_sessions?select=*&'+filterOf(a)+'&is_open=eq.true&match_date=gte.'+bangkokToday()+'&order=match_date.asc&limit=1');
-  const s=sessions?.[0];
-  if(!s)return [{type:'text',text:'No match open for sign-up yet / ยังไม่มีวันเปิดรับลงชื่อ'}];
-  return [buildSignupCard(s,liffUrl)];
+  const sessions=await db('tk7_signup_sessions?select=*&'+filterOf(a)+'&is_open=eq.true&match_date=gte.'+bangkokToday()+'&order=match_date.asc&limit=10');
+  if(!sessions?.length)return [{type:'text',text:'No match open for sign-up yet / ยังไม่มีวันเปิดรับลงชื่อ'}];
+  return [buildSignupCards(sessions,liffUrl)];
  }
  return async req=>{
   // อนุญาตทั้งโฮสต์เดิม (TK7_APP_ORIGIN) และ GitHub Pages ของ TK7
