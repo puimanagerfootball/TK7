@@ -156,6 +156,21 @@ button.chip{border:1px solid transparent}
 .team.collapsed .cta{margin-top:8px}
 .section-label .fold-all{order:3;background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:999px;padding:3px 10px;font:500 12px Kanit,sans-serif;cursor:pointer}
 .section-label::after{order:2}
+.banner{position:fixed;top:calc(10px + env(safe-area-inset-top));left:50%;transform:translate(-50%,-160%);width:calc(100% - 24px);max-width:536px;background:#fff;color:var(--ink);border-left:6px solid #f2a900;border-radius:14px;box-shadow:0 10px 28px rgba(0,0,0,.35);padding:12px 40px 12px 14px;display:flex;flex-direction:column;gap:3px;z-index:40;transition:transform .25s;visibility:hidden}
+.banner.show{transform:translate(-50%,0);visibility:visible}
+.banner strong{font-size:15px}.banner span{font-size:14px;color:#3d5545;white-space:pre-line}
+.banner button{position:absolute;top:8px;right:8px;width:28px;height:28px;border-radius:50%;border:0;background:#eef3ef;cursor:pointer}
+.alert-scrim{position:fixed;inset:0;background:rgba(0,0,0,.55);opacity:0;visibility:hidden;transition:opacity .2s;z-index:50}
+.alert-scrim.show{opacity:1;visibility:visible}
+.alert{position:fixed;left:50%;top:50%;transform:translate(-50%,-46%) scale(.96);width:calc(100% - 40px);max-width:380px;background:#fff;border-radius:20px;padding:22px 20px 18px;text-align:center;opacity:0;visibility:hidden;transition:all .2s;z-index:51;box-shadow:0 20px 50px rgba(0,0,0,.4)}
+.alert.show{opacity:1;visibility:visible;transform:translate(-50%,-50%)}
+.alert .a-icon{width:56px;height:56px;margin:0 auto 8px;border-radius:50%;background:#fff3d6;display:grid;place-items:center;font-size:28px}
+.alert h3{margin:0 0 6px;font-size:19px;color:var(--ink)}
+.alert p{margin:0 0 16px;font-size:15px;color:#3d5545;white-space:pre-line;line-height:1.45}
+.alert .primary{width:100%}
+.prow.fresh,.chip.fresh{animation:fresh 4s ease-out}
+@keyframes fresh{0%,40%{background:#fff1b8}100%{background:transparent}}
+.chip.fresh{animation-name:freshc}@keyframes freshc{0%,40%{background:#fff1b8}100%{background:#eef3ef}}
 </style>
 </head>
 <body>
@@ -174,8 +189,11 @@ button.chip{border:1px solid transparent}
 <div class="scrim" id="scrim"></div>
 <section class="sheet" id="sheet" role="dialog" aria-modal="true"><div class="grab"></div><div id="sheet-content"></div></section>
 <div class="toast" id="toast" role="status"></div>
+<div class="banner" id="banner" role="status" aria-live="polite"></div>
+<div class="alert-scrim" id="alert-scrim"></div>
+<div class="alert" id="alert" role="alertdialog" aria-modal="true"></div>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <script src="config.js"></script>
-<script src="registration.js?v=20261103-12"></script>
+<script src="registration.js?v=20261103-13"></script>
 </body>
 </html>

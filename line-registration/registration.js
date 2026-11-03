@@ -9,12 +9,12 @@ const I18N={
   joinColor:"ลงชื่อสี{c}",closedCta:"ปิดรับแล้ว",full:"เต็มแล้ว ✓",joinLeft:"＋ ลงสีนี้ (ว่าง {n})",openTeam:"＋ เปิดทีมสี{c}",openSec:"ทีมที่เปิดแล้ว",otherSec:"สีอื่น · แตะเพื่อเปิดทีมใหม่",firstSec:"ยังไม่มีใครลง · เลือกสีเปิดทีมแรกได้เลย",closedEmpty:"ปิดรับลงชื่อแล้ว และยังไม่มีรายชื่อ",
   addFriend:"＋ เพิ่มชื่อเพื่อน",confirmJoin:"ยืนยันลงสี{c} ({n} คน)",needName:"ใส่ชื่ออย่างน้อย 1 ชื่อ",friend:"ชื่อเพื่อน",you:"ชื่อของคุณ",removeRow:"ลบช่องนี้",dupNames:"มีชื่อซ้ำกันในรายการ",onlyLeft:"สีนี้ว่างแค่ {n} ที่",saving:"กำลังบันทึก…",joined:"ลงชื่อสำเร็จ",
   seatsInfo:"ว่าง {n} จาก 7 ที่",has:" · มี ",joinHint:"ลงให้ตัวเองและเพื่อนได้พร้อมกัน · ถ้าที่ว่างไม่พอ ระบบจะไม่บันทึกบางส่วน",cancel:"ยกเลิก",pickTarget:"เลือกสีปลายทาง หรือคนที่จะสลับ",moveTo:"ย้ายไปสี{c}",swapWith:"สลับกับ {n}",orSwap:"หรือสลับกับ",saved:"บันทึกแล้ว",
-  removeName:"ยกเลิกชื่อ {n}",tapAgain:"แตะอีกครั้งเพื่อยืนยันยกเลิก",inColor:"อยู่สี{c} · ลำดับ {n}",moveLabel:"ย้ายไปสี",close:"ปิด",noConfig:"ยังไม่ได้ตั้งค่า LIFF ID และ API",noDates:"ยังไม่มีวันเปิดรับลงชื่อ\nรอผู้ดูแลเปิดวันแข่งในเว็บ TK7",connFail:"เชื่อมต่อไม่สำเร็จ: ",refresh:"รีเฟรชรายชื่อ",selected:"เลือก {n} คน",moveSel:"ย้ายไปสี…",cancelSel:"ยกเลิกชื่อ",swapSel:"สลับ…",clearSel:"ล้างที่เลือก",moveSelTitle:"ย้าย {n} คนไปสี",cancelConfirm:"แตะอีกครั้ง: ยกเลิก {n} ชื่อ",recolorTitle:"เปลี่ยนสีทีม{c}ทั้งทีม",recolorHint:"สีที่มีคนอยู่แล้ว = สลับสีกันทั้งทีม",recolorTo:"เปลี่ยนเป็น",swapTeams:"สลับกับ",moreColors:"＋ สีอื่น ({n})",lessColors:"ซ่อนสีอื่น",tapHint:"แตะชื่อเพื่อเลือก (หลายคนได้) · แตะแถบสีเพื่อย่อ/ขยาย",recolorBtn:"เปลี่ยนสี",collapseAll:"ย่อทั้งหมด ▴",expandAll:"ขยายทั้งหมด ▾",history:"🕘 ประวัติ",seeAll:"ดูทั้งหมด",allTitle:"ประวัติทั้งหมด",emptySlot:"ว่าง",historyTitle:"แก้ไขล่าสุด 3 รายการ",noHistory:"ยังไม่มีประวัติ"},
+  removeName:"ยกเลิกชื่อ {n}",tapAgain:"แตะอีกครั้งเพื่อยืนยันยกเลิก",inColor:"อยู่สี{c} · ลำดับ {n}",moveLabel:"ย้ายไปสี",close:"ปิด",noConfig:"ยังไม่ได้ตั้งค่า LIFF ID และ API",noDates:"ยังไม่มีวันเปิดรับลงชื่อ\nรอผู้ดูแลเปิดวันแข่งในเว็บ TK7",connFail:"เชื่อมต่อไม่สำเร็จ: ",refresh:"รีเฟรชรายชื่อ",selected:"เลือก {n} คน",moveSel:"ย้ายไปสี…",cancelSel:"ยกเลิกชื่อ",swapSel:"สลับ…",clearSel:"ล้างที่เลือก",moveSelTitle:"ย้าย {n} คนไปสี",cancelConfirm:"แตะอีกครั้ง: ยกเลิก {n} ชื่อ",recolorTitle:"เปลี่ยนสีทีม{c}ทั้งทีม",recolorHint:"สีที่มีคนอยู่แล้ว = สลับสีกันทั้งทีม",recolorTo:"เปลี่ยนเป็น",swapTeams:"สลับกับ",moreColors:"＋ สีอื่น ({n})",lessColors:"ซ่อนสีอื่น",tapHint:"แตะชื่อเพื่อเลือก (หลายคนได้) · แตะแถบสีเพื่อย่อ/ขยาย",recolorBtn:"เปลี่ยนสี",ok:"ตกลง",notSaved:"ยังไม่ได้บันทึก",nowLeft:"ตอนนี้สี{c}เหลือว่าง {n} ช่อง",updated:"มีคนอัปเดตรายชื่อ",nAdd:"+ {n} ลงสี{c}",nMove:"↔ {n} ย้ายไปสี{c}",nDel:"− {n} ยกเลิก (สี{c})",nOpen:"🔓 เปิดรับลงชื่อแล้ว",nClose:"🔒 ปิดรับลงชื่อแล้ว",nMore:"และอีก {n} รายการ",nowFull:"⛔ สี{c} เต็มแล้ว",collapseAll:"ย่อทั้งหมด ▴",expandAll:"ขยายทั้งหมด ▾",history:"🕘 ประวัติ",seeAll:"ดูทั้งหมด",allTitle:"ประวัติทั้งหมด",emptySlot:"ว่าง",historyTitle:"แก้ไขล่าสุด 3 รายการ",noHistory:"ยังไม่มีประวัติ"},
  en:{title:"👇 Pick a shirt colour & sign up",relogin:"Signing in again…",down:"Service unavailable, please try again",closedShort:" · closed",start:"🕗 Kick-off {t}",perMatch:"⏱️ {n} min/match",teams:"👥 {t} teams · {p} players",closed:"🔒 Registration closed",
   joinColor:"Join {c}",closedCta:"Closed",full:"Full ✓",joinLeft:"＋ Join ({n} left)",openTeam:"＋ Start {c} team",openSec:"Open teams",otherSec:"Other colours · tap to start a new team",firstSec:"No one yet · pick a colour to start the first team",closedEmpty:"Registration closed, no players yet",
   addFriend:"＋ Add a friend",confirmJoin:"Join {c} ({n} players)",needName:"Enter at least 1 name",friend:"Friend's name",you:"Your name",removeRow:"Remove",dupNames:"Duplicate names in the list",onlyLeft:"Only {n} spots left in this colour",saving:"Saving…",joined:"Signed up",
   seatsInfo:"{n} of 7 spots left",has:" · ",joinHint:"Sign up yourself and friends together · if there aren't enough spots, nothing is saved",cancel:"Cancel",pickTarget:"Choose a colour or a player to swap",moveTo:"Move to {c}",swapWith:"Swap with {n}",orSwap:"Or swap with",saved:"Saved",
-  removeName:"Remove {n}",tapAgain:"Tap again to confirm",inColor:"{c} · spot {n}",moveLabel:"Move to",close:"Close",noConfig:"LIFF ID / API not configured",noDates:"No match open for sign-up yet\nPlease wait for the admin",connFail:"Connection failed: ",refresh:"Refresh",selected:"{n} selected",moveSel:"Move to…",cancelSel:"Remove",swapSel:"Swap…",clearSel:"Clear",moveSelTitle:"Move {n} to",cancelConfirm:"Tap again: remove {n}",recolorTitle:"Change {c} team colour",recolorHint:"A colour that already has players = swap the two teams",recolorTo:"Change to",swapTeams:"Swap with",moreColors:"＋ Other colours ({n})",lessColors:"Hide other colours",tapHint:"Tap names to select (multiple) · tap the colour bar to collapse/expand",recolorBtn:"Colour",collapseAll:"Collapse all ▴",expandAll:"Expand all ▾",history:"🕘 History",seeAll:"See all",allTitle:"All changes",emptySlot:"open",historyTitle:"Latest 3 changes",noHistory:"No changes yet"}
+  removeName:"Remove {n}",tapAgain:"Tap again to confirm",inColor:"{c} · spot {n}",moveLabel:"Move to",close:"Close",noConfig:"LIFF ID / API not configured",noDates:"No match open for sign-up yet\nPlease wait for the admin",connFail:"Connection failed: ",refresh:"Refresh",selected:"{n} selected",moveSel:"Move to…",cancelSel:"Remove",swapSel:"Swap…",clearSel:"Clear",moveSelTitle:"Move {n} to",cancelConfirm:"Tap again: remove {n}",recolorTitle:"Change {c} team colour",recolorHint:"A colour that already has players = swap the two teams",recolorTo:"Change to",swapTeams:"Swap with",moreColors:"＋ Other colours ({n})",lessColors:"Hide other colours",tapHint:"Tap names to select (multiple) · tap the colour bar to collapse/expand",recolorBtn:"Colour",ok:"OK",notSaved:"Not saved",nowLeft:"{c} now has {n} spot(s) left",updated:"The list was updated",nAdd:"+ {n} joined {c}",nMove:"↔ {n} moved to {c}",nDel:"− {n} left ({c})",nOpen:"🔓 Registration opened",nClose:"🔒 Registration closed",nMore:"and {n} more",nowFull:"⛔ {c} is now full",collapseAll:"Collapse all ▴",expandAll:"Expand all ▾",history:"🕘 History",seeAll:"See all",allTitle:"All changes",emptySlot:"open",historyTitle:"Latest 3 changes",noHistory:"No changes yet"}
 };
 const LANG_KEY="tk7.lang";
 let lang=(()=>{try{const v=localStorage.getItem(LANG_KEY);if(v)return v}catch{}const n=(navigator.language||"th").toLowerCase();return n.startsWith("th")?"th":"en"})();
@@ -37,6 +37,14 @@ function shirt(slug){
  s.append(p);return s;
 }
 let toastTimer;
+function alertBox(title,msg,{icon="⚠️",tone="warn"}={}){
+ $("banner").classList.remove("show");const d=$("alert");d.className="alert show "+tone;
+ const ok=el("button",{type:"button",class:"primary",text:T("ok"),onclick:()=>{d.classList.remove("show");$("alert-scrim").classList.remove("show")}});
+ d.replaceChildren(el("div",{class:"a-icon",text:icon}),el("h3",{text:title}),el("p",{text:msg}),ok);
+ $("alert-scrim").classList.add("show");setTimeout(()=>ok.focus(),50);
+ try{navigator.vibrate&&navigator.vibrate(tone==="warn"?[60,40,60]:30)}catch{}
+}
+function failAlert(e){alertBox(T("notSaved"),e.message)}
 function toast(msg,err=false){const t=$("toast");t.textContent=msg;t.classList.toggle("err",err);t.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove("show"),err?5000:2800)}
 
 // ---------- API ----------
@@ -53,6 +61,7 @@ async function api(action,payload={}){
 function openSheet(content){$("sheet-content").replaceChildren(content);$("sheet").classList.add("show");$("scrim").classList.add("show")}
 function closeSheet(){$("sheet").classList.remove("show");$("scrim").classList.remove("show")}
 $("scrim").onclick=closeSheet;
+$("alert-scrim").onclick=()=>{$("alert").classList.remove("show");$("alert-scrim").classList.remove("show")};
 
 // ---------- render ----------
 function renderDates(){
@@ -100,7 +109,7 @@ function teamCard(slug){
  card.append(band);
  if(isCollapsed){
   card.classList.add("collapsed");
-  if(players.length)card.append(el("div",{class:"psum"},players.map(p=>el("span",{class:"chip",text:p.slot+". "+p.name}))));
+  if(players.length)card.append(el("div",{class:"psum"},players.map(p=>el("span",{class:"chip"+(fresh.has(p.id)?" fresh":""),text:p.slot+". "+p.name}))));
   card.append(el("button",{type:"button",class:"cta",disabled:canJoin?null:true,onclick:()=>canJoin&&openRegister(slug),"aria-label":T("joinColor",{c:label(slug)}),
    text:!roster.isOpen?T("closedCta"):full?T("full"):active?T("joinLeft",{n:MAX-players.length}):T("openTeam",{c:label(slug)})}));
   return card;
@@ -112,7 +121,7 @@ function teamCard(slug){
    const p=players.find(x=>x.slot===slot);
    if(!p){list.append(el("button",{type:"button",class:"prow empty",disabled:canJoin?null:true,onclick:()=>canJoin&&openRegister(slug)},el("span",{class:"box"}),el("span",{class:"num",text:slot+"."}),el("span",{class:"pname",text:T("emptySlot")})));continue}
    const on=selected.has(p.id);
-   const row=el("button",{type:"button",class:"prow"+(on?" on":""),"aria-pressed":String(on),disabled:roster.isOpen?null:true,onclick:()=>{on?selected.delete(p.id):selected.add(p.id);renderBoard()}},
+   const row=el("button",{type:"button",class:"prow"+(on?" on":"")+(fresh.has(p.id)?" fresh":""),"aria-pressed":String(on),disabled:roster.isOpen?null:true,onclick:()=>{on?selected.delete(p.id):selected.add(p.id);renderBoard()}},
     el("span",{class:"box",text:on?"✓":""}),el("span",{class:"num",text:p.slot+"."}),el("span",{class:"pname",text:p.name}));
    list.append(row);
   }
@@ -156,8 +165,8 @@ function renderBar(){
 async function runTeam(action,payload){
  if(busy)return;busy=true;
  try{const r=await api(action,{...payload,revision:roster.revision,requestId:crypto.randomUUID()});selected.clear();closeSheet();toast(r.message||T("saved"))}
- catch(e){closeSheet();toast(e.message,true)}
- finally{busy=false;await loadRoster()}
+ catch(e){closeSheet();failAlert(e)}
+ finally{busy=false;quiet=true;await loadRoster()}
 }
 function colorGrid(exclude,onPick,{swapOk}={}){
  const grid=el("div",{class:"move-grid"});
@@ -217,11 +226,13 @@ function openRegister(slug){
  addBtn.onclick=()=>{addRow().focus()};
  submit.onclick=async()=>{
   const names=values();
-  if(names.length>left)return toast(T("onlyLeft",{n:left}),true);
+  if(names.length>left)return alertBox(T("notSaved"),T("onlyLeft",{n:left}));
   const key=JSON.stringify([sessionId,slug,names]);if(requestId.key!==key){requestId.key=key;requestId.value=crypto.randomUUID()}
   busy=true;sync();submit.textContent=T("saving");
-  try{const r=await api("register",{team:slug,names,requestId:requestId.value});myName=names[0];closeSheet();toast(r.message||T("joined"));await loadRoster()}
-  catch(e){toast(e.message,true);await loadRoster()}
+  try{const r=await api("register",{team:slug,names,requestId:requestId.value});myName=names[0];closeSheet();toast(r.message||T("joined"));quiet=true;await loadRoster()}
+  catch(e){myName=names[0];closeSheet();quiet=true;await loadRoster();
+   const nowLeft=roster?MAX-roster.entries.filter(x=>x.team===slug).length:0;
+   alertBox(T("notSaved"),e.message+(roster&&roster.isOpen?"\n\n"+(nowLeft>0?T("nowLeft",{c:label(slug),n:nowLeft}):T("nowFull",{c:label(slug)})):""))}
   finally{busy=false;sync()}
  };
  box.append(el("div",{class:"sheet-head"},el("div",{class:"band c-"+slug,style:"height:auto;padding:4px;border-radius:10px"},shirt(slug)),
@@ -258,8 +269,8 @@ function openManage(player){
   const key=JSON.stringify(payload);if(req.key!==key){req.key=key;req.id=crypto.randomUUID()}
   busy=true;go.disabled=cancel.disabled=true;
   try{const r=await api(action.action,{...payload,requestId:req.id});closeSheet();toast(r.message||T("saved"))}
-  catch(e){closeSheet();toast(e.message,true)}
-  finally{busy=false;await loadRoster()}
+  catch(e){closeSheet();failAlert(e)}
+  finally{busy=false;quiet=true;await loadRoster()}
  }
  let armed=false;
  const cancel=el("button",{class:"danger",type:"button",text:T("removeName",{n:player.name})});
@@ -272,11 +283,34 @@ function openManage(player){
 }
 
 // ---------- load ----------
+let quiet=false,fresh=new Set();
+function diffRoster(a,b){
+ const out=[];const am=new Map(a.entries.map(e=>[e.id,e])),bm=new Map(b.entries.map(e=>[e.id,e]));
+ for(const e of b.entries){const o=am.get(e.id);if(!o)out.push({t:"add",id:e.id,name:e.name,team:e.team});else if(o.team!==e.team)out.push({t:"move",id:e.id,name:e.name,team:e.team})}
+ for(const e of a.entries)if(!bm.has(e.id))out.push({t:"del",name:e.name,team:e.team});
+ if(a.isOpen!==b.isOpen)out.push({t:b.isOpen?"open":"close"});
+ return out;
+}
+function notify(ch){
+ const line=c=>c.t==="add"?T("nAdd",{n:c.name,c:label(c.team)}):c.t==="move"?T("nMove",{n:c.name,c:label(c.team)}):c.t==="del"?T("nDel",{n:c.name,c:label(c.team)}):T(c.t==="open"?"nOpen":"nClose");
+ const msg=ch.slice(0,3).map(line).join("\n")+(ch.length>3?"\n"+T("nMore",{n:ch.length-3}):"");
+ const fullTeams=COLORS.map(c=>c[0]).filter(t=>roster.entries.filter(e=>e.team===t).length>=MAX&&ch.some(c=>c.team===t&&c.t!=="del"));
+ banner("🔔 "+T("updated"),msg+(fullTeams.length?"\n"+T("nowFull",{c:fullTeams.map(label).join(", ")}):""));
+}
+function banner(title,msg){
+ const b=$("banner");b.replaceChildren(el("strong",{text:title}),el("span",{text:msg}),el("button",{type:"button","aria-label":T("close"),text:"✕",onclick:()=>b.classList.remove("show")}));
+ b.classList.add("show");clearTimeout(banner.t);banner.t=setTimeout(()=>b.classList.remove("show"),6000);
+}
 async function loadRoster(showSkeleton=false){
  const seq=++loadSeq;const sid=sessionId;if(!sid)return;
  $("refresh").classList.add("spin");
  if(showSkeleton){roster=null;renderBoard();$("board").append(el("div",{class:"grid"},[1,2,3,4].map(()=>el("div",{class:"skeleton"}))))}
- try{const next=await api("roster",{sessionId:sid});if(seq!==loadSeq||sid!==sessionId)return;roster=next;renderBoard()}
+ try{const next=await api("roster",{sessionId:sid});if(seq!==loadSeq||sid!==sessionId)return;
+  const prev=roster&&roster.sessionKey===sid?roster:null;next.sessionKey=sid;
+  const changes=prev&&!quiet&&prev.revision!==next.revision?diffRoster(prev,next):[];quiet=false;
+  roster=next;renderBoard();
+  if(changes.length){fresh=new Set(changes.filter(c=>c.id).map(c=>c.id));renderBoard();setTimeout(()=>{fresh.clear();document.querySelectorAll(".prow.fresh").forEach(r=>r.classList.remove("fresh"))},4000);notify(changes)}
+ }
  catch(e){if(seq===loadSeq)toast(e.message,true)}
  finally{if(seq===loadSeq)$("refresh").classList.remove("spin")}
 }
