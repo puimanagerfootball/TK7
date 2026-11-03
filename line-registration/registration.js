@@ -80,8 +80,8 @@ function teamCard(slug){
  const active=players.length||preset;
  const card=el("div",{class:"team"+(full?" full":"")+(players.length?"":" empty")});
  const band=el("button",{type:"button",class:"band c-"+slug,"aria-label":active?T("recolorTitle",{c:label(slug)}):T("joinColor",{c:label(slug)}),
-  onclick:()=>{if(!roster.isOpen)return;if(players.length)openRecolor(slug);else if(canJoin)openRegister(slug)}},
-  shirt(slug),el("span",{class:"name",text:label(slug)}),el("span",{class:"count",text:players.length+"/"+MAX}));
+  onclick:()=>{if(!roster.isOpen)return;if(active)openRecolor(slug);else if(canJoin)openRegister(slug)}},
+  shirt(slug),el("span",{class:"name",text:label(slug)}),active&&roster.isOpen?el("span",{class:"chev","aria-hidden":"true",text:"🎨"}):null,el("span",{class:"count",text:players.length+"/"+MAX}));
  card.append(band);
  // เตรียมไว้ 7 ช่องทุกการ์ด (ขนาดเท่ากัน) · ช่องว่างแตะเพื่อลงชื่อ
  {
@@ -302,7 +302,7 @@ async function demoApi(action,p){
  if(action==="cancel")s.entries=s.entries.filter(e=>e!==a);
  if(action==="move"){a.team=p.team;a.slot=free(p.team)[0]}
  if(action==="swap"){const b=s.entries.find(e=>e.id===p.otherId);[a.team,a.slot,b.team,b.slot]=[b.team,b.slot,a.team,a.slot]}
- if(action==="recolor"){for(const e of s.entries){if(e.team===p.from)e.team=p.team;else if(e.team===p.team)e.team=p.from}}
+ if(action==="recolor"){for(const e of s.entries){if(e.team===p.from)e.team=p.team;else if(e.team===p.team)e.team=p.from}s.presetTeams=(s.presetTeams||[]).map(t=>t===p.from?p.team:t===p.team?p.from:t)}
  if(action==="bulk"&&p.op==="cancel")s.entries=s.entries.filter(e=>!p.entryIds.includes(e.id));
  if(action==="bulk"&&p.op==="move"){const mv=s.entries.filter(e=>p.entryIds.includes(e.id)&&e.team!==p.team);const f=free(p.team);if(f.length<mv.length)throw Error(T("onlyLeft",{n:f.length}));mv.forEach((e,i)=>{e.team=p.team;e.slot=f[i]})}
  s.revision++;return{ok:true,message:"บันทึกแล้ว ✓ (โหมดตัวอย่าง)"};
