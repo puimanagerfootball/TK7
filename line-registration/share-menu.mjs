@@ -12,6 +12,13 @@ export function shareAvailability(liff) {
  };
 }
 
+export function shareErrorText(error){
+ const code=typeof error?.code==='string'?error.code.slice(0,60):'UNKNOWN';
+ const message=typeof error?.message==='string'?error.message.trim().slice(0,300):'';
+ if(code==='EXCEPTION_IN_SUBWINDOW')return 'LINE เปิดหน้าต่างเลือกผู้รับไม่สำเร็จ กรุณาอนุญาตป๊อปอัปแล้วกดแชร์อีกครั้ง / Allow pop-ups and tap Share again.\nรหัส / Code: '+code;
+ return (message||'LINE ยังแชร์ไม่สำเร็จ กรุณากดแชร์อีกครั้ง / LINE could not share. Please tap Share again.')+'\nรหัส / Code: '+code;
+}
+
 export function buildMenuMessage(url='https://liff.line.me/2012278818-W0pIi2y0') {
  const row=(icon,label,value,extra={})=>({type:'box',layout:'horizontal',spacing:'md',alignItems:'center',backgroundColor:'#f2f6f4',cornerRadius:'12px',paddingAll:'16px',contents:[{type:'text',text:icon,size:'xl',flex:0},{type:'box',layout:'vertical',spacing:'xs',flex:1,contents:[{type:'text',text:label,size:'xs',color:'#71867c',wrap:true},{type:'text',text:value,size:'lg',weight:'bold',color:'#142b20',wrap:true,...extra}]}]});
  const location=row('📍','Location / สถานที่','Google Maps ›',{color:'#1674ed'});
@@ -36,13 +43,20 @@ if(typeof document!=='undefined') {
  button.style.cssText='display:block;width:100%;padding:15px 10px;border:0;border-radius:12px;background:#b9ed83;color:#123d2b;font:inherit;font-size:15px;font-weight:bold;cursor:pointer';
  const status=document.createElement('p');status.setAttribute('role','status');status.style.cssText='text-align:center;padding:0 8px;white-space:pre-line;overflow-wrap:anywhere;font-size:12px;line-height:1.6';
  panel.querySelector('.tk7-share-inner').append(button,status);
+ let sdkReady=false;
+ button.disabled=true;status.textContent='กำลังเตรียม LINE… / Preparing LINE…';
+ if(window.liff?.ready)window.liff.ready.then(()=>{
+  sdkReady=true;button.disabled=false;
+  status.textContent='กดปุ่มด้านบนเพื่อเลือกกลุ่ม / Tap the button above to choose recipients';
+ });
+ else{button.disabled=false;status.textContent='กรุณาเปิดผ่าน LINE / Please open in LINE';}
  button.addEventListener('click',async()=>{
   button.disabled=true;status.textContent='กำลังเปิดเมนูแชร์… / Opening share picker…';
   try {
    const liff=window.liff;
    if(!liff)throw new Error('กรุณาเปิดผ่าน LINE / Please open in LINE');
-   if(liff.ready)await liff.ready;
-   if(!liff.isLoggedIn()){liff.login();return;}
+   if(!sdkReady)throw new Error('LINE ยังไม่พร้อม กรุณารอสักครู่ / LINE is not ready yet.');
+   if(!liff.isLoggedIn()){liff.login({redirectUri:location.href});return;}
    const diagnostic=shareAvailability(liff);
    if(!diagnostic.available){
     const reason=diagnostic.permission===false
@@ -53,15 +67,13 @@ if(typeof document!=='undefined') {
    const result=await liff.shareTargetPicker([buildMenuMessage()]);
    status.textContent=result?.status==='success'?'แชร์การ์ดแล้ว / Card shared':'ยกเลิกการแชร์ / Sharing cancelled';
    if(result?.status==='success'&&window.TK7_SHARE_ONLY&&window.opener){
-    window.opener.postMessage({type:'tk7-card-shared'},window.TK7_SHARE_RETURN_ORIGIN||location.origin);
-    window.close();
+    try{
+     window.opener.postMessage({type:'tk7-card-shared'},window.TK7_SHARE_RETURN_ORIGIN||location.origin);
+     window.close();
+    }catch{ /* Sharing succeeded even if the parent window is no longer available. */ }
    }
-  }catch(error){status.textContent=error.message||'แชร์เมนูไม่สำเร็จ กรุณาลองอีกครั้ง';}
+  }catch(error){status.textContent=shareErrorText(error);}
   finally{button.disabled=false;}
  });
- // Browsers may require a second user gesture for LINE's own picker.
- // Keep the explicit share button available when automatic opening is blocked.
- if(window.TK7_SHARE_ONLY&&window.liff?.ready){
-  window.liff.ready.then(()=>{if(window.liff.isLoggedIn())button.click();});
- }
+ // Never open the picker on load: it must remain in the user's click event.
 }
