@@ -30,25 +30,35 @@ window.TK7Admin={mount({db,canManage}){
   #tk7-line-card .tk7l-check{display:flex!important;width:100%;gap:10px;align-items:flex-start;justify-content:flex-start;text-align:left;font-size:14px;color:#3d5545;margin-top:10px;line-height:1.5;cursor:pointer}
   #tk7-line-card .tk7l-check input{appearance:auto;-webkit-appearance:checkbox;width:20px!important;height:20px!important;min-width:20px;min-height:0!important;flex:0 0 20px;margin:1px 0 0!important;padding:0!important;accent-color:#1f7a43;box-shadow:none!important}
   #tk7-line-card .tk7l-check span{flex:1;min-width:0}
-  /* ข้อมูล LINE ในรายการทีม */
-  #page-setup .team-toggle.tk7l-has{flex-wrap:wrap;row-gap:6px}
-  #page-setup .team-toggle.tk7l-has .tk7l-info{order:3;flex:1 1 100%}
-  #page-setup .team-toggle.tk7l-has > .team-emblem{flex:1 1 0;min-width:0}
-  #page-setup .team-toggle.tk7l-has > .switch,#page-setup .team-toggle.tk7l-has > label{order:2;flex:0 0 auto}
-  #page-setup .team-toggle{gap:10px}
-  .tk7l-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;font-size:12.5px;line-height:1.35;color:#3d5545}
-  .tk7l-info .cnt{font-weight:600;font-size:13px;color:#1f4d30}
-  .tk7l-info .cnt.full{color:#1b7a3a}
-  .tk7l-info .names{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#5f7466}
-  #page-setup .tk7l-recolor{font:inherit;font-size:13px;padding:6px 8px;border-radius:8px;border:1px solid rgba(0,0,0,.15);background:#fff;color:#2d4a37;width:100%;max-width:220px;min-height:0;height:auto;align-self:flex-start;margin-top:2px;appearance:auto}
-  #page-setup .team-toggle.tk7l-has{box-shadow:inset 3px 0 0 #2e8b57}
+  /* รายการทีม: ป้ายจำนวนคนจาก LINE + แตะสีเพื่อเปิดป็อปอัพ (การ์ดขนาดเท่ากัน) */
+  #page-setup .team-emblem.tk7l-tap{cursor:pointer;position:relative}
+  #page-setup .team-toggle{position:relative}
+  #page-setup .team-toggle > .tk7l-count{position:absolute;top:-8px;left:10px;z-index:2;background:#fff;color:#1f4d30;font-size:11px;font-weight:700;line-height:1;padding:4px 8px;border-radius:999px;box-shadow:0 1px 4px rgba(0,0,0,.22);pointer-events:none}
+  #page-setup .team-toggle > .tk7l-count.full{background:#1f7a43;color:#fff}
+  #page-setup .team-toggle.tk7l-has{outline:2px solid rgba(31,122,67,.35);outline-offset:-2px}
+  .tk7l-modal{position:fixed;inset:0;background:rgba(10,25,15,.55);display:flex;align-items:center;justify-content:center;z-index:9999;padding:16px}
+  .tk7l-modal[hidden]{display:none}
+  .tk7l-sheet{background:#f6faf6;border-radius:18px;width:min(440px,100%);max-height:90vh;overflow:auto;box-shadow:0 20px 50px rgba(0,0,0,.35);font-family:inherit}
+  .tk7l-sheet-head{max-width:none!important;justify-content:flex-start!important;overflow:visible!important;display:flex!important;align-items:center;gap:10px;padding:14px 16px!important;border-radius:18px 18px 0 0!important;width:auto!important;height:auto!important;min-width:0!important;font-size:18px!important;cursor:default!important;box-shadow:none!important;transform:none!important}
+  .tk7l-sheet-head strong{flex:1;text-align:left}
+  .tk7l-sheet-head .tk7l-count{background:rgba(255,255,255,.9);color:#1f4d30;font-size:13px;padding:3px 10px;border-radius:999px;text-shadow:none}
+  .tk7l-x{background:rgba(0,0,0,.18);color:inherit;border:0;width:32px;height:32px;border-radius:50%;font-size:15px;cursor:pointer;min-height:0;padding:0}
+  .tk7l-sheet-body{padding:14px 16px 18px;color:#1d2b22}
+  .tk7l-names{list-style:none;margin:0 0 14px;padding:0;display:grid;gap:2px}
+  .tk7l-names li{display:flex;gap:10px;padding:8px 10px;background:#fff;border-radius:10px;font-size:15px}
+  .tk7l-names .n{color:#6b7d71;min-width:20px}
+  .tk7l-sub{font-weight:600;font-size:14px;margin:4px 0 8px}
+  .tk7l-colorgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .tk7l-colorgrid .team-emblem{max-width:none!important;display:flex!important;flex-direction:column;align-items:center;justify-content:center;width:auto!important;min-width:0!important;height:auto!important;padding:10px 4px!important;font-size:14px!important;line-height:1.2;cursor:pointer;border:0}
+  .tk7l-colorgrid small{font-size:11px;opacity:.85;font-weight:400}
+  .tk7l-empty{margin:4px 0 6px;color:#5f7466}
   .tk7l-colorbox{display:flex;flex-direction:column;gap:6px}
   .tk7l-colors{display:flex;flex-wrap:wrap;gap:6px}
   #tk7-line-card .tk7l-chip{font-size:13px!important;padding:5px 10px!important;min-width:0!important;width:auto!important;height:auto!important;border-radius:999px!important;cursor:pointer;box-shadow:none!important;transform:none!important}
   #tk7-line-card .tk7l-chip.off{opacity:.35;filter:grayscale(.6)}
   /* คอม: การ์ด LINE อยู่ล่างสุดของคอลัมน์ขวา (ใต้รูปแบบตาราง + นัดเปิดสนาม) */
   /* คอม: การ์ด LINE กว้างเต็มหน้า ใต้สองคอลัมน์ */
-  #setup-content-wrapper > #tk7-line-card{grid-column:1 / -1 !important;grid-row:3 !important;margin:0}
+  #setup-content-wrapper > #tk7-line-card{grid-column:1 / -1 !important;margin:8px 0 0}
   #setup-content-wrapper > #tk7-line-card .tk7l-main{max-width:420px}
   #setup-content-wrapper > #tk7-line-card .tk7l-grid{grid-template-columns:2fr 1fr 1fr 1fr}
  `}));
@@ -64,10 +74,10 @@ window.TK7Admin={mount({db,canManage}){
  card.append(el('h2',{},el('span',{text:'📲 ลงชื่อผ่าน LINE'}),pill),summary,hint,main,actions,status,groupBox);
  // มือถือ: ใต้ช่องวันที่/เวลา · คอม: กว้างเต็มหน้า ใต้สองคอลัมน์ (เหนือปุ่มบันทึกตาราง)
  const wide=matchMedia('(min-width: 768px), (orientation: landscape)');
+ // การ์ด LINE อยู่ล่างสุดของหน้าจัดการทีม (ใต้ปุ่มบันทึก/แชร์) ทั้งมือถือและคอม
  function place(){
-  if(wide.matches){const btn=$('generate-schedule-btn');if(btn&&btn.parentElement?.id==='setup-content-wrapper'){btn.before(card);return}}
-  const anchor=document.querySelector('.setup-settings-card');
-  if(anchor)anchor.after(card);else $('copy-reg-template-btn')?.after(card);
+  const last=$('copy-reg-template-btn')||$('generate-schedule-btn');
+  if(last)last.after(card);else document.querySelector('.setup-settings-card')?.after(card);
  }
  place();wide.addEventListener?.('change',place);
 
@@ -174,19 +184,20 @@ window.TK7Admin={mount({db,canManage}){
   const switches=[...document.querySelectorAll('.team-switch')];
   for(const sw of switches){
    const slug=sw.dataset.teamSlug;const row=sw.closest('.team-toggle');if(!row)continue;
-   row.querySelector('.tk7l-info')?.remove();row.classList.remove('tk7l-has');
+   row.querySelector('.tk7l-info')?.remove();row.querySelector('.tk7l-count')?.remove();row.classList.remove('tk7l-has');
+   const emblem=row.querySelector('.team-emblem');
+   if(emblem){emblem.classList.remove('tk7l-tap');emblem.onclick=null;emblem.removeAttribute('role');emblem.removeAttribute('tabindex')}
    if(!s)continue;
    const players=playersOf(s,slug);
-   const info=el('div',{class:'tk7l-info'});
    if(players.length){
     row.classList.add('tk7l-has');
-    info.append(el('span',{class:'cnt'+(players.length>=7?' full':''),text:players.length+'/7'+(players.length>=7?' ครบ':'')}),el('span',{class:'names',title:players.map(p=>p.name).join(', '),text:players.map(p=>p.name).join(', ')}));
-    const sel=el('select',{class:'tk7l-recolor','aria-label':'เปลี่ยนสีทีม'+COLORS[slug]},el('option',{value:'',text:'🎨 เปลี่ยนสี…'}));
-    for(const t of ORDER){if(t===slug)continue;const n=playersOf(s,t).length;sel.append(el('option',{value:t,text:(n?'⇄ สลับกับ':'→ ')+COLORS[t]+(n?' ('+n+')':'')}))}
-    sel.onchange=()=>{const to=sel.value;if(!to)return;recolor(s,slug,to);sel.value=''};
-    info.append(sel);
-   }else{row.querySelector('.tk7l-info')?.remove();continue}
-   const emblem=row.querySelector('.team-emblem');emblem?emblem.after(info):row.prepend(info);
+    row.append(el('span',{class:'tk7l-count'+(players.length>=7?' full':''),title:players.map(p=>p.name).join(', '),text:'👥 '+players.length+'/7'}));
+   }
+   if(emblem){
+    emblem.classList.add('tk7l-tap');emblem.setAttribute('role','button');emblem.setAttribute('tabindex','0');emblem.title='ดูรายชื่อ / เปลี่ยนสีทีม';
+    emblem.onclick=e=>{e.stopPropagation();openTeam(slug)};
+    emblem.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openTeam(slug)}};
+   }
   }
   // ติ๊กอัตโนมัติเมื่อสีที่มีคนลงเปลี่ยน
   if(!s)return;
@@ -200,6 +211,31 @@ window.TK7Admin={mount({db,canManage}){
   applying=true;
   for(const sw of switches){const t=sw.dataset.teamSlug;const on=want?want.has(t):(sw.checked||used.includes(t));if(sw.checked!==on){sw.checked=on;sw.dispatchEvent(new Event('change',{bubbles:true}))}}
   applying=false;
+ }
+
+ // ป็อปอัพทีม: รายชื่อ (ชื่อละบรรทัด) + เปลี่ยนสีทั้งทีม
+ const modal=el('div',{class:'tk7l-modal',role:'dialog','aria-modal':'true',hidden:true});
+ modal.onclick=e=>{if(e.target===modal)closeTeam()};
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!modal.hidden)closeTeam()});
+ document.body.append(modal);
+ function closeTeam(){modal.hidden=true;modal.replaceChildren()}
+ function openTeam(slug){
+  const s=session();if(!s)return;
+  const players=playersOf(s,slug);
+  const box=el('div',{class:'tk7l-sheet'});
+  box.append(el('div',{class:'tk7l-sheet-head team-emblem '+slug},el('strong',{text:'ทีม'+COLORS[slug]}),el('span',{class:'tk7l-count',text:players.length+'/7'}),
+   el('button',{type:'button',class:'tk7l-x','aria-label':'ปิด',text:'✕',onclick:closeTeam})));
+  const body=el('div',{class:'tk7l-sheet-body'});
+  if(players.length){
+   const ol=el('ol',{class:'tk7l-names'});for(const p of players)ol.append(el('li',{},el('span',{class:'n',text:p.slot+'.'}),el('span',{text:p.name})));
+   body.append(ol);
+   body.append(el('div',{class:'tk7l-sub',text:'🎨 เปลี่ยนสีทั้งทีม (สีที่มีคนอยู่ = สลับกัน)'}));
+   const grid=el('div',{class:'tk7l-colorgrid'});
+   for(const t of ORDER){if(t===slug)continue;const n=playersOf(s,t).length;
+    grid.append(el('button',{type:'button',class:'team-emblem '+t,onclick:()=>{closeTeam();recolor(s,slug,t)}},el('span',{text:COLORS[t]}),el('small',{text:n?'⇄ '+n+' คน':'ว่าง'})))}
+   body.append(grid);
+  }else body.append(el('p',{class:'tk7l-empty',text:'ยังไม่มีคนลงสีนี้ใน LINE'}));
+  box.append(body);modal.replaceChildren(box);modal.hidden=false;
  }
 
  async function recolor(s,from,to){
