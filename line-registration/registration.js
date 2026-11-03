@@ -2,7 +2,7 @@
 // เปิด register.html?demo=1 เพื่อดูหน้าตาโดยไม่ต้องเชื่อม LINE
 (()=>{
 const $=id=>document.getElementById(id);
-const COLORS=[["green","เขียว"],["red","แดง"],["white","ขาว"],["blue","ฟ้า"],["black","ดำ"],["yellow","เหลือง"],["pink","ชมพู"],["orange","ส้ม"],["navy","น้ำเงิน"],["purple","ม่วง"]];
+const COLORS=[["green","เขียว"],["red","แดง"],["white","ขาว"],["blue","น้ำเงิน"],["black","ดำ"],["yellow","เหลือง"],["pink","ชมพู"],["orange","ส้ม"],["navy","น้ำเงินเข้ม"],["purple","ม่วง"]];
 const label=slug=>(COLORS.find(c=>c[0]===slug)||[slug,slug])[1];
 const MAX=7;
 const demo=new URLSearchParams(location.search).has("demo");
@@ -45,7 +45,7 @@ function renderDates(){
 function renderInfo(){
  const info=$("info");info.replaceChildren();if(!roster)return;
  const d=dates.find(x=>x.id===sessionId)||{};
- const teams=new Set(roster.entries.map(e=>e.team)).size;
+ const teams=new Set([...roster.entries.map(e=>e.team),...(roster.presetTeams||[])]).size;
  if(dates.length<2)info.append(el("span",{class:"pill",text:"📅 "+(d.label||roster.matchDate)}));
  info.append(el("span",{class:"pill",text:"🕗 เริ่ม "+(roster.startTime||d.startTime||"20:00")+" น."}),
   el("span",{class:"pill",text:"⏱️ "+(roster.timePerMatch||d.timePerMatch||8)+" นาที/แมตช์"}),
@@ -74,10 +74,11 @@ function teamCard(slug){
 function renderBoard(){
  const board=$("board");board.replaceChildren();renderInfo();
  if(!roster)return;
- const used=COLORS.map(c=>c[0]).filter(s=>roster.entries.some(e=>e.team===s));
+ const preset=roster.presetTeams||[];
+ const used=COLORS.map(c=>c[0]).filter(s=>roster.entries.some(e=>e.team===s)||preset.includes(s));
  const free=COLORS.map(c=>c[0]).filter(s=>!used.includes(s)&&roster.teams.includes(s));
- if(used.length){board.append(el("div",{class:"section-label",text:"ทีมที่มีคนลงแล้ว · แตะชื่อเพื่อย้าย/ยกเลิก"}),el("div",{class:"grid"},used.map(teamCard)))}
- if(free.length&&roster.isOpen){board.append(el("div",{class:"section-label",text:used.length?"สีที่ยังว่าง · แตะเพื่อเปิดทีมใหม่":"ยังไม่มีใครลง · เลือกสีเปิดทีมแรกได้เลย"}),el("div",{class:"grid empty-grid"},free.map(teamCard)))}
+ if(used.length){board.append(el("div",{class:"section-label",text:"ทีมที่เปิดแล้ว · แตะชื่อเพื่อย้าย/ยกเลิก"}),el("div",{class:"grid"},used.map(teamCard)))}
+ if(free.length&&roster.isOpen){board.append(el("div",{class:"section-label",text:used.length?"สีอื่น · แตะเพื่อเปิดทีมใหม่":"ยังไม่มีใครลง · เลือกสีเปิดทีมแรกได้เลย"}),el("div",{class:"grid empty-grid"},free.map(teamCard)))}
  if(!used.length&&!roster.isOpen)board.append(el("div",{class:"notice",text:"ปิดรับลงชื่อแล้ว และยังไม่มีรายชื่อ"}));
 }
 
@@ -191,7 +192,7 @@ async function demoApi(action,p){
  await new Promise(r=>setTimeout(r,250));
  if(!demoState){
   const mk=(team,names)=>names.map((name,i)=>({id:crypto.randomUUID(),team,slot:i+1,name}));
-  demoState={revision:1,teams:COLORS.map(c=>c[0]),isOpen:true,matchDate:"2026-11-06",startTime:"20:00",timePerMatch:8,
+  demoState={revision:1,teams:COLORS.map(c=>c[0]),presetTeams:["green","red","blue"],isOpen:true,matchDate:"2026-11-06",startTime:"20:00",timePerMatch:8,
    entries:[...mk("green",["ปุ้ย","บอล","ต้น","เอก","นัท"]),...mk("red",["โอ๊ต","บีม","แบงค์","ต่อ","ปอนด์","เจ","ฟิล์ม"]),...mk("black",["ก้อง","ภูมิ"])]};
  }
  const s=demoState;

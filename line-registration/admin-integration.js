@@ -49,10 +49,8 @@ window.TK7Admin={mount({db,canManage}){
  card.append(el('h2',{},el('span',{text:'📲 ลงชื่อผ่าน LINE'}),pill),summary,hint,main,actions,status,groupBox);
  const anchor=document.querySelector('.setup-settings-card');
  if(anchor)anchor.after(card);else $('copy-reg-template-btn')?.after(card);
- // ปุ่มแชร์ข้อความแบบเก่าไม่ใช้แล้ว (ลงชื่อผ่าน LINE แทน)
- const oldShare=$('copy-reg-template-btn');if(oldShare)oldShare.style.display='none';
 
- let data=null,loading=false,lastSig='',syncTimer=null,pulledFor='';
+ let data=null,loading=false,lastSig='',syncTimer=null,pulledFor='',presetTimer=null,applying=false;
  const date=()=>$('match-date')?.value||'';
  const minutes=()=>parseInt($('time-per-match')?.value,10)||8;
  const startTime=()=>$('start-time')?.value||'20:00';
@@ -64,6 +62,22 @@ window.TK7Admin={mount({db,canManage}){
  const session=()=>(data?.sessions||[]).find(s=>s.match_date===date()&&s.group_id===cfg().group_id&&s.environment===cfg().environment);
  const entriesOf=s=>s?.roster?.entries||[];
  const playersOf=(s,t)=>entriesOf(s).filter(e=>e.team===t).sort((a,b)=>a.slot-b.slot);
+ const presetOf=s=>s?.preset_teams||[];
+ const checkedTeams=()=>[...document.querySelectorAll('.team-switch:checked')].map(x=>x.dataset.teamSlug);
+ // สรุปแบบเดียวกับปุ่ม "แชร์รูปแบบลงทะเบียน LINE" แต่มีชื่อจาก LINE
+ const REG={green:['🟢','Green Shirt (สีเขียว)'],red:['🔴','Red Shirt (สีแดง)'],white:['⚪️','White Shirt (สีขาว)'],blue:['🔵','Blue Shirt (สีน้ำเงิน)'],black:['⚫','Black Shirt (สีดำ)'],yellow:['🟡','Yellow Shirt (สีเหลือง)'],pink:['🩷','Pink Shirt (สีชมพู)'],orange:['🟠','Orange Shirt (สีส้ม)'],navy:['🔵','Navy Shirt (สีน้ำเงินเข้ม)'],purple:['🟣','Purple Shirt (สีม่วง)']};
+ function summaryText(s){
+  const st=String(s.start_time).slice(0,5);
+  const d=new Date(s.match_date+'T00:00:00').toLocaleDateString('th-TH',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  let t='⚽️ FOOTBALL MATCH @ TK7 Stadium\n📍 Location: https://maps.app.goo.gl/37K6rD4LqWA5Qz5KA\n📅 Date / วันที่: '+d+'\n🕗 Kick-off: '+st+' | เวลาเตะ: '+st+' น.\n\n';
+  let n=1;
+  for(const team of ORDER.filter(x=>presetOf(s).includes(x)||playersOf(s,x).length)){
+   t+=REG[team][0]+' '+REG[team][1]+'\n';
+   for(let i=1;i<=7;i++)t+=(n+i-1)+'. '+(entriesOf(s).find(e=>e.team===team&&e.slot===i)?.name||'')+'\n';
+   n+=7;
+  }
+  return t+'\n⏱️ Match Duration / เวลาเล่น:\n• 4 Teams = 2 Hours (เล่น 2 ชม.)\n• 5 Teams = 3 Hours (เล่น 3 ชม.)\n\n👇 ลงชื่อ / เลือกสี กดลิงก์นี้\n'+LIFF;
+ }
 
  async function load(){
   if(!canManage()){card.style.display='none';return}
@@ -86,22 +100,22 @@ window.TK7Admin={mount({db,canManage}){
   }else if(!s){
    pill.className='tk7l-pill none';pill.textContent='ยังไม่เปิด';
    summary.replaceChildren(el('b',{text:thai(date())}),' · เริ่ม '+startTime()+' · '+minutes()+' นาที/แมตช์');
-   hint.textContent='กดเปิดรับลงชื่อ แล้วผู้เล่นเลือกสีเองใน LINE (สีละ 7 คน) · ทีมด้านซ้ายจะขึ้นชื่อให้อัตโนมัติ';
+   hint.textContent='สีที่เปิดสวิตช์ไว้ทางซ้าย = เปิดทีมไว้ล่วงหน้า (ขึ้นในสรุปพร้อมช่องว่าง 7 ช่อง) · ผู้เล่นยังเลือกสีอื่นเพิ่มได้';
    main.textContent='📲 เปิดรับลงชื่อใน LINE';
-   main.onclick=()=>act(main,async()=>{await rpc('tk7_admin_open_session',{p_date:date(),p_time_per_match:minutes(),p_start_time:startTime(),p_open:true});return 'เปิดรับลงชื่อแล้ว · ทุกคนในกลุ่มกดปุ่มในการ์ดหรือพิมพ์ "ลงชื่อ" ได้เลย'});
+   main.onclick=()=>act(main,async()=>{const sid=await rpc('tk7_admin_open_session',{p_date:date(),p_time_per_match:minutes(),p_start_time:startTime(),p_open:true});await rpc('tk7_admin_set_preset',{p_session:sid,p_teams:checkedTeams()});return 'เปิดรับลงชื่อแล้ว · ทุกคนในกลุ่มกดปุ่มในการ์ดหรือพิมพ์ "ลงชื่อ" ได้เลย'});
   }else{
-   const teams=ORDER.filter(t=>playersOf(s,t).length);const total=entriesOf(s).length;
+   const teams=ORDER.filter(t=>playersOf(s,t).length||presetOf(s).includes(t));const total=entriesOf(s).length;
    pill.className='tk7l-pill'+(s.is_open?'':' off');pill.textContent=s.is_open?'🟢 เปิดรับ':'🔒 ปิดรับแล้ว';
    summary.replaceChildren(el('b',{text:thai(date())}),' · เริ่ม '+String(s.start_time).slice(0,5)+' · '+s.time_per_match+' นาที/แมตช์',el('br'),
     el('b',{text:teams.length+' ทีม · '+total+' คน'}),teams.length?' ('+teams.map(t=>COLORS[t]+' '+playersOf(s,t).length).join(', ')+')':'');
-   hint.textContent='แก้วันที่ / นาที / เวลาเริ่มด้านบน = อัปเดตใน LINE ให้อัตโนมัติ · ทีมด้านซ้ายติ๊กตามสีที่มีคนลง';
+   hint.textContent='เปิด/ปิดสวิตช์สีทางซ้าย = เปิดทีมไว้ล่วงหน้าใน LINE · แก้นาที/เวลาเริ่มด้านบน = อัปเดตใน LINE อัตโนมัติ';
    main.hidden=true;
    const toggle=el('button',{type:'button',class:'btn btn-secondary',text:s.is_open?'🔒 ปิดรับลงชื่อ':'🔓 เปิดรับอีกครั้ง'});
    toggle.onclick=()=>act(toggle,async()=>{await rpc('tk7_admin_set_open',{p_session:s.id,p_open:!s.is_open});return s.is_open?'ปิดรับแล้ว (รายชื่อยังอยู่)':'เปิดรับอีกครั้งแล้ว'});
    const push=el('button',{type:'button',class:'btn btn-secondary',text:'📤 ส่งสรุปเข้ากลุ่ม'});
    push.onclick=()=>act(push,async()=>{await rpc('tk7_admin_push_summary',{p_session:s.id});return 'เข้าคิวแล้ว · ขึ้นในกลุ่มภายใน ~1 นาที'});
-   const copy=el('button',{type:'button',class:'btn btn-secondary',text:'🔗 คัดลอกลิงก์ลงชื่อ'});
-   copy.onclick=async()=>{try{await navigator.clipboard.writeText(LIFF);say('คัดลอกแล้ว: '+LIFF)}catch{say(LIFF)}};
+   const copy=el('button',{type:'button',class:'btn btn-secondary',text:'📋 คัดลอกสรุปรายชื่อ'});
+   copy.onclick=async()=>{try{await navigator.clipboard.writeText(summaryText(s));say('คัดลอกสรุปแล้ว (รูปแบบเดียวกับแชร์ลงทะเบียน) · วางในไลน์ได้เลย')}catch{say('คัดลอกไม่สำเร็จ',true)}};
    const clear=el('button',{type:'button',class:'btn tk7l-danger',text:'🗑 ล้างรายชื่อ',disabled:total?null:true});
    clear.onclick=()=>{if(!confirm('ล้างรายชื่อทั้งหมด '+total+' คน ของวันที่ '+thai(date())+' ?\n(ลบแล้วกู้คืนไม่ได้)'))return;
     act(clear,async()=>{const n=await rpc('tk7_admin_clear_session',{p_session:s.id});lastSig='';return 'ล้างรายชื่อแล้ว '+n+' คน'})};
@@ -126,16 +140,21 @@ window.TK7Admin={mount({db,canManage}){
     for(const t of ORDER){if(t===slug)continue;const n=playersOf(s,t).length;sel.append(el('option',{value:t,text:(n?'⇄ สลับกับ':'→ ')+COLORS[t]+(n?' ('+n+')':'')}))}
     sel.onchange=()=>{const to=sel.value;if(!to)return;recolor(s,slug,to);sel.value=''};
     info.append(sel);
-   }else info.append(el('span',{class:'names',text:'ยังไม่มีคนลง'}));
+   }else info.append(el('span',{class:'names',text:presetOf(s).includes(slug)?'เปิดไว้ · ยังไม่มีคนลง':'ยังไม่มีคนลง'}));
    const emblem=row.querySelector('.team-emblem');emblem?emblem.after(info):row.prepend(info);
   }
   // ติ๊กอัตโนมัติเมื่อสีที่มีคนลงเปลี่ยน
-  const teams=s?ORDER.filter(t=>playersOf(s,t).length):[];
-  const sig=(s?.id||'')+':'+teams.join(',');
-  if(s&&teams.length&&sig!==lastSig){
-   lastSig=sig;
-   for(const sw of switches){const on=teams.includes(sw.dataset.teamSlug);if(sw.checked!==on){sw.checked=on;sw.dispatchEvent(new Event('change',{bubbles:true}))}}
-  }
+  if(!s)return;
+  const used=ORDER.filter(t=>playersOf(s,t).length);
+  const firstForDate=!lastSig.startsWith(s.id+':');
+  const sig=s.id+':'+used.join(',')+'|'+presetOf(s).join(',');
+  if(sig===lastSig)return;
+  lastSig=sig;
+  // ครั้งแรกของวัน: สวิตช์ = สีที่เปิดไว้ + สีที่มีคน · ครั้งต่อไป: เพิ่มเฉพาะสีที่มีคนลงใหม่ (ไม่ปิดของเดิม)
+  const want=firstForDate&&presetOf(s).length?new Set([...presetOf(s),...used]):null;
+  applying=true;
+  for(const sw of switches){const t=sw.dataset.teamSlug;const on=want?want.has(t):(sw.checked||used.includes(t));if(sw.checked!==on){sw.checked=on;sw.dispatchEvent(new Event('change',{bubbles:true}))}}
+  applying=false;
  }
 
  async function recolor(s,from,to){
@@ -208,6 +227,14 @@ window.TK7Admin={mount({db,canManage}){
  $('time-per-match')?.addEventListener('change',pushFormSoon);
  $('start-time')?.addEventListener('change',pushFormSoon);
  document.querySelectorAll('#page-setup .num-stepper-btn').forEach(b=>b.addEventListener('click',()=>setTimeout(pushFormSoon,0)));
+ // สวิตช์สี → เปิดทีมไว้ล่วงหน้าใน LINE
+ document.addEventListener('change',e=>{
+  if(applying||!e.target?.classList?.contains('team-switch'))return;
+  const sw=e.target;const s=session();if(!s)return;
+  if(!sw.checked&&playersOf(s,sw.dataset.teamSlug).length){say('สี'+COLORS[sw.dataset.teamSlug]+' มีคนลงอยู่ — ยังแสดงใน LINE จนกว่าจะย้ายคนออก')}
+  clearTimeout(presetTimer);
+  presetTimer=setTimeout(async()=>{try{await rpc('tk7_admin_set_preset',{p_session:s.id,p_teams:checkedTeams()});await load();say('อัปเดตสีที่เปิดไว้ใน LINE แล้ว')}catch(err){say(errText(err),true)}},700);
+ },true);
  new IntersectionObserver(es=>{if(es.some(e=>e.isIntersecting))load()}).observe(card);
  const setupVisible=()=>!!$('page-setup')?.offsetParent;
  setInterval(()=>{if(!document.hidden&&setupVisible()&&!document.activeElement?.closest?.('#page-setup select'))load()},20000);
