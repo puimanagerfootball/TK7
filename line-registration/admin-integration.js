@@ -3,7 +3,6 @@
 // - รายการ "เลือกทีมที่เข้าร่วม" แสดงจำนวน/ชื่อคนจาก LINE และติ๊กทีมที่มีคนลงให้เอง
 // - เปลี่ยนสีทั้งทีมได้ (ถ้าสีปลายทางมีคน = สลับกัน) และอัปเดตตารางแข่งที่บันทึกไว้ด้วย
 window.TK7Admin={mount({db,canManage}){
- const LIFF='https://liff.line.me/2012278818-W0pIi2y0';
  const COLORS={green:'เขียว',red:'แดง',white:'ขาว',blue:'ฟ้า',black:'ดำ',yellow:'เหลือง',pink:'ชมพู',orange:'ส้ม',navy:'น้ำเงิน',purple:'ม่วง'};
  const ORDER=Object.keys(COLORS);
  const $=id=>document.getElementById(id);
@@ -100,29 +99,14 @@ window.TK7Admin={mount({db,canManage}){
  const actions=el('div',{class:'tk7l-actions'});
  const status=el('p',{class:'tk7l-status',role:'status'});
 
- let shareWindow=null;
  async function openCardShare(){
   const direct=window.TK7DirectShare;
-  if(window.TK7_DIRECT_SHARE_CONFIG?.liffId&&!direct){say('กำลังเชื่อมต่อ LINE กรุณารอสักครู่แล้วกดแชร์อีกครั้ง');return;}
-  if(direct?.configured){
-   try{
-    const result=await direct.share();
-    say(result?.login?'เข้าสู่ระบบ LINE แล้วกดแชร์อีกครั้ง':result?.status==='success'?'แชร์ลงทะเบียนแล้ว':'ยกเลิกการแชร์');
-   }catch(error){say(error?.message||'แชร์ไม่สำเร็จ กรุณาลองอีกครั้ง',true);}
-   return;
-  }
-  const url=LIFF+'?share=1&quick=1&v=20261103-quick-picker&returnOrigin='+encodeURIComponent(location.origin);
-  if(shareWindow&&!shareWindow.closed){shareWindow.focus();return;}
-  shareWindow=window.open(url,'tk7-card-share','popup=yes,width=480,height=460');
-  if(!shareWindow){window.location.assign(url);return;}
-  say('เลือกกลุ่มในหน้าต่างแชร์ / Choose recipients in the share window');
+  if(!direct?.configured){say('กำลังเตรียมแชร์ตรง กรุณารีเฟรชหน้า TK7 / Please refresh TK7 to load direct sharing.',true);return;}
+  try{
+   const result=await direct.share();
+   say(result?.login?'เข้าสู่ระบบ LINE แล้วกดแชร์อีกครั้ง':result?.status==='success'?'แชร์ลงทะเบียนแล้ว':'ยกเลิกการแชร์');
+  }catch(error){say(error?.message||'แชร์ไม่สำเร็จ กรุณาลองอีกครั้ง',true);}
  }
- window.addEventListener('message',event=>{
-  const origins=[location.origin,'https://tk7-line-registration-odf.md-8887.chatgpt.site','https://tk7-line-registration-odf.joviallemur25.chatgpt.site'];
-  if(shareWindow&&origins.includes(event.origin)&&event.source===shareWindow&&event.data?.type==='tk7-card-shared'){
-   say('แชร์การ์ดแล้ว / Card shared');shareWindow=null;
-  }
- });
  const logBox=el('details',{class:'tk7l-log'});
  card.append(el('h2',{},el('span',{text:'⚽ ลงชื่อเตะบอล'})),dateTabs,actions,status,logBox);
  // มือถือ: ใต้ช่องวันที่/เวลา · คอม: กว้างเต็มหน้า ใต้สองคอลัมน์ (เหนือปุ่มบันทึกตาราง)
