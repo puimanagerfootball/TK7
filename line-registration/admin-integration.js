@@ -73,10 +73,10 @@ window.TK7Admin={mount({db,canManage}){
   let n=1;
   for(const team of ORDER.filter(x=>presetOf(s).includes(x)||playersOf(s,x).length)){
    t+=REG[team][0]+' '+REG[team][1]+'\n';
-   for(let i=1;i<=7;i++)t+=(n+i-1)+'. '+(entriesOf(s).find(e=>e.team===team&&e.slot===i)?.name||'')+'\n';
+   for(let i=1;i<=7;i++)t+=(n+i-1)+'.'+(entriesOf(s).find(e=>e.team===team&&e.slot===i)?.name||'')+'\n';
    n+=7;
   }
-  return t+'\n⏱️ Match Duration / เวลาเล่น:\n• 4 Teams = 2 Hours (เล่น 2 ชม.)\n• 5 Teams = 3 Hours (เล่น 3 ชม.)\n\n👇 ลงชื่อ / เลือกสี กดลิงก์นี้\n'+LIFF;
+  return t+'\n⏱️ Match Duration / เวลาเล่น:\n• 4 Teams = 2 Hours (เล่น 2 ชม.)\n• 5 Teams = 3 Hours (เล่น 3 ชม.)\n\n👇 Please add your name / ลงชื่อต่อลำดับได้เลยครับ\n'+LIFF;
  }
 
  async function load(){
