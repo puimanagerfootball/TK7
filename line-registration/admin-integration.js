@@ -102,7 +102,7 @@ window.TK7Admin={mount({db,canManage}){
 
  let shareWindow=null;
  function openCardShare(){
-  const url=LIFF+'?share=1&quick=1&v=20261103-click-share&returnOrigin='+encodeURIComponent(location.origin);
+  const url=LIFF+'?share=1&quick=1&v=20261103-mobile-close&returnOrigin='+encodeURIComponent(location.origin);
   if(shareWindow&&!shareWindow.closed){shareWindow.focus();return;}
   shareWindow=window.open(url,'tk7-card-share','popup=yes,width=520,height=800');
   if(!shareWindow){window.location.assign(url);return;}

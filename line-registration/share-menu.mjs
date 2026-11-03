@@ -19,6 +19,19 @@ export function shareErrorText(error){
  return (message||'LINE ยังแชร์ไม่สำเร็จ กรุณากดแชร์อีกครั้ง / LINE could not share. Please tap Share again.')+'\nรหัส / Code: '+code;
 }
 
+export function closeSharedView(result,liff,view,shareOnly){
+ if(result?.status!=='success'||!shareOnly)return false;
+ if(view.opener){
+  try{view.opener.postMessage({type:'tk7-card-shared'},view.TK7_SHARE_RETURN_ORIGIN||view.location.origin);}catch{}
+ }
+ // A mobile LIFF window usually has no window.opener. Close it via LINE.
+ if(liff.isInClient?.()){
+  try{liff.closeWindow();return true;}catch{return false;}
+ }
+ if(view.opener){try{view.close();return true;}catch{}}
+ return false;
+}
+
 export function buildMenuMessage(url='https://liff.line.me/2012278818-W0pIi2y0') {
  const row=(icon,label,value,extra={})=>({type:'box',layout:'horizontal',spacing:'md',alignItems:'center',backgroundColor:'#f2f6f4',cornerRadius:'12px',paddingAll:'16px',contents:[{type:'text',text:icon,size:'xl',flex:0},{type:'box',layout:'vertical',spacing:'xs',flex:1,contents:[{type:'text',text:label,size:'xs',color:'#71867c',wrap:true},{type:'text',text:value,size:'lg',weight:'bold',color:'#142b20',wrap:true,...extra}]}]});
  const location=row('📍','Location / สถานที่','Google Maps ›',{color:'#1674ed'});
@@ -66,12 +79,7 @@ if(typeof document!=='undefined') {
    }
    const result=await liff.shareTargetPicker([buildMenuMessage()]);
    status.textContent=result?.status==='success'?'แชร์การ์ดแล้ว / Card shared':'ยกเลิกการแชร์ / Sharing cancelled';
-   if(result?.status==='success'&&window.TK7_SHARE_ONLY&&window.opener){
-    try{
-     window.opener.postMessage({type:'tk7-card-shared'},window.TK7_SHARE_RETURN_ORIGIN||location.origin);
-     window.close();
-    }catch{ /* Sharing succeeded even if the parent window is no longer available. */ }
-   }
+   closeSharedView(result,liff,window,window.TK7_SHARE_ONLY||shareRequested());
   }catch(error){status.textContent=shareErrorText(error);}
   finally{button.disabled=false;}
  });
