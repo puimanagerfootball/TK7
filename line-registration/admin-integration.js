@@ -152,11 +152,12 @@ window.TK7Admin={mount({db,canManage}){
  function pickLatestOpenDate(){
   if(autoDated)return false;autoDated=true;
   const c=cfg();
-  const open=(data?.sessions||[]).filter(s=>s.is_open&&s.group_id===c.group_id&&s.environment===c.environment).map(s=>s.match_date).sort();
-  const latest=open[open.length-1];const input=$('match-date');
-  if(!latest||!input||input.value===latest)return false;
-  input.value=latest;input.dispatchEvent(new Event('change',{bubbles:true}));
-  say('เลือกวันที่ '+thai(latest)+' ให้แล้ว (วันล่าสุดที่เปิดรับลงชื่อ)');
+  const today=new Date(Date.now()+7*3600e3).toISOString().slice(0,10);
+  const open=(data?.sessions||[]).filter(s=>s.is_open&&s.group_id===c.group_id&&s.environment===c.environment&&s.match_date>=today).map(s=>s.match_date).sort();
+  const next=open[0];const input=$('match-date');
+  if(!next||!input||input.value===next)return false;
+  input.value=next;input.dispatchEvent(new Event('change',{bubbles:true}));
+  say('เลือกวันที่ '+thai(next)+' ให้แล้ว (วันเปิดรับที่ใกล้ที่สุด)');
   return true;
  }
 
