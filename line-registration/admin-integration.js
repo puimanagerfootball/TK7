@@ -298,13 +298,10 @@ window.TK7Admin={mount({db,canManage}){
   const save=el('button',{type:'button',class:'btn btn-primary',text:'ใช้กลุ่มนี้',disabled:groups.length?null:true});
   save.onclick=()=>act(save,async()=>{const r=await rpc('tk7_admin_set_group',{p_group:sel.value,p_environment:env.value,p_move_upcoming:moveChk.checked});return 'เปลี่ยนกลุ่มแล้ว'+(r?.moved?' · ย้าย '+r.moved+' วันไปด้วย':'')});
   const reload=el('button',{type:'button',class:'btn btn-secondary',text:'↻ โหลดใหม่'});reload.onclick=()=>load().then(()=>say('โหลดรายชื่อกลุ่มแล้ว'));
-  const pushChk=el('input',{type:'checkbox',id:'tk7l-push',checked:c.push_summary!==false?true:null});
-  pushChk.onchange=()=>act(pushChk,async()=>{await rpc('tk7_admin_set_push',{p_on:pushChk.checked});return pushChk.checked?'เปิดส่งสรุปอัตโนมัติ':'ปิดส่งสรุปอัตโนมัติ'});
   groupBox.append(
    el('p',{class:'tk7l-hint',style:'margin-top:8px',text:'ย้ายกลุ่ม: เชิญบอทเข้ากลุ่มใหม่ (ใครสร้างกลุ่มก็ได้) → พิมพ์ "ลงชื่อ" ในกลุ่ม 1 ครั้ง → โหลดใหม่ → เลือกกลุ่ม'}),
    el('div',{class:'tk7l-grid'},sel,env,save,reload),
-   el('label',{class:'tk7l-check',for:'tk7l-move'},moveChk,el('span',{text:'ย้ายวันแข่งที่ยังไม่ถึงไปกลุ่มใหม่ด้วย'})),
-   el('label',{class:'tk7l-check',for:'tk7l-push'},pushChk,el('span',{text:'ส่งสรุปรายชื่อเข้ากลุ่มอัตโนมัติหลังมีคนลง (รวมทุก ~1 นาที)'})));
+   el('label',{class:'tk7l-check',for:'tk7l-move'},moveChk,el('span',{text:'ย้ายวันแข่งที่ยังไม่ถึงไปกลุ่มใหม่ด้วย'})));
  }
 
  const logWeb=(sid,action,detail)=>rpc('tk7_admin_log',{p_session:sid,p_action:action,p_detail:detail}).catch(()=>{});
