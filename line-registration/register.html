@@ -66,6 +66,11 @@ button.chip{border:1px solid transparent}
 .prow.on{background:#e3f4e8}
 .prow .box{width:20px;height:20px;flex:0 0 20px;border:2px solid #b9c7bd;border-radius:6px;display:grid;place-items:center;font-size:13px;font-weight:700;color:#fff}
 .prow.on .box{background:var(--brand);border-color:var(--brand)}
+.prow.empty .box{border-style:dashed;border-color:#d5ded8}
+.prow.empty .pname{color:#a3b2a8;font-size:14px}
+.prow{min-height:38px}
+.team{height:100%}
+.team .cta{margin-top:auto}
 .prow .num{color:var(--muted);font-size:13px;min-width:18px}
 .prow .pname{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tap-hint{color:#cfe3d5;font-size:12.5px;margin:-2px 2px 8px}
@@ -141,6 +146,6 @@ button.chip{border:1px solid transparent}
 <div class="toast" id="toast" role="status"></div>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <script src="config.js"></script>
-<script src="registration.js?v=20261103-4"></script>
+<script src="registration.js?v=20261103-5"></script>
 </body>
 </html>
