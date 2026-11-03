@@ -195,6 +195,7 @@ function createHandler(env,fetcher=fetch){
     const eventBody=JSON.parse(raw);
     for(const event of eventBody.events||[]){
      const group=event.source?.type==='group'&&event.source.groupId;if(!group)continue;
+     if(event.type!=='message')console.log('LINE_EVENT',JSON.stringify({type:event.type,group,src:event.source?.userId||'',members:event.joined?.members?.length||event.left?.members?.length||0,ts:event.timestamp}));
      const keyword=event.type==='message'&&event.message?.type==='text'&&isKeyword(event.message.text);
      if(event.type!=='join'&&!keyword)continue; // ข้อความคุยทั่วไป: ไม่ทำอะไร
      let name='';
