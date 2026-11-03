@@ -53,8 +53,18 @@ window.TK7Admin={mount({db,canManage}){
   .tk7l-colorgrid small{font-size:11px;opacity:.85;font-weight:400}
   .tk7l-empty{margin:4px 0 6px;color:#5f7466}
   .tk7l-colorbox{display:flex;flex-direction:column;gap:6px}
-  .tk7l-colors{display:flex;flex-wrap:wrap;gap:6px}
-  #tk7-line-card .tk7l-chip{font-size:13px!important;padding:5px 10px!important;min-width:0!important;width:auto!important;height:auto!important;border-radius:999px!important;cursor:pointer;box-shadow:none!important;transform:none!important}
+  .tk7l-colors{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+  #tk7-line-card .tk7l-chip{width:100%!important;max-width:none!important;display:flex!important;justify-content:center;align-items:center;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  @media (max-width:480px){#tk7-line-card .tk7l-chip{font-size:11.5px!important;padding:6px 2px!important}}
+  #tk7-line-card .tk7l-log summary{cursor:pointer;font-weight:600;font-size:14px;color:#2d4a37}
+  .tk7l-loglist{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:4px;max-height:320px;overflow:auto}
+  .tk7l-loglist li{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;background:rgba(255,255,255,.6);border-radius:10px;padding:8px 10px;font-size:13px;line-height:1.4;color:#1d2b22}
+  .tk7l-loglist time{color:#6b7d71;font-size:12px;white-space:nowrap}
+  .tk7l-loglist .who{font-weight:600}
+  .tk7l-loglist .src{font-size:10.5px;font-weight:600;padding:1px 6px;border-radius:999px;background:#06c755;color:#fff;margin-left:6px;vertical-align:1px}
+  .tk7l-loglist .src.web{background:#5b7bd5}
+  .tk7l-loglist .what{grid-column:2;color:#3d5545;word-break:break-word}
+  #tk7-line-card .tk7l-chip{font-size:13px!important;padding:6px 6px!important;min-width:0!important;height:auto!important;border-radius:999px!important;cursor:pointer;box-shadow:none!important;transform:none!important}
   #tk7-line-card .tk7l-chip.off{opacity:.35;filter:grayscale(.6)}
   /* คอม: การ์ด LINE อยู่ล่างสุดของคอลัมน์ขวา (ใต้รูปแบบตาราง + นัดเปิดสนาม) */
   /* คอม: การ์ด LINE กว้างเต็มหน้า ใต้สองคอลัมน์ */
@@ -71,7 +81,8 @@ window.TK7Admin={mount({db,canManage}){
  const actions=el('div',{class:'tk7l-actions'});
  const status=el('p',{class:'tk7l-status',role:'status'});
  const groupBox=el('details');
- card.append(el('h2',{},el('span',{text:'📲 ลงชื่อผ่าน LINE'}),pill),summary,hint,main,actions,status,groupBox);
+ const logBox=el('details',{class:'tk7l-log'});
+ card.append(el('h2',{},el('span',{text:'📲 ลงชื่อผ่าน LINE'}),pill),summary,hint,main,actions,status,logBox,groupBox);
  // มือถือ: ใต้ช่องวันที่/เวลา · คอม: กว้างเต็มหน้า ใต้สองคอลัมน์ (เหนือปุ่มบันทึกตาราง)
  const wide=matchMedia('(min-width: 768px), (orientation: landscape)');
  // การ์ด LINE อยู่ล่างสุดของหน้าจัดการทีม (ใต้ปุ่มบันทึก/แชร์) ทั้งมือถือและคอม
@@ -146,7 +157,7 @@ window.TK7Admin={mount({db,canManage}){
    summary.replaceChildren(el('b',{text:thai(date())}),' · เริ่ม '+startTime()+' · '+minutes()+' นาที/แมตช์');
    hint.textContent='สีที่เปิดสวิตช์ไว้ทางซ้าย = เปิดทีมไว้ล่วงหน้า (ขึ้นในสรุปพร้อมช่องว่าง 7 ช่อง) · ผู้เล่นยังเลือกสีอื่นเพิ่มได้';
    main.textContent='📲 เปิดรับลงชื่อใน LINE';
-   main.onclick=()=>act(main,async()=>{const sid=await rpc('tk7_admin_open_session',{p_date:date(),p_time_per_match:minutes(),p_start_time:startTime(),p_open:true});await rpc('tk7_admin_set_preset',{p_session:sid,p_teams:checkedTeams()});return 'เปิดรับลงชื่อแล้ว · ทุกคนในกลุ่มกดปุ่มในการ์ดหรือพิมพ์ "ลงชื่อ" ได้เลย'});
+   main.onclick=()=>act(main,async()=>{const sid=await rpc('tk7_admin_open_session',{p_date:date(),p_time_per_match:minutes(),p_start_time:startTime(),p_open:true});await rpc('tk7_admin_set_preset',{p_session:sid,p_teams:checkedTeams()});await logWeb(sid,'open','เปิดรับลงชื่อ · เริ่ม '+startTime()+' · '+minutes()+' นาที/แมตช์');return 'เปิดรับลงชื่อแล้ว · ทุกคนในกลุ่มกดปุ่มในการ์ดหรือพิมพ์ "ลงชื่อ" ได้เลย'});
   }else{
    const teams=ORDER.filter(t=>playersOf(s,t).length||presetOf(s).includes(t));const total=entriesOf(s).length;
    pill.className='tk7l-pill'+(s.is_open?'':' off');pill.textContent=s.is_open?'🟢 เปิดรับ':'🔒 ปิดรับแล้ว';
@@ -155,10 +166,10 @@ window.TK7Admin={mount({db,canManage}){
    hint.textContent='เปิด/ปิดสวิตช์สีทางซ้าย = เปิดทีมไว้ล่วงหน้าใน LINE · แก้นาที/เวลาเริ่มด้านบน = อัปเดตใน LINE อัตโนมัติ';
    main.hidden=true;
    const toggle=el('button',{type:'button',class:'btn btn-secondary',text:s.is_open?'🔒 ปิดรับลงชื่อ':'🔓 เปิดรับอีกครั้ง'});
-   toggle.onclick=()=>act(toggle,async()=>{await rpc('tk7_admin_set_open',{p_session:s.id,p_open:!s.is_open});return s.is_open?'ปิดรับแล้ว (รายชื่อยังอยู่)':'เปิดรับอีกครั้งแล้ว'});
+   toggle.onclick=()=>act(toggle,async()=>{await rpc('tk7_admin_set_open',{p_session:s.id,p_open:!s.is_open});await logWeb(s.id,s.is_open?'close':'reopen',s.is_open?'ปิดรับลงชื่อ':'เปิดรับลงชื่ออีกครั้ง');return s.is_open?'ปิดรับแล้ว (รายชื่อยังอยู่)':'เปิดรับอีกครั้งแล้ว'});
    const clear=el('button',{type:'button',class:'btn tk7l-danger',text:'🗑 ล้างรายชื่อ LINE',disabled:total?null:true});
    clear.onclick=()=>{if(!confirm('ล้างรายชื่อทั้งหมด '+total+' คน ของวันที่ '+thai(date())+' ?\n(ลบแล้วกู้คืนไม่ได้)'))return;
-    act(clear,async()=>{const n=await rpc('tk7_admin_clear_session',{p_session:s.id});lastSig='';return 'ล้างรายชื่อแล้ว '+n+' คน'})};
+    act(clear,async()=>{const n=await rpc('tk7_admin_clear_session',{p_session:s.id});await logWeb(s.id,'clear','ล้างรายชื่อ '+n+' คน');lastSig='';return 'ล้างรายชื่อแล้ว '+n+' คน'})};
    const del=el('button',{type:'button',class:'btn tk7l-danger',text:'🗓 ลบวันลงทะเบียน'});
    del.onclick=()=>{if(!confirm('ลบวันลงทะเบียน '+thai(date())+' ?\nรายชื่อทั้งหมดของวันนี้จะหายและกู้คืนไม่ได้'))return;
     act(del,async()=>{await rpc('tk7_admin_delete_session',{p_session:s.id});lastSig='';return 'ลบวันลงทะเบียน '+thai(date())+' แล้ว'})};
@@ -171,12 +182,12 @@ window.TK7Admin={mount({db,canManage}){
     const b=el('button',{type:'button',class:'tk7l-chip team-emblem '+t+(on?'':' off'),'aria-pressed':String(on),title:has?'มีคนลงอยู่ ปิดไม่ได้':'',text:(on?'✓ ':'✕ ')+COLORS[t]});
     b.onclick=()=>{if(has&&on){say('สี'+COLORS[t]+' มีคนลงอยู่ — ย้ายคนออกก่อนจึงปิดได้',true);return}
      const next=on?allowed.filter(x=>x!==t):[...allowed,t];
-     act(b,async()=>{await rpc('tk7_admin_set_teams',{p_session:s.id,p_teams:next});return (on?'ปิด':'เปิด')+'สี'+COLORS[t]+'ในหน้าลงชื่อแล้ว'})};
+     act(b,async()=>{await rpc('tk7_admin_set_teams',{p_session:s.id,p_teams:next});await logWeb(s.id,'teams',(on?'ปิด':'เปิด')+'สี'+COLORS[t]+'ในหน้าลงชื่อ');return (on?'ปิด':'เปิด')+'สี'+COLORS[t]+'ในหน้าลงชื่อแล้ว'})};
     chips.append(b);
    }
    actions.after(el('div',{class:'tk7l-colorbox'},el('div',{class:'tk7l-hint',text:'สีที่ให้เลือกในหน้าลงชื่อ (แตะเพื่อเปิด/ปิด):'}),chips));
   }
-  renderTeams(s);renderGroup();pullFormFrom(s);
+  renderTeams(s);renderLog(s);renderGroup();pullFormFrom(s);
  }
 
  // รายการทีมด้านซ้าย: แสดงคนจาก LINE + เปลี่ยนสี + ติ๊กอัตโนมัติ
@@ -243,7 +254,7 @@ window.TK7Admin={mount({db,canManage}){
   if(!confirm((nTo?'สลับสี '+COLORS[from]+' ⇄ '+COLORS[to]:'เปลี่ยนทีม'+COLORS[from]+' ทั้งหมดเป็นสี'+COLORS[to])+' ?'))return;
   say('กำลังเปลี่ยนสี…');
   try{
-   await rpc('tk7_admin_recolor',{p_session:s.id,p_from:from,p_to:to});
+   await rpc('tk7_admin_recolor',{p_session:s.id,p_from:from,p_to:to});await logWeb(s.id,'recolor','ทีมสี'+COLORS[from]+(nTo?' ⇄ ':' → ')+'สี'+COLORS[to]);
    const sched=await swapScheduleColors(s.match_date,from,to);
    lastSig='';await load();
    say('เปลี่ยนสีแล้ว: '+COLORS[from]+(nTo?' ⇄ ':' → ')+COLORS[to]+(sched?' · อัปเดตตารางแข่งที่บันทึกไว้ด้วย':''));
@@ -271,7 +282,7 @@ window.TK7Admin={mount({db,canManage}){
   syncTimer=setTimeout(async()=>{
    const s=session();if(!s)return render();
    if(s.time_per_match===minutes()&&String(s.start_time).slice(0,5)===startTime())return;
-   try{await rpc('tk7_admin_open_session',{p_date:date(),p_time_per_match:minutes(),p_start_time:startTime(),p_open:s.is_open});await load();say('อัปเดตเวลาใน LINE แล้ว: เริ่ม '+startTime()+' · '+minutes()+' นาที/แมตช์')}
+   try{await rpc('tk7_admin_open_session',{p_date:date(),p_time_per_match:minutes(),p_start_time:startTime(),p_open:s.is_open});await logWeb(s.id,'time','เปลี่ยนเวลาเป็น '+startTime()+' · '+minutes()+' นาที/แมตช์');await load();say('อัปเดตเวลาใน LINE แล้ว: เริ่ม '+startTime()+' · '+minutes()+' นาที/แมตช์')}
    catch(e){say(errText(e),true)}
   },900);
  }
@@ -294,6 +305,22 @@ window.TK7Admin={mount({db,canManage}){
    el('div',{class:'tk7l-grid'},sel,env,save,reload),
    el('label',{class:'tk7l-check',for:'tk7l-move'},moveChk,el('span',{text:'ย้ายวันแข่งที่ยังไม่ถึงไปกลุ่มใหม่ด้วย'})),
    el('label',{class:'tk7l-check',for:'tk7l-push'},pushChk,el('span',{text:'ส่งสรุปรายชื่อเข้ากลุ่มอัตโนมัติหลังมีคนลง (รวมทุก ~1 นาที)'})));
+ }
+
+ const logWeb=(sid,action,detail)=>rpc('tk7_admin_log',{p_session:sid,p_action:action,p_detail:detail}).catch(()=>{});
+ function renderLog(s){
+  const open=logBox.open;logBox.replaceChildren();
+  const rows=s?.log||[];logBox.hidden=!s;
+  logBox.append(el('summary',{text:'🕘 ประวัติการแก้ไข'+(rows.length?' ('+rows.length+')':'')}));
+  if(!rows.length){logBox.append(el('p',{class:'tk7l-hint',style:'margin-top:8px',text:'ยังไม่มีประวัติ'}));logBox.open=open;return}
+  const ul=el('ul',{class:'tk7l-loglist'});
+  for(const r of rows){
+   const t=new Date(r.created_at);
+   ul.append(el('li',{},el('time',{text:t.toLocaleDateString('th-TH',{day:'numeric',month:'short'})+' '+t.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'})}),
+    el('span',{},el('span',{class:'who',text:r.actor_name||'-'}),el('span',{class:'src'+(r.source==='web'?' web':''),text:r.source==='web'?'เว็บ':'LINE'})),
+    el('span',{class:'what',text:r.detail||r.action})));
+  }
+  logBox.append(ul);logBox.open=open;
  }
 
  async function act(btn,fn){

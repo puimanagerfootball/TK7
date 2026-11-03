@@ -35,6 +35,13 @@ h1{font-size:26px;margin:2px 0 0;font-weight:700}
 .info{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 14px}
 .pill{background:rgba(0,0,0,.28);color:#e9f5ec;border-radius:999px;padding:5px 11px;font-size:13px}
 .pill.closed{background:var(--warn);color:#3b2a00}
+button.pill.hist{background:rgba(255,255,255,.16);color:#fff;border:1px solid rgba(255,255,255,.25)}
+.hist-list{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.hist-list li{background:#f2f6f3;border-radius:10px;padding:9px 12px;font-size:14px}
+.hist-list li.hint{background:none;color:var(--muted);text-align:center}
+.h-top{display:flex;justify-content:space-between;gap:8px}
+.h-top time{color:var(--muted);font-size:12px}
+.h-what{color:#3d5545;margin-top:2px}
 .section-label{color:#d4e8da;font-size:13px;margin:18px 2px 8px;display:flex;align-items:center;gap:8px}
 .section-label::after{content:"";flex:1;height:1px;background:rgba(255,255,255,.16)}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -134,6 +141,6 @@ button.chip{border:1px solid transparent}
 <div class="toast" id="toast" role="status"></div>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <script src="config.js"></script>
-<script src="registration.js?v=20261103-2"></script>
+<script src="registration.js?v=20261103-4"></script>
 </body>
 </html>
