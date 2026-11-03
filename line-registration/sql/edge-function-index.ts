@@ -49,18 +49,30 @@ function headerText(session){
 function buildSignupCard(session,liffUrl=DEFAULT_LIFF_URL){
  const start=String(session.start_time||session.startTime||"20:00").slice(0,5);
  const open=session.is_open!==false;
- const line=(t,opt={})=>({type:"text",text:t,size:"sm",color:"#1d2b22",wrap:true,...opt});
- return {type:"flex",altText:headerText(session).slice(0,390),contents:{type:"bubble",
-  body:{type:"box",layout:"vertical",spacing:"sm",paddingAll:"16px",contents:[
-   line("⚽️ FOOTBALL MATCH @ TK7 Stadium",{weight:"bold",size:"md"}),
-   line("📅 Date / วันที่ : "+dmy(session.match_date||session.matchDate)),
-   line("🕗 Kick-off / เวลาเตะ : "+start),
-   {type:"text",text:"📍 Location (Google Maps)",size:"sm",color:"#1f6fd1",decoration:"underline",action:{type:"uri",label:"Map",uri:"https://maps.app.goo.gl/37K6rD4LqWA5Qz5KA"}},
-   ...(session.environment==="test"?[line("🧪 Test group / กลุ่มทดสอบ",{size:"xs",color:"#8a978e"})]:[]),
-   ...(open?[]:[line("🔒 Registration closed / ปิดรับลงชื่อแล้ว",{size:"xs",color:"#b3261e"})])
+ const MAP="https://maps.app.goo.gl/37K6rD4LqWA5Qz5KA";
+ const row=(icon,label,value,extra={})=>({type:"box",layout:"horizontal",spacing:"md",alignItems:"center",paddingAll:"10px",backgroundColor:"#F3F7F4",cornerRadius:"10px",...extra,contents:[
+  {type:"text",text:icon,size:"xl",flex:0,gravity:"center"},
+  {type:"box",layout:"vertical",flex:1,contents:[
+   {type:"text",text:label,size:"xxs",color:"#6B7D71"},
+   {type:"text",text:value,size:"md",weight:"bold",color:extra.action?"#1F6FD1":"#1D2B22",wrap:true}
+  ]}
+ ]});
+ const badges=[];
+ if(session.environment==="test")badges.push({type:"text",text:"🧪 Test group / กลุ่มทดสอบ",size:"xxs",color:"#D9F2DF",margin:"sm"});
+ if(!open)badges.push({type:"text",text:"🔒 Registration closed / ปิดรับลงชื่อแล้ว",size:"xs",color:"#FFE08A",weight:"bold",margin:"sm"});
+ return {type:"flex",altText:headerText(session).slice(0,390),contents:{type:"bubble",size:"kilo",
+  header:{type:"box",layout:"vertical",backgroundColor:"#1F6B3A",paddingAll:"16px",paddingBottom:"14px",contents:[
+   {type:"text",text:"⚽ FOOTBALL MATCH",color:"#FFFFFF",weight:"bold",size:"lg"},
+   {type:"text",text:"@ TK7 Stadium",color:"#B9EE82",size:"sm",weight:"bold"},
+   ...badges
   ]},
-  footer:{type:"box",layout:"vertical",paddingAll:"12px",contents:[
-   {type:"button",style:"primary",color:"#247a43",action:{type:"uri",label:open?"ลงชื่อ / Sign up":"ดูรายชื่อ / View",uri:liffUrl}}
+  body:{type:"box",layout:"vertical",spacing:"sm",paddingAll:"12px",contents:[
+   row("📅","Date / วันที่",dmy(session.match_date||session.matchDate)),
+   row("🕗","Kick-off / เวลาเตะ",start+" น."),
+   row("📍","Location / สถานที่","Google Maps ›",{action:{type:"uri",label:"Map",uri:MAP}})
+  ]},
+  footer:{type:"box",layout:"vertical",paddingAll:"12px",paddingTop:"4px",contents:[
+   {type:"button",style:"primary",color:"#247A43",height:"md",action:{type:"uri",label:open?"✍️ ลงชื่อ / Sign up":"👀 ดูรายชื่อ / View",uri:liffUrl}}
   ]}}};
 }
 
