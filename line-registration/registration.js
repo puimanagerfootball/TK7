@@ -79,7 +79,7 @@ async function api(action,payload={}){
 // ---------- sheet ----------
 function openSheet(content){$("sheet-content").replaceChildren(content);$("sheet").classList.add("show");$("scrim").classList.add("show")}
 function closeSheet(){$("sheet").classList.remove("show");$("scrim").classList.remove("show")}
-$("scrim").onclick=closeSheet;
+window.TK7Backdrop.install($("scrim"),e=>e.target===$("scrim"),closeSheet);
 $("alert-scrim").onclick=()=>{$("alert").classList.remove("show");$("alert-scrim").classList.remove("show")};
 
 // ---------- render ----------

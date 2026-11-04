@@ -270,7 +270,7 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>''}){
  // ป็อปอัพทีม: รายชื่อ (ชื่อละบรรทัด) + เปลี่ยนสีทั้งทีม
  let teamBusy=false,teamTrigger=null,teamBackdrop=null,activeJoinSlug=null;
  const modal=el('div',{class:'tk7l-modal',role:'dialog','aria-modal':'true',hidden:true});
- modal.onclick=e=>{if(e.target===modal)closeTeam()};
+ window.TK7Backdrop.install(modal,e=>e.target===modal||e.target.classList?.contains('tk7l-join-dim'),closeTeam);
  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!modal.hidden)closeTeam()});
  document.body.append(modal);
  function closeTeam(){if(teamBusy)return;if(activeJoinSlug){const slug=activeJoinSlug;activeJoinSlug=null;openTeam(slug);return;}teamBackdrop=null;modal.hidden=true;modal.replaceChildren();teamTrigger?.focus?.()}
@@ -390,7 +390,7 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>''}){
    colorDetails=details;details.hidden=true;details.append(grid);body.append(details);
   }
   box.append(body);
-  if(isJoin&&teamBackdrop)modal.replaceChildren(el('div',{class:'tk7l-back-card','aria-hidden':'true',inert:true},teamBackdrop),el('div',{class:'tk7l-join-dim',onclick:closeTeam}),box);else modal.replaceChildren(box);
+  if(isJoin&&teamBackdrop)modal.replaceChildren(el('div',{class:'tk7l-back-card','aria-hidden':'true',inert:true},teamBackdrop),el('div',{class:'tk7l-join-dim'}),box);else modal.replaceChildren(box);
   modal.hidden=false;
   box.querySelector('input:not(:disabled),textarea:not(:disabled),button')?.focus();
  }
