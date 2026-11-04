@@ -1,5 +1,5 @@
 /* ==========================================================================
-   TK7 app logic (Ver 5.0.0)
+   TK7 app logic (Ver 5.0.1)
    แยกจาก index.html เพื่อแก้/ค้นหาง่ายขึ้น
    Sections (ค้นหาด้วย // --- SECTION:):
      CONFIG, AUTH, REGISTRATION, SCHEDULE, LINEUP, SETUP,
@@ -1223,17 +1223,34 @@
 
         let openerSpinning = false;
 
-        function pickRandomOpenerPair(teamPool, currentPair = null) {
-            if (!Array.isArray(teamPool) || teamPool.length < 2) return null;
-            let home = teamPool[0];
-            let away = teamPool[1];
-            for (let i = 0; i < 12; i++) {
-                home = teamPool[Math.floor(Math.random() * teamPool.length)];
-                const others = teamPool.filter(slug => slug !== home);
-                away = others[Math.floor(Math.random() * others.length)];
-                if (!currentPair || home !== currentPair.home || away !== currentPair.away) break;
+        function openerPairKey(pair) {
+            return pair?.home && pair?.away && pair.home !== pair.away ? [pair.home, pair.away].sort().join('|') : '';
+        }
+        function pickRandomOpenerPair(teamPool, currentPair = null, previousPairs = [], random = Math.random) {
+            const pool = [...new Set((teamPool || []).filter(t => typeof t === 'string' && t))];
+            const pairs = [];
+            for (let i = 0; i < pool.length; i++) for (let j = i + 1; j < pool.length; j++) pairs.push({ home: pool[i], away: pool[j] });
+            if (!pairs.length) return null;
+            const currentKey = openerPairKey(currentPair);
+            let choices = pairs.filter(pair => openerPairKey(pair) !== currentKey);
+            if (!choices.length) choices = pairs;
+            const history = previousPairs.map(openerPairKey).filter(Boolean);
+            const unseen = choices.filter(pair => !history.includes(openerPairKey(pair)));
+            if (unseen.length) choices = unseen;
+            else {
+                // If every available pair has been used, choose the least recently used.
+                const oldest = Math.max(...choices.map(pair => history.indexOf(openerPairKey(pair))));
+                choices = choices.filter(pair => history.indexOf(openerPairKey(pair)) === oldest);
             }
-            return { home, away };
+            const pair = choices[Math.min(choices.length - 1, Math.floor(random() * choices.length))];
+            return random() < 0.5 ? { ...pair } : { home: pair.away, away: pair.home };
+        }
+        async function readPreviousOpenerPairs(date) {
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(date || '')) throw new Error('กรุณาเลือกวันที่ก่อนสุ่ม');
+            const { data, error } = await db.from('match_days').select('match_date,schedule').lt('match_date', date).order('match_date', { ascending: false }).limit(12);
+            if (error) throw new Error('อ่านคู่เปิดสนามครั้งก่อนยังไม่สำเร็จ กรุณาลองสุ่มอีกครั้ง');
+            const saved = appData[date]?.schedule?.[0];
+            return [saved, ...(data || []).map(day => day.schedule?.[0])].filter(pair => openerPairKey(pair));
         }
 
         function setOpenerReelTeam(reelWindow, slug, { clickable = false, side = '' } = {}) {
@@ -1319,7 +1336,7 @@
             `;
         }
 
-        function wireOpenerSlotControls(root, { teamPool, getPair, onPairChange, enableLever = true, clickable = true } = {}) {
+        function wireOpenerSlotControls(root, { teamPool, getPair, onPairChange, getDate = () => document.getElementById('match-date')?.value || currentDateKey, enableLever = true, clickable = true } = {}) {
             if (!root) return;
             const homeWindow = root.querySelector('[data-reel="home"] .opener-reel-window');
             const awayWindow = root.querySelector('[data-reel="away"] .opener-reel-window');
@@ -1355,6 +1372,8 @@
                         root,
                         teamPool: pool,
                         currentPair: current,
+                        matchDate: getDate(),
+                        isCurrent: (date) => getDate() === date && root.isConnected !== false,
                         clickable,
                         onDone: (result) => applyPair(result)
                     });
@@ -1366,7 +1385,7 @@
             return new Promise(resolve => setTimeout(resolve, ms));
         }
 
-        async function spinOpenerSlotMachine({ root, teamPool, currentPair, onDone, clickable = true }) {
+        async function spinOpenerSlotMachine({ root, teamPool, currentPair, onDone, matchDate, isCurrent = () => true, clickable = true }) {
             if (openerSpinning || !root) return;
             if (!teamPool || teamPool.length < 2) {
                 alert('ต้องมีทีมอย่างน้อย 2 ทีมเพื่อสุ่มคู่เปิดสนาม');
@@ -1384,16 +1403,20 @@
                 // ดึงคันลงตามรางก่อน แล้วค่อยหมุนวงล้อ
                 lever.classList.add('pulled');
             }
+            try {
+            const history = await readPreviousOpenerPairs(matchDate);
             await sleep(220);
             machine.classList.add('spinning');
 
-            const result = pickRandomOpenerPair(teamPool, currentPair);
+            const result = pickRandomOpenerPair(teamPool, currentPair, history);
+            if (!isCurrent(matchDate)) return;
             const homeStopAt = 14 + Math.floor(Math.random() * 4);
             const awayStopAt = homeStopAt + 4 + Math.floor(Math.random() * 4);
             let homeSlug = currentPair?.home || teamPool[0];
             let awaySlug = currentPair?.away || teamPool[1];
 
             for (let step = 0; step <= awayStopAt; step++) {
+                if (!isCurrent(matchDate)) return;
                 if (step <= homeStopAt) {
                     homeSlug = teamPool[Math.floor(Math.random() * teamPool.length)];
                     setOpenerReelTeam(homeWindow, homeSlug);
@@ -1422,8 +1445,15 @@
                 await sleep(280);
                 lever.disabled = false;
             }
-            openerSpinning = false;
-            if (typeof onDone === 'function') onDone(result);
+            if (isCurrent(matchDate) && typeof onDone === 'function') onDone(result);
+            } catch (error) {
+                if (isCurrent(matchDate)) showToast(error.message || 'สุ่มคู่เปิดสนามไม่สำเร็จ');
+            } finally {
+                machine.classList.remove('spinning');
+                if (lever) { lever.classList.remove('pulled'); lever.disabled = false; }
+                openerSpinning = false;
+                if (!isCurrent(matchDate)) { renderSchedulePreview(true); renderScheduleOpenerCard(currentDateKey); }
+            }
         }
 
         async function updateScheduleFromOpenerCard() {
@@ -1499,6 +1529,7 @@
             if (editable) {
                 wireOpenerSlotControls(content, {
                     teamPool: () => getScheduleTeamPool(date),
+                    getDate: () => currentDateKey,
                     getPair: () => getScheduleOpenerPair(date),
                     onPairChange: (pair) => {
                         scheduleOpenerDraft = { date, home: pair.home, away: pair.away };
