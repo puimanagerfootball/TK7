@@ -1,5 +1,5 @@
 /* ==========================================================================
-   TK7 app logic (Ver 5.0.1)
+   TK7 app logic (Ver 5.0.2)
    แยกจาก index.html เพื่อแก้/ค้นหาง่ายขึ้น
    Sections (ค้นหาด้วย // --- SECTION:):
      CONFIG, AUTH, REGISTRATION, SCHEDULE, LINEUP, SETUP,
@@ -1232,8 +1232,14 @@
             for (let i = 0; i < pool.length; i++) for (let j = i + 1; j < pool.length; j++) pairs.push({ home: pool[i], away: pool[j] });
             if (!pairs.length) return null;
             const currentKey = openerPairKey(currentPair);
-            let choices = pairs.filter(pair => openerPairKey(pair) !== currentKey);
-            if (!choices.length) choices = pairs;
+            // Prefer neither team from the latest saved opener; relax only when necessary.
+            const previous = previousPairs.find(pair => openerPairKey(pair)) || currentPair;
+            const previousTeams = new Set(previous ? [previous.home, previous.away] : []);
+            const overlap = pair => Number(previousTeams.has(pair.home)) + Number(previousTeams.has(pair.away));
+            const minimumOverlap = Math.min(...pairs.map(overlap));
+            let choices = pairs.filter(pair => overlap(pair) === minimumOverlap);
+            const different = choices.filter(pair => openerPairKey(pair) !== currentKey);
+            if (different.length) choices = different;
             const history = previousPairs.map(openerPairKey).filter(Boolean);
             const unseen = choices.filter(pair => !history.includes(openerPairKey(pair)));
             if (unseen.length) choices = unseen;
