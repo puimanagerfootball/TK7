@@ -80,6 +80,7 @@ window.TK7Admin={mount({db,canManage}){
   .tk7l-colorgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
   .tk7l-colorgrid .team-emblem{max-width:none!important;display:flex!important;flex-direction:column;align-items:center;justify-content:center;width:auto!important;min-width:0!important;height:auto!important;padding:10px 4px!important;font-size:14px!important;line-height:1.2;cursor:pointer;border:0}
   .tk7l-colorgrid small{font-size:11px;opacity:.85;font-weight:400}
+  .tk7l-checklist{display:grid;gap:6px;margin:8px 0 12px}.tk7l-checkrow,.tk7l-select-all{display:flex;align-items:center;gap:10px;padding:10px;background:white;border-radius:10px;cursor:pointer;text-align:left}.tk7l-checkrow input,.tk7l-select-all input{width:20px;height:20px;accent-color:#238947;margin:0}.tk7l-edit-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}.tk7l-edit-btn{font:inherit;font-weight:600;font-size:14px;padding:12px 8px;border:0;border-radius:10px;cursor:pointer;min-height:44px}.tk7l-edit-btn.primary{background:#238947;color:white}.tk7l-edit-btn.danger{background:#fdeaea;color:#b3261e}.tk7l-sheet :disabled{opacity:.5;cursor:default}.tk7l-sheet textarea,.tk7l-sheet select{box-sizing:border-box;width:100%;font:inherit;padding:10px;border:1px solid #c8dacc;border-radius:10px;background:#fff;color:#1d2b22}.tk7l-add{width:100%;margin-top:8px}.tk7l-team-notice{font-size:13px;white-space:pre-line}.tk7l-team-notice:empty{display:none}.tk7l-sheet .tk7l-sub{display:block;margin-top:14px}
   .tk7l-empty{margin:4px 0 6px;color:#5f7466}
   .tk7l-dates{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
   #tk7-line-card .tk7l-dtab{font:inherit;font-size:13px;padding:6px 12px;border-radius:999px;border:1px solid rgba(31,122,67,.35);background:#fff;color:#1f4d30;cursor:pointer;min-height:0;margin:0;box-shadow:none}
@@ -141,7 +142,7 @@ window.TK7Admin={mount({db,canManage}){
  const startTime=()=>$('start-time')?.value||'20:00';
  const say=(t,err)=>{status.textContent=t||'';status.classList.toggle('err',!!err)};
  const thai=d=>new Date(d+'T00:00:00').toLocaleDateString('th-TH',{weekday:'short',day:'numeric',month:'short'});
- const errText=e=>({'Choose a LINE group first':'ยังไม่ได้ติดตั้งการตั้งค่าระบบลงชื่อ','Target group already has one of these dates':'กลุ่มปลายทางมีวันเดียวกันอยู่แล้ว','Admin required':'ต้องเป็นผู้ดูแลที่อนุมัติแล้ว'}[e?.message]||e?.message||String(e));
+ const errText=e=>({'Choose a LINE group first':'ยังไม่ได้ติดตั้งการตั้งค่าระบบลงชื่อ','Target group already has one of these dates':'กลุ่มปลายทางมีวันเดียวกันอยู่แล้ว','Admin required':'ต้องเป็นผู้ดูแลที่อนุมัติแล้ว','Not enough seats':'สีปลายทางมีที่ว่างไม่พอ กรุณาเลือกสีอื่นหรือลดจำนวนคน','Registration closed':'ปิดรับลงทะเบียนแล้ว','Invalid names':'กรุณาตรวจสอบชื่อผู้เล่น','Player not found':'รายชื่อเปลี่ยนแล้ว กรุณาเปิดทีมใหม่','Roster changed; refresh first':'รายชื่อเปลี่ยนแล้ว กรุณาลองอีกครั้ง'}[e?.message]||e?.message||String(e));
  async function rpc(name,args){const {data:d,error}=await db.rpc(name,args);if(error)throw error;return d}
  const cfg=()=>data?.settings||{};
  const session=()=>(data?.sessions||[]).find(s=>s.match_date===date()&&s.group_id===cfg().group_id&&s.environment===cfg().environment);
@@ -205,7 +206,7 @@ window.TK7Admin={mount({db,canManage}){
  function render(){
   const s=session();const c=cfg();
   actions.replaceChildren();
-  const share=el('button',{type:'button',class:'btn tk7l-register',text:'ลงทะเบียนผ่านระบบ',onclick:openCardShare});
+  const share=el('button',{type:'button',class:'btn tk7l-register',text:'แชร์ลงทะเบียนผ่านระบบ',onclick:openCardShare});
   main.hidden=false;main.textContent=s?.is_open?'🔒 ปิดลงทะเบียน':'🔓 เปิดลงทะเบียน';
   main.disabled=!c.group_id||!date();
   main.onclick=()=>act(main,async()=>{
@@ -235,14 +236,13 @@ window.TK7Admin={mount({db,canManage}){
    row.querySelector('.tk7l-info')?.remove();row.querySelector('.tk7l-count')?.remove();row.classList.remove('tk7l-has');
    const emblem=row.querySelector('.team-emblem');
    if(emblem){emblem.classList.remove('tk7l-tap');emblem.onclick=null;emblem.removeAttribute('role');emblem.removeAttribute('tabindex')}
-   if(!s)continue;
    const players=playersOf(s,slug);
    if(players.length){
     row.classList.add('tk7l-has');
     row.append(el('span',{class:'tk7l-count'+(players.length>=7?' full':''),title:players.map(p=>p.name).join(', '),text:'👥 '+players.length+'/7'}));
    }
    if(emblem){
-    emblem.classList.add('tk7l-tap');emblem.setAttribute('role','button');emblem.setAttribute('tabindex','0');emblem.title='ดูรายชื่อ / เปลี่ยนสีทีม';
+    emblem.classList.add('tk7l-tap');emblem.setAttribute('role','button');emblem.setAttribute('tabindex','0');emblem.title='ลงชื่อ / เลือกลบ / ย้ายสี';
     emblem.onclick=e=>{e.stopPropagation();openTeam(slug)};
     emblem.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openTeam(slug)}};
    }
@@ -262,28 +262,89 @@ window.TK7Admin={mount({db,canManage}){
  }
 
  // ป็อปอัพทีม: รายชื่อ (ชื่อละบรรทัด) + เปลี่ยนสีทั้งทีม
+ let teamBusy=false,teamTrigger=null;
  const modal=el('div',{class:'tk7l-modal',role:'dialog','aria-modal':'true',hidden:true});
  modal.onclick=e=>{if(e.target===modal)closeTeam()};
  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!modal.hidden)closeTeam()});
  document.body.append(modal);
- function closeTeam(){modal.hidden=true;modal.replaceChildren()}
- function openTeam(slug){
-  const s=session();if(!s)return;
-  const players=playersOf(s,slug);
+ function closeTeam(){if(teamBusy)return;modal.hidden=true;modal.replaceChildren();teamTrigger?.focus?.()}
+ function openTeam(slug,restore={}){
+  if(!canManage()||teamBusy)return;
+  if(modal.hidden)teamTrigger=document.activeElement;
+  const s=session(),players=playersOf(s,slug),chosen=new Set((restore.selected||[]).filter(id=>players.some(p=>p.id===id)));
   const box=el('div',{class:'tk7l-sheet'});
-  box.append(el('div',{class:'tk7l-sheet-head team-emblem '+slug},el('strong',{text:'ทีม'+COLORS[slug]}),el('span',{class:'tk7l-count',text:players.length+'/7'}),
+  box.append(el('div',{class:'tk7l-sheet-head team-emblem '+slug},el('strong',{id:'tk7-team-title',text:'ทีม'+COLORS[slug]}),el('span',{class:'tk7l-count',text:players.length+'/7'}),
    el('button',{type:'button',class:'tk7l-x','aria-label':'ปิด',text:'✕',onclick:closeTeam})));
-  const body=el('div',{class:'tk7l-sheet-body'});
+  modal.setAttribute('aria-labelledby','tk7-team-title');
+  const body=el('div',{class:'tk7l-sheet-body'}),notice=el('p',{class:'tk7l-team-notice',role:'status'});
+  if(!s){
+   body.append(el('p',{text:'เปิดลงทะเบียนของวันที่เลือกก่อน แล้วกดสีเพื่อเพิ่มรายชื่อ'}),el('button',{type:'button',class:'tk7l-edit-btn primary',text:'เปิดลงทะเบียน',disabled:!date(),onclick:()=>{closeTeam();main.click()}}));
+   box.append(body);modal.replaceChildren(box);modal.hidden=false;return;
+  }
+  const enabled=s.is_open&&s.teams.includes(slug);
+  const names=el('textarea',{rows:'3',placeholder:'ชื่อผู้เล่น 1 คนต่อบรรทัด', 'aria-label':'ชื่อผู้เล่นที่จะเพิ่ม',disabled:!enabled});names.value=restore.draft||'';
+  let pending=null;
+  const submit=async(action,extra={})=>{
+   if(teamBusy||mutating)return;
+   if(session()?.id!==s.id){notice.textContent='วันที่เลือกเปลี่ยนแล้ว กรุณาเปิดทีมใหม่';return;}
+   const ids=[...chosen];
+   if((action==='delete'||action==='move')&&!ids.length){notice.textContent='กรุณาติ๊กชื่อที่ต้องการก่อน';return;}
+   const added=names.value.split(/\r?\n/).map(n=>n.trim()).filter(Boolean);
+   if(action==='add'&&(!added.length||added.length>7||added.some(n=>n.length>40))){notice.textContent='ใส่ 1–7 ชื่อ ชื่อละไม่เกิน 40 ตัวอักษร';return;}
+   if(action==='clear'&&!confirm('ลบรายชื่อทีม'+COLORS[slug]+'ทั้งหมด '+players.length+' คน?'))return;
+   if(action==='delete'&&!confirm('ลบรายชื่อที่เลือก '+ids.length+' คน?'))return;
+   const input={p_session:s.id,p_revision:s.revision,p_action:action,p_team:slug,p_entries:['delete','move'].includes(action)?ids:null,p_names:action==='add'?added:null,p_target:extra.target||null};
+   const key=JSON.stringify(input);if(!pending||pending.key!==key)pending={key,args:{...input,p_request:crypto.randomUUID()}};
+   teamBusy=true;mutating=true;refreshOverview.invalidate();notice.textContent='กำลังบันทึก…';
+   const controls=[...box.querySelectorAll('button,input,textarea,select')];const disabled=controls.map(n=>n.disabled);controls.forEach(n=>n.disabled=true);
+   try{
+    await rpc('tk7_admin_roster_edit',pending.args);pending=null;
+    const refreshed=await load(true);
+    teamBusy=false;
+    if(refreshed===false){notice.textContent='บันทึกแล้ว แต่โหลดรายชื่อล่าสุดไม่ได้ กรุณาปิดแล้วเปิดทีมใหม่';return;}
+    if(session()?.id===s.id){openTeam(slug);const msg=modal.querySelector('[role="status"]');if(msg)msg.textContent='บันทึกแล้ว ✓';}
+    else closeTeam();
+    say('อัปเดตรายชื่อทีม'+COLORS[slug]+'แล้ว');
+   }catch(error){
+    notice.textContent=errText(error);
+    if(error.message==='Roster changed; refresh first'){
+     pending=null;await load(true);teamBusy=false;
+     if(session()?.id===s.id){openTeam(slug,{draft:names.value,selected:ids});modal.querySelector('[role="status"]').textContent='รายชื่อเปลี่ยนแล้ว ตรวจรายการล่าสุดแล้วลองอีกครั้ง';}else closeTeam();
+    }
+   }finally{teamBusy=false;mutating=false;controls.forEach((n,i)=>n.disabled=disabled[i])}
+  };
+  if(!enabled)body.append(el('p',{class:'tk7l-empty',text:'ปิดรับลงทะเบียนแล้ว เปิดลงทะเบียนก่อนแก้รายชื่อ'}));
   if(players.length){
-   const ol=el('ol',{class:'tk7l-names'});for(const p of players)ol.append(el('li',{},el('span',{class:'n',text:p.slot+'.'}),el('span',{text:p.name})));
-   body.append(ol);
-   body.append(el('div',{class:'tk7l-sub',text:'🎨 เปลี่ยนสีทั้งทีม (สีที่มีคนอยู่ = สลับกัน)'}));
+   const all=el('input',{type:'checkbox','aria-label':'เลือกทุกชื่อในทีม',disabled:!enabled});
+   const label=el('span',{text:'เลือกทั้งหมด'});
+   body.append(el('label',{class:'tk7l-select-all'},all,label));
+   const list=el('div',{class:'tk7l-checklist'}),checks=[];
+   const sync=()=>{all.checked=chosen.size===players.length;all.indeterminate=chosen.size>0&&chosen.size<players.length;label.textContent='เลือกทั้งหมด · '+chosen.size+' คน';del.disabled=!enabled||!chosen.size;move.disabled=!enabled||!chosen.size;};
+   for(const p of players){const check=el('input',{type:'checkbox','aria-label':'เลือก '+p.name,disabled:!enabled});check.checked=chosen.has(p.id);check.onchange=()=>{check.checked?chosen.add(p.id):chosen.delete(p.id);sync()};checks.push(check);list.append(el('label',{class:'tk7l-checkrow'},check,el('span',{text:p.slot+'. '+p.name})));}
+   all.onchange=()=>{checks.forEach((c,i)=>{c.checked=all.checked;c.checked?chosen.add(players[i].id):chosen.delete(players[i].id)});sync()};
+   body.append(list);
+   const del=el('button',{type:'button',class:'tk7l-edit-btn danger',text:'ลบชื่อที่เลือก',onclick:()=>submit('delete')});
+   const clear=el('button',{type:'button',class:'tk7l-edit-btn danger',text:'ลบหมดในทีมนี้',disabled:!enabled,onclick:()=>submit('clear')});
+   body.append(el('div',{class:'tk7l-edit-actions'},del,clear));
+   const target=el('select',{'aria-label':'สีปลายทาง',disabled:!enabled});
+   for(const t of ORDER){if(t!==slug&&s.teams.includes(t))target.append(el('option',{value:t,text:'ทีม'+COLORS[t]+' · ว่าง '+(7-playersOf(s,t).length)}));}
+   const move=el('button',{type:'button',class:'tk7l-edit-btn primary',text:'ย้ายชื่อที่เลือก',onclick:()=>submit('move',{target:target.value})});
+   body.append(el('div',{class:'tk7l-edit-actions'},target,move));sync();
+  }else body.append(el('p',{class:'tk7l-empty',text:'ยังไม่มีคนลงสีนี้'}));
+  if(players.length<7){
+   body.append(el('label',{class:'tk7l-sub',for:'tk7-add-names',text:'เพิ่มรายชื่อ · ว่าง '+(7-players.length)+' ที่'}));names.id='tk7-add-names';
+   body.append(names,el('button',{type:'button',class:'tk7l-edit-btn primary tk7l-add',text:'＋ ลงชื่อทีม'+COLORS[slug],disabled:!enabled,onclick:()=>submit('add')}));
+  }
+  body.append(notice);
+  if(players.length){
+   const details=el('details',{},el('summary',{class:'tk7l-sub',text:'เปลี่ยนสีทั้งทีม / สลับทีม'}));
    const grid=el('div',{class:'tk7l-colorgrid'});
    for(const t of ORDER){if(t===slug)continue;const n=playersOf(s,t).length;
-    grid.append(el('button',{type:'button',class:'team-emblem '+t,onclick:()=>{closeTeam();recolor(s,slug,t)}},el('span',{text:COLORS[t]}),el('small',{text:n?'⇄ '+n+' คน':'ว่าง'})))}
-   body.append(grid);
-  }else body.append(el('p',{class:'tk7l-empty',text:'ยังไม่มีคนลงสีนี้'}));
+    grid.append(el('button',{type:'button',class:'team-emblem '+t,disabled:!enabled,onclick:()=>{closeTeam();recolor(s,slug,t)}},el('span',{text:COLORS[t]}),el('small',{text:n?'⇄ '+n+' คน':'ว่าง'})))}
+   details.append(grid);body.append(details);
+  }
   box.append(body);modal.replaceChildren(box);modal.hidden=false;
+  box.querySelector('input:not(:disabled),textarea:not(:disabled),button')?.focus();
  }
 
  async function recolor(s,from,to){
