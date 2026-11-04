@@ -47,6 +47,8 @@ window.TK7Admin={mount({db,canManage}){
   .tk7l-hint{font-size:13px;line-height:1.6;margin:0;color:#5f7466}
   .tk7l-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
   #tk7-line-card .tk7l-actions .btn,#tk7-line-card .tk7l-main{margin:0!important;width:100%;font-size:14px;min-height:44px;padding:10px 8px}
+  #tk7-line-card .tk7l-register{background:#238947!important;color:#fff!important;box-shadow:0 4px 0 #146331!important}
+  #tk7-line-card .tk7l-register:hover{background:#2a9951!important}
   .tk7l-actions .tk7l-danger{background:#fdeaea!important;color:#b3261e!important;box-shadow:0 3px 0 #e8b4b0!important}
   .tk7l-status{font-size:14px;margin:0;min-height:1.2em;color:#2d4a37}
   .tk7l-status.err{color:#c62828}
@@ -203,7 +205,7 @@ window.TK7Admin={mount({db,canManage}){
  function render(){
   const s=session();const c=cfg();
   actions.replaceChildren();
-  const share=el('button',{type:'button',class:'btn btn-primary',text:'↗ แชร์ลงทะเบียน',onclick:openCardShare});
+  const share=el('button',{type:'button',class:'btn tk7l-register',text:'ลงทะเบียนผ่านระบบ',onclick:openCardShare});
   main.hidden=false;main.textContent=s?.is_open?'🔒 ปิดลงทะเบียน':'🔓 เปิดลงทะเบียน';
   main.disabled=!c.group_id||!date();
   main.onclick=()=>act(main,async()=>{
