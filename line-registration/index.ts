@@ -201,7 +201,7 @@ function createHandler(env,fetcher=fetch){
    // Only accept profile names belonging to the verified LINE identity.
    let actorName=typeof identity.name==='string'?identity.name.trim().slice(0,60):'';
    let profileStatus=actorName?'ready':'missing_access_token';
-   if(!actorName&&typeof b.accessToken==='string'&&b.accessToken.length<4096){
+   if(!['roster','log'].includes(b.action)&&!actorName&&typeof b.accessToken==='string'&&b.accessToken.length<4096){
     try{
      const response=await fetcher('https://api.line.me/v2/profile',{headers:{Authorization:'Bearer '+b.accessToken},signal:AbortSignal.timeout(5000)});
      profileStatus=response.status===403?'profile_permission_required':response.status===401?'expired_access_token':'profile_unavailable';
@@ -218,9 +218,12 @@ function createHandler(env,fetcher=fetch){
    const sessions=await db('tk7_signup_sessions?select=id,match_date,teams,is_open&'+filter+'&id=eq.'+b.sessionId);const s=sessions[0];
    if(!s)return reply({error:L('ไม่พบวันแข่งขันนี้','Match date not found')},404);
    if(b.action==='roster'){
-    const roster=await db('rpc/tk7_read_roster',{p_session:s.id});
-    let schedule=null;
-    try{const days=await db('match_days?select=match_date,settings,schedule&match_date=eq.'+encodeURIComponent(s.match_date)+'&limit=1');schedule=globalThis.TK7Schedule.normalize(days?.[0]);}catch{}
+    // Independent reads overlap after the session has been authorized.
+    const [roster,days]=await Promise.all([
+     db('rpc/tk7_read_roster',{p_session:s.id}),
+     db('match_days?select=match_date,settings,schedule&match_date=eq.'+encodeURIComponent(s.match_date)+'&limit=1').catch(()=>[])
+    ]);
+    const schedule=globalThis.TK7Schedule.normalize(days?.[0]);
     return reply({...roster,schedule});
    }
    if(b.action==='log'){

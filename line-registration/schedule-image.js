@@ -25,10 +25,12 @@ globalThis.TK7ScheduleImage=(()=>{
     if(doc.fonts?.ready)await deadline(doc.fonts.ready,10000,'โหลดฟอนต์ตารางไม่สำเร็จ');
     await deadline(new Promise((resolve,reject)=>{const script=doc.createElement('script');script.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';script.onload=resolve;script.onerror=()=>reject(Error('โหลดตัวสร้างรูปไม่สำเร็จ'));doc.head.append(script);}),15000,'โหลดตัวสร้างรูปไม่สำเร็จ');
     const target=doc.getElementById('schedule-export');
-    await new Promise(resolve=>win.requestAnimationFrame(()=>win.requestAnimationFrame(resolve)));
+    // Offscreen iframes may never receive animation frames. Flush layout directly.
+    target.getBoundingClientRect();
     const height=target.scrollHeight,scale=Math.min(2.2,Math.sqrt(16000000/(860*Math.max(1,height))));
-    const canvas=await win.html2canvas(target,{backgroundColor:'#3d8b37',useCORS:true,scale,logging:false,windowWidth:860,windowHeight:height});
-    const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));
+    const canvas=await deadline(win.html2canvas(target,{backgroundColor:'#3d8b37',useCORS:true,scale,logging:false,windowWidth:860,windowHeight:height}),25000,'สร้างรูปตารางนานเกินไป กรุณาลองอีกครั้ง');
+    const blob=await deadline(new Promise(resolve=>canvas.toBlob(resolve,'image/png')),5000,'แปลงรูปตารางไม่สำเร็จ');
+    canvas.width=0;canvas.height=0;
     if(!blob||blob.size<500)throw Error('สร้างรูปตารางไม่สำเร็จ กรุณาลองอีกครั้ง');
     entry.blob=blob;entry.file=new File([blob],'TK7-Schedule-'+schedule.date+'.png',{type:'image/png'});entry.url=URL.createObjectURL(blob);
     for(const [k,old] of cache){if(cache.size>2&&k!==id&&old.url){URL.revokeObjectURL(old.url);cache.delete(k);}}
@@ -40,9 +42,9 @@ globalThis.TK7ScheduleImage=(()=>{
  function deliver(entry,env=globalThis){
   const nav=env.navigator;
   const download=()=>{const a=env.document.createElement('a');a.href=entry.url;a.download=entry.file.name;env.document.body.append(a);a.click();a.remove();return 'download';};
-  const copy=()=>{if(env.ClipboardItem&&nav.clipboard?.write)return nav.clipboard.write([new env.ClipboardItem({'image/png':entry.blob})]).then(()=>'copied',download);return Promise.resolve(download());};
+  const copy=()=>{try{if(env.ClipboardItem&&nav.clipboard?.write)return Promise.resolve(nav.clipboard.write([new env.ClipboardItem({'image/png':entry.blob})])).then(()=>'copied',download);}catch{}return Promise.resolve(download());};
   if(/Android|iPhone|iPad|iPod/i.test(nav.userAgent||'')||(nav.maxTouchPoints>1&&/Macintosh/i.test(nav.userAgent||''))){
-   if(nav.canShare?.({files:[entry.file]}))return nav.share({files:[entry.file],title:'TK7 ตารางการแข่งขัน'}).then(()=>'shared',error=>error.name==='AbortError'?'cancelled':copy());
+   try{if(nav.canShare?.({files:[entry.file]}))return Promise.resolve(nav.share({files:[entry.file],title:'TK7 ตารางการแข่งขัน'})).then(()=>'shared',error=>error?.name==='AbortError'?'cancelled':copy());}catch{}
   }
   return copy();
  }

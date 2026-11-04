@@ -159,7 +159,7 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>''}){
 
  const refreshOverview=createTK7OverviewLoader(
   ()=>rpc('tk7_admin_overview'),
-  next=>{if(!canManage())return;data=next;pickLatestOpenDate();render();},
+  next=>{if(!canManage())return;if(JSON.stringify(data)===JSON.stringify(next))return;data=next;pickLatestOpenDate();render();},
   error=>say('โหลดข้อมูลลงชื่อไม่สำเร็จ: '+errText(error),true)
  );
  async function load(fresh=false){
@@ -460,7 +460,7 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>''}){
   btn.disabled=true;mutating=true;refreshOverview.invalidate();say('กำลังบันทึก…');
   try{const msg=await fn();const refreshed=await load(true);if(refreshed!==false)say(msg)}
   catch(e){say(errText(e),true);btn.disabled=false}
-  finally{mutating=false;}
+  finally{mutating=false;if(btn===main)btn.disabled=!cfg().group_id||!date();else if(btn.isConnected)btn.disabled=false;}
  }
 
  // events

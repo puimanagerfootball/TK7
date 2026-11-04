@@ -1,5 +1,5 @@
 /* ==========================================================================
-   TK7 app logic (Ver 4.0.19)
+   TK7 app logic (Ver 4.0.20)
    แยกจาก index.html เพื่อแก้/ค้นหาง่ายขึ้น
    Sections (ค้นหาด้วย // --- SECTION:):
      CONFIG, AUTH, REGISTRATION, SCHEDULE, LINEUP, SETUP,
@@ -2535,7 +2535,9 @@
         }
         function setupNavigation() { navButtons.forEach(button => { button.addEventListener('click', () => setActivePage(button.dataset.page)); }); }
         
+        let matchDayLoadSeq=0;
         async function loadDataForDate(date, options = {}) {
+            const requestSeq=++matchDayLoadSeq;
             const { syncSetupDate = true } = options;
             currentDateKey = date;
             [
@@ -2548,6 +2550,7 @@
             }
             
             const { data: results, error } = await db.from('match_days').select('*').eq('match_date', date);
+            if (requestSeq!==matchDayLoadSeq||currentDateKey!==date) return;
             if (error) { console.error("Error fetching data for date:", error); alert("เกิดข้อผิดพลาดในการโหลดข้อมูล: " + error.message); return; }
             const data = results && results.length > 0 ? results[0] : null;
 

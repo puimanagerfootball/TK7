@@ -67,11 +67,16 @@ function failAlert(e){alertBox(T("notSaved"),e.message)}
 function toast(msg,err=false){const t=$("toast");t.textContent=msg;t.classList.toggle("err",err);t.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove("show"),err?5000:2800)}
 
 // ---------- API ----------
+function recoverLogin(account,manual=false){
+ const options={sdk:liff,location,liffId:window.TK7_CONFIG.liffId,manual};
+ try{options.storage=sessionStorage}catch{}
+ return tk7RecoverLineAccount(account,options);
+}
 async function api(action,payload={}){
  if(demo)return demoApi(action,payload);
- const r=await fetch(window.TK7_CONFIG.apiUrl,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action,lang,idToken:liff.getIDToken(),accessToken:liff.getAccessToken(),sessionId,...payload})});
+ const r=await fetch(window.TK7_CONFIG.apiUrl,{method:"POST",headers:{"Content-Type":"application/json"},signal:AbortSignal.timeout(25000),body:JSON.stringify({action,lang,idToken:liff.getIDToken(),accessToken:liff.getAccessToken(),sessionId,...payload})});
  const result=await r.json().catch(()=>({}));
- if(r.status===401&&result.relogin){liff.logout();liff.login({redirectUri:location.href});throw Error(T("relogin"))}
+ if(r.status===401&&result.relogin){const redirecting=recoverLogin({status:'expired_access_token'});throw Error(redirecting?T('relogin'):(lang==='en'?'Please close and reopen this page to sign in again':'กรุณาปิดหน้านี้แล้วเปิดใหม่เพื่อเข้าสู่ระบบอีกครั้ง'))}
  if(!r.ok)throw Error(result.error||T("down"));
  return result;
 }
@@ -203,10 +208,10 @@ function renderBar(){
    el("button",{type:"button",class:"b-soft",text:"✕","aria-label":T("clearSel"),onclick:()=>{selected.clear();renderBoard()}})));
 }
 async function runTeam(action,payload){
- if(busy)return;busy=true;
+ if(busy)return;busy=true;loadSeq++;
  try{const r=await api(action,{...payload,revision:roster.revision,requestId:crypto.randomUUID()});selected.clear();closeSheet();toast(r.message||T("saved"))}
  catch(e){closeSheet();failAlert(e)}
- finally{busy=false;quiet=true;await loadRoster()}
+ finally{busy=false;quiet=true;await loadRoster(false,true)}
 }
 function colorGrid(exclude,onPick,{swapOk}={}){
  const grid=el("div",{class:"move-grid"});
@@ -268,9 +273,9 @@ function openRegister(slug){
   const names=values();
   if(names.length>left)return alertBox(T("notSaved"),T("onlyLeft",{n:left}));
   const key=JSON.stringify([sessionId,slug,names]);if(requestId.key!==key){requestId.key=key;requestId.value=crypto.randomUUID()}
-  busy=true;sync();submit.textContent=T("saving");
-  try{const r=await api("register",{team:slug,names,requestId:requestId.value});myName=names[0];closeSheet();toast(r.message||T("joined"));quiet=true;await loadRoster()}
-  catch(e){myName=names[0];closeSheet();quiet=true;await loadRoster();
+  busy=true;loadSeq++;sync();submit.textContent=T("saving");
+  try{const r=await api("register",{team:slug,names,requestId:requestId.value});myName=names[0];closeSheet();toast(r.message||T("joined"));quiet=true;await loadRoster(false,true)}
+  catch(e){myName=names[0];quiet=true;await loadRoster(false,true);
    const nowLeft=roster?MAX-roster.entries.filter(x=>x.team===slug).length:0;
    alertBox(T("notSaved"),e.message+(roster&&roster.isOpen?"\n\n"+(nowLeft>0?T("nowLeft",{c:label(slug),n:nowLeft}):T("nowFull",{c:label(slug)})):""))}
   finally{busy=false;sync()}
@@ -307,10 +312,10 @@ function openManage(player){
   if(busy)return;
   const payload={action:action.action,team:action.team,otherId:action.otherId,entryId:player.id,revision:viewed.revision};
   const key=JSON.stringify(payload);if(req.key!==key){req.key=key;req.id=crypto.randomUUID()}
-  busy=true;go.disabled=cancel.disabled=true;
+  busy=true;loadSeq++;go.disabled=cancel.disabled=true;
   try{const r=await api(action.action,{...payload,requestId:req.id});closeSheet();toast(r.message||T("saved"))}
   catch(e){closeSheet();failAlert(e)}
-  finally{busy=false;quiet=true;await loadRoster()}
+  finally{busy=false;quiet=true;await loadRoster(false,true)}
  }
  let armed=false;
  const cancel=el("button",{class:"danger",type:"button",text:T("removeName",{n:player.name})});
@@ -341,13 +346,22 @@ function banner(title,msg){
  const b=$("banner");b.replaceChildren(el("strong",{text:title}),el("span",{text:msg}),el("button",{type:"button","aria-label":T("close"),text:"✕",onclick:()=>b.classList.remove("show")}));
  b.classList.add("show");clearTimeout(banner.t);banner.t=setTimeout(()=>b.classList.remove("show"),6000);
 }
-async function loadRoster(showSkeleton=false){
+let rosterFlight=null;
+async function loadRoster(showSkeleton=false,fresh=false){
+ const sid=sessionId;
+ if(busy&&!fresh)return;
+ if(!fresh&&rosterFlight?.sid===sid)return rosterFlight.promise;
+ const promise=loadRosterNow(showSkeleton);rosterFlight={sid,promise};
+ try{return await promise;}finally{if(rosterFlight?.promise===promise)rosterFlight=null;}
+}
+async function loadRosterNow(showSkeleton=false){
  const seq=++loadSeq;const sid=sessionId;if(!sid)return;
  $("refresh").classList.add("spin");
  if(showSkeleton){roster=null;renderBoard();$("board").append(el("div",{class:"grid"},[1,2,3,4].map(()=>el("div",{class:"skeleton"}))))}
  try{const next=await api("roster",{sessionId:sid});if(seq!==loadSeq||sid!==sessionId)return;
   const prev=roster&&roster.sessionKey===sid?roster:null;next.sessionKey=sid;
   const changes=prev&&!quiet&&prev.revision!==next.revision?diffRoster(prev,next):[];quiet=false;
+  if(prev&&JSON.stringify(prev)===JSON.stringify(next))return;
   roster=next;renderBoard();
   if(roster.schedule)window.TK7ScheduleImage.prepare(roster.schedule).catch(()=>{});
   if(!scheduleAutoOpened&&roster.schedule){const q=new URLSearchParams(location.search);const state=new URLSearchParams((q.get('liff.state')||'').split('?')[1]||'');if((q.get('view')||state.get('view'))==='schedule'){scheduleAutoOpened=true;openSchedule();}}

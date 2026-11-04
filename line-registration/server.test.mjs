@@ -10,7 +10,7 @@ const env={TK7_APP_ORIGIN:'https://example.test',LINE_LOGIN_CHANNEL_ID:'20122788
 const sid=crypto.randomUUID(),entry=crypto.randomUUID();
 const req=(body,path='',origin=env.TK7_APP_ORIGIN)=>new Request('https://edge.test/'+path,{method:'POST',headers:{Origin:origin,'Content-Type':'application/json'},body:JSON.stringify(body)});
 const ok=data=>new Response(JSON.stringify(data));
-function harness({identity={sub:'Uverified',name:'Pui'},verifyStatus=200,replayed=false,settings=[{group_id:'legacy-dataset',environment:'production'}],missingSession=false,dbError=false,profile={userId:"Uabc123",displayName:"Pui Profile"},profileStatus=200,scheduleDay=null}={}){
+function harness({identity={sub:'Uverified',name:'Pui'},verifyStatus=200,replayed=false,settings=[{group_id:'legacy-dataset',environment:'production'}],missingSession=false,dbError=false,profile={userId:"Uabc123",displayName:"Pui Profile"},profileStatus=200,scheduleDay=null,readGate=null}={}){
  const calls=[],writes=[];
  const handler=createHandler(env,async(url,options={})=>{
   calls.push(url);assert.ok(!url.includes('/v2/bot/'),'must never call a LINE Bot API');
@@ -26,8 +26,8 @@ function harness({identity={sub:'Uverified',name:'Pui'},verifyStatus=200,replaye
    if(missingSession)return ok([]);
    return ok([{id:sid,match_date:'2099-11-06',is_open:true,start_time:'20:15:00',time_per_match:8,teams:['green','red','purple']}]);
   }
-  if(url.includes('match_days?')){assert.match(url,/match_date=eq.2099-11-06&limit=1$/);return ok(scheduleDay?[scheduleDay]:[]);}
-  if(url.endsWith('rpc/tk7_read_roster'))return ok({revision:1,entries:[{id:entry,name:'Alex',team:'green',slot:1}]});
+  if(url.includes('match_days?')){if(readGate)await readGate('schedule');assert.match(url,/match_date=eq.2099-11-06&limit=1$/);return ok(scheduleDay?[scheduleDay]:[]);}
+  if(url.endsWith('rpc/tk7_read_roster')){if(readGate)await readGate('roster');return ok({revision:1,entries:[{id:entry,name:'Alex',team:'green',slot:1}]});}
   if(url.includes('tk7_signup_log?'))return ok([{actor_name:'Pui',action:'move',detail:'Alex → สีแดง',created_at:'2026-11-03T02:00:00Z'}]);
   if(url.endsWith('tk7_signup_log')){writes.push(JSON.parse(options.body));return ok([]);}
   if(/rpc\/tk7_(signup_batch|change_entry|team_action)$/.test(url)){
@@ -147,4 +147,11 @@ test('account status distinguishes missing token, permission and mismatched prof
 test('roster exposes only the selected date schedule and no raw settings or scores',async()=>{
  const day={match_date:'2099-11-06',settings:{startTime:'20:15',timePerMatch:8,private:'hidden'},schedule:[{home:'green',away:'red',homeScore:2}]};
  for(const scheduleDay of [null,day]){const {handler}=harness({scheduleDay});const result=await (await handler(req({action:'roster',idToken:'valid',sessionId:sid}))).json();assert.equal(result.schedule?.date||null,scheduleDay?.match_date||null);assert.ok(!JSON.stringify(result).includes('private'));assert.ok(!JSON.stringify(result).includes('homeScore'));}
+});
+
+test('authorized roster and schedule reads start together without fetching profile again',{timeout:2000},async()=>{
+ let release,ready;const held=new Promise(r=>release=r),both=new Promise(r=>ready=r),started=[];
+ const {handler,calls}=harness({identity:{sub:'Uabc123'},readGate:kind=>{started.push(kind);if(started.length===2)ready();return held}});
+ const response=handler(req({action:'roster',idToken:'valid',accessToken:'profile-token',sessionId:sid}));
+ await both;assert.deepEqual(started.sort(),['roster','schedule']);assert.ok(!calls.includes('https://api.line.me/v2/profile'));release();assert.equal((await response).status,200);
 });
