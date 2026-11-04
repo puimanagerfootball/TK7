@@ -1,7 +1,12 @@
 import {buildMenuMessage,shareAvailability,shareErrorText,closeSharedView} from './share-card.mjs?v=20261103-root-share';
 export {buildMenuMessage,shareAvailability,shareErrorText,closeSharedView};
 
-if(typeof document!=='undefined') {
+const explicitShareView=()=>{
+ if(typeof document==='undefined')return false;
+ const q=new URLSearchParams(location.search);
+ return window.TK7_SHARE_ONLY||document.body.dataset.menuPreview==='true'||q.get('share')==='1'||new URLSearchParams((q.get('liff.state')||'').split('?')[1]||'').get('share')==='1';
+};
+if(explicitShareView()) {
  const css=document.createElement('style');css.textContent=`
  .tk7-share{margin:16px 0;border:1px solid #ffffff30;border-radius:18px;background:#102f21;overflow:hidden;color:#fff}.tk7-share summary{padding:17px 18px;cursor:pointer;font-weight:600;font-size:15px}.tk7-share summary small{display:block;margin:5px 0 0 18px;color:#c6dace;font-size:11px;font-weight:400}.tk7-share-inner{padding:0 14px 14px}
  .tk7-card{background:#fff;color:#163d2a;border-radius:16px;overflow:hidden;max-width:340px;margin:0 auto 16px;box-shadow:0 12px 30px #0003}.tk7-card-head{padding:24px;background:radial-gradient(circle at 110% 0%,#397450,transparent 65%),#123d2b}.tk7-card-kicker{font-size:10px;letter-spacing:.15em;color:#b9ed83;font-weight:700}.tk7-card h2{font:800 32px/1.08 Arial,sans-serif;letter-spacing:-1px;color:#fff;margin:20px 0 12px}.tk7-card-head p{color:#c5ee80;font-size:15px;font-weight:600;margin:0}.tk7-card-body{padding:20px}.tk7-card h3{font-size:19px;margin:0 0 6px}.tk7-card-description{font-size:11px;color:#687e70;line-height:1.6;margin:0}.tk7-card-map{display:block;background:#f2f6f4;padding:16px;border-radius:12px;margin-top:18px;text-decoration:none;color:#1674ed;font-size:15px}.tk7-card-map small{display:block;font-size:11px;color:#687e70;margin-bottom:5px}.tk7-card-foot{padding:0 20px 18px}.tk7-card-join{display:block;background:#247c43;color:#fff!important;border-radius:10px;padding:16px 6px;text-align:center;text-decoration:none;font-weight:600;font-size:16px}.tk7-card-note{font-size:10px;line-height:1.6;text-align:center;color:#687e70;margin:10px 0 0}.tk7-share :focus-visible{outline:3px solid #93cd63;outline-offset:3px}

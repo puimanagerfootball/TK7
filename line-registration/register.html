@@ -20,7 +20,7 @@ body{font-family:Kanit,system-ui,sans-serif;color:var(--ink);background:var(--bg
 button{font:inherit;cursor:pointer;border:0}
 .wrap{max-width:560px;margin:0 auto;padding:16px 16px calc(96px + env(safe-area-inset-bottom))}
 .top{color:#fff;padding:6px 2px 10px}
-.toprow{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.toprow{display:flex;align-items:center;justify-content:flex-end;gap:8px}
 .lang{display:flex;background:rgba(0,0,0,.28);border-radius:999px;padding:3px}
 .lang button{background:none;color:#cfe3d5;font-size:13px;padding:4px 12px;border-radius:999px}
 .lang button[aria-pressed=true]{background:var(--lime);color:#13301e;font-weight:600}
@@ -177,8 +177,8 @@ button.chip{border:1px solid transparent}
 <body>
 <div class="wrap">
  <header class="top">
-  <div class="toprow"><div class="kicker">TK7 FOOTBALL · 7 A SIDE</div><div class="lang" id="lang" role="group" aria-label="Language"><button type="button" data-lang="th">ไทย</button><button type="button" data-lang="en">EN</button></div></div>
-  <div class="account-row"><div id="line-account" aria-live="polite"></div><small>Ver 4.0.10</small></div>
+  <div class="toprow"><div class="lang" id="lang" role="group" aria-label="Language"><button type="button" data-lang="th">ไทย</button><button type="button" data-lang="en">EN</button></div></div>
+  <div class="account-row"><div id="line-account" aria-live="polite"></div><small>Ver 4.0.11</small></div>
   <nav class="dates" id="dates" aria-label="วันแข่ง"></nav>
   <div class="info" id="info"></div>
   <h1 id="title">👇 เลือกสีเสื้อ แล้วลงชื่อ</h1>
@@ -197,8 +197,8 @@ button.chip{border:1px solid transparent}
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <script src="config.js"></script>
 <script src="share-launcher.js?v=20261103-direct-share"></script>
-<script src="registration.js?v=4.0.10"></script>
-<script type="module" src="share-menu.mjs?v=20261103-root-share"></script>
+<script src="registration.js?v=4.0.11"></script>
+<script type="module" src="share-menu.mjs?v=4.0.11"></script>
 </body>
 </html>
 
