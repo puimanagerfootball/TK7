@@ -336,6 +336,14 @@ function fail(msg){$("board").replaceChildren(el("div",{class:"notice",text:msg}
   }
   if(window.TK7_SHARE_ONLY)return;
   const r=await api("dates");dates=r.dates||[];
+  const account=$("line-account");
+  if(account&&r.account){
+   const a=r.account;
+   const messages=lang==="en"?{missing_access_token:"Reopen this page to update LINE login",profile_permission_required:"LINE profile permission is required",expired_access_token:"Please sign in to LINE again",profile_unavailable:"LINE profile is temporarily unavailable",identity_mismatch:"Please sign in to LINE again",profile_name_missing:"LINE did not provide a profile name"}:{missing_access_token:"เปิดหน้านี้ใหม่เพื่ออัปเดตการเข้าสู่ระบบ",profile_permission_required:"ยังไม่ได้รับสิทธิ์อ่านชื่อโปรไฟล์ LINE",expired_access_token:"กรุณาเข้าสู่ระบบ LINE ใหม่",profile_unavailable:"ยังอ่านโปรไฟล์ LINE ไม่ได้",identity_mismatch:"กรุณาเข้าสู่ระบบ LINE ใหม่",profile_name_missing:"LINE ยังไม่ส่งชื่อโปรไฟล์"};
+   account.replaceChildren(el("span",{text:a.name?"LINE · "+a.name:messages[a.status]||messages.profile_unavailable}));
+   if(!a.name)account.append(el("button",{type:"button",text:lang==="en"?"Sign in again":"เข้าสู่ระบบใหม่",onclick:()=>{liff.logout();liff.login({redirectUri:location.href})}}));
+   if(a.name)myName=a.name;
+  }
   if(!dates.length)return fail(T("noDates"));
   // เปิดจากปุ่มของวันไหน ให้เลือกวันนั้น (?date=YYYY-MM-DD) ไม่งั้นเลือกวันที่ใกล้ที่สุด
   const want=(()=>{try{const q=new URLSearchParams(location.search);let d=q.get("date");if(!d&&q.get("liff.state"))d=new URLSearchParams(q.get("liff.state").split("?")[1]||"").get("date");return d}catch{return null}})();

@@ -134,3 +134,11 @@ test('profile fallback checks matching LINE user and handles denied access',asyn
   assert.equal(writes[1].actor_name,Object.keys(config).length?'LINE user · abc123':'Pui Profile');
  }
 });
+
+test('account status distinguishes missing token, permission and mismatched profile without exposing tokens',async()=>{
+ for(const [config,accessToken,status,name] of [[{},undefined,'missing_access_token',null],[{profileStatus:403},'token','profile_permission_required',null],[{profileStatus:401},'token','expired_access_token',null],[{profile:{userId:'Uother',displayName:'Spoof'}},'token','identity_mismatch',null],[{},'token','ready','Pui Profile']]){
+  const {handler}=harness({identity:{sub:'Uabc123'},...config});
+  const result=await (await handler(req({action:'dates',idToken:'valid',accessToken}))).json();
+  assert.deepEqual(result.account,{name,status});assert.ok(!JSON.stringify(result).includes('Uabc123'));
+ }
+});

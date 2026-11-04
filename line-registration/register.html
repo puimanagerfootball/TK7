@@ -171,12 +171,14 @@ button.chip{border:1px solid transparent}
 .prow.fresh,.chip.fresh{animation:fresh 4s ease-out}
 @keyframes fresh{0%,40%{background:#fff1b8}100%{background:transparent}}
 .chip.fresh{animation-name:freshc}@keyframes freshc{0%,40%{background:#fff1b8}100%{background:#eef3ef}}
+.account-row{display:flex;justify-content:space-between;gap:12px;align-items:center;color:#647b6c;font-size:12px;margin:8px 0}.account-row small{white-space:nowrap}#line-account button{margin-left:8px;border:0;border-radius:8px;padding:5px 8px;color:#226b3b;background:#e5f2e8;font:inherit;cursor:pointer}
 </style>
 </head>
 <body>
 <div class="wrap">
  <header class="top">
   <div class="toprow"><div class="kicker">TK7 FOOTBALL · 7 A SIDE</div><div class="lang" id="lang" role="group" aria-label="Language"><button type="button" data-lang="th">ไทย</button><button type="button" data-lang="en">EN</button></div></div>
+  <div class="account-row"><div id="line-account" aria-live="polite"></div><small>Ver 4.0.9</small></div>
   <nav class="dates" id="dates" aria-label="วันแข่ง"></nav>
   <div class="info" id="info"></div>
   <h1 id="title">👇 เลือกสีเสื้อ แล้วลงชื่อ</h1>
@@ -195,7 +197,7 @@ button.chip{border:1px solid transparent}
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <script src="config.js"></script>
 <script src="share-launcher.js?v=20261103-direct-share"></script>
-<script src="registration.js?v=20261104-profile-name"></script>
+<script src="registration.js?v=4.0.9"></script>
 <script type="module" src="share-menu.mjs?v=20261103-root-share"></script>
 </body>
 </html>

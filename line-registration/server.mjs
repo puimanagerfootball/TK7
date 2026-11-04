@@ -42,17 +42,19 @@ export function createHandler(env,fetcher=fetch){
    const a=await active();
    // Only accept profile names belonging to the verified LINE identity.
    let actorName=typeof identity.name==='string'?identity.name.trim().slice(0,60):'';
+   let profileStatus=actorName?'ready':'missing_access_token';
    if(!actorName&&typeof b.accessToken==='string'&&b.accessToken.length<4096){
     try{
      const response=await fetcher('https://api.line.me/v2/profile',{headers:{Authorization:'Bearer '+b.accessToken},signal:AbortSignal.timeout(5000)});
-     if(response.ok){const profile=await response.json();if(profile.userId===identity.sub&&typeof profile.displayName==='string')actorName=profile.displayName.trim().slice(0,60);}
-    }catch{}
+     profileStatus=response.status===403?'profile_permission_required':response.status===401?'expired_access_token':'profile_unavailable';
+     if(response.ok){const profile=await response.json();if(profile.userId===identity.sub&&typeof profile.displayName==='string')actorName=profile.displayName.trim().slice(0,60);profileStatus=actorName?'ready':profile.userId!==identity.sub?'identity_mismatch':'profile_name_missing';}
+    }catch{profileStatus='profile_unavailable'}
    }
    actorName||='LINE user · '+identity.sub.slice(-6);
    const filter=filterOf(a);
    if(b.action==='dates'){
     const sessions=await db('tk7_signup_sessions?select=id,match_date,is_open,start_time,time_per_match&'+filter+'&is_open=eq.true&match_date=gte.'+bangkokToday()+'&order=match_date');
-    return reply({dates:sessions.map(s=>({id:s.id,date:s.match_date,label:thaiDate(s.match_date),startTime:String(s.start_time||'20:00').slice(0,5),timePerMatch:s.time_per_match||8,isOpen:s.is_open}))});
+    return reply({account:{name:profileStatus==='ready'?actorName:null,status:profileStatus},dates:sessions.map(s=>({id:s.id,date:s.match_date,label:thaiDate(s.match_date),startTime:String(s.start_time||'20:00').slice(0,5),timePerMatch:s.time_per_match||8,isOpen:s.is_open}))});
    }
    if(!uuid(b.sessionId))return reply({error:L('กรุณาเลือกวันแข่งขัน','Please choose a match date')},400);
    const sessions=await db('tk7_signup_sessions?select=id,match_date,teams,is_open&'+filter+'&id=eq.'+b.sessionId);const s=sessions[0];
