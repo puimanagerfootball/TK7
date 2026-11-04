@@ -109,21 +109,27 @@ function renderInfo(){
    row("📍","Location / สถานที่",lang==="en"?"Open map ›":"เปิดแผนที่ ›","https://maps.app.goo.gl/37K6rD4LqWA5Qz5KA")),
   el("div",{class:"m-foot"},el("span",{text:T("teams",{t:teams,p:roster.entries.length})}),
    el("button",{type:"button",class:"m-hist",text:T("history"),onclick:()=>openHistory(false)})));
- if(roster.schedule?.matches?.length)card.append(el("div",{class:"schedule-actions"},el("button",{type:"button",class:"schedule-view",text:lang==="en"?"📋 View schedule":"📋 ดูตารางแข่ง",onclick:openSchedule}),el("button",{type:"button",class:"schedule-share",text:lang==="en"?"↗ Share schedule":"↗ แชร์ตารางแข่ง",onclick:shareSchedule})));
+ if(roster.schedule?.matches?.length)card.append(el("div",{class:"schedule-actions"},el("button",{type:"button",class:"schedule-view",text:lang==="en"?"📋 View schedule":"📋 ดูตารางแข่ง",onclick:openSchedule}),el("button",{type:"button",class:"schedule-share",text:lang==="en"?"↗ Share image":"↗ แชร์รูปตารางแข่ง",onclick:shareSchedule})));
  info.append(card);
 }
 function shareSchedule(){
- const snapshot=roster?.schedule;if(!snapshot)return;
- try{const sent=window.TK7Schedule.share(liff,snapshot);Promise.resolve(sent).then(result=>toast(result?.status==="success"?(lang==="en"?"Schedule shared":"แชร์ตารางแข่งแล้ว"):(lang==="en"?"Sharing cancelled":"ยกเลิกการแชร์"))).catch(e=>failAlert(e));}catch(e){failAlert(e)}
+ const schedule=roster?.schedule;if(!schedule)return;
+ const image=window.TK7ScheduleImage.peek(schedule);
+ if(!image?.blob){openSchedule();return;}
+ try{Promise.resolve(window.TK7ScheduleImage.deliver(image)).then(result=>toast(({shared:lang==='en'?'Image shared':'แชร์รูปแล้ว',copied:lang==='en'?'Image copied — paste in LINE':'คัดลอกรูปแล้ว นำไปวางใน LINE ได้เลย',download:lang==='en'?'Image downloaded':'ดาวน์โหลดรูปแล้ว',cancelled:lang==='en'?'Sharing cancelled':'ยกเลิกการแชร์'})[result])).catch(failAlert);}catch(error){failAlert(error)}
 }
 function openSchedule(){
  const schedule=roster?.schedule;if(!schedule)return;
  const S=window.TK7Schedule;
- const heading=el("div",{class:"sheet-head"},el("div",{},el("h2",{text:lang==="en"?"📋 Match schedule":"📋 ตารางแข่ง"}),el("p",{text:S.dateLabel(schedule.date)+" · "+schedule.timePerMatch+(lang==="en"?" min / match":" นาที / แมตช์")})));
- const table=el("table",{class:"schedule-table"});
- table.append(el("thead",{},el("tr",{},[lang==="en"?"No.":"คู่",lang==="en"?"Time":"เวลา",lang==="en"?"Match":"คู่แข่ง"].map(text=>el("th",{scope:"col",text})))));
- table.append(el("tbody",{},S.rows(schedule).map(row=>el("tr",{},el("td",{text:row.number}),el("td",{text:row.time}),el("td",{},el("span",{class:"schedule-team c-"+row.home,text:S.label(row.home,lang)}),el("span",{text:" vs "}),el("span",{class:"schedule-team c-"+row.away,text:S.label(row.away,lang)}))))));
- openSheet(el("div",{},heading,el("div",{class:"sheet-body"},table,el("button",{type:"button",class:"primary",text:lang==="en"?"↗ Share schedule":"↗ แชร์ตารางแข่ง",onclick:shareSchedule}),el("p",{class:"hint",text:lang==="en"?"Times shown in Thailand time (UTC+7)":"เวลาในตารางเป็นเวลาประเทศไทย"}),el("button",{type:"button",class:"ghost",text:T("close"),onclick:closeSheet}))));
+ const preview=el('div',{class:'schedule-image-preview'}),status=el('p',{class:'hint',role:'status',text:lang==='en'?'Preparing schedule image…':'กำลังเตรียมรูปตารางแข่ง…'});
+ const share=el('button',{type:'button',class:'primary',disabled:true,text:lang==='en'?'↗ Share schedule image':'↗ แชร์รูปตารางแข่ง',onclick:shareSchedule});
+ const box=el('div',{},el('div',{class:'sheet-head'},el('div',{},el('h2',{text:lang==='en'?'📋 Match schedule':'📋 ตารางแข่ง'}),el('p',{text:S.dateLabel(schedule.date)}))),el('div',{class:'sheet-body'},preview,status,share,el('button',{type:'button',class:'ghost',text:T('close'),onclick:closeSheet})));
+ openSheet(box);
+ window.TK7ScheduleImage.prepare(schedule).then(image=>{
+  const img=el('img',{src:image.url,alt:lang==='en'?'TK7 match schedule':'ตารางการแข่งขัน TK7'});
+  const link=el('a',{href:image.url,target:'_blank',rel:'noopener','aria-label':lang==='en'?'Open full size schedule':'เปิดรูปตารางขนาดเต็ม'},img);
+  preview.replaceChildren(link);share.disabled=false;status.textContent=lang==='en'?'Tap the image to view full size':'แตะรูปเพื่อดูขนาดเต็ม';
+ }).catch(error=>{status.textContent=error.message;preview.replaceChildren(el('button',{type:'button',class:'ghost',text:lang==='en'?'Try again':'ลองอีกครั้ง',onclick:openSchedule}));});
 }
 let scheduleAutoOpened=false;
 function teamCard(slug){
@@ -343,6 +349,7 @@ async function loadRoster(showSkeleton=false){
   const prev=roster&&roster.sessionKey===sid?roster:null;next.sessionKey=sid;
   const changes=prev&&!quiet&&prev.revision!==next.revision?diffRoster(prev,next):[];quiet=false;
   roster=next;renderBoard();
+  if(roster.schedule)window.TK7ScheduleImage.prepare(roster.schedule).catch(()=>{});
   if(!scheduleAutoOpened&&roster.schedule){const q=new URLSearchParams(location.search);const state=new URLSearchParams((q.get('liff.state')||'').split('?')[1]||'');if((q.get('view')||state.get('view'))==='schedule'){scheduleAutoOpened=true;openSchedule();}}
   if(changes.length){fresh=new Set(changes.filter(c=>c.id).map(c=>c.id));renderBoard();setTimeout(()=>{fresh.clear();document.querySelectorAll(".prow.fresh").forEach(r=>r.classList.remove("fresh"))},4000);notify(changes)}
  }
