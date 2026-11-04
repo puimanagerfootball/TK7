@@ -1,6 +1,6 @@
 // One automatic recovery per tab, with a URL guard when storage is unavailable.
 function tk7RecoverLineAccount(account,{sdk,location,storage,liffId,manual=false}){
- if(account?.name||!['missing_access_token','profile_permission_required','expired_access_token','identity_mismatch','profile_name_missing'].includes(account?.status))return false;
+ if(account?.name||!manual&&!['missing_access_token','profile_permission_required','expired_access_token','identity_mismatch','profile_name_missing'].includes(account?.status))return false;
  const url=new URL(location.href),key='tk7-profile-retry:'+liffId;
  let attempted=url.searchParams.get('tk7_login_retry')==='1';
  const state=url.searchParams.get('liff.state');
