@@ -1,0 +1,50 @@
+.tk7-team-card{--card:#fff;--ink:#16241b;--muted:#5d6e63;--line:#e3ebe5;--brand:#1f7a43;--green:#43a047;--red:#e53935;--white:#f5f5f5;--blue:#1e88e5;--black:#212121;--yellow:#fdd835;--pink:#ec407a;--orange:#fb8c00;--navy:#1a237e;--purple:#8e24aa;font-family:Kanit,system-ui,sans-serif;line-height:normal}
+.tk7-team-card *{box-sizing:border-box}.tk7-team-card button{font:inherit;cursor:pointer;border:0;box-shadow:none;transform:none}.tk7-team-card [hidden]{display:none!important}
+.tk7-team-card{background:var(--card);border-radius:16px;overflow:hidden;text-align:left;padding:0;display:flex;flex-direction:column;box-shadow:0 4px 0 rgba(0,0,0,.18);transition:transform .12s}
+.tk7-team-card:active{transform:translateY(2px)}
+.tk7-team-card[disabled]{cursor:default}
+.tk7-team-card .band{height:46px;position:relative;display:flex;align-items:center;padding:0 12px;gap:8px}
+.tk7-team-card .band .shirt{width:26px;height:26px}
+.tk7-team-card .band .name{font-weight:600;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.tk7-team-card .band .count{margin-left:auto;font-weight:700;font-size:15px;background:rgba(255,255,255,.9);color:#1b2a20;border-radius:999px;padding:1px 9px}
+.tk7-team-card .band{border:0;width:100%;text-align:left;cursor:pointer;font:inherit}
+.tk7-team-card .band .chev{font-size:13px;opacity:.9;margin-left:-2px}
+.tk7-team-card .band:active{filter:brightness(.95)}
+.tk7-team-card .plist{display:flex;flex-direction:column;padding:4px 8px 8px;gap:2px}
+.tk7-team-card .prow{display:flex;align-items:center;gap:8px;background:none;border-radius:8px;padding:6px 6px;text-align:left;font-size:15px;color:var(--ink);width:100%}
+.tk7-team-card .prow:active{background:#eef3ef}
+.tk7-team-card .prow.on{background:#e3f4e8}
+.tk7-team-card .prow .box{width:20px;height:20px;flex:0 0 20px;border:2px solid #b9c7bd;border-radius:6px;display:grid;place-items:center;font-size:13px;font-weight:700;color:#fff}
+.tk7-team-card .prow.on .box{background:var(--brand);border-color:var(--brand)}
+.tk7-team-card .prow.empty .box{border-style:dashed;border-color:#d5ded8}
+.tk7-team-card .prow.empty .pname{color:#a3b2a8;font-size:14px}
+.tk7-team-card .prow{min-height:38px}
+.tk7-team-card{height:100%}
+.tk7-team-card .cta{margin-top:auto}
+.tk7-team-card .prow .num{color:var(--muted);font-size:13px;min-width:18px}
+.tk7-team-card .prow .pname{flex:1;min-width:0;white-space:normal;overflow-wrap:anywhere;word-break:break-word;line-height:1.25}
+.tk7-team-card{min-width:0}
+.tk7-team-card .cta{margin:0 10px 10px;padding:8px;font-size:14px;color:var(--brand);font-weight:600;background:#eaf5ee;border-radius:10px;text-align:center}
+.tk7-team-card .cta:disabled{color:var(--muted);background:#f1f4f2;cursor:default}
+.tk7-team-card .c-green{background:var(--green);color:#fff}
+.tk7-team-card .c-red{background:var(--red);color:#fff}
+.tk7-team-card .c-white{background:var(--white);color:#222;border-bottom:1px solid var(--line)}
+.tk7-team-card .c-blue{background:var(--blue);color:#fff}
+.tk7-team-card .c-black{background:var(--black);color:#fff}
+.tk7-team-card .c-yellow{background:var(--yellow);color:#222}
+.tk7-team-card .c-pink{background:var(--pink);color:#fff}
+.tk7-team-card .c-orange{background:var(--orange);color:#fff}
+.tk7-team-card .c-navy{background:var(--navy);color:#fff}
+.tk7-team-card .c-purple{background:var(--purple);color:#fff}
+.tk7-team-card .band{cursor:pointer;user-select:none}
+.tk7-team-card .band .count{margin-left:auto}
+.tk7-team-card .recolor-btn{display:inline-flex;align-items:center;gap:4px;background:rgba(0,0,0,.22);color:#fff;border:1px solid rgba(255,255,255,.45);border-radius:999px;padding:4px 10px;font:600 13px Kanit,sans-serif;cursor:pointer;flex:0 0 auto}
+.tk7-team-card .c-white .recolor-btn,.tk7-team-card .c-yellow .recolor-btn{background:rgba(0,0,0,.08);color:#1b2a20;border-color:rgba(0,0,0,.25)}
+.tk7-team-card .recolor-btn:active{transform:scale(.96)}
+.tk7-team-card .band .fold{width:28px;height:28px;flex:0 0 28px;display:grid;place-items:center;border-radius:50%;background:rgba(255,255,255,.9);color:#1b2a20;font-size:14px}
+.tk7-team-card.collapsed .cta{margin-top:8px}
+.tk7-team-card .prow.fresh,.tk7-team-card .chip.fresh{animation:fresh 4s ease-out}
+
+.tk7-team-card label.prow{margin:0;cursor:pointer;font-weight:400}.tk7-team-card input.box{appearance:none;-webkit-appearance:none;margin:0;padding:0;cursor:pointer;background:transparent}.tk7-team-card input.box:checked{background:var(--brand);border-color:var(--brand)}.tk7-team-card input.box:checked:after{content:"✓";color:#fff;font-size:13px;line-height:1}.tk7-team-card .band .shirt{flex-shrink:0}.tk7-team-card .prow:disabled{opacity:1}.tk7-team-card .band:focus-visible,.tk7-team-card .cta:focus-visible{outline:3px solid #123d2b;outline-offset:-3px}
+
+.tk7-team-card .shirt svg{width:100%;height:100%;display:block}

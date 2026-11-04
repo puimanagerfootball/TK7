@@ -118,7 +118,7 @@ function teamCard(slug){
  const preset=(roster.presetTeams||[]).includes(slug);
  const canJoin=roster.isOpen&&allowed&&!full;
  const active=players.length||preset;
- const card=el("div",{class:"team"+(full?" full":"")+(players.length?"":" empty")});
+ const card=el("div",{class:"tk7-team-card team"+(full?" full":"")+(players.length?"":" empty")});
  const isCollapsed=collapsed.has(slug)||(!active&&!expandedFree.has(slug));
  const toggle=()=>{if(active){collapsed.has(slug)?collapsed.delete(slug):collapsed.add(slug);saveCollapsed()}else{expandedFree.has(slug)?expandedFree.delete(slug):expandedFree.add(slug)}renderBoard()};
  const band=el("div",{class:"band c-"+slug,role:"button",tabindex:"0","aria-expanded":String(!isCollapsed),onclick:toggle,onkeydown:e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();toggle()}}},

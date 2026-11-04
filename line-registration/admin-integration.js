@@ -73,6 +73,7 @@ window.TK7Admin={mount({db,canManage}){
   .tk7l-sheet-head .tk7l-count{background:rgba(255,255,255,.9);color:#1f4d30;font-size:13px;padding:3px 10px;border-radius:999px;text-shadow:none}
   .tk7l-x{background:rgba(0,0,0,.18);color:inherit;border:0;width:32px;height:32px;border-radius:50%;font-size:15px;cursor:pointer;min-height:0;padding:0}
   .tk7l-sheet-body{padding:0 22px 24px;color:#1d2b22}
+  .tk7l-roster-sheet{background:transparent;border-radius:16px;width:min(660px,100%)}.tk7l-roster-sheet:before{display:none!important}.tk7l-roster-sheet .tk7l-sheet-body{padding:0}.tk7l-selection-tools{padding:12px;background:#fff;border-radius:14px;margin-top:10px}.tk7l-selection-tools[hidden]{display:none}.tk7l-roster-sheet .tk7l-team-notice:not(:empty),.tk7l-roster-sheet details{background:#fff;padding:12px;border-radius:12px}.tk7l-roster-sheet .tk7l-colorgrid{padding:4px}
   .tk7l-sheet:before{content:'';display:block;width:50px;height:5px;border-radius:6px;background:#d1dad5;margin:10px auto 0}
   .tk7l-join-head{display:flex;align-items:center;gap:12px;padding:18px 22px 22px;color:#192d21;text-align:left}.tk7l-shirt{display:grid;place-items:center;width:54px;height:54px;border-radius:13px;flex:none}.tk7l-shirt svg{width:40px;height:40px}.tk7l-join-heading{flex:1;min-width:0}.tk7l-join-heading strong{display:block;font-size:22px;line-height:1.3}.tk7l-join-heading small{display:block;color:#65796d;font-size:14px;margin-top:4px}.tk7l-join-head .tk7l-x{background:#eef4f0;color:#65796d}
   .tk7l-name-fields{display:grid;gap:9px}.tk7l-name-field{display:grid;grid-template-columns:minmax(0,1fr) 56px;gap:10px}.tk7l-name-field input{box-sizing:border-box;width:100%;min-width:0;height:60px;border:1px solid #ceddd3;border-radius:13px;background:#f7faf8;color:#1d2b22;padding:14px;font:inherit;font-size:18px}.tk7l-name-field input:focus{outline:2px solid #238947;outline-offset:1px}.tk7l-remove-field{height:60px;border:0;border-radius:13px;background:#edf3ef;color:#687c6f;font:inherit;font-size:23px;cursor:pointer}.tk7l-add-friend{display:block;border:0;background:transparent;color:#208342;font:inherit;font-size:18px;font-weight:600;padding:14px 3px;cursor:pointer}.tk7l-add-friend[hidden]{display:none}.tk7l-roster-heading{border-top:1px solid #e4ece7;margin-top:22px;padding-top:18px;font-weight:600}
@@ -276,10 +277,11 @@ window.TK7Admin={mount({db,canManage}){
   if(!canManage()||teamBusy)return;
   if(modal.hidden)teamTrigger=document.activeElement;
   const s=session(),players=playersOf(s,slug),chosen=new Set((restore.selected||[]).filter(id=>players.some(p=>p.id===id)));
-  const box=el('div',{class:'tk7l-sheet'});
+  const isJoin=restore.view==='join';
+  const box=el('div',{class:'tk7l-sheet'+(!isJoin&&s?' tk7l-roster-sheet':'')});
   const icon=el('span',{class:'tk7l-shirt',style:'background:'+({green:'#43a047',red:'#e53935',white:'#e8ece9',blue:'#1e88e5',black:'#212121',yellow:'#fdd835',pink:'#ec407a',orange:'#fb8c00',navy:'#1a237e',purple:'#8e24aa'}[slug])});
   icon.innerHTML='<svg viewBox="0 0 32 32" aria-hidden="true"><path fill="'+(['white','yellow'].includes(slug)?'#34483b':'#fff')+'" d="M11 4 4 8 7 14 10 12.5V28H22V12.5L25 14 28 8 21 4C20 6 18 7 16 7S12 6 11 4Z"/></svg>';
-  box.append(el('div',{class:'tk7l-join-head'},icon,el('div',{class:'tk7l-join-heading'},el('strong',{id:'tk7-team-title',text:'ลงชื่อสี'+COLORS[slug]}),el('small',{text:'ว่าง '+(7-players.length)+' จาก 7 ที่'+(players.length?' · มี '+players.map(p=>p.name).join(', '):'')})),
+  if(isJoin||!s)box.append(el('div',{class:'tk7l-join-head'},icon,el('div',{class:'tk7l-join-heading'},el('strong',{id:'tk7-team-title',text:'ลงชื่อสี'+COLORS[slug]}),el('small',{text:'ว่าง '+(7-players.length)+' จาก 7 ที่'+(players.length?' · มี '+players.map(p=>p.name).join(', '):'')})),
    el('button',{type:'button',class:'tk7l-x','aria-label':'ปิด',text:'✕',onclick:closeTeam})));
   modal.setAttribute('aria-labelledby','tk7-team-title');
   const body=el('div',{class:'tk7l-sheet-body'}),notice=el('p',{class:'tk7l-team-notice',role:'status'});
@@ -328,37 +330,58 @@ window.TK7Admin={mount({db,canManage}){
     notice.textContent=errText(error);
     if(error.message==='Roster changed; refresh first'){
      pending=null;await load(true);teamBusy=false;
-     if(session()?.id===s.id){openTeam(slug,{draft:fields.map(i=>i.value).join('\n'),selected:ids});modal.querySelector('[role="status"]').textContent='รายชื่อเปลี่ยนแล้ว ตรวจรายการล่าสุดแล้วลองอีกครั้ง';}else closeTeam();
+     if(session()?.id===s.id){openTeam(slug,{draft:fields.map(i=>i.value).join('\n'),selected:ids,view:isJoin?'join':undefined});modal.querySelector('[role="status"]').textContent='รายชื่อเปลี่ยนแล้ว ตรวจรายการล่าสุดแล้วลองอีกครั้ง';}else closeTeam();
     }
    }finally{teamBusy=false;mutating=false;controls.forEach((n,i)=>n.disabled=disabled[i])}
   };
   if(!enabled)body.append(el('p',{class:'tk7l-empty',text:'ปิดรับลงทะเบียนแล้ว เปิดลงทะเบียนก่อนแก้รายชื่อ'}));
-  if(players.length<7)body.append(rows,addFriend,join);
+  if(isJoin&&players.length<7)body.append(rows,addFriend,join);
+  const cardView=el('div',{class:'tk7-team-card'}),plist=el('div',{class:'plist'});
+  const shirt=el('span',{class:'shirt'});shirt.innerHTML=icon.innerHTML;
+  let colorDetails=null;
+  const fold=el('span',{class:'fold','aria-hidden':'true',text:'▴'});
+  const band=el('div',{class:'band c-'+slug,role:'button',tabindex:'0','aria-expanded':'true'},shirt,el('span',{class:'name',id:isJoin?'tk7-roster-title':'tk7-team-title',text:COLORS[slug]}),el('span',{class:'count',text:players.length+'/7'}),
+   el('button',{type:'button',class:'recolor-btn',disabled:!enabled,text:'🎨 เปลี่ยนสี',onclick:e=>{e.stopPropagation();if(colorDetails){colorDetails.hidden=false;colorDetails.open=true;colorDetails.scrollIntoView?.({block:'nearest'})}}}),fold);
+  const toggle=()=>{plist.hidden=!plist.hidden;fold.textContent=plist.hidden?'▾':'▴';band.setAttribute('aria-expanded',String(!plist.hidden));};band.onclick=toggle;band.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle()}};
+  cardView.append(band,plist);
+  const management=el('div',{class:'tk7l-selection-tools',hidden:chosen.size===0});
+  const chooseJoin=()=>openTeam(slug,{view:'join',selected:[...chosen]});
+  const cta=el('button',{type:'button',class:'cta',text:!enabled?'ปิดรับแล้ว':players.length>=7?'เต็มแล้ว ✓':'＋ ลงสีนี้ (ว่าง '+(7-players.length)+')',disabled:!enabled||players.length>=7,onclick:chooseJoin});
+  cardView.append(cta);
+  if(!isJoin)body.append(cardView);
+
   if(players.length){
-   body.append(el('div',{class:'tk7l-roster-heading',text:'จัดการรายชื่อในทีม'}));
+
    const all=el('input',{type:'checkbox','aria-label':'เลือกทุกชื่อในทีม',disabled:!enabled});
    const label=el('span',{text:'เลือกทั้งหมด'});
-   body.append(el('label',{class:'tk7l-select-all'},all,label));
+   management.append(el('label',{class:'tk7l-select-all'},all,label));
    const list=el('div',{class:'tk7l-checklist'}),checks=[];
-   const sync=()=>{all.checked=chosen.size===players.length;all.indeterminate=chosen.size>0&&chosen.size<players.length;label.textContent='เลือกทั้งหมด · '+chosen.size+' คน';del.disabled=!enabled||!chosen.size;move.disabled=!enabled||!chosen.size;};
-   for(const p of players){const check=el('input',{type:'checkbox','aria-label':'เลือก '+p.name,disabled:!enabled});check.checked=chosen.has(p.id);check.onchange=()=>{check.checked?chosen.add(p.id):chosen.delete(p.id);sync()};checks.push(check);list.append(el('label',{class:'tk7l-checkrow'},check,el('span',{text:p.slot+'. '+p.name})));}
+   const sync=()=>{management.hidden=chosen.size===0;all.checked=chosen.size===players.length;all.indeterminate=chosen.size>0&&chosen.size<players.length;label.textContent='เลือกทั้งหมด · '+chosen.size+' คน';del.disabled=!enabled||!chosen.size;move.disabled=!enabled||!chosen.size;};
+   for(let slot=1;slot<=7;slot++){
+    const p=players.find(p=>p.slot===slot);
+    if(!p){plist.append(el('button',{type:'button',class:'prow empty',disabled:!enabled,onclick:chooseJoin},el('span',{class:'box'}),el('span',{class:'num',text:slot+'.'}),el('span',{class:'pname',text:'ว่าง'})));continue;}
+    const check=el('input',{type:'checkbox',class:'box','aria-label':'เลือก '+p.name,disabled:!enabled});check.checked=chosen.has(p.id);check.onchange=()=>{check.checked?chosen.add(p.id):chosen.delete(p.id);sync()};checks.push(check);
+    plist.append(el('label',{class:'prow'},check,el('span',{class:'num',text:p.slot+'.'}),el('span',{class:'pname',text:p.name})));
+   }
    all.onchange=()=>{checks.forEach((c,i)=>{c.checked=all.checked;c.checked?chosen.add(players[i].id):chosen.delete(players[i].id)});sync()};
-   body.append(list);
+
    const del=el('button',{type:'button',class:'tk7l-edit-btn danger',text:'ลบชื่อที่เลือก',onclick:()=>submit('delete')});
    const clear=el('button',{type:'button',class:'tk7l-edit-btn danger',text:'ลบหมดในทีมนี้',disabled:!enabled,onclick:()=>submit('clear')});
-   body.append(el('div',{class:'tk7l-edit-actions'},del,clear));
+   management.append(el('div',{class:'tk7l-edit-actions'},del,clear));
    const target=el('select',{'aria-label':'สีปลายทาง',disabled:!enabled});
    for(const t of ORDER){if(t!==slug&&s.teams.includes(t))target.append(el('option',{value:t,text:'ทีม'+COLORS[t]+' · ว่าง '+(7-playersOf(s,t).length)}));}
    const move=el('button',{type:'button',class:'tk7l-edit-btn primary',text:'ย้ายชื่อที่เลือก',onclick:()=>submit('move',{target:target.value})});
-   body.append(el('div',{class:'tk7l-edit-actions'},target,move));sync();
+   management.append(el('div',{class:'tk7l-edit-actions'},target,move));sync();
   }
-  body.append(notice);
-  if(players.length){
+  if(!players.length){for(let slot=1;slot<=7;slot++)plist.append(el('button',{type:'button',class:'prow empty',disabled:!enabled,onclick:chooseJoin},el('span',{class:'box'}),el('span',{class:'num',text:slot+'.'}),el('span',{class:'pname',text:'ว่าง'})));}
+  if(isJoin)body.append(cardView);
+  body.append(management,notice);
+  {
    const details=el('details',{},el('summary',{class:'tk7l-sub',text:'เปลี่ยนสีทั้งทีม / สลับทีม'}));
    const grid=el('div',{class:'tk7l-colorgrid'});
    for(const t of ORDER){if(t===slug)continue;const n=playersOf(s,t).length;
     grid.append(el('button',{type:'button',class:'team-emblem '+t,disabled:!enabled,onclick:()=>{closeTeam();recolor(s,slug,t)}},el('span',{text:COLORS[t]}),el('small',{text:n?'⇄ '+n+' คน':'ว่าง'})))}
-   details.append(grid);body.append(details);
+   colorDetails=details;details.hidden=true;details.append(grid);body.append(details);
   }
   box.append(body);modal.replaceChildren(box);modal.hidden=false;
   box.querySelector('input:not(:disabled),textarea:not(:disabled),button')?.focus();
