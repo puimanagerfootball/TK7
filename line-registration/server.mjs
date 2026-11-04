@@ -1,3 +1,4 @@
+import './schedule.js';
 import {thaiDate,TEAM_COLORS} from './delivery.mjs';
 const uuid=x=>typeof x==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(x);
 const COLOR_SLUGS=TEAM_COLORS.map(c=>c[0]);
@@ -59,7 +60,12 @@ export function createHandler(env,fetcher=fetch){
    if(!uuid(b.sessionId))return reply({error:L('กรุณาเลือกวันแข่งขัน','Please choose a match date')},400);
    const sessions=await db('tk7_signup_sessions?select=id,match_date,teams,is_open&'+filter+'&id=eq.'+b.sessionId);const s=sessions[0];
    if(!s)return reply({error:L('ไม่พบวันแข่งขันนี้','Match date not found')},404);
-   if(b.action==='roster')return reply(await db('rpc/tk7_read_roster',{p_session:s.id}));
+   if(b.action==='roster'){
+    const roster=await db('rpc/tk7_read_roster',{p_session:s.id});
+    let schedule=null;
+    try{const days=await db('match_days?select=match_date,settings,schedule&match_date=eq.'+encodeURIComponent(s.match_date)+'&limit=1');schedule=globalThis.TK7Schedule.normalize(days?.[0]);}catch{}
+    return reply({...roster,schedule});
+   }
    if(b.action==='log'){
     const rows=await db('tk7_signup_log?select=actor_name,action,detail,created_at&session_id=eq.'+s.id+'&order=created_at.desc&limit='+(b.all===true?200:3));
     return reply({log:rows||[]});

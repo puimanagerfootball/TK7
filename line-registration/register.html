@@ -7,7 +7,7 @@
 <title>TK7 ลงชื่อเตะบอล · Sign up</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="team-card.css?v=4.0.17">
+<link rel="stylesheet" href="team-card.css?v=4.0.18">
 <style>
 :root{
  --bg:#0e1f15;--pitch-a:#123a24;--pitch-b:#10331f;--card:#ffffff;--ink:#16241b;--muted:#5d6e63;--line:#e3ebe5;
@@ -173,13 +173,14 @@ button.chip{border:1px solid transparent}
 @keyframes fresh{0%,40%{background:#fff1b8}100%{background:transparent}}
 .chip.fresh{animation-name:freshc}@keyframes freshc{0%,40%{background:#fff1b8}100%{background:#eef3ef}}
 .account-row{display:flex;justify-content:space-between;gap:12px;align-items:center;color:#647b6c;font-size:12px;margin:8px 0}.account-row small{white-space:nowrap}#line-account button{margin-left:8px;border:0;border-radius:8px;padding:5px 8px;color:#226b3b;background:#e5f2e8;font:inherit;cursor:pointer}
+.schedule-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 12px 12px}.schedule-actions button{padding:11px 8px;border-radius:11px;font-size:14px;font-weight:600}.schedule-view{background:#eaf5ee;color:#1f7a43}.schedule-share{background:#1f7a43;color:#fff}.schedule-table{width:100%;border-collapse:collapse;font-size:14px}.schedule-table th{background:#eef5f0;text-align:left;color:#61756a;font-weight:500}.schedule-table th,.schedule-table td{padding:9px 6px;border-bottom:1px solid #e3ebe5}.schedule-table td:nth-child(-n+2){white-space:nowrap}.schedule-team{display:inline-block;padding:3px 8px;border-radius:8px;font-size:13px}
 </style>
 </head>
 <body>
 <div class="wrap">
  <header class="top">
   <div class="toprow"><div class="lang" id="lang" role="group" aria-label="Language"><button type="button" data-lang="th">ไทย</button><button type="button" data-lang="en">EN</button></div></div>
-  <div class="account-row"><div id="line-account" aria-live="polite"></div><small>Ver 4.0.17</small></div>
+  <div class="account-row"><div id="line-account" aria-live="polite"></div><small>Ver 4.0.18</small></div>
   <nav class="dates" id="dates" aria-label="วันแข่ง"></nav>
   <div class="info" id="info"></div>
   <h1 id="title">👇 เลือกสีเสื้อ แล้วลงชื่อ</h1>
@@ -198,9 +199,10 @@ button.chip{border:1px solid transparent}
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <script src="config.js"></script>
 <script src="share-launcher.js?v=20261103-direct-share"></script>
-<script src="backdrop-guard.js?v=4.0.17"></script>
-<script src="registration.js?v=4.0.17"></script>
-<script type="module" src="share-menu.mjs?v=4.0.17"></script>
+<script src="backdrop-guard.js?v=4.0.18"></script>
+<script src="schedule.js?v=4.0.18"></script>
+<script src="registration.js?v=4.0.18"></script>
+<script type="module" src="share-menu.mjs?v=4.0.18"></script>
 </body>
 </html>
 
