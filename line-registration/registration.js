@@ -1,3 +1,22 @@
+// One automatic recovery per tab, with a URL guard when storage is unavailable.
+function tk7RecoverLineAccount(account,{sdk,location,storage,liffId,manual=false}){
+ if(account?.name||!['missing_access_token','profile_permission_required','expired_access_token','identity_mismatch','profile_name_missing'].includes(account?.status))return false;
+ const url=new URL(location.href),key='tk7-profile-retry:'+liffId;
+ let attempted=url.searchParams.get('tk7_login_retry')==='1';
+ const state=url.searchParams.get('liff.state');
+ if(state)attempted||=new URL(state,'https://tk7.invalid').searchParams.get('tk7_login_retry')==='1';
+ try{attempted||=storage?.getItem(key)==='1'}catch{}
+ if(attempted&&!manual)return false;
+ url.searchParams.set('tk7_login_retry','1');
+ try{storage?.setItem(key,'1')}catch{}
+ if(sdk.isInClient()){
+  // LIFF browser authenticates on init; login/logout are external-browser APIs.
+  const target=new URL('https://liff.line.me/'+liffId);
+  for(const name of ['date','lang','tk7_login_retry'])if(url.searchParams.has(name))target.searchParams.set(name,url.searchParams.get(name));
+  location.replace(target.href);
+ }else{sdk.logout();sdk.login({redirectUri:url.href})}
+ return true;
+}
 // TK7 LIFF: ผู้เล่นเลือกสีเอง สีละ 7 คน · ลงให้เพื่อนได้ · ย้าย / สลับ / ยกเลิก
 // เปิด register.html?demo=1 เพื่อดูหน้าตาโดยไม่ต้องเชื่อม LINE
 (()=>{
@@ -336,12 +355,15 @@ function fail(msg){$("board").replaceChildren(el("div",{class:"notice",text:msg}
   }
   if(window.TK7_SHARE_ONLY)return;
   const r=await api("dates");dates=r.dates||[];
+  const recoverOptions={sdk:liff,location,liffId:window.TK7_CONFIG.liffId};
+  try{recoverOptions.storage=sessionStorage}catch{}
+  if(tk7RecoverLineAccount(r.account,recoverOptions))return;
   const account=$("line-account");
   if(account&&r.account){
    const a=r.account;
    const messages=lang==="en"?{missing_access_token:"Reopen this page to update LINE login",profile_permission_required:"LINE profile permission is required",expired_access_token:"Please sign in to LINE again",profile_unavailable:"LINE profile is temporarily unavailable",identity_mismatch:"Please sign in to LINE again",profile_name_missing:"LINE did not provide a profile name"}:{missing_access_token:"เปิดหน้านี้ใหม่เพื่ออัปเดตการเข้าสู่ระบบ",profile_permission_required:"ยังไม่ได้รับสิทธิ์อ่านชื่อโปรไฟล์ LINE",expired_access_token:"กรุณาเข้าสู่ระบบ LINE ใหม่",profile_unavailable:"ยังอ่านโปรไฟล์ LINE ไม่ได้",identity_mismatch:"กรุณาเข้าสู่ระบบ LINE ใหม่",profile_name_missing:"LINE ยังไม่ส่งชื่อโปรไฟล์"};
    account.replaceChildren(el("span",{text:a.name?"LINE · "+a.name:messages[a.status]||messages.profile_unavailable}));
-   if(!a.name)account.append(el("button",{type:"button",text:lang==="en"?"Sign in again":"เข้าสู่ระบบใหม่",onclick:()=>{liff.logout();liff.login({redirectUri:location.href})}}));
+   if(!a.name)account.append(el("button",{type:"button",text:lang==="en"?"Sign in again":"เข้าสู่ระบบใหม่",onclick:()=>tk7RecoverLineAccount(a,{...recoverOptions,manual:true})}));
    if(a.name)myName=a.name;
   }
   if(!dates.length)return fail(T("noDates"));
