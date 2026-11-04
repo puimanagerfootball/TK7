@@ -10,7 +10,7 @@ const env={TK7_APP_ORIGIN:'https://example.test',LINE_LOGIN_CHANNEL_ID:'20122788
 const sid=crypto.randomUUID(),entry=crypto.randomUUID();
 const req=(body,path='',origin=env.TK7_APP_ORIGIN)=>new Request('https://edge.test/'+path,{method:'POST',headers:{Origin:origin,'Content-Type':'application/json'},body:JSON.stringify(body)});
 const ok=data=>new Response(JSON.stringify(data));
-function harness({identity={sub:'Uverified',name:'Pui'},verifyStatus=200,replayed=false,settings=[{group_id:'legacy-dataset',environment:'production'}],missingSession=false,dbError=false}={}){
+function harness({identity={sub:'Uverified',name:'Pui'},verifyStatus=200,replayed=false,settings=[{group_id:'legacy-dataset',environment:'production'}],missingSession=false,dbError=false,profile={userId:"Uabc123",displayName:"Pui Profile"},profileStatus=200}={}){
  const calls=[],writes=[];
  const handler=createHandler(env,async(url,options={})=>{
   calls.push(url);assert.ok(!url.includes('/v2/bot/'),'must never call a LINE Bot API');
@@ -18,6 +18,7 @@ function harness({identity={sub:'Uverified',name:'Pui'},verifyStatus=200,replaye
    assert.equal(options.body.get('client_id'),env.LINE_LOGIN_CHANNEL_ID);
    return verifyStatus===200?ok(identity):new Response('',{status:verifyStatus});
   }
+  if(url==='https://api.line.me/v2/profile')return profileStatus===200?ok(profile):new Response('',{status:profileStatus});
   if(dbError)return new Response('{"message":"Database unavailable"}',{status:503});
   if(url.includes('tk7_line_settings?'))return ok(settings);
   if(url.includes('tk7_signup_sessions?')){
@@ -124,4 +125,12 @@ test('generated Edge Function is self-contained and retires worker without fetch
   fetch:()=>{throw Error('must not fetch')},Deno:{env:{toObject:()=>env},serve:h=>{handler=h}}};
  vm.runInNewContext(fs.readFileSync(new URL('index.ts',import.meta.url),'utf8'),context);
  assert.equal(typeof handler,'function');assert.equal((await handler(req({},'worker'))).status,410);
+});
+
+test('profile fallback checks matching LINE user and handles denied access',async()=>{
+ for(const config of [{},{profile:{userId:'Uother',displayName:'Wrong'}},{profileStatus:401}]){
+  const {handler,writes}=harness({identity:{sub:'Uabc123'},...config});
+  await handler(req({action:'register',team:'green',names:['Alex'],idToken:'valid',accessToken:'profile-token',sessionId:sid,requestId:crypto.randomUUID()}));
+  assert.equal(writes[1].actor_name,Object.keys(config).length?'LINE user · abc123':'Pui Profile');
+ }
 });

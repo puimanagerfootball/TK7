@@ -165,8 +165,15 @@ function createHandler(env,fetcher=fetch){
    if(!verified.ok)return reply({error:L('กรุณาเข้าสู่ระบบ LINE อีกครั้ง','Please log in with LINE again'),relogin:true},401);
    const identity=await verified.json();if(typeof identity.sub!=='string'||!identity.sub.trim())return reply({error:'Invalid identity'},401);
    const a=await active();
-   // Only trust the name returned by LINE's server-side ID-token verification.
-   const actorName=typeof identity.name==='string'&&identity.name.trim()?identity.name.slice(0,60):'LINE user · '+identity.sub.slice(-6);
+   // Only accept profile names belonging to the verified LINE identity.
+   let actorName=typeof identity.name==='string'?identity.name.trim().slice(0,60):'';
+   if(!actorName&&typeof b.accessToken==='string'&&b.accessToken.length<4096){
+    try{
+     const response=await fetcher('https://api.line.me/v2/profile',{headers:{Authorization:'Bearer '+b.accessToken},signal:AbortSignal.timeout(5000)});
+     if(response.ok){const profile=await response.json();if(profile.userId===identity.sub&&typeof profile.displayName==='string')actorName=profile.displayName.trim().slice(0,60);}
+    }catch{}
+   }
+   actorName||='LINE user · '+identity.sub.slice(-6);
    const filter=filterOf(a);
    if(b.action==='dates'){
     const sessions=await db('tk7_signup_sessions?select=id,match_date,is_open,start_time,time_per_match&'+filter+'&is_open=eq.true&match_date=gte.'+bangkokToday()+'&order=match_date');

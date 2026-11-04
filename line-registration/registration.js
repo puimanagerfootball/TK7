@@ -50,7 +50,7 @@ function toast(msg,err=false){const t=$("toast");t.textContent=msg;t.classList.t
 // ---------- API ----------
 async function api(action,payload={}){
  if(demo)return demoApi(action,payload);
- const r=await fetch(window.TK7_CONFIG.apiUrl,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action,lang,idToken:liff.getIDToken(),sessionId,...payload})});
+ const r=await fetch(window.TK7_CONFIG.apiUrl,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action,lang,idToken:liff.getIDToken(),accessToken:liff.getAccessToken(),sessionId,...payload})});
  const result=await r.json().catch(()=>({}));
  if(r.status===401&&result.relogin){liff.logout();liff.login({redirectUri:location.href});throw Error(T("relogin"))}
  if(!r.ok)throw Error(result.error||T("down"));
