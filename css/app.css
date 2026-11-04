@@ -1717,3 +1717,5 @@
             width: 118px; min-width: 118px; max-width: 118px;
             min-height: 34px; font-size: 13px;
         }
+
+.team-emblem.opener-pending{background:#e8efe7;color:#657760;--emblem-lip:#bac8b5;text-shadow:none}

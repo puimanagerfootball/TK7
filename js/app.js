@@ -1,5 +1,5 @@
 /* ==========================================================================
-   TK7 app logic (Ver 5.0.2)
+   TK7 app logic (Ver 5.0.3)
    แยกจาก index.html เพื่อแก้/ค้นหาง่ายขึ้น
    Sections (ค้นหาด้วย // --- SECTION:):
      CONFIG, AUTH, REGISTRATION, SCHEDULE, LINEUP, SETUP,
@@ -1287,7 +1287,7 @@
             const current = side === 'home' ? currentPair.home : currentPair.away;
             const candidates = teamPool.filter(slug => slug !== other);
             if (!candidates.length) return null;
-            const idx = Math.max(0, candidates.indexOf(current));
+            const idx = candidates.indexOf(current);
             const next = candidates[(idx + 1) % candidates.length];
             return {
                 home: side === 'home' ? next : currentPair.home,
@@ -1296,9 +1296,8 @@
         }
 
         function buildOpenerSlotHtml(homeSlug, awaySlug, { showLever = true, clickable = true } = {}) {
-            const homeTeam = TEAMS.find(t => t.slug === homeSlug);
-            const awayTeam = TEAMS.find(t => t.slug === awaySlug);
-            if (!homeTeam || !awayTeam) return '';
+            const homeTeam = TEAMS.find(t => t.slug === homeSlug) || { name: 'รอสุ่ม', slug: 'opener-pending' };
+            const awayTeam = TEAMS.find(t => t.slug === awaySlug) || { name: 'รอสุ่ม', slug: 'opener-pending' };
             const leverHtml = showLever
                 ? `<button type="button" class="opener-lever" title="ดึงคันชักสุ่มคู่เปิดสนาม" aria-label="ดึงคันชักสุ่มคู่เปิดสนาม">
                         <span class="lever-console"></span>
@@ -2084,52 +2083,29 @@
             const previewContent = document.getElementById('schedule-preview-content');
             if (!previewCard || !previewContent) return;
             if (openerSpinning && previewContent.querySelector('.opener-slot-machine')) return;
-            const dayData = appData[document.getElementById('match-date')?.value || currentDateKey];
-            const s1 = document.getElementById('lock-team-1');
-            const s2 = document.getElementById('lock-team-2');
-
-            let firstMatch = null;
-
-            if (isInitialLoad && dayData && dayData.schedule && dayData.schedule.length > 0) {
-                firstMatch = dayData.schedule[0];
-                if (s1 && s2 && firstMatch.home && firstMatch.away) {
-                    if ([...s1.options].some(o => o.value === firstMatch.home)) s1.value = firstMatch.home;
-                    if ([...s2.options].some(o => o.value === firstMatch.away)) s2.value = firstMatch.away;
-                }
-            } else {
-                const teams = Array.from(document.querySelectorAll('.team-switch:checked')).map(sw => sw.dataset.teamSlug);
-                if (teams.length < 2) {
-                    previewCard.style.display = 'none';
-                    return;
-                }
-                const t1 = s1?.value;
-                const t2 = s2?.value;
-                if (t1 && t2) firstMatch = { home: t1, away: t2 };
+            const date = document.getElementById('match-date')?.value || currentDateKey;
+            const dayData = appData[date];
+            const s1 = document.getElementById('lock-team-1'), s2 = document.getElementById('lock-team-2');
+            const teams = [...document.querySelectorAll('.team-switch:checked')].map(sw => sw.dataset.teamSlug);
+            if (teams.length < 2) { previewCard.style.display = 'none'; return; }
+            if (isInitialLoad && dayData?.schedule?.length) {
+                const saved = dayData.schedule[0];
+                if (s1 && teams.includes(saved.home)) s1.value = saved.home;
+                if (s2 && teams.includes(saved.away)) s2.value = saved.away;
             }
-
-            if (firstMatch && firstMatch.home && firstMatch.away) {
-                const homeTeam = TEAMS.find(t => t.slug === firstMatch.home);
-                const awayTeam = TEAMS.find(t => t.slug === firstMatch.away);
-                if (homeTeam && awayTeam) {
-                    previewContent.innerHTML = buildOpenerSlotHtml(homeTeam.slug, awayTeam.slug, {
-                        showLever: true,
-                        clickable: true
-                    });
-                    wireOpenerSlotControls(previewContent, {
-                        teamPool: () => Array.from(document.querySelectorAll('.team-switch:checked')).map(sw => sw.dataset.teamSlug),
-                        getPair: () => ({ home: s1?.value, away: s2?.value }),
-                        onPairChange: (pair) => {
-                            if (s1 && [...s1.options].some(o => o.value === pair.home)) s1.value = pair.home;
-                            if (s2 && [...s2.options].some(o => o.value === pair.away)) s2.value = pair.away;
-                        }
-                    });
-                    previewCard.style.display = 'block';
-                } else {
-                    previewCard.style.display = 'none';
+            const home = teams.includes(s1?.value) ? s1.value : null;
+            const away = teams.includes(s2?.value) && s2.value !== home ? s2.value : null;
+            previewContent.innerHTML = buildOpenerSlotHtml(home, away, { showLever: true, clickable: true });
+            wireOpenerSlotControls(previewContent, {
+                teamPool: () => [...document.querySelectorAll('.team-switch:checked')].map(sw => sw.dataset.teamSlug),
+                getDate: () => document.getElementById('match-date')?.value || currentDateKey,
+                getPair: () => ({ home: s1?.value, away: s2?.value }),
+                onPairChange: pair => {
+                    if (s1) s1.value = teams.includes(pair.home) ? pair.home : '';
+                    if (s2) s2.value = teams.includes(pair.away) ? pair.away : '';
                 }
-            } else {
-                previewCard.style.display = 'none';
-            }
+            });
+            previewCard.style.display = 'block';
         }
 
         function updateAdvancedOptions() { updateTemplateSelector(); }
@@ -2967,6 +2943,7 @@ function copyToEditForm(template) {
             document.getElementById('new-template-name').scrollIntoView({ behavior: 'smooth' });
         }
 
+let openerFormDate = '';
 function refreshOpenerDropdowns(forceT1 = null, forceT2 = null) {
     const activeTeams = Array.from(document.querySelectorAll('.team-switch:checked')).map(sw => sw.dataset.teamSlug);
     const s1 = document.getElementById('lock-team-1');
@@ -2981,22 +2958,25 @@ function refreshOpenerDropdowns(forceT1 = null, forceT2 = null) {
         return;
     }
 
-    const oldVal1 = s1.value;
-    const oldVal2 = s2.value;
+    const date = document.getElementById('match-date')?.value || currentDateKey;
+    const sameDate = openerFormDate === date;
+    openerFormDate = date;
+    const oldVal1 = sameDate ? s1.value : '';
+    const oldVal2 = sameDate ? s2.value : '';
     const optionsHtml = activeTeams.map(slug => {
         const team = TEAMS.find(t => t.slug === slug);
         return `<option value="${slug}">${team ? team.name : slug}</option>`;
     }).join('');
-    s1.innerHTML = optionsHtml;
-    s2.innerHTML = optionsHtml;
+    s1.innerHTML = '<option value="">รอสุ่ม / เลือกทีม</option>' + optionsHtml;
+    s2.innerHTML = '<option value="">รอสุ่ม / เลือกทีม</option>' + optionsHtml;
 
     if (forceT1 && activeTeams.includes(forceT1)) s1.value = forceT1;
     else if (activeTeams.includes(oldVal1)) s1.value = oldVal1;
-    else s1.value = activeTeams[0];
+    else s1.value = '';
 
     if (forceT2 && activeTeams.includes(forceT2) && forceT2 !== s1.value) s2.value = forceT2;
     else if (activeTeams.includes(oldVal2) && oldVal2 !== s1.value) s2.value = oldVal2;
-    else s2.value = activeTeams.find(slug => slug !== s1.value) || activeTeams[1];
+    else s2.value = '';
 
     renderSchedulePreview(false);
 }
@@ -3005,8 +2985,8 @@ function getFinalShuffledOrder() {
     const allSelected = Array.from(document.querySelectorAll('.team-switch:checked')).map(sw => sw.dataset.teamSlug);
     const s1 = document.getElementById('lock-team-1');
     const s2 = document.getElementById('lock-team-2');
-    const t1 = s1?.value || allSelected[0];
-    const t2 = s2?.value || allSelected[1];
+    const t1 = s1?.value;
+    const t2 = s2?.value;
     const finalOrder = buildTeamOrderFromOpener(allSelected, t1, t2);
     if (!finalOrder) {
         alert('กรุณาเลือกทีมเปิดสนามให้ครบ 2 ทีม (ไม่ซ้ำกัน)');
