@@ -17,3 +17,12 @@
 - Preserve the owner's 30-day registration retention job and bilingual privacy notice. Fixture/score tables and administrator accounts have separate retention.
 - Keep privacy.html synchronized with line-registration/privacy.html using the release script. Publish privacy.html and browser-safety.js to the LIFF mirror.
 - Never unregister unrelated service workers on the shared GitHub Pages origin.
+
+# Code and performance requirements
+
+- Keep score persistence in js/score-writer.js and numeric statistics in js/match-stats.js. Idle navigation must not write schedules.
+- Score/schedule edits compare updated_at before writing. Keep failed drafts and the explicit retry/discard flows; never silently overwrite a conflicting server revision.
+- Render the visible page only. Background score updates must not reset unsaved setup fields.
+- Keep saved fixture order, scores and times unchanged unless the user edits them. New fixtures use exactly the minutes entered in the form.
+- Use `node scripts/sync-liff-site.mjs <existing-tk7-site-release-path>` for the LIFF mirror. It copies required browser assets only, excluding server/admin-only code.
+- The user explicitly requires keeping the legacy text-copy/group-merge signup menu. Maintain js/legacy-registration.js, its on-demand loader, css/legacy-registration.css and its button/modal alongside Flex sharing.

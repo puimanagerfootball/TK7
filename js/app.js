@@ -1,5 +1,5 @@
 /* ==========================================================================
-   TK7 app logic (Ver 5.1.1)
+   TK7 app logic (Ver 5.1.2)
    แยกจาก index.html เพื่อแก้/ค้นหาง่ายขึ้น
    Sections (ค้นหาด้วย // --- SECTION:):
      CONFIG, AUTH, REGISTRATION, SCHEDULE, LINEUP, SETUP,
@@ -108,18 +108,18 @@
             const d = new Date();
             return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
         }
-        let appData = {}, activePage = 'page-schedule', currentDateKey = todayDateKey(), currentEditingContext = { index: null, side: null }, isInitialSetupDone = false;
+        let appData = {}, activePage = 'page-schedule', currentDateKey = todayDateKey(), isInitialSetupDone = false;
         let lastScrollPosition = 0, shouldRestoreScroll = false;
         const contentContainer = document.getElementById('content');
-        const pages = document.querySelectorAll('.page'), navButtons = document.querySelectorAll('.nav-btn'), loginBtn = document.getElementById('login-btn'), logoutBtn = document.getElementById('logout-btn'), userInfo = document.getElementById('user-info'), loginModal = document.getElementById('login-modal'), teamSelectModal = document.getElementById('team-select-modal'), membersModal = document.getElementById('members-modal');
+        const pages = document.querySelectorAll('.page'), navButtons = document.querySelectorAll('.nav-btn'), loginBtn = document.getElementById('login-btn'), logoutBtn = document.getElementById('logout-btn'), userInfo = document.getElementById('user-info'), loginModal = document.getElementById('login-modal'), membersModal = document.getElementById('members-modal');
         let dbTemplates = [];
 
         function canManage() {
             if (pendingPasswordRecovery) return false;
-            return !!(currentUser && userProfile && userProfile.status === 'approved' && (userProfile.role === 'admin' || userProfile.role === 'superadmin'));
+            return !!(currentUser && userProfile && userProfile.id === currentUser.id && userProfile.status === 'approved' && (userProfile.role === 'admin' || userProfile.role === 'superadmin'));
         }
         function isSuperAdmin() {
-            return !!(currentUser && userProfile && userProfile.status === 'approved' && userProfile.role === 'superadmin');
+            return !!(canManage() && userProfile.role === 'superadmin');
         }
         function escapeHtml(value) {
             return String(value ?? '')
@@ -134,7 +134,7 @@
         } 
 
         // Mapping ชื่อสีและ Emoji สำหรับลงทะเบียน
-        const REG_TEAM_INFO = {
+        const TEAM_SHIRT_INFO = {
             green: { emoji: '🟢', label: 'Green Shirt (สีเขียว)' },
             red: { emoji: '🔴', label: 'Red Shirt (สีแดง)' },
             white: { emoji: '⚪️', label: 'White Shirt (สีขาว)' },
@@ -286,6 +286,7 @@
         function restoreScrollPosition() { if (shouldRestoreScroll) { requestAnimationFrame(() => { contentContainer.scrollTop = lastScrollPosition; }); } shouldRestoreScroll = false; }
 
         async function initializeApp() {
+            window.TK7LegacyRegistrationLoader.bind({getCurrentDate:()=>currentDateKey,teamInfo:TEAM_SHIRT_INFO,teams:TEAMS,showToast});
             loginBtn.addEventListener('click', () => { setAuthModalTab('login'); loginModal.style.display = 'block'; });
             logoutBtn.addEventListener('click', handleLogout);
             const claimBtn = document.getElementById('claim-superadmin-btn');
@@ -327,62 +328,11 @@
             setupNavigation();
             setupOrientationGuard();
             document.querySelector('#login-modal .close-modal-btn').addEventListener('click', () => loginModal.style.display = 'none');
-            document.querySelector('#team-select-modal .close-modal-btn').addEventListener('click', () => teamSelectModal.style.display = 'none');
             document.querySelector('#members-modal .close-modal-btn').addEventListener('click', () => membersModal.style.display = 'none');
-            const shareRegModal = document.getElementById('share-reg-modal');
-            const shareImageModal = document.getElementById('share-image-modal');
-            document.querySelector('#share-reg-modal .close-modal-btn').addEventListener('click', closeShareRegModal);
-            document.querySelector('#share-image-modal .close-modal-btn').addEventListener('click', closeShareImageModal);
-            document.getElementById('share-image-download-btn').addEventListener('click', downloadShareImage);
-            document.querySelectorAll('#share-reg-modal .share-mode-btn').forEach(btn => {
-                btn.addEventListener('click', () => setShareRegMode(btn.dataset.mode));
-            });
-            document.getElementById('share-reg-line-btn').addEventListener('click', () => {
-                if (getActiveRegTeamSlugs().length === 0) {
-                    alert('กรุณาเลือกทีมที่เข้าร่วมอย่างน้อย 1 ทีม');
-                    return;
-                }
-                shareTextToLine(buildRegistrationTemplate('all'));
-                closeShareRegModal();
-            });
-            document.getElementById('share-reg-merge-btn').addEventListener('click', () => {
-                const check = getShareRegMergeReadiness();
-                if (!check.ready) {
-                    refreshShareRegMergeValidation();
-                    return;
-                }
-                const largeEl = document.getElementById('share-reg-merge-large');
-                const smallEl = document.getElementById('share-reg-merge-small');
-                const merged = mergeRegistrationFromSmallGroups(largeEl.value, smallEl.value);
-                if (!merged.ok) {
-                    refreshShareRegMergeValidation();
-                    alert(merged.error);
-                    return;
-                }
-                largeEl.value = merged.text;
-                smallEl.value = '';
-                refreshShareRegMergeValidation();
-                const teamLabels = merged.updatedSlugs.map(regTeamShortLabel).join(', ');
-                const toastMsg = merged.firstEntry
-                    ? `✅ ลงชื่อคนแรก — สร้างกลุ่มใหญ่แล้ว (${teamLabels})`
-                    : `✅ อัปเดต ${teamLabels} — คัดลอกแล้ว วางในกลุ่มใหญ่ได้เลย`;
-                shareTextToLine(merged.text, toastMsg);
-            });
-            ['share-reg-merge-large', 'share-reg-merge-small'].forEach(id => {
-                const el = document.getElementById(id);
-                if (!el) return;
-                el.addEventListener('input', refreshShareRegMergeValidation);
-                el.addEventListener('paste', () => setTimeout(refreshShareRegMergeValidation, 0));
-            });
             window.addEventListener('click', (event) => {
-                if (event.target == shareRegModal) {
-                    closeShareRegModal();
-                    return;
-                }
-                if (event.target == loginModal || event.target == teamSelectModal || event.target == membersModal) {
+                if (event.target == loginModal || event.target == membersModal) {
                     event.target.style.display = "none";
                 }
-                if (event.target == shareImageModal) closeShareImageModal();
             });
             contentContainer.addEventListener('click', handleMainClick);
             
@@ -402,7 +352,10 @@
             await fetchTemplates();
             await loadInitialData();
 
-            db.auth.onAuthStateChange(async (event, session) => {
+            // Return before querying the database: Auth holds a session lock here.
+            let authRefreshSequence = 0;
+            db.auth.onAuthStateChange((event, session) => {
+                const sequence = ++authRefreshSequence;
                 if (event === 'PASSWORD_RECOVERY') {
                     currentUser = session ? session.user : null;
                     openResetPasswordModal();
@@ -411,15 +364,25 @@
                 const prevId = currentUser?.id || null;
                 currentUser = session ? session.user : null;
                 const nextId = currentUser?.id || null;
-                if (prevId !== nextId) {
-                    if (currentUser && !pendingPasswordRecovery) loginModal.style.display = 'none';
-                    await refreshUserAccess();
-                    await loadInitialData();
-                } else if (currentUser) {
-                    await refreshUserAccess();
-                }
+                if (prevId !== nextId) { userProfile = null; refreshAuthUI(); }
+                setTimeout(async () => {
+                    if (sequence !== authRefreshSequence) return;
+                    try {
+                        if (prevId !== nextId) {
+                            if (currentUser && !pendingPasswordRecovery) loginModal.style.display = 'none';
+                            await refreshUserAccess();
+                            if (sequence === authRefreshSequence) await loadInitialData();
+                        } else if (currentUser) {
+                            await refreshUserAccess();
+                        }
+                    } catch { showToast('ตรวจสถานะเข้าสู่ระบบไม่สำเร็จ กรุณาลองใหม่'); }
+                }, 0);
             });
             listenToRealtimeChanges();
+            document.getElementById('retry-score-save-btn').onclick = () => flushScoreSave();
+            window.addEventListener('beforeunload', event => {
+                if (scoreWriter.hasPending()) { event.preventDefault(); event.returnValue = ''; }
+            });
             window.addEventListener('pagehide', () => { flushScoreSave(); });
             document.addEventListener('visibilitychange', () => {
                 if (document.visibilityState === 'hidden') flushScoreSave();
@@ -436,10 +399,14 @@
             document.getElementById('auth-modal-title').textContent = isLogin ? '🔐 เข้าสู่ระบบ' : '📝 สมัคร Admin';
         }
 
+        let profileLoadSequence = 0;
         async function loadUserProfile() {
+            const sequence = ++profileLoadSequence;
+            const user = currentUser;
             userProfile = null;
-            if (!currentUser) return;
-            const { data, error } = await db.from('profiles').select('*').eq('id', currentUser.id).maybeSingle();
+            if (!user) return;
+            const { data, error } = await db.from('profiles').select('*').eq('id', user.id).maybeSingle();
+            if (sequence !== profileLoadSequence || currentUser?.id !== user.id) return;
             if (error) {
                 console.error('profiles error:', error);
                 if (error.code === '42P01' || (error.message || '').includes('profiles')) {
@@ -449,12 +416,13 @@
             }
             if (!data) {
                 const { data: created, error: insertErr } = await db.from('profiles').insert({
-                    id: currentUser.id,
-                    email: currentUser.email,
-                    display_name: sanitizeDisplayName(currentUser.user_metadata?.display_name || (currentUser.email || '').split('@')[0]),
+                    id: user.id,
+                    email: user.email,
+                    display_name: sanitizeDisplayName(user.user_metadata?.display_name || (user.email || '').split('@')[0]),
                     role: 'admin',
                     status: 'pending'
                 }).select('*').maybeSingle();
+                if (sequence !== profileLoadSequence || currentUser?.id !== user.id) return;
                 if (insertErr) console.error('create profile error:', insertErr);
                 userProfile = created || null;
                 return;
@@ -539,433 +507,6 @@
             refreshAuthUI();
         }
 
-// --- SECTION: REGISTRATION ---
-        function getActiveRegTeamSlugs() {
-            return Array.from(document.querySelectorAll('.team-switch:checked')).map(sw => sw.dataset.teamSlug);
-        }
-
-        function buildTeamSlotsBlock(slug, startPlayerNum) {
-            const info = REG_TEAM_INFO[slug] || { emoji: '⚽', label: slug };
-            let text = `${info.emoji} ${info.label}\n`;
-            for (let i = 0; i < 7; i++) {
-                text += `${startPlayerNum + i}. \n`;
-            }
-            return text;
-        }
-
-        function getRegistrationMatchDateLabel() {
-            const raw = document.getElementById('match-date')?.value || currentDateKey;
-            if (!raw) return '';
-            // รูปแบบ 6-11-2026
-            const [y, m, d] = raw.split('-').map(Number);
-            return `${d}-${m}-${y}`;
-        }
-
-        // จับหัวข้อสีทีมจากข้อความ LINE (ลำดับสำคัญ: navy ก่อน blue)
-        const REG_TEAM_LINE_MATCHERS = [
-            { slug: 'navy', patterns: [/Navy Shirt/i, /สีน้ำเงินเข้ม/, /น้ำเงินเข้ม/] },
-            { slug: 'green', patterns: [/Green Shirt/i, /สีเขียว/, /🟢/] },
-            { slug: 'red', patterns: [/Red Shirt/i, /สีแดง/, /🔴/] },
-            { slug: 'white', patterns: [/White Shirt/i, /สีขาว/, /⚪️/, /⚪/] },
-            { slug: 'blue', patterns: [/Blue Shirt/i, /สีน้ำเงิน(?!เข้ม)/, /🔵/] },
-            { slug: 'black', patterns: [/Black Shirt/i, /สีดำ/, /⚫/, /⚫️/] },
-            { slug: 'yellow', patterns: [/Yellow Shirt/i, /สีเหลือง/, /🟡/] },
-            { slug: 'pink', patterns: [/Pink Shirt/i, /สีชมพู/, /🩷/, /💗/] },
-            { slug: 'orange', patterns: [/Orange Shirt/i, /สีส้ม/, /🟠/] },
-            { slug: 'purple', patterns: [/Purple Shirt/i, /สีม่วง/, /🟣/] }
-        ];
-
-        function resolveRegTeamSlugFromLine(line) {
-            const text = String(line || '').trim();
-            if (!text) return null;
-            for (const { slug, patterns } of REG_TEAM_LINE_MATCHERS) {
-                const info = REG_TEAM_INFO[slug];
-                if (info?.label && text.includes(info.label)) return slug;
-                if (patterns.some(re => re.test(text))) return slug;
-            }
-            return null;
-        }
-
-        function parseRegSlotNames(lines, startIdx) {
-            const names = [];
-            let i = startIdx;
-            while (i < lines.length && names.length < 7) {
-                const match = String(lines[i]).match(/^\s*\d+\.\s*(.*)$/);
-                if (!match) break;
-                names.push(match[1].trim());
-                i += 1;
-            }
-            return { names, nextIdx: i };
-        }
-
-        function regTeamShortLabel(slug) {
-            const info = REG_TEAM_INFO[slug];
-            const team = TEAMS.find(t => t.slug === slug);
-            if (info && team) return `${info.emoji} ${team.name}`;
-            return info?.label || slug;
-        }
-
-        // ดึงบล็อกทีม + จำนวนช่องเลขจากข้อความ LINE
-        function parseRegistrationTeamBlocks(text) {
-            const lines = String(text || '').replace(/\r\n/g, '\n').split('\n');
-            const blocks = [];
-            for (let i = 0; i < lines.length; i++) {
-                const slug = resolveRegTeamSlugFromLine(lines[i]);
-                if (!slug) continue;
-                const { names, nextIdx } = parseRegSlotNames(lines, i + 1);
-                blocks.push({
-                    slug,
-                    names: names.slice(0, 7),
-                    slotCount: names.length,
-                    header: String(lines[i]).trim()
-                });
-                i = Math.max(i, nextIdx - 1);
-            }
-            return blocks;
-        }
-
-        // ดึงชื่อต่อทีมจากข้อความลงทะเบียน (กลุ่มใหญ่หรือกลุ่มย่อย)
-        function parseRegistrationTeamNames(text) {
-            const blocks = {};
-            parseRegistrationTeamBlocks(text).forEach(block => {
-                if (!block.slotCount) return;
-                const names = block.names.slice();
-                while (names.length < 7) names.push('');
-                blocks[block.slug] = names.slice(0, 7);
-            });
-            return blocks;
-        }
-
-        function validateRegistrationPaste(text, kind) {
-            const trimmed = String(text || '').trim();
-            if (!trimmed) {
-                return { ok: false, level: 'empty', message: 'รอวางข้อความจาก LINE' };
-            }
-
-            const blocks = parseRegistrationTeamBlocks(trimmed);
-            if (!blocks.length) {
-                return { ok: false, level: 'error', message: 'รูปแบบไม่ถูกต้อง — ไม่พบหัวข้อสีทีม' };
-            }
-
-            const noSlots = blocks.filter(b => b.slotCount === 0);
-            if (noSlots.length) {
-                return {
-                    ok: false,
-                    level: 'error',
-                    message: `รูปแบบไม่ถูกต้อง — ไม่มีเลขลำดับใต้ ${noSlots.map(b => regTeamShortLabel(b.slug)).join(', ')}`
-                };
-            }
-
-            const shortBlocks = blocks.filter(b => b.slotCount < 7);
-            if (shortBlocks.length) {
-                return {
-                    ok: false,
-                    level: 'error',
-                    message: `รูปแบบไม่ครบ — ${shortBlocks.map(b => `${regTeamShortLabel(b.slug)} มี ${b.slotCount}/7 ช่อง`).join(', ')}`
-                };
-            }
-
-            const teamText = blocks.map(b => regTeamShortLabel(b.slug)).join(', ');
-            if (kind === 'large') {
-                return {
-                    ok: true,
-                    level: 'ok',
-                    message: `รูปแบบถูกต้อง — พบ ${blocks.length} ทีม (${teamText})`,
-                    blocks
-                };
-            }
-
-            return {
-                ok: true,
-                level: 'ok',
-                message: `รูปแบบถูกต้อง — ${teamText}`,
-                blocks
-            };
-        }
-
-        function applyShareRegStatus(textareaId, statusId, result) {
-            const ta = document.getElementById(textareaId);
-            const statusEl = document.getElementById(statusId);
-            if (!ta || !statusEl) return;
-            ta.classList.remove('is-ok', 'is-error', 'is-empty');
-            statusEl.classList.remove('is-ok', 'is-error');
-            if (result.level === 'ok') {
-                ta.classList.add('is-ok');
-                statusEl.classList.add('is-ok');
-            } else if (result.level === 'error') {
-                ta.classList.add('is-error');
-                statusEl.classList.add('is-error');
-            } else {
-                ta.classList.add('is-empty');
-            }
-            statusEl.textContent = result.message;
-        }
-
-        function getShareRegMergeReadiness() {
-            const largeEl = document.getElementById('share-reg-merge-large');
-            const smallEl = document.getElementById('share-reg-merge-small');
-            const largeRaw = largeEl?.value || '';
-            const smallRaw = smallEl?.value || '';
-            const largeEmpty = !String(largeRaw).trim();
-            const small = validateRegistrationPaste(smallRaw, 'small');
-
-            // วางแค่กลุ่มย่อย = ลงชื่อคนแรก → สร้างกลุ่มใหญ่จากทีมที่เลือก
-            if (largeEmpty) {
-                if (!small.ok) {
-                    return {
-                        ready: false,
-                        firstEntry: true,
-                        large: {
-                            ok: false,
-                            level: 'empty',
-                            message: 'ว่างได้ถ้าเป็นคนแรก — วางกลุ่มย่อยได้เลย'
-                        },
-                        small
-                    };
-                }
-
-                const activeSlugs = getActiveRegTeamSlugs();
-                if (!activeSlugs.length) {
-                    return {
-                        ready: false,
-                        firstEntry: true,
-                        large: {
-                            ok: false,
-                            level: 'error',
-                            message: 'ยังไม่ได้เลือกทีมที่เข้าร่วมในหน้าจัดการทีม'
-                        },
-                        small
-                    };
-                }
-
-                const activeSet = new Set(activeSlugs);
-                const missing = (small.blocks || []).filter(b => !activeSet.has(b.slug));
-                if (missing.length) {
-                    return {
-                        ready: false,
-                        firstEntry: true,
-                        large: {
-                            ok: false,
-                            level: 'error',
-                            message: 'ทีมในกลุ่มย่อยไม่อยู่ในทีมที่เลือกวันนี้'
-                        },
-                        small: {
-                            ok: false,
-                            level: 'error',
-                            message: `ทีมนี้ไม่ได้ถูกเลือกวันนี้ — ${missing.map(b => regTeamShortLabel(b.slug)).join(', ')}`,
-                            blocks: small.blocks
-                        }
-                    };
-                }
-
-                return {
-                    ready: true,
-                    firstEntry: true,
-                    large: {
-                        ok: true,
-                        level: 'ok',
-                        message: `ลงชื่อคนแรก — จะสร้างกลุ่มใหญ่ใหม่ (${activeSlugs.length} ทีม)`
-                    },
-                    small
-                };
-            }
-
-            const large = validateRegistrationPaste(largeRaw, 'large');
-            if (!large.ok || !small.ok) {
-                return { ready: false, firstEntry: false, large, small };
-            }
-
-            const largeSlugs = new Set((large.blocks || []).map(b => b.slug));
-            const missing = (small.blocks || []).filter(b => !largeSlugs.has(b.slug));
-            if (missing.length) {
-                return {
-                    ready: false,
-                    firstEntry: false,
-                    large,
-                    small: {
-                        ok: false,
-                        level: 'error',
-                        message: `ทีมนี้ไม่มีในกลุ่มใหญ่ — ${missing.map(b => regTeamShortLabel(b.slug)).join(', ')}`,
-                        blocks: small.blocks
-                    }
-                };
-            }
-
-            return { ready: true, firstEntry: false, large, small };
-        }
-
-        function refreshShareRegMergeValidation() {
-            const check = getShareRegMergeReadiness();
-            applyShareRegStatus('share-reg-merge-large', 'share-reg-merge-large-status', check.large);
-            applyShareRegStatus('share-reg-merge-small', 'share-reg-merge-small-status', check.small);
-            const btn = document.getElementById('share-reg-merge-btn');
-            if (btn) btn.disabled = !check.ready;
-            return check;
-        }
-
-        function closeShareRegModal() {
-            const modal = document.getElementById('share-reg-modal');
-            if (!modal) return;
-            modal.classList.remove('is-open');
-            modal.style.display = 'none';
-        }
-
-        // รวมชื่อจากกลุ่มย่อยเข้ากลุ่มใหญ่ — คงเลขลำดับของกลุ่มใหญ่
-        // ถ้าว่างกลุ่มใหญ่ = ลงชื่อคนแรก → สร้างเทมเพลตจากทีมที่เลือก
-        function mergeRegistrationFromSmallGroups(largeText, smallText) {
-            const small = validateRegistrationPaste(smallText, 'small');
-            if (!small.ok) return { ok: false, error: small.message };
-
-            let baseText = String(largeText || '').trim();
-            let firstEntry = false;
-
-            if (!baseText) {
-                if (!getActiveRegTeamSlugs().length) {
-                    return { ok: false, error: 'ยังไม่ได้เลือกทีมที่เข้าร่วมในหน้าจัดการทีม' };
-                }
-                const activeSet = new Set(getActiveRegTeamSlugs());
-                const missing = (small.blocks || []).filter(b => !activeSet.has(b.slug));
-                if (missing.length) {
-                    return {
-                        ok: false,
-                        error: `ทีมนี้ไม่ได้ถูกเลือกวันนี้ — ${missing.map(b => regTeamShortLabel(b.slug)).join(', ')}`
-                    };
-                }
-                baseText = buildRegistrationTemplate('all');
-                firstEntry = true;
-            } else {
-                const large = validateRegistrationPaste(baseText, 'large');
-                if (!large.ok) return { ok: false, error: large.message };
-            }
-
-            const smallBlocks = parseRegistrationTeamNames(smallText);
-            const smallSlugs = Object.keys(smallBlocks);
-            const lines = baseText.replace(/\r\n/g, '\n').split('\n');
-            const updatedSlugs = [];
-
-            for (let i = 0; i < lines.length; i++) {
-                const slug = resolveRegTeamSlugFromLine(lines[i]);
-                if (!slug || !smallBlocks[slug]) continue;
-
-                const smallNames = smallBlocks[slug];
-                let slot = 0;
-                let j = i + 1;
-                let replaced = 0;
-                while (j < lines.length && slot < 7) {
-                    const match = String(lines[j]).match(/^(\s*)(\d+)\.\s*(.*)$/);
-                    if (!match) break;
-                    lines[j] = `${match[1]}${match[2]}.${smallNames[slot] || ''}`;
-                    replaced += 1;
-                    slot += 1;
-                    j += 1;
-                }
-                if (replaced > 0) updatedSlugs.push(slug);
-                i = j - 1;
-            }
-
-            if (!updatedSlugs.length) {
-                const labels = smallSlugs.map(regTeamShortLabel).join(', ');
-                return { ok: false, error: `ไม่พบทีมที่ตรงกันในกลุ่มใหญ่ — ${labels}` };
-            }
-
-            return { ok: true, text: lines.join('\n'), updatedSlugs, firstEntry };
-        }
-
-        // กลุ่มใหญ่ = ข้อความครบ | กลุ่มย่อย = เฉพาะบล็อกสี + เลขผู้เล่น 1–7
-        function buildRegistrationTemplate(mode, teamSlug) {
-            const activeTeamSlugs = getActiveRegTeamSlugs();
-            if (mode === 'single') {
-                return buildTeamSlotsBlock(teamSlug, 1).trimEnd();
-            }
-
-            const startTime = document.getElementById('start-time').value;
-            const dateLabel = getRegistrationMatchDateLabel();
-            let templateText = `⚽️ FOOTBALL MATCH @ TK7 Stadium\n`;
-            if (dateLabel) {
-                templateText += `📅 Date / วันที่ : ${dateLabel}\n`;
-            }
-            templateText += `🕗 Kick-off / เวลาเตะ : ${startTime}\n`;
-            templateText += `📍 Location: https://maps.app.goo.gl/37K6rD4LqWA5Qz5KA\n\n`;
-
-            let playerCount = 1;
-            activeTeamSlugs.forEach((slug) => {
-                templateText += buildTeamSlotsBlock(slug, playerCount);
-                playerCount += 7;
-            });
-
-            templateText += `\n⏱️ Match Duration / เวลาเล่น :\n`;
-            templateText += `• 4 Teams = 2 Hours\n`;
-            templateText += `• 5 Teams = 3 Hours`;
-            return templateText;
-        }
-
-        function isMobileDevice() {
-            return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent || '');
-        }
-
-        // คัดลอกข้อความอัตโนมัติ — วางใน LINE เอง (มือถือเปิด LINE ให้ด้วยถ้าได้)
-        async function shareTextToLine(text, toastMessage) {
-            try {
-                await navigator.clipboard.writeText(text);
-            } catch (err) {
-                alert('คัดลอกไม่สำเร็จ กรุณาลองอีกครั้ง');
-                return;
-            }
-
-            if (isMobileDevice()) {
-                try {
-                    window.open('https://line.me/R/msg/text/?' + encodeURIComponent(text), '_blank');
-                } catch (_) { /* ignore */ }
-                showToast(toastMessage || '📋 คัดลอกแล้ว — เปิด LINE แล้ววางได้เลย');
-            } else {
-                showToast(toastMessage || '📋 คัดลอกแล้ว! เปิด LINE แล้วกด Ctrl+V');
-            }
-        }
-
-        function setShareRegMode(mode) {
-            document.querySelectorAll('#share-reg-modal .share-mode-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.mode === mode);
-            });
-            document.getElementById('share-reg-all-actions').style.display = mode === 'all' ? 'block' : 'none';
-            document.getElementById('share-reg-single-panel').style.display = mode === 'single' ? 'block' : 'none';
-            document.getElementById('share-reg-merge-panel').style.display = mode === 'merge' ? 'block' : 'none';
-
-            document.getElementById('share-reg-line-btn').textContent = '📋 คัดลอกอัตโนมัติ';
-            document.getElementById('share-reg-hint').textContent = 'กดแล้วคัดลอกอัตโนมัติ → เปิด LINE แล้ววางในกลุ่มใหญ่';
-            document.getElementById('share-reg-single-hint').textContent = 'เลือกสี → คัดลอกอัตโนมัติ → วางในกลุ่มย่อย';
-            document.getElementById('share-reg-merge-hint').textContent = 'วางแค่กลุ่มย่อยได้ถ้าเป็นคนแรก — หรือวางกลุ่มใหญ่แล้วค่อยอัปเดตจากกลุ่มย่อย';
-            if (mode === 'merge') refreshShareRegMergeValidation();
-        }
-
-        function openShareRegModal() {
-            const activeTeamSlugs = getActiveRegTeamSlugs();
-            if (activeTeamSlugs.length === 0) {
-                alert('กรุณาเลือกทีมที่เข้าร่วมอย่างน้อย 1 ทีม');
-                return;
-            }
-
-            const list = document.getElementById('share-reg-team-list');
-            list.innerHTML = '';
-            activeTeamSlugs.forEach(slug => {
-                const team = TEAMS.find(t => t.slug === slug);
-                const info = REG_TEAM_INFO[slug] || { emoji: '⚽', label: slug };
-                const el = document.createElement('div');
-                el.className = `team-emblem ${slug}`;
-                el.textContent = `${info.emoji} ${team ? team.name : slug}`;
-                el.onclick = () => {
-                    shareTextToLine(buildRegistrationTemplate('single', slug));
-                    closeShareRegModal();
-                };
-                list.appendChild(el);
-            });
-
-            setShareRegMode('all');
-            const modal = document.getElementById('share-reg-modal');
-            modal.classList.add('is-open');
-            modal.style.display = 'flex';
-            refreshShareRegMergeValidation();
-        }
-        
         function updateGenerateButtonForDate(date) {
             const generateBtn = document.getElementById('generate-schedule-btn');
             if (!generateBtn) return;
@@ -1029,11 +570,8 @@
             const msg = (error && error.message) ? error.message : '';
             const lower = msg.toLowerCase();
             if (lower.includes('rate limit') || lower.includes('email rate limit')) {
-                return 'ส่งอีเมลเกินโควต้าของ Supabase (ฟรีส่งได้ประมาณ 2 ฉบับ/ชม.)\n\n'
-                    + 'แก้ชั่วคราว:\n'
-                    + '1) รอ 1 ชม. แล้วลองใหม่ หรือ\n'
-                    + '2) ใน Supabase → Authentication → Providers → Email\n'
-                    + '   ปิด Confirm email (แนะนำ เพราะมีระบบอนุมัติ Admin อยู่แล้ว)\n\n'
+                return 'ส่งอีเมลเกินโควต้าหรือถี่เกินไป กรุณารอสักครู่แล้วลองใหม่\n\n'
+                    + 'หากยังไม่สำเร็จ ให้ผู้ดูแลตรวจ Auth rate limits และ SMTP โดยคงการยืนยันอีเมลไว้\n\n'
                     + 'รายละเอียด: ' + msg;
             }
             return (fallback || 'เกิดข้อผิดพลาด') + ': ' + msg;
@@ -1073,11 +611,15 @@
         }
 
         async function handleLogout() {
+            if (!await flushScoreSave()) {
+                if (!confirm('คะแนนยังไม่บันทึก ต้องการออกจากระบบและยกเลิกคะแนนที่แก้ในเครื่องหรือไม่?')) return;
+                scoreWriter.discard();
+                showScoreSaveStatus('');
+            }
             const { error } = await db.auth.signOut();
             if (error) { alert('ออกจากระบบไม่สำเร็จ: ' + error.message); return; }
             userProfile = null;
             hasSuperadmin = false;
-            await flushScoreSave();
             document.getElementById('login-form').reset();
             document.getElementById('signup-form').reset();
             refreshAuthUI();
@@ -1159,15 +701,18 @@
             saveScrollPosition();
             shouldRestoreScroll = true;
             if (!canManage()) return false;
-            const { error } = await db.from('match_days').update({ schedule: newSchedule }).eq('match_date', currentDateKey);
-            if (error) {
+            const date = currentDateKey;
+            if (!await flushScoreSave(date)) return false;
+            const day = appData[date];
+            let result;
+            try {
+                result = await window.TK7ScoreWriter.persist(db, {date,schedule:newSchedule,version:day?.updated_at,baseline:day?.schedule});
+            } catch (error) {
                 alert('เกิดข้อผิดพลาดในการอัปเดตตาราง: ' + error.message);
                 return false;
             }
-            if (appData[currentDateKey]) appData[currentDateKey].schedule = newSchedule;
-            renderSchedulePage(currentDateKey);
-            renderScoresPage(currentDateKey);
-            renderLeaderboardPage(currentDateKey);
+            if (appData[date]) { appData[date].schedule = newSchedule; appData[date].updated_at = result.updated_at; }
+            if (currentDateKey === date) renderVisiblePage(date);
             if (toastMessage) showToast(toastMessage);
             return true;
         }
@@ -1643,25 +1188,6 @@
             await updateScheduleInDB(newSchedule, { toastMessage: '✅ อัปเดตคู่เปิดสนามแล้ว' });
         }
 
-        function openTeamSelectModal(index, side) { if (!canManage()) return; currentEditingContext = { index: parseInt(index), side }; const dayData = appData[currentDateKey]; const activeTeams = dayData.settings.activeTeams; const modalList = document.getElementById('team-select-modal-list'); document.getElementById('team-select-modal-title').textContent = `เลือกทีม${side === 'home' ? 'เหย้า' : 'เยือน'}สำหรับแมตช์ที่ ${currentEditingContext.index + 1}`; modalList.innerHTML = ''; activeTeams.forEach(slug => { const team = TEAMS.find(t => t.slug === slug); if (team) { const teamEl = document.createElement('div'); teamEl.className = `team-emblem ${team.slug} clickable`; teamEl.textContent = team.name; teamEl.dataset.slug = team.slug; teamEl.onclick = () => handleTeamSelection(team.slug); modalList.appendChild(teamEl); } }); teamSelectModal.style.display = 'block'; }
-        async function handleTeamSelection(newTeamSlug) {
-            const { index, side } = currentEditingContext;
-            if (index === null || !side) return;
-            const dayData = appData[currentDateKey];
-            let newSchedule = [...dayData.schedule];
-            const match = newSchedule[index];
-            const otherSide = side === 'home' ? 'away' : 'home';
-            if (match[otherSide] === newTeamSlug) {
-                alert('ไม่สามารถเลือกทีมซ้ำกันในคู่เดียวกันได้');
-                return;
-            }
-            match[side] = newTeamSlug;
-            teamSelectModal.style.display = 'none';
-            await updateScheduleInDB(newSchedule, {
-                toastMessage: index === 0 ? '✅ อัปเดตคู่เปิดสนามแล้ว' : '✅ อัปเดตตารางแล้ว'
-            });
-        }
-        
         function isPhoneLikeDevice() {
             const ua = navigator.userAgent || '';
             if (/Android|iPhone|iPod|Mobile/i.test(ua)) return true;
@@ -1722,9 +1248,8 @@
             pages.forEach(page => page.classList.remove('active')); 
             document.getElementById(pageId).classList.add('active'); 
             navButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.page === pageId)); 
-            content.scrollTop = 0; 
-            if (pageId === 'page-leaderboard') { renderLeaderboardPage(currentDateKey); }
-            if (pageId === 'page-lineup') { renderLineupPage(); }
+            contentContainer.scrollTop = 0;
+            renderVisiblePage(currentDateKey);
             applyPageOrientation(pageId);
         }
 
@@ -1957,7 +1482,7 @@
             pitch.querySelectorAll('.pitch-slot.active').forEach(el => el.classList.remove('active'));
 
             const formation = getCurrentFormation();
-            const info = REG_TEAM_INFO[lineupTeamSlug] || { emoji: '⚽', label: lineupTeamSlug };
+            const info = TEAM_SHIRT_INFO[lineupTeamSlug] || { emoji: '⚽', label: lineupTeamSlug };
             const team = TEAMS.find(t => t.slug === lineupTeamSlug);
             const teamLabel = team ? team.name : (info.label || lineupTeamSlug);
 
@@ -2062,7 +1587,6 @@
                     await prepareSetupFormForDate(date);
                 });
                 document.getElementById('generate-schedule-btn').addEventListener('click', generateAndSaveSchedule);
-                document.getElementById('copy-reg-template-btn').addEventListener('click', openShareRegModal);
                 document.querySelectorAll('.team-switch').forEach(el => el.addEventListener('change', () => {
                     refreshOpenerDropdowns();
                     updateAdvancedOptions();
@@ -2071,11 +1595,6 @@
                 document.querySelectorAll('#page-setup .num-stepper-btn').forEach(btn => btn.addEventListener('click', handleNumberStepper));
                 isInitialSetupDone = true;
             }
-        }
-
-        function updateSetupPageUI() {
-            updateAdvancedOptions();
-            renderSchedulePreview(false);
         }
 
         function renderSchedulePreview(isInitialLoad) {
@@ -2111,11 +1630,18 @@
         function updateAdvancedOptions() { updateTemplateSelector(); }
         function handleNumberStepper(event) { const op = parseInt(event.currentTarget.dataset.op); const targetId = event.currentTarget.dataset.target; const input = document.getElementById(targetId); if (input) { const step = parseFloat(input.step) || 1; const min = parseFloat(input.min); let currentValue = parseFloat(input.value) || 0; let newValue = currentValue + (op * step); if (!isNaN(min) && newValue < min) newValue = min; input.value = parseFloat(newValue.toPrecision(12)); } }
         
-        function renderAllPagesForDate(date) {
+        function renderVisiblePage(date) {
+            if (activePage === 'page-schedule') renderSchedulePage(date);
+            else if (activePage === 'page-scores') renderScoresPage(date);
+            else if (activePage === 'page-leaderboard') renderLeaderboardPage(date);
+            else if (activePage === 'page-lineup') renderLineupPage();
+        }
+
+        function renderAllPagesForDate(date, {syncSetup = false} = {}) {
             setupPageSetup();
             const setupDate = document.getElementById('match-date')?.value || date;
             // ฟอร์มจัดการทีมตามวันที่ในฟอร์มเท่านั้น — ไม่ดึงค่าจากวันตารางที่กำลังดู
-            if (setupDate === date) {
+            if (syncSetup && setupDate === date) {
                 const dayData = appData[date];
                 if (dayData && dayData.settings) {
                     loadSettingsFromData(dayData.settings, date);
@@ -2124,10 +1650,7 @@
                 }
                 updateGenerateButtonForDate(date);
             }
-            renderSchedulePage(date);
-            renderScoresPage(date);
-            renderLeaderboardPage(date);
-            if (activePage === 'page-lineup') renderLineupPage();
+            renderVisiblePage(date);
         }
 
         function updateTemplateSelector() {
@@ -2159,6 +1682,10 @@
             const input = document.getElementById('match-date');
             const date = input.value;
             if (!date) return alert('กรุณาเลือกวันที่แข่งขัน');
+            const duration = Number(document.getElementById('time-per-match').value);
+            const startTime = document.getElementById('start-time').value;
+            if (!Number.isInteger(duration) || duration < 1 || duration > 60) return alert('เวลาแข่งขันต้องเป็นจำนวนเต็ม 1–60 นาที');
+            if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(startTime)) return alert('กรุณากำหนดเวลาเริ่มแข่งขันให้ถูกต้อง');
             const button = document.getElementById('generate-schedule-btn');
             const formSnapshot = () => JSON.stringify([input.value, [...document.querySelectorAll('.team-switch:checked')].map(sw => sw.dataset.teamSlug), document.getElementById('template-selector').value, document.getElementById('start-time').value, document.getElementById('time-per-match').value]);
             const snapshot = formSnapshot();
@@ -2189,7 +1716,7 @@
                 const finalOrder = getFinalShuffledOrder();
                 if (!finalOrder) return;
                 const templateId = document.getElementById('template-selector').value;
-                const settings = { timePerMatch: parseInt(document.getElementById('time-per-match').value) + 1, startTime: document.getElementById('start-time').value, activeTeams: finalOrder, templateId };
+                const settings = { timePerMatch: duration, startTime, activeTeams: finalOrder, templateId };
                 const finalSchedule = buildScheduleFromTeamOrder(finalOrder, templateId);
                 if (button) button.textContent = 'กำลังบันทึกตาราง…';
                 const { error } = await db.from('match_days').upsert({ match_date: date, settings, schedule: finalSchedule }, { onConflict: 'match_date' });
@@ -2250,9 +1777,6 @@
             }
         }
 
-        let shareImageObjectUrl = null;
-        let shareImageBlobRef = null;
-        let shareImageFilename = 'TK7.png';
 
         function canvasToBlob(canvas, type = 'image/png', quality) {
             return new Promise((resolve, reject) => {
@@ -2306,88 +1830,6 @@
             });
         }
 
-        function closeShareImageModal() {
-            const modal = document.getElementById('share-image-modal');
-            if (modal) modal.style.display = 'none';
-            if (shareImageObjectUrl) {
-                URL.revokeObjectURL(shareImageObjectUrl);
-                shareImageObjectUrl = null;
-            }
-            shareImageBlobRef = null;
-            const preview = document.getElementById('share-image-preview');
-            if (preview) preview.removeAttribute('src');
-        }
-
-        function openShareImageModal(blob, filename) {
-            shareImageFilename = filename || 'TK7.png';
-            shareImageBlobRef = blob;
-            if (shareImageObjectUrl) URL.revokeObjectURL(shareImageObjectUrl);
-            shareImageObjectUrl = URL.createObjectURL(blob);
-            const preview = document.getElementById('share-image-preview');
-            preview.src = shareImageObjectUrl;
-            const hint = document.getElementById('share-image-hint');
-            if (hint) {
-                hint.innerHTML = '<b>กำลังคัดลอกรูป...</b> — รอสักครู่';
-            }
-            document.getElementById('share-image-modal').style.display = 'block';
-        }
-
-        async function copyShareImageToClipboard(options = {}) {
-            const { quiet = false, alertOnFail = true } = options;
-            if (!shareImageBlobRef && !shareImageObjectUrl) {
-                if (alertOnFail) alert('ยังไม่มีรูปให้คัดลอก');
-                return false;
-            }
-            try {
-                let blob = shareImageBlobRef;
-                if (!blob) {
-                    const res = await fetch(shareImageObjectUrl);
-                    blob = await res.blob();
-                }
-                // Chrome ชอบ image/png สำหรับ Copy image
-                const pngBlob = blob.type === 'image/png'
-                    ? blob
-                    : await (async () => {
-                        const imgBitmap = await createImageBitmap(blob);
-                        const c = document.createElement('canvas');
-                        c.width = imgBitmap.width;
-                        c.height = imgBitmap.height;
-                        c.getContext('2d').drawImage(imgBitmap, 0, 0);
-                        return canvasToBlob(c, 'image/png');
-                    })();
-
-                if (!navigator.clipboard || !window.ClipboardItem) {
-                    if (alertOnFail) alert('เบราว์เซอร์นี้คัดลอกรูปไม่ได้ — คลิกขวาที่รูปแล้วเลือก "คัดลอกรูปภาพ"');
-                    return false;
-                }
-                await navigator.clipboard.write([
-                    new ClipboardItem({ 'image/png': pngBlob })
-                ]);
-                if (!quiet) showToast('📋 คัดลอกรูปแล้ว — เปิด LINE แล้ววางได้เลย');
-                return true;
-            } catch (err) {
-                console.error('copy image failed', err);
-                if (alertOnFail) {
-                    alert('คัดลอกรูปไม่สำเร็จ\nให้คลิกขวาที่รูป → คัดลอกรูปภาพ แทน\n\n' + (err.message || ''));
-                }
-                return false;
-            }
-        }
-
-        function downloadShareImage() {
-            if (!shareImageObjectUrl) {
-                alert('ยังไม่มีรูปให้ดาวน์โหลด');
-                return;
-            }
-            const link = document.createElement('a');
-            link.download = shareImageFilename;
-            link.href = shareImageObjectUrl;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            showToast('📥 ดาวน์โหลดแล้ว');
-        }
-
         function isMobileShareDevice() {
             const ua = navigator.userAgent || '';
             const coarse = typeof window.matchMedia === 'function'
@@ -2402,57 +1844,52 @@
         async function ensurePngBlob(blob) {
             if (!blob) return null;
             if (blob.type === 'image/png') return blob;
+            let imgBitmap, canvas;
             try {
-                const imgBitmap = await createImageBitmap(blob);
-                const c = document.createElement('canvas');
-                c.width = imgBitmap.width;
-                c.height = imgBitmap.height;
-                c.getContext('2d').drawImage(imgBitmap, 0, 0);
-                return await canvasToBlob(c, 'image/png');
+                imgBitmap = await createImageBitmap(blob);
+                canvas = document.createElement('canvas');
+                canvas.width = imgBitmap.width;
+                canvas.height = imgBitmap.height;
+                canvas.getContext('2d').drawImage(imgBitmap, 0, 0);
+                return await canvasToBlob(canvas, 'image/png');
             } catch (err) {
                 console.warn('ensurePngBlob failed', err);
                 return blob;
+            } finally {
+                imgBitmap?.close?.();
+                if (canvas) { canvas.width = 0; canvas.height = 0; }
             }
         }
 
-        async function shareImageBlob(blob, filename, title) {
-            // มือถือ → แชร์ไฟล์ (เลือก LINE ได้) · PC → คัดลอกคลิปบอร์ด · ไม่เปิดป็อปอัพพรีวิว
+        async function shareImageBlob(blob, filename = 'TK7.png', title = 'TK7') {
+            // มือถือแชร์ไฟล์ · คอมคัดลอก PNG · ดาวน์โหลดเมื่อเบราว์เซอร์ไม่รองรับ
             purgeCaptureStages();
             const pngBlob = await ensurePngBlob(blob);
-            shareImageFilename = filename || 'TK7.png';
-            shareImageBlobRef = pngBlob;
-            if (shareImageObjectUrl) URL.revokeObjectURL(shareImageObjectUrl);
-            shareImageObjectUrl = URL.createObjectURL(pngBlob);
-
+            if (!pngBlob) throw Error('ไม่มีรูปให้แชร์');
             if (isMobileShareDevice() && navigator.canShare) {
                 try {
-                    const file = new File([pngBlob], shareImageFilename, { type: 'image/png' });
-                    if (navigator.canShare({ files: [file] })) {
-                        await navigator.share({ files: [file], title: title || 'TK7' });
+                    const file = new File([pngBlob], filename, {type:'image/png'});
+                    if (navigator.canShare({files:[file]})) {
+                        await navigator.share({files:[file],title});
                         showToast('แชร์แล้ว');
                         return 'shared';
                     }
-                } catch (err) {
-                    if (err && err.name === 'AbortError') {
-                        showToast('ยกเลิกการแชร์');
-                        return 'aborted';
-                    }
-                    // แชร์ไฟล์ไม่ได้ → ลองคัดลอกต่อ
+                } catch (error) {
+                    if (error?.name === 'AbortError') { showToast('ยกเลิกการแชร์'); return 'aborted'; }
                 }
             }
-
-            const ok = await copyShareImageToClipboard({ quiet: false, alertOnFail: false });
-            if (ok) return 'copied';
-
-            // fallback: ดาวน์โหลดโดยไม่เปิดโมดัล
-            if (shareImageObjectUrl) {
-                const link = document.createElement('a');
-                link.download = shareImageFilename;
-                link.href = shareImageObjectUrl;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
+            if (navigator.clipboard?.write && window.ClipboardItem) {
+                try {
+                    await navigator.clipboard.write([new ClipboardItem({'image/png':pngBlob})]);
+                    showToast('📋 คัดลอกรูปแล้ว — เปิด LINE แล้ววางได้เลย');
+                    return 'copied';
+                } catch { /* Fall back to a download without retaining the image in app state. */ }
             }
+            const url = URL.createObjectURL(pngBlob);
+            const link = document.createElement('a');
+            link.download = filename; link.href = url;
+            document.body.appendChild(link); link.click(); link.remove();
+            setTimeout(() => URL.revokeObjectURL(url), 60000);
             showToast('คัดลอกไม่ได้ — ดาวน์โหลดรูปแทน');
             return 'download';
         }
@@ -2524,15 +1961,12 @@
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'match_days' }, async (payload) => {
                     const changedDate = payload.new?.match_date || payload.old?.match_date;
                     if (!changedDate) return;
+                    if (scoreWriter.hasPending(changedDate) || scoreWriter.isSaving(changedDate)) {
+                        deferredScoreRefresh.add(changedDate);
+                        return;
+                    }
                     if (changedDate === currentDateKey) {
                         // กำลังแก้คะแนนอยู่ / เพิ่งบันทึกเอง → อย่ารีโหลดทับ UI
-                        if (
-                            pendingScoreSaveTimer
-                            || scoreSaveInFlight
-                            || Date.now() < ignoreRealtimeScoreUntil
-                        ) {
-                            return;
-                        }
                         if (Object.prototype.hasOwnProperty.call(appData, changedDate)) {
                             delete appData[changedDate];
                         }
@@ -2576,11 +2010,16 @@
             
             const { data: results, error } = await db.from('match_days').select('*').eq('match_date', date);
             if (requestSeq!==matchDayLoadSeq||currentDateKey!==date) return;
+            if (typeof scoreWriter !== 'undefined' && scoreWriter.hasPending(date)) {
+                deferredScoreRefresh.add(date);
+                renderAllPagesForDate(date);
+                return;
+            }
             if (error) { console.error("Error fetching data for date:", error); alert("เกิดข้อผิดพลาดในการโหลดข้อมูล: " + error.message); return; }
             const data = results && results.length > 0 ? results[0] : null;
 
             appData[date] = data;
-            renderAllPagesForDate(date);
+            renderAllPagesForDate(date, {syncSetup:syncSetupDate});
             const setupDate = document.getElementById('match-date')?.value;
             if (setupDate) updateGenerateButtonForDate(setupDate);
             else updateGenerateButtonForDate(date);
@@ -2589,7 +2028,7 @@
         
         function loadSettingsFromData(settings, dateKey = null) {
     if (!settings || !canManage()) return;
-    document.getElementById('time-per-match').value = settings.timePerMatch ? settings.timePerMatch - 1 : 8;
+    document.getElementById('time-per-match').value = settings.timePerMatch || 8;
     document.getElementById('start-time').value = settings.startTime || '20:00';
     
     // ติ๊กทีมที่เข้าร่วม
@@ -2668,13 +2107,31 @@
         
 // --- SECTION: SCORES ---
         // กด +/−/รีเซ็ต ทันที → หยุดกด ~0.5s ค่อยบันทึก DB (ไม่วาดทั้งหน้า / ไม่มีแบนเนอร์)
-        let pendingScoreSaveTimer = null;
-        let scoreSaveInFlight = false;
-        let scoreSaveQueue = Promise.resolve();
-        let ignoreRealtimeScoreUntil = 0;
-        let leaderboardRefreshTimer = null;
-        let scoreDirtyDate = null;
+        const deferredScoreRefresh = new Set();
         const SCORE_SAVE_DEBOUNCE_MS = 500;
+        function showScoreSaveStatus(message) {
+            const status = document.getElementById('score-save-status');
+            if (!status) return;
+            status.hidden = !message;
+            status.querySelector('span').textContent = message || '';
+        }
+        const scoreWriter = window.TK7ScoreWriter.create({
+            delay: SCORE_SAVE_DEBOUNCE_MS,
+            save: input => {
+                if (!canManage() || pendingPasswordRecovery) throw Error('ต้องเข้าสู่ระบบผู้ดูแลก่อนบันทึกคะแนน');
+                return window.TK7ScoreWriter.persist(db, input);
+            },
+            onError: (error, date) => showScoreSaveStatus('คะแนนวันที่ '+date+' ยังไม่บันทึก: '+error.message),
+            onSaved: (date, result) => {
+                if (appData[date]) appData[date].updated_at = result.updated_at;
+                if (!scoreWriter.hasPending()) showScoreSaveStatus('');
+                if (!scoreWriter.hasPending(date) && deferredScoreRefresh.delete(date)) {
+                    if (date === currentDateKey) loadDataForDate(date, {syncSetupDate:false});
+                    else delete appData[date];
+                }
+            }
+        });
+        let leaderboardRefreshTimer = null;
 
         function patchMatchScoreCardUI(index) {
             const match = appData[currentDateKey]?.schedule?.[index];
@@ -2695,44 +2152,18 @@
         function scheduleLeaderboardRefresh(date = currentDateKey) {
             clearTimeout(leaderboardRefreshTimer);
             leaderboardRefreshTimer = setTimeout(() => {
-                renderLeaderboardPage(date);
+                if (activePage === 'page-leaderboard' && date === currentDateKey) renderLeaderboardPage(date);
             }, 350);
         }
 
-        function queueScoreSave(date = currentDateKey) {
-            scoreDirtyDate = date;
-            clearTimeout(pendingScoreSaveTimer);
-            pendingScoreSaveTimer = setTimeout(() => {
-                pendingScoreSaveTimer = null;
-                flushScoreSave(scoreDirtyDate || date);
-            }, SCORE_SAVE_DEBOUNCE_MS);
+        function queueScoreSave(date = currentDateKey, baseline) {
+            const day = appData[date];
+            scoreWriter.mark(date, day.schedule, day.updated_at, baseline);
+            showScoreSaveStatus('กำลังรอบันทึกคะแนน…');
         }
 
-        function flushScoreSave(date = scoreDirtyDate || currentDateKey) {
-            clearTimeout(pendingScoreSaveTimer);
-            pendingScoreSaveTimer = null;
-            if (!canManage() || pendingPasswordRecovery) return scoreSaveQueue;
-            const dayData = appData[date];
-            if (!dayData?.schedule) return scoreSaveQueue;
-
-            const scheduleSnapshot = dayData.schedule.map((m) => ({ ...m }));
-            const saveDate = date;
-            scoreDirtyDate = null;
-            scoreSaveQueue = scoreSaveQueue.then(async () => {
-                scoreSaveInFlight = true;
-                ignoreRealtimeScoreUntil = Date.now() + 2500;
-                try {
-                    const { error } = await db.from('match_days')
-                        .update({ schedule: scheduleSnapshot })
-                        .eq('match_date', saveDate);
-                    if (error) throw error;
-                } catch (error) {
-                    alert('เกิดข้อผิดพลาดในการบันทึกคะแนน: ' + (error.message || error));
-                } finally {
-                    scoreSaveInFlight = false;
-                }
-            });
-            return scoreSaveQueue;
+        function flushScoreSave(date) {
+            return scoreWriter.flush(date);
         }
 
         function renderScoresPage(date) {
@@ -2746,7 +2177,8 @@
             const svgMinus = `<svg viewBox="0 0 24 24"><path d="M19 13H5v-2h14v2z"/></svg>`, svgPlus = `<svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>`, svgReset = `<svg viewBox="0 0 24 24"><path d="M17.65,6.35C16.2,4.9,14.21,4,12,4c-4.42,0-7.99,3.58-7.99,8s3.57,8,7.99,8c3.73,0,6.84-2.55,7.73-6h-2.08c-0.82,2.33-3.04,4-5.65,4-3.31,0-6-2.69-6-6s2.69-6,6-6c1.66,0,3.14,0.69,4.22,1.78L13,11h7V4L17.65,6.35z"/></svg>`;
             const { schedule, settings } = dayData, startTime = new Date(`${date}T${settings.startTime}`);
             const isReadOnly = !canManage(), disabledAttr = isReadOnly ? 'disabled' : '';
-            const html = schedule.map((match, index) => {
+            const html = schedule.map((rawMatch, index) => {
+                const match = {...rawMatch,homeScore:window.TK7MatchStats.score(rawMatch.homeScore),awayScore:window.TK7MatchStats.score(rawMatch.awayScore)};
                 const timeStr = new Date(startTime.getTime() + index * settings.timePerMatch * 60000).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit'});
                 const homeTeam = TEAMS.find(t => t.slug === match.home) || { name: 'N/A', slug: 'black' }, awayTeam = TEAMS.find(t => t.slug === match.away) || { name: 'N/A', slug: 'black' };
                 const readonlyAttr = isReadOnly ? 'readonly' : '';
@@ -2779,13 +2211,15 @@
                 safeValue = Number.parseInt(safeValue, 10);
                 if (Number.isNaN(safeValue) || safeValue < 0) safeValue = 0;
             }
-            const newSchedule = dayData.schedule.map((m, i) => i === idx ? { ...m } : m);
+            if (!['home','away'].includes(team) || dayData.schedule[idx][team+'Score'] === safeValue) return;
+            const previousSchedule = dayData.schedule;
+            const newSchedule = previousSchedule.map((m, i) => i === idx ? { ...m } : m);
             if (team === 'home') newSchedule[idx].homeScore = safeValue;
             else newSchedule[idx].awayScore = safeValue;
             appData[date].schedule = newSchedule;
             patchMatchScoreCardUI(idx);
             scheduleLeaderboardRefresh(date);
-            queueScoreSave(date);
+            queueScoreSave(date, previousSchedule);
         }
         function updateScoreFromButton(button) {
             const { index, team, op } = button.dataset;
@@ -2811,15 +2245,19 @@
             if (!dayData?.schedule) return;
             const idx = parseInt(index, 10);
             if (Number.isNaN(idx) || !dayData.schedule[idx]) return;
-            appData[date].schedule = dayData.schedule.map((m, i) => (
+            if (dayData.schedule[idx].homeScore == null && dayData.schedule[idx].awayScore == null) return;
+            const previousSchedule = dayData.schedule;
+            appData[date].schedule = previousSchedule.map((m, i) => (
                 i === idx ? { ...m, homeScore: null, awayScore: null } : m
             ));
             patchMatchScoreCardUI(idx);
             scheduleLeaderboardRefresh(date);
-            queueScoreSave(date);
+            queueScoreSave(date, previousSchedule);
         }
 
-        function calculateLeaderboard(date) { const dayData = appData[date]; if (!dayData || !dayData.schedule) return {}; const stats = {}; dayData.settings.activeTeams.forEach(slug => { const teamInfo = TEAMS.find(t => t.slug === slug); if(teamInfo) { stats[slug] = { name: teamInfo.name, slug: teamInfo.slug, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, gd: 0, pts: 0 }; }}); dayData.schedule.forEach(match => { const { home, away, homeScore, awayScore } = match; if (homeScore === null || awayScore === null || !stats[home] || !stats[away]) return; stats[home].p++; stats[away].p++; stats[home].gf += homeScore; stats[home].ga += awayScore; stats[away].gf += awayScore; stats[away].ga += homeScore; if (homeScore > awayScore) { stats[home].w++; stats[away].l++; stats[home].pts += 3; } else if (awayScore > homeScore) { stats[away].w++; stats[home].l++; stats[away].pts += 3; } else { stats[home].d++; stats[away].d++; stats[home].pts += 1; stats[away].pts += 1; } }); Object.values(stats).forEach(team => { team.gd = team.gf - team.ga; }); return stats; }
+        function calculateLeaderboard(date) {
+            return window.TK7MatchStats.calculate(appData[date], TEAMS);
+        }
 
 // --- SECTION: TEMPLATES ---
         async function fetchTemplates() {

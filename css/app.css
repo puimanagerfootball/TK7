@@ -1,5 +1,5 @@
 /* TK7 styles — extracted for easier maintenance */
-		
+
 /* --- แก้ไขจุดที่ 2: บังคับแบ่ง 2 คอลัมน์สำหรับหน้าจอแนวนอน/คอม --- */
 @media (min-width: 768px) or (orientation: landscape) {
     body { overflow-y: auto !important; }
@@ -57,7 +57,7 @@
         grid-column: 1 / -1 !important;
     }
 }
-		
+
 .version-tag {
     float: left; /* ให้ลอยไปทางซ้ายของแถบ */
     font-size: 10px;
@@ -392,24 +392,7 @@
             height: auto; min-height: 40px;
             flex: 0 0 128px;
         }
-        #team-select-modal-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
-            gap: 10px;
-            margin-top: 20px;
-        }
-        #team-select-modal-list .team-emblem,
-        #share-reg-team-list .team-emblem {
-            width: 100%; min-width: 0; max-width: none;
-            height: auto; min-height: 42px;
-            display: flex;
-        }
-        #share-reg-team-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-            gap: 10px;
-            margin-top: 12px;
-        }
+
         .leaderboard-table .team-emblem {
             width: 118px; min-width: 118px; max-width: 118px;
             height: auto; min-height: 34px; max-height: none;
@@ -813,8 +796,7 @@
             .pitch-slot .slot-name-input { width: 62px; font-size: 11px; }
             .modal-content { margin: 8% auto; padding: 14px; }
             .share-mode-btn { padding: 10px 8px; font-size: 13px; }
-            #share-reg-modal .share-mode-btn { padding: 8px 4px; font-size: 12px; }
-            #share-reg-modal .share-mode-btn span { font-size: 10px !important; }
+
             #no-data-message { padding: 28px 14px; }
             #no-data-message .icon { font-size: 36px; margin-bottom: 10px; }
             #add-match-btn { margin-top: 12px; }
@@ -822,60 +804,13 @@
         }
 
         #add-match-btn { margin-top: 20px; }
-        #team-select-modal-list .team-emblem { cursor: pointer; }
+
         .share-mode-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 16px 0; }
-        #share-reg-modal.modal {
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 16px;
-            box-sizing: border-box;
-            overflow: auto;
-        }
-        #share-reg-modal.modal.is-open { display: flex; }
-        #share-reg-modal .share-mode-btns { grid-template-columns: 1fr 1fr 1fr; }
+
         .share-mode-btn { padding: 14px 10px; border-radius: 10px; border: 2px solid var(--border-color); background: var(--bg-color); color: var(--text-color); font-family: 'Kanit', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
         .share-mode-btn:hover { border-color: var(--secondary-color); }
         .share-mode-btn.active { border-color: var(--secondary-color); background: rgba(95, 173, 69, 0.15); color: var(--secondary-color); }
-        #share-reg-team-list .team-emblem:hover { filter: brightness(1.15); transform: scale(1.03); }
-        #share-reg-hint { font-size: 13px; color: var(--text-muted); text-align: center; margin-top: 8px; min-height: 1.4em; }
-        #share-reg-modal .modal-content {
-            margin: 0;
-            width: min(560px, 100%);
-            max-width: 560px;
-            max-height: min(90vh, 100%);
-            overflow-y: auto;
-        }
-        .share-reg-merge-label {
-            display: block; margin: 12px 0 6px; font-size: 13px; font-weight: 600; color: var(--text-color);
-        }
-        .share-reg-merge-label span { font-weight: 400; color: var(--text-muted); }
-        .share-reg-merge-ta {
-            width: 100%; min-height: 120px; resize: vertical; box-sizing: border-box;
-            padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border-color);
-            background: var(--bg-color); color: var(--text-color);
-            font-family: 'Kanit', sans-serif; font-size: 13px; line-height: 1.45;
-        }
-        .share-reg-merge-ta:focus { outline: none; border-color: var(--secondary-color); }
-        .share-reg-merge-ta.is-ok { border-color: #43a047; }
-        .share-reg-merge-ta.is-error { border-color: #e53935; }
-        .share-reg-merge-ta.is-empty { border-color: var(--border-color); }
-        #share-reg-merge-small { min-height: 90px; }
-        .share-reg-status {
-            margin-top: 6px; font-size: 12px; line-height: 1.35; min-height: 1.35em;
-            color: var(--text-muted);
-        }
-        .share-reg-status.is-ok { color: #2e7d32; font-weight: 600; }
-        .share-reg-status.is-error { color: #c62828; font-weight: 600; }
-        #share-reg-merge-btn:disabled {
-            opacity: 0.45; cursor: not-allowed; filter: grayscale(0.25);
-            transform: none; box-shadow: none;
-        }
-        #share-image-preview {
-            display: block; max-width: 100%; max-height: 55vh; margin: 0 auto 12px; border-radius: 8px;
-            border: 1px solid var(--border-color); background: #000; object-fit: contain;
-        }
-        #share-image-modal .modal-content { max-width: 640px; margin: 5% auto; }
+
         #help-modal .modal-content {
             max-width: 720px; margin: 4% auto; max-height: 90vh; overflow: hidden;
             display: flex; flex-direction: column; padding-top: 16px;

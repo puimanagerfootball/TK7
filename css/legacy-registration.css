@@ -1,0 +1,80 @@
+/* Text signup and group merge controls. Shared button styles remain in app.css. */
+#copy-reg-template-btn{grid-column:1/-1!important;margin-top:4px!important}
+#share-reg-team-list .team-emblem {
+            width: 100%; min-width: 0; max-width: none;
+            height: auto; min-height: 42px;
+            display: flex;
+        }
+
+#share-reg-team-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+#share-reg-modal.modal {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            box-sizing: border-box;
+            overflow: auto;
+        }
+
+#share-reg-modal.modal.is-open { display: flex; }
+
+#share-reg-modal .share-mode-btns { grid-template-columns: 1fr 1fr 1fr; }
+
+#share-reg-team-list .team-emblem:hover { filter: brightness(1.15); transform: scale(1.03); }
+
+#share-reg-hint { font-size: 13px; color: var(--text-muted); text-align: center; margin-top: 8px; min-height: 1.4em; }
+
+#share-reg-modal .modal-content {
+            margin: 0;
+            width: min(560px, 100%);
+            max-width: 560px;
+            max-height: min(90vh, 100%);
+            overflow-y: auto;
+        }
+
+.share-reg-merge-label {
+            display: block; margin: 12px 0 6px; font-size: 13px; font-weight: 600; color: var(--text-color);
+        }
+
+.share-reg-merge-label span { font-weight: 400; color: var(--text-muted); }
+
+.share-reg-merge-ta {
+            width: 100%; min-height: 120px; resize: vertical; box-sizing: border-box;
+            padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border-color);
+            background: var(--bg-color); color: var(--text-color);
+            font-family: 'Kanit', sans-serif; font-size: 13px; line-height: 1.45;
+        }
+
+.share-reg-merge-ta:focus { outline: none; border-color: var(--secondary-color); }
+
+.share-reg-merge-ta.is-ok { border-color: #43a047; }
+
+.share-reg-merge-ta.is-error { border-color: #e53935; }
+
+.share-reg-merge-ta.is-empty { border-color: var(--border-color); }
+
+#share-reg-merge-small { min-height: 90px; }
+
+.share-reg-status {
+            margin-top: 6px; font-size: 12px; line-height: 1.35; min-height: 1.35em;
+            color: var(--text-muted);
+        }
+
+.share-reg-status.is-ok { color: #2e7d32; font-weight: 600; }
+
+.share-reg-status.is-error { color: #c62828; font-weight: 600; }
+
+#share-reg-merge-btn:disabled {
+            opacity: 0.45; cursor: not-allowed; filter: grayscale(0.25);
+            transform: none; box-shadow: none;
+        }
+@media(max-width:600px){
+#share-reg-modal .share-mode-btn { padding: 8px 4px; font-size: 12px; }
+#share-reg-modal .share-mode-btn span { font-size: 10px !important; }
+}
