@@ -23,7 +23,7 @@ globalThis.TK7ScheduleImage=(()=>{
     frame.srcdoc=buildDocument(schedule,css);document.body.append(frame);await deadline(loaded,15000,'โหลดหน้ารูปตารางไม่สำเร็จ');
     const doc=frame.contentDocument,win=frame.contentWindow;
     if(doc.fonts?.ready)await deadline(doc.fonts.ready,10000,'โหลดฟอนต์ตารางไม่สำเร็จ');
-    await deadline(new Promise((resolve,reject)=>{const script=doc.createElement('script');script.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';script.onload=resolve;script.onerror=()=>reject(Error('โหลดตัวสร้างรูปไม่สำเร็จ'));doc.head.append(script);}),15000,'โหลดตัวสร้างรูปไม่สำเร็จ');
+    await deadline(new Promise((resolve,reject)=>{const script=doc.createElement('script');script.src=new URL('vendor/html2canvas-1.4.1.min.js',assets).href;script.integrity='sha384-ZZ1pncU3bQe8y31yfZdMFdSpttDoPmOZg2wguVK9almUodir1PghgT0eY7Mrty8H';script.crossOrigin='anonymous';script.onload=resolve;script.onerror=()=>reject(Error('โหลดตัวสร้างรูปไม่สำเร็จ'));doc.head.append(script);}),15000,'โหลดตัวสร้างรูปไม่สำเร็จ');
     const target=doc.getElementById('schedule-export');
     // Offscreen iframes may never receive animation frames. Flush layout directly.
     target.getBoundingClientRect();

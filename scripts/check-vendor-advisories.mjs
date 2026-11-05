@@ -1,0 +1,13 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
+const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
+const manifest=JSON.parse(fs.readFileSync(path.join(root,'vendor-dependencies.json'),'utf8').replace(/^\uFEFF/,''));
+const queries=manifest.map(item=>({package:{name:item.name==='supabase-js'?'@supabase/supabase-js':item.name,ecosystem:'npm'},version:item.version}));
+const response=await fetch('https://api.osv.dev/v1/querybatch',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({queries}),signal:AbortSignal.timeout(20000)});
+if(!response.ok)throw Error('OSV unavailable; dependency scan was not completed');
+const data=await response.json();
+if(!Array.isArray(data.results)||data.results.length!==queries.length)throw Error('Incomplete advisory response');
+let failed=false;
+data.results.forEach((result,i)=>{const ids=(result.vulns||[]).map(v=>v.id);console.log(queries[i].package.name+'@'+queries[i].version+': '+(ids.length?ids.join(', '):'no listed advisories'));failed||=ids.length>0;});
+if(failed)process.exitCode=1;

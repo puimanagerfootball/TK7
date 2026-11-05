@@ -10,7 +10,7 @@ const env={TK7_APP_ORIGIN:'https://example.test',LINE_LOGIN_CHANNEL_ID:'20122788
 const sid=crypto.randomUUID(),entry=crypto.randomUUID();
 const req=(body,path='',origin=env.TK7_APP_ORIGIN)=>new Request('https://edge.test/'+path,{method:'POST',headers:{Origin:origin,'Content-Type':'application/json'},body:JSON.stringify(body)});
 const ok=data=>new Response(JSON.stringify(data));
-function harness({identity={sub:'Uverified',name:'Pui'},verifyStatus=200,replayed=false,settings=[{group_id:'legacy-dataset',environment:'production'}],missingSession=false,dbError=false,profile={userId:"Uabc123",displayName:"Pui Profile"},profileStatus=200,scheduleDay=null,readGate=null}={}){
+function harness({identity={sub:'Uverified',name:'Pui'},verifyStatus=200,replayed=false,settings=[{group_id:'legacy-dataset',environment:'production'}],missingSession=false,dbError=false,profile={userId:"Uabc123",displayName:"Pui Profile"},profileStatus=200,scheduleDay=null,readGate=null,quotaAllowed=true}={}){
  const calls=[],writes=[];
  const handler=createHandler(env,async(url,options={})=>{
   calls.push(url);assert.ok(!url.includes('/v2/bot/'),'must never call a LINE Bot API');
@@ -19,6 +19,8 @@ function harness({identity={sub:'Uverified',name:'Pui'},verifyStatus=200,replaye
    return verifyStatus===200?ok(identity):new Response('',{status:verifyStatus});
   }
   if(url==='https://api.line.me/v2/profile')return profileStatus===200?ok(profile):new Response('',{status:profileStatus});
+  if(url.endsWith('rpc/tk7_security_quota')&&!dbError)return ok({allowed:quotaAllowed,retry_after:30});
+  if(url.endsWith('rpc/tk7_secure_mutation')){const body=JSON.parse(options.body);writes.push({rpc:body.p_rpc,...body.p_args});if(!replayed)writes.push({actor_id:body.p_actor,actor_name:body.p_name,detail:body.p_detail});return ok({count:1,revision:2,replayed});}
   if(dbError)return new Response('{"message":"Database unavailable"}',{status:503});
   if(url.includes('tk7_line_settings?'))return ok(settings);
   if(url.includes('tk7_signup_sessions?')){
@@ -59,12 +61,12 @@ test('LINE login alone can list configured dates without Bot secrets or membersh
  const {handler,calls}=harness();
  const response=await handler(req({action:'dates',idToken:'valid'}));assert.equal(response.status,200);
  const {dates}=await response.json();assert.equal(dates[0].startTime,'20:15');assert.equal(dates[0].timePerMatch,8);
- assert.equal(calls.length,3);
+ assert.equal(calls.length,4);
 });
 test('missing settings and database failure fail closed instead of exposing all datasets',async()=>{
  for(const config of [{settings:[]},{dbError:true}]){
   const {handler,calls}=harness(config);const response=await handler(req({action:'dates',idToken:'valid'}));
-  assert.notEqual(response.status,200);assert.equal(calls.length,2);
+  assert.notEqual(response.status,200);assert.equal(calls.length,config.dbError?2:3);
  }
 });
 test('session lookup stays within dataset, including history reads',async()=>{
@@ -155,3 +157,8 @@ test('authorized roster and schedule reads start together without fetching profi
  const response=handler(req({action:'roster',idToken:'valid',accessToken:'profile-token',sessionId:sid}));
  await both;assert.deepEqual(started.sort(),['roster','schedule']);assert.ok(!calls.includes('https://api.line.me/v2/profile'));release();assert.equal((await response).status,200);
 });
+test('quota denial stops all private reads and mutations and exposes retry time',async()=>{const {handler,calls,writes}=harness({quotaAllowed:false});const response=await handler(req({action:'register',idToken:'valid',sessionId:sid,requestId:crypto.randomUUID(),team:'green',names:['Alex']}));assert.equal(response.status,429);assert.equal(response.headers.get('Retry-After'),'30');assert.equal(writes.length,0);assert.ok(!calls.some(u=>u.includes('tk7_line_settings?')))});
+test('unknown actions and oversized tokens never reach LINE or the database',async()=>{for(const body of [{action:'unknown',idToken:'valid'},{action:'dates',idToken:'x'.repeat(8193)},{action:'dates',idToken:'valid',accessToken:'x'.repeat(4097)}]){const {handler,calls}=harness();assert.ok([400,401].includes((await handler(req(body))).status));assert.equal(calls.length,0)}});
+test('mutations use one atomic audit endpoint rather than a separate best-effort log write',async()=>{const {handler,calls}=harness();await handler(req({action:'register',idToken:'valid',sessionId:sid,requestId:crypto.randomUUID(),team:'green',names:['Alex']}));assert.equal(calls.filter(x=>x.endsWith('/rpc/tk7_secure_mutation')).length,1);assert.ok(!calls.some(x=>x.endsWith('/tk7_signup_log')))});
+test('wrong content type and oversized streamed data do not call external services',async()=>{const {handler,calls}=harness();const base={method:'POST',headers:{Origin:env.TK7_APP_ORIGIN,'Content-Type':'text/plain'},body:'{}'};assert.equal((await handler(new Request('https://edge.test',base))).status,415);base.headers['Content-Type']='application/json';base.body=JSON.stringify({x:'x'.repeat(21000)});assert.equal((await handler(new Request('https://edge.test',base))).status,413);assert.equal(calls.length,0)});
+test('control characters in player names are rejected without a mutation',async()=>{const {handler,writes}=harness();const response=await handler(req({action:'register',idToken:'valid',sessionId:sid,requestId:crypto.randomUUID(),team:'green',names:['Alex\nAdmin: approved']}));assert.equal(response.status,400);assert.equal(writes.length,0)});

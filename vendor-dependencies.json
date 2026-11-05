@@ -1,0 +1,26 @@
+[
+  {
+    "source": "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/dist/umd/supabase.js",
+    "license": "MIT",
+    "file": "vendor/supabase-2.119.0.js",
+    "name": "supabase-js",
+    "integrity": "sha384-uteMfOloLDGt042uDz+xHGF3ym63/WQ6rFq7murQRG8Ih7QrXGEGNtWd8688sb4O",
+    "version": "2.119.0"
+  },
+  {
+    "source": "https://cdn.jsdelivr.net/npm/morphdom@2.7.0/dist/morphdom-umd.min.js",
+    "license": "MIT",
+    "file": "vendor/morphdom-2.7.0.min.js",
+    "name": "morphdom",
+    "integrity": "sha384-GvO679xZge/ZQsypeI50Wg7FqQIjFNfdoVpniNdlJ0H3z/+RxLNIUBMDhvtU018w",
+    "version": "2.7.0"
+  },
+  {
+    "source": "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js",
+    "license": "MIT",
+    "file": "line-registration/vendor/html2canvas-1.4.1.min.js",
+    "name": "html2canvas",
+    "integrity": "sha384-ZZ1pncU3bQe8y31yfZdMFdSpttDoPmOZg2wguVK9almUodir1PghgT0eY7Mrty8H",
+    "version": "1.4.1"
+  }
+]

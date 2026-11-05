@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TK7  FridayNight</title>
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="object-src 'none'; base-uri 'self'; upgrade-insecure-requests">
+
  <meta name="theme-color" content="#4a9c42">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -14,11 +17,11 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600;700&display=swap" rel="stylesheet">
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdn.jsdelivr.net/npm/morphdom@2.7.0/dist/morphdom-umd.min.js"></script>
+    <script src="vendor/supabase-2.119.0.js" integrity="sha384-uteMfOloLDGt042uDz+xHGF3ym63/WQ6rFq7murQRG8Ih7QrXGEGNtWd8688sb4O" crossorigin="anonymous"></script>
+    <script src="vendor/morphdom-2.7.0.min.js" integrity="sha384-GvO679xZge/ZQsypeI50Wg7FqQIjFNfdoVpniNdlJ0H3z/+RxLNIUBMDhvtU018w" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="css/app.css">
     <link rel="stylesheet" href="css/motion.css">
-    <link rel="stylesheet" href="line-registration/team-card.css?v=5.0.4">
+    <link rel="stylesheet" href="line-registration/team-card.css?v=5.1.0">
 </head>
 <body>
     <svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute;overflow:hidden" aria-hidden="true">
@@ -45,7 +48,7 @@
     <div id="app">
         <div id="auth-section">
     <div class="auth-meta">
-        <span class="version-tag">Ver 5.0.4</span>
+        <span class="version-tag">Ver 5.1.0</span>
         <span id="user-info"></span>
     </div>
     <div class="auth-user-controls">
@@ -184,13 +187,13 @@
         </div>
         <form id="login-form">
             <div class="form-group"><label for="login-email">อีเมล</label><input type="email" id="login-email" required></div>
-            <div class="form-group"><label for="login-password">รหัสผ่าน</label><input type="password" id="login-password" required minlength="6"></div>
+            <div class="form-group"><label for="login-password">รหัสผ่าน</label><input type="password" id="login-password" required minlength="6" autocomplete="current-password"></div>
             <button type="submit" class="btn btn-primary">เข้าสู่ระบบ</button>
         </form>
         <form id="signup-form" style="display: none;">
             <div class="form-group"><label for="signup-name">ชื่อที่แสดง</label><input type="text" id="signup-name" required maxlength="40"></div>
             <div class="form-group"><label for="signup-email">อีเมล</label><input type="email" id="signup-email" required></div>
-            <div class="form-group"><label for="signup-password">รหัสผ่าน</label><input type="password" id="signup-password" required minlength="6"></div>
+            <div class="form-group"><label for="signup-password">รหัสผ่าน</label><input type="password" id="signup-password" required minlength="15" autocomplete="new-password"></div>
             <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px; text-align: center;">สมัครแล้วจะได้สิทธิ์ Admin แต่ต้องรอ Superadmin อนุมัติก่อนใช้งาน</p>
             <button type="submit" class="btn btn-primary">สมัครสมาชิก</button>
         </form>
@@ -219,12 +222,12 @@
         </p>
         <form id="reset-password-form">
             <div class="form-group">
-                <label for="new-password">รหัสผ่านใหม่ (อย่างน้อย 6 ตัว)</label>
-                <input type="password" id="new-password" required minlength="6" autocomplete="new-password">
+                <label for="new-password">รหัสผ่านใหม่ (อย่างน้อย 15 ตัว)</label>
+                <input type="password" id="new-password" required minlength="15" autocomplete="new-password">
             </div>
             <div class="form-group">
                 <label for="new-password-confirm">ยืนยันรหัสผ่านใหม่</label>
-                <input type="password" id="new-password-confirm" required minlength="6" autocomplete="new-password">
+                <input type="password" id="new-password-confirm" required minlength="15" autocomplete="new-password">
             </div>
             <button type="submit" class="btn btn-primary">บันทึกรหัสผ่านใหม่</button>
         </form>
@@ -414,11 +417,11 @@
         </div>
     </div>
 
-    <script src="line-registration/direct-share-config.js?v=5.0.4" defer></script>
-    <script type="module" src="line-registration/direct-share.mjs?v=5.0.4"></script>
-    <script src="line-registration/backdrop-guard.js?v=5.0.4" defer></script>
-    <script src="line-registration/admin-integration.js?v=5.0.4" defer></script>
-    <script src="js/app.js?v=5.0.4" defer></script>
+    <script src="line-registration/direct-share-config.js?v=5.1.0" defer></script>
+    <script type="module" src="line-registration/direct-share.mjs?v=5.1.0"></script>
+    <script src="line-registration/backdrop-guard.js?v=5.1.0" defer></script>
+    <script src="line-registration/admin-integration.js?v=5.1.0" defer></script>
+    <script src="js/app.js?v=5.1.0" defer></script>
 
     <div id="orient-hint" class="orient-hint" aria-live="polite">
         <div class="orient-icon" aria-hidden="true">📱</div>

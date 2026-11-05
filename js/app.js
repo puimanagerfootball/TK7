@@ -1,5 +1,5 @@
 /* ==========================================================================
-   TK7 app logic (Ver 5.0.4)
+   TK7 app logic (Ver 5.1.0)
    แยกจาก index.html เพื่อแก้/ค้นหาง่ายขึ้น
    Sections (ค้นหาด้วย // --- SECTION:):
      CONFIG, AUTH, REGISTRATION, SCHEDULE, LINEUP, SETUP,
@@ -1054,6 +1054,7 @@
             const displayName = sanitizeDisplayName(document.getElementById('signup-name').value);
             const email = document.getElementById('signup-email').value.trim();
             const password = document.getElementById('signup-password').value;
+            if (password.length < 15) return alert('กรุณาใช้รหัสผ่านอย่างน้อย 15 ตัวอักษร หรือวลีผ่านที่จำได้');
             if (!displayName) { alert('กรุณากรอกชื่อที่แสดง'); return; }
             const { data, error } = await db.auth.signUp({
                 email,
@@ -1062,7 +1063,7 @@
             });
             if (error) { alert(formatAuthError(error, 'สมัครไม่สำเร็จ')); return; }
             if (data.user && !data.session) {
-                alert('สมัครสำเร็จ! กรุณายืนยันอีเมลก่อน แล้วค่อยเข้าสู่ระบบ (รอ Superadmin อนุมัติหลังล็อกอิน)\n\nถ้าไม่ได้รับเมล: ปิด Confirm email ใน Supabase เพื่อไม่ต้องยืนยันเมล');
+                alert('สมัครสำเร็จ! กรุณายืนยันอีเมลก่อน แล้วค่อยเข้าสู่ระบบ (รอ Superadmin อนุมัติหลังล็อกอิน)\n\nหากไม่ได้รับอีเมล ให้ตรวจโฟลเดอร์สแปมหรือติดต่อผู้ดูแล');
                 setAuthModalTab('login');
                 document.getElementById('login-email').value = email;
                 document.getElementById('signup-form').reset();
@@ -2225,7 +2226,9 @@
             return new Promise((resolve, reject) => {
                 if (html2canvasLoaded) { resolve(); return; }
                 const script = document.createElement('script');
-                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+                script.src = 'line-registration/vendor/html2canvas-1.4.1.min.js';
+                script.integrity = 'sha384-ZZ1pncU3bQe8y31yfZdMFdSpttDoPmOZg2wguVK9almUodir1PghgT0eY7Mrty8H';
+                script.crossOrigin = 'anonymous';
                 script.onload = () => { html2canvasLoaded = true; resolve(); };
                 script.onerror = reject;
                 document.head.appendChild(script);
@@ -3031,8 +3034,8 @@ document.getElementById('reset-password-form').onsubmit = async (e) => {
     e.preventDefault();
     const newPassword = document.getElementById('new-password').value;
     const confirmPassword = document.getElementById('new-password-confirm').value;
-    if (!newPassword || newPassword.length < 6) {
-        alert('รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร');
+    if (!newPassword || newPassword.length < 15) {
+        alert('รหัสผ่านต้องมีอย่างน้อย 15 ตัวอักษร');
         return;
     }
     if (newPassword !== confirmPassword) {
