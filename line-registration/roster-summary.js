@@ -8,19 +8,17 @@ globalThis.TK7RosterSummary={build(session){
  const active=teams.filter(t=>presets.includes(t[0])||entries.some(e=>e.team===t[0]));
  const date=session.match_date.split('-').reverse().map((x,i)=>i<2?String(Number(x)):x).join('-');
  const time=/^([01]\d|2[0-3]):[0-5]\d/.test(session.start_time||'')?session.start_time.slice(0,5):'20:00';
- const lines=['⚽ TK7 · สรุปรายชื่อ / Player summary','📅 '+date+' · 🕗 '+time,'👥 '+entries.length+' คน / players · '+active.length+' ทีม / teams',session.is_open?'🟢 เปิดรับ / Open':'🔒 ปิดลงทะเบียน / Closed'];
+ const lines=['⚽ TK7 · สรุปรายชื่อ / Player summary','📅 '+date+' · 🕗 '+time,'📍 TK7 Stadium · Google Maps','https://maps.app.goo.gl/37K6rD4LqWA5Qz5KA'];
  for(const [slug,icon,label] of active){
   const players=entries.filter(e=>e.team===slug).sort((a,b)=>(Number(a.slot)||0)-(Number(b.slot)||0));
-  lines.push('',icon+' '+label+' ('+players.length+'/7)');
-  if(!players.length)lines.push('ยังไม่มีผู้ลงชื่อ / No players');
+  lines.push('',icon+' '+label);
   for(let slot=1;slot<=7;slot++){
    const player=players.find(e=>Number(e.slot)===slot);
    lines.push(slot+'.'+(player?' '+clean(player.name):''));
   }
  }
- if(!entries.length)lines.push('','ยังไม่มีผู้ลงชื่อ / No players yet');
  lines.push('',session.is_open?'ดูรายชื่อล่าสุด / Latest roster:':'หน้าลงทะเบียน / Registration:',
-  'https://liff.line.me/2012278818-W0pIi2y0'+(session.is_open?'?date='+session.match_date:''),'สำเนารายชื่อ ณ ตอนเปิดสรุป / Snapshot');
+  'https://liff.line.me/2012278818-W0pIi2y0'+(session.is_open?'?date='+session.match_date:''));
  const text=lines.join('\n');
  if(text.length>5000)throw Error('รายชื่อยาวเกินขนาดข้อความ LINE กรุณาลดความยาวชื่อก่อนส่ง');
  return text;
