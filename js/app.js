@@ -1,5 +1,5 @@
 /* ==========================================================================
-   TK7 app logic (Ver 5.1.0)
+   TK7 app logic (Ver 5.1.1)
    แยกจาก index.html เพื่อแก้/ค้นหาง่ายขึ้น
    Sections (ค้นหาด้วย // --- SECTION:):
      CONFIG, AUTH, REGISTRATION, SCHEDULE, LINEUP, SETUP,
@@ -7,11 +7,8 @@
    ========================================================================== */
     document.addEventListener('DOMContentLoaded', () => {
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.getRegistrations().then(function(registrations) {
-            for(let registration of registrations) {
-                registration.unregister();
-            }
-            if(registrations.length > 0) {
+        globalThis.TK7BrowserSafety.retireOwnWorker(navigator.serviceWorker, document.baseURI).then(function(removed) {
+            if(removed) {
                 console.log('ล้างระบบเก่าสำเร็จ กำลังโหลดเวอร์ชันใหม่...');
                 location.reload(true);
             }
@@ -66,7 +63,8 @@
             return {
                 error,
                 code,
-                description: description ? decodeURIComponent(description.replace(/\+/g, ' ')) : ''
+                // URLSearchParams already decodes percent escapes and plus signs.
+                description: description || ''
             };
         }
 

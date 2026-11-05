@@ -14,3 +14,6 @@
 - Run the automated tests before deployment. Database security smoke tests must run in a rollback-only transaction.
 - Do not claim OWASP/PDPA/ISO compliance without a scoped independent assessment.
 - New SQL functions must declare their intended EXECUTE grants; defaults no longer expose new functions to public clients.
+- Preserve the owner's 30-day registration retention job and bilingual privacy notice. Fixture/score tables and administrator accounts have separate retention.
+- Keep privacy.html synchronized with line-registration/privacy.html using the release script. Publish privacy.html and browser-safety.js to the LIFF mirror.
+- Never unregister unrelated service workers on the shared GitHub Pages origin.

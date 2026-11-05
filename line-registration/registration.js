@@ -27,24 +27,25 @@ const I18N={
  th:{title:"👇 เลือกสีเสื้อ แล้วลงชื่อ",relogin:"กำลังเข้าสู่ระบบใหม่…",down:"ระบบไม่พร้อม กรุณาลองใหม่",closedShort:" · ปิดแล้ว",start:"🕗 เริ่ม {t} น.",perMatch:"⏱️ {n} นาที/แมตช์",teams:"👥 {t} ทีม · {p} คน",closed:"🔒 ปิดรับลงชื่อแล้ว",
   joinColor:"ลงชื่อสี{c}",closedCta:"ปิดรับแล้ว",full:"เต็มแล้ว ✓",joinLeft:"＋ ลงสีนี้ (ว่าง {n})",openTeam:"＋ เปิดทีมสี{c}",openSec:"ทีมที่เปิดแล้ว",otherSec:"สีอื่น · แตะเพื่อเปิดทีมใหม่",firstSec:"ยังไม่มีใครลง · เลือกสีเปิดทีมแรกได้เลย",closedEmpty:"ปิดรับลงชื่อแล้ว และยังไม่มีรายชื่อ",
   addFriend:"＋ เพิ่มชื่อเพื่อน",confirmJoin:"ยืนยันลงสี{c} ({n} คน)",needName:"ใส่ชื่ออย่างน้อย 1 ชื่อ",friend:"ชื่อเพื่อน",you:"ชื่อของคุณ",removeRow:"ลบช่องนี้",dupNames:"มีชื่อซ้ำกันในรายการ",onlyLeft:"สีนี้ว่างแค่ {n} ที่",saving:"กำลังบันทึก…",joined:"ลงชื่อสำเร็จ",
-  seatsInfo:"ว่าง {n} จาก 7 ที่",has:" · มี ",joinHint:"ลงให้ตัวเองและเพื่อนได้พร้อมกัน · ถ้าที่ว่างไม่พอ ระบบจะไม่บันทึกบางส่วน",cancel:"ยกเลิก",pickTarget:"เลือกสีปลายทาง หรือคนที่จะสลับ",moveTo:"ย้ายไปสี{c}",swapWith:"สลับกับ {n}",orSwap:"หรือสลับกับ",saved:"บันทึกแล้ว",
+  seatsInfo:"ว่าง {n} จาก 7 ที่",has:" · มี ",joinHint:"ใช้ชื่อเล่นได้ · แจ้งและขออนุญาตเพื่อนก่อนลงชื่อ · รายชื่อแชร์ร่วมกันและเก็บ 30 วันหลังแข่ง",cancel:"ยกเลิก",pickTarget:"เลือกสีปลายทาง หรือคนที่จะสลับ",moveTo:"ย้ายไปสี{c}",swapWith:"สลับกับ {n}",orSwap:"หรือสลับกับ",saved:"บันทึกแล้ว",
   removeName:"ยกเลิกชื่อ {n}",tapAgain:"แตะอีกครั้งเพื่อยืนยันยกเลิก",inColor:"อยู่สี{c} · ลำดับ {n}",moveLabel:"ย้ายไปสี",close:"ปิด",noConfig:"ยังไม่ได้ตั้งค่า LIFF ID และ API",noDates:"ยังไม่มีวันเปิดรับลงชื่อ\nรอผู้ดูแลเปิดวันแข่งในเว็บ TK7",connFail:"เชื่อมต่อไม่สำเร็จ: ",refresh:"รีเฟรชรายชื่อ",selected:"เลือก {n} คน",moveSel:"ย้ายไปสี…",cancelSel:"ยกเลิกชื่อ",swapSel:"สลับ…",clearSel:"ล้างที่เลือก",moveSelTitle:"ย้าย {n} คนไปสี",cancelConfirm:"แตะอีกครั้ง: ยกเลิก {n} ชื่อ",recolorTitle:"เปลี่ยนสีทีม{c}ทั้งทีม",recolorHint:"สีที่มีคนอยู่แล้ว = สลับสีกันทั้งทีม",recolorTo:"เปลี่ยนเป็น",swapTeams:"สลับกับ",moreColors:"＋ สีอื่น ({n})",lessColors:"ซ่อนสีอื่น",tapHint:"แตะชื่อเพื่อเลือก (หลายคนได้) · แตะแถบสีเพื่อย่อ/ขยาย",recolorBtn:"เปลี่ยนสี",ok:"ตกลง",notSaved:"ยังไม่ได้บันทึก",nowLeft:"ตอนนี้สี{c}เหลือว่าง {n} ช่อง",updated:"มีคนอัปเดตรายชื่อ",nAdd:"+ {n} ลงสี{c}",nMove:"↔ {n} ย้ายไปสี{c}",nDel:"− {n} ยกเลิก (สี{c})",nOpen:"🔓 เปิดรับลงชื่อแล้ว",nClose:"🔒 ปิดรับลงชื่อแล้ว",nMore:"และอีก {n} รายการ",nowFull:"⛔ สี{c} เต็มแล้ว",collapseAll:"ย่อทั้งหมด ▴",expandAll:"ขยายทั้งหมด ▾",history:"🕘 ประวัติ",seeAll:"ดูทั้งหมด",allTitle:"ประวัติทั้งหมด",emptySlot:"ว่าง",historyTitle:"แก้ไขล่าสุด 3 รายการ",noHistory:"ยังไม่มีประวัติ"},
  en:{title:"👇 Pick a shirt colour & sign up",relogin:"Signing in again…",down:"Service unavailable, please try again",closedShort:" · closed",start:"🕗 Kick-off {t}",perMatch:"⏱️ {n} min/match",teams:"👥 {t} teams · {p} players",closed:"🔒 Registration closed",
   joinColor:"Join {c}",closedCta:"Closed",full:"Full ✓",joinLeft:"＋ Join ({n} left)",openTeam:"＋ Start {c} team",openSec:"Open teams",otherSec:"Other colours · tap to start a new team",firstSec:"No one yet · pick a colour to start the first team",closedEmpty:"Registration closed, no players yet",
   addFriend:"＋ Add a friend",confirmJoin:"Join {c} ({n} players)",needName:"Enter at least 1 name",friend:"Friend's name",you:"Your name",removeRow:"Remove",dupNames:"Duplicate names in the list",onlyLeft:"Only {n} spots left in this colour",saving:"Saving…",joined:"Signed up",
-  seatsInfo:"{n} of 7 spots left",has:" · ",joinHint:"Sign up yourself and friends together · if there aren't enough spots, nothing is saved",cancel:"Cancel",pickTarget:"Choose a colour or a player to swap",moveTo:"Move to {c}",swapWith:"Swap with {n}",orSwap:"Or swap with",saved:"Saved",
+  seatsInfo:"{n} of 7 spots left",has:" · ",joinHint:"Nicknames welcome · ask friends before adding them · shared names are kept for 30 days after the match",cancel:"Cancel",pickTarget:"Choose a colour or a player to swap",moveTo:"Move to {c}",swapWith:"Swap with {n}",orSwap:"Or swap with",saved:"Saved",
   removeName:"Remove {n}",tapAgain:"Tap again to confirm",inColor:"{c} · spot {n}",moveLabel:"Move to",close:"Close",noConfig:"LIFF ID / API not configured",noDates:"No match open for sign-up yet\nPlease wait for the admin",connFail:"Connection failed: ",refresh:"Refresh",selected:"{n} selected",moveSel:"Move to…",cancelSel:"Remove",swapSel:"Swap…",clearSel:"Clear",moveSelTitle:"Move {n} to",cancelConfirm:"Tap again: remove {n}",recolorTitle:"Change {c} team colour",recolorHint:"A colour that already has players = swap the two teams",recolorTo:"Change to",swapTeams:"Swap with",moreColors:"＋ Other colours ({n})",lessColors:"Hide other colours",tapHint:"Tap names to select (multiple) · tap the colour bar to collapse/expand",recolorBtn:"Colour",ok:"OK",notSaved:"Not saved",nowLeft:"{c} now has {n} spot(s) left",updated:"The list was updated",nAdd:"+ {n} joined {c}",nMove:"↔ {n} moved to {c}",nDel:"− {n} left ({c})",nOpen:"🔓 Registration opened",nClose:"🔒 Registration closed",nMore:"and {n} more",nowFull:"⛔ {c} is now full",collapseAll:"Collapse all ▴",expandAll:"Expand all ▾",history:"🕘 History",seeAll:"See all",allTitle:"All changes",emptySlot:"open",historyTitle:"Latest 3 changes",noHistory:"No changes yet"}
 };
 const LANG_KEY="tk7.lang";
-let lang=(()=>{try{const v=localStorage.getItem(LANG_KEY);if(v)return v}catch{}const n=(navigator.language||"th").toLowerCase();return n.startsWith("th")?"th":"en"})();
+let lang=(()=>{try{const v=localStorage.getItem(LANG_KEY);if(v==='th'||v==='en')return v}catch{}const n=(navigator.language||"th").toLowerCase();return n.startsWith("th")?"th":"en"})();
 const T=(k,v={})=>String((I18N[lang]||I18N.th)[k]??I18N.th[k]??k).replace(/\{(\w+)\}/g,(_,x)=>v[x]??"");
 const label=slug=>{const c=COLORS.find(c=>c[0]===slug);return c?(lang==="en"?c[2]:c[1]):slug};
 const dateLabel=d=>{try{return new Date(d+"T00:00:00+07:00").toLocaleDateString(lang==="en"?"en-GB":"th-TH",{weekday:"short",day:"numeric",month:"short",timeZone:"Asia/Bangkok"})}catch{return d}};
 const MAX=7;
 const demo=new URLSearchParams(location.search).has("demo");
 let dates=[],sessionId="",roster=null,busy=false,loadSeq=0,myName="",showMore=false;
+let loginPromptVisible=false;
 const expandedFree=new Set();
-const collapsed=new Set((()=>{try{return JSON.parse(localStorage.getItem("tk7-collapsed")||"[]")}catch{return[]}})());
+const collapsed=new Set((()=>{try{return globalThis.TK7BrowserSafety.readCollapsed(localStorage)}catch{return[]}})());
 function saveCollapsed(){try{localStorage.setItem("tk7-collapsed",JSON.stringify([...collapsed]))}catch{}}
 const selected=new Set();
 
@@ -374,19 +375,26 @@ $("refresh").onclick=()=>loadRoster();
 // สลับภาษา
 function applyLang(){document.documentElement.lang=lang;$("title").textContent=T("title");$("refresh").setAttribute("aria-label",T("refresh"));
  for(const b of document.querySelectorAll("#lang button"))b.setAttribute("aria-pressed",String(b.dataset.lang===lang))}
-for(const b of document.querySelectorAll("#lang button"))b.onclick=()=>{lang=b.dataset.lang;try{localStorage.setItem(LANG_KEY,lang)}catch{};applyLang();renderDates();renderBoard()};
+for(const b of document.querySelectorAll("#lang button"))b.onclick=()=>{lang=b.dataset.lang;try{localStorage.setItem(LANG_KEY,lang)}catch{};applyLang();if(loginPromptVisible){showLineLogin();return}renderDates();renderBoard()};
 applyLang();
 document.addEventListener("visibilitychange",()=>{if(!document.hidden&&!busy&&!$("sheet").classList.contains("show"))loadRoster()});
 setInterval(()=>{if(!document.hidden&&!busy&&!$("sheet").classList.contains("show"))loadRoster()},20000);
 
 function fail(msg){$("board").replaceChildren(el("div",{class:"notice",text:msg}))}
+function showLineLogin(){
+ loginPromptVisible=true;
+ $("board").replaceChildren(el("div",{class:"notice"},
+  el("p",{text:lang==='en'?'LINE account information is used for signup and change history. Anyone with the link and LINE login can view and edit the shared roster.':'ใช้ข้อมูลบัญชี LINE เพื่อลงชื่อและบันทึกผู้แก้ไข ผู้ที่มีลิงก์และล็อกอิน LINE สามารถดูและแก้รายชื่อร่วมกันได้'}),
+  el("p",{},el("a",{href:'privacy.html',target:'_blank',rel:'noopener noreferrer',text:'ความเป็นส่วนตัว / Privacy'})),
+  el("button",{type:'button',class:'primary',text:lang==='en'?'Sign in with LINE':'เข้าสู่ระบบด้วย LINE',onclick:()=>liff.login({redirectUri:location.href})})));
+}
 (async()=>{
  try{
   if(!demo){
    const c=window.TK7_CONFIG;
    if(!c?.liffId||!c?.apiUrl)return fail(T("noConfig"));
    await liff.init({liffId:c.liffId});
-   if(!liff.isLoggedIn()){liff.login({redirectUri:location.href});return}
+   if(!liff.isLoggedIn()){if(window.TK7_SHARE_ONLY)liff.login({redirectUri:location.href});else showLineLogin();return}
    try{myName=liff.getDecodedIDToken()?.name||""}catch{}
    try{if(!localStorage.getItem(LANG_KEY)){const l=(liff.getLanguage()||"").toLowerCase();if(l){lang=l.startsWith("th")?"th":"en";applyLang()}}}catch{}
   }

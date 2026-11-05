@@ -11,5 +11,6 @@ for(const file of ['index.html','js/app.js','line-registration/register.html']){
  fs.writeFileSync(filename,text);
 }
 fs.copyFileSync(path.join(root,'css/app.css'),path.join(root,'line-registration/schedule-web.css'));
+fs.copyFileSync(path.join(root,'line-registration/privacy.html'),path.join(root,'privacy.html'));
 fs.writeFileSync(path.join(root,'version.json'),JSON.stringify({version},null,2)+'\n');
 console.log('TK7 and LINE LIFF: '+version);

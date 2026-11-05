@@ -340,7 +340,7 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>''}){
    }finally{teamBusy=false;mutating=false;controls.forEach((n,i)=>n.disabled=disabled[i])}
   };
   if(!enabled)body.append(el('p',{class:'tk7l-empty',text:'ปิดรับลงทะเบียนแล้ว เปิดลงทะเบียนก่อนแก้รายชื่อ'}));
-  if(isJoin&&players.length<7)body.append(rows,addFriend,el('p',{class:'tk7l-join-hint',text:'ลงให้ตัวเองและเพื่อนได้พร้อมกัน · ถ้าที่ว่างไม่พอ ระบบจะไม่บันทึกบางส่วน'}),join,el('button',{type:'button',class:'tk7l-cancel-join',text:'ยกเลิก',onclick:closeTeam}));
+  if(isJoin&&players.length<7)body.append(rows,addFriend,el('p',{class:'tk7l-join-hint',text:'ใช้ชื่อเล่นได้ · แจ้งและขออนุญาตเพื่อนก่อนลงชื่อ · รายชื่อเก็บ 30 วันหลังแข่ง'}),join,el('button',{type:'button',class:'tk7l-cancel-join',text:'ยกเลิก',onclick:closeTeam}));
   const cardView=el('div',{class:'tk7-team-card'}),plist=el('div',{class:'plist'});
   const shirt=el('span',{class:'shirt'});shirt.innerHTML=icon.innerHTML;
   let colorDetails=null;
