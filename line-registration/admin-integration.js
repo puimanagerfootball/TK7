@@ -282,29 +282,26 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>''}){
   const preview=el('textarea',{readonly:true,'aria-label':'ข้อความสรุปรายชื่อ',style:'min-height:280px;resize:vertical;font-size:15px;line-height:1.6'});
   const notice=el('p',{role:'status',text:'กำลังอ่านรายชื่อล่าสุด…'});
   const send=el('button',{type:'button',class:'btn btn-primary',text:'เลือกแชตหรือกลุ่ม LINE',disabled:true});
-  const copy=el('button',{type:'button',class:'btn btn-secondary',text:'คัดลอกข้อความ',disabled:true});
-  const refresh=el('button',{type:'button',class:'btn btn-secondary',text:'อัปเดตรายชื่อ',onclick:openRosterSummary});
   const close=el('button',{type:'button',class:'tk7l-x',text:'✕','aria-label':'ปิด',onclick:closeRosterSummary});
-  summaryModal.replaceChildren(el('section',{class:'tk7l-sheet'},el('div',{class:'tk7l-sheet-head'},el('strong',{text:'📋 สรุปรายชื่อจากระบบ'}),close),el('div',{class:'tk7l-sheet-body'},preview,notice,send,copy,refresh)));
+  summaryModal.replaceChildren(el('section',{class:'tk7l-sheet'},el('div',{class:'tk7l-sheet-head'},el('strong',{text:'📋 สรุปรายชื่อจากระบบ'}),close),el('div',{class:'tk7l-sheet-body'},preview,notice,send)));
   summaryModal.hidden=false;
   try{
-   if(!await load(true))throw Error('อ่านรายชื่อล่าสุดไม่สำเร็จ กรุณากดอัปเดตอีกครั้ง');
+   if(!await load(true))throw Error('อ่านรายชื่อล่าสุดไม่สำเร็จ กรุณาปิดแล้วเปิดสรุปใหม่');
    if(sequence!==summarySequence)return;
    const latest=session();if(!canManage()||latest?.id!==chosen.id)throw Error('วันที่หรือสิทธิ์เปลี่ยนแล้ว กรุณาปิดแล้วเปิดสรุปใหม่');
-   const text=window.TK7RosterSummary.build(latest);preview.value=text;send.disabled=false;copy.disabled=false;
-   notice.textContent='ตรวจรายชื่อก่อนส่ง · หากมีการแก้ไข ให้กดอัปเดตรายชื่อ';
+   const text=window.TK7RosterSummary.build(latest);preview.value=text;send.disabled=false;
+   notice.textContent='ตรวจรายชื่อก่อนส่ง';
    send.onclick=async()=>{
     if(summarySending||!canManage()||session()?.id!==chosen.id){notice.textContent='วันที่หรือสิทธิ์เปลี่ยนแล้ว กรุณาเปิดสรุปใหม่';return;}
-    summarySending=true;send.disabled=true;refresh.disabled=true;notice.textContent='กำลังเปิดหน้าเลือกผู้รับ…';
+    summarySending=true;send.disabled=true;notice.textContent='กำลังเปิดหน้าเลือกผู้รับ…';
     try{
-     const direct=window.TK7DirectShare;if(!direct?.configured)throw Error('LINE ยังไม่พร้อม กรุณาลองใหม่ หรือใช้ปุ่มคัดลอกข้อความ');
+     const direct=window.TK7DirectShare;if(!direct?.configured)throw Error('LINE ยังไม่พร้อม กรุณาปิดแล้วเปิดสรุปใหม่');
      // The picker is invoked in this click, without awaiting a data read first.
      const result=await direct.share([{type:'text',text}]);
      notice.textContent=result?.login?'เข้าสู่ระบบ LINE แล้วเปิดสรุปและกดส่งอีกครั้ง':result?.status==='success'?'ส่งสรุปรายชื่อแล้ว':'ยกเลิกการส่ง';
     }catch(error){notice.textContent=errText(error)}
-    finally{summarySending=false;send.disabled=false;refresh.disabled=false;}
+    finally{summarySending=false;send.disabled=false;}
    };
-   copy.onclick=async()=>{if(!canManage()||session()?.id!==chosen.id){notice.textContent='วันที่หรือสิทธิ์เปลี่ยนแล้ว กรุณาเปิดสรุปใหม่';return;}try{await navigator.clipboard.writeText(text);notice.textContent='คัดลอกแล้ว เปิด LINE แล้ววางในแชตได้เลย'}catch{notice.textContent='คัดลอกไม่สำเร็จ เลือกข้อความด้านบนแล้วคัดลอกเองได้'}};
   }catch(error){if(sequence===summarySequence)notice.textContent=errText(error)}
  }
 

@@ -13,7 +13,10 @@ globalThis.TK7RosterSummary={build(session){
   const players=entries.filter(e=>e.team===slug).sort((a,b)=>(Number(a.slot)||0)-(Number(b.slot)||0));
   lines.push('',icon+' '+label+' ('+players.length+'/7)');
   if(!players.length)lines.push('ยังไม่มีผู้ลงชื่อ / No players');
-  players.forEach((e,i)=>lines.push((i+1)+'. '+clean(e.name)));
+  for(let slot=1;slot<=7;slot++){
+   const player=players.find(e=>Number(e.slot)===slot);
+   lines.push(slot+'.'+(player?' '+clean(player.name):''));
+  }
  }
  if(!entries.length)lines.push('','ยังไม่มีผู้ลงชื่อ / No players yet');
  lines.push('',session.is_open?'ดูรายชื่อล่าสุด / Latest roster:':'หน้าลงทะเบียน / Registration:',

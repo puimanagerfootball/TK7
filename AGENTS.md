@@ -26,3 +26,4 @@
 - Keep saved fixture order, scores and times unchanged unless the user edits them. New fixtures use exactly the minutes entered in the form.
 - Use `node scripts/sync-liff-site.mjs <existing-tk7-site-release-path>` for the LIFF mirror. It copies required browser assets only, excluding server/admin-only code.
 - The user explicitly requires keeping the legacy text-copy/group-merge signup menu. Maintain js/legacy-registration.js, its on-demand loader, css/legacy-registration.css and its button/modal alongside Flex sharing.
+- Web and LIFF player summaries use roster-summary.js, include slots 1–7 and expose only send/close in the summary dialog. Keep the separate legacy copy menu.
