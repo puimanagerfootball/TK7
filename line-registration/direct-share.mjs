@@ -9,7 +9,7 @@ export function createDirectShare({liffId,loadSdk,redirectUri}){
  return {
   configured,ready,get state(){return state;},
   // No await before the picker: preserve the user's original button gesture.
-  share(){
+  share(messages=[buildMenuMessage()]){
    if(!configured)throw Error('ยังไม่ได้ตั้งค่าแชร์ตรง / Direct sharing is not configured.');
    if(state==='loading')throw Error('กำลังเชื่อมต่อ LINE กรุณารอสักครู่แล้วกดแชร์อีกครั้ง / LINE is loading. Please tap Share again shortly.');
    if(state==='failed')throw Error(failure?.message||'เชื่อมต่อ LINE ไม่สำเร็จ / LINE initialization failed.');
@@ -18,7 +18,8 @@ export function createDirectShare({liffId,loadSdk,redirectUri}){
    }
    const diagnostic=shareAvailability(sdk);
    if(!diagnostic.available)throw Error('LINE ยังไม่พร้อมแชร์ / LINE sharing unavailable.\n'+JSON.stringify(diagnostic));
-   return sdk.shareTargetPicker([buildMenuMessage()]);
+   if(!Array.isArray(messages)||messages.length<1||messages.length>5)throw Error('Invalid sharing messages');
+   return sdk.shareTargetPicker(messages);
   }
  };
 }

@@ -45,7 +45,7 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>''}){
   .tk7l-sum{font-size:15px;line-height:1.6;margin:0;color:#2d4a37}
   .tk7l-sum b{font-weight:600}
   .tk7l-hint{font-size:13px;line-height:1.6;margin:0;color:#5f7466}
-  .tk7l-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .tk7l-actions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
   #tk7-line-card .tk7l-actions .btn,#tk7-line-card .tk7l-main{margin:0!important;width:100%;font-size:14px;min-height:44px;padding:10px 8px}
   #tk7-line-card .tk7l-register{background:#238947!important;color:#fff!important;box-shadow:0 4px 0 #146331!important}
   #tk7-line-card .tk7l-register:hover{background:#2a9951!important}
@@ -230,7 +230,8 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>''}){
    if(!s||!confirm('ลบวันลงทะเบียน '+thai(date())+' ?\nรายชื่อและประวัติของวันนี้จะถูกลบและกู้คืนไม่ได้'))return;
    act(del,async()=>{await rpc('tk7_admin_delete_session',{p_session:s.id});removeDeletedSession(s);return 'ลบวันลงทะเบียนแล้ว'});
   };
-  actions.append(share,main,del);
+  const summary=el('button',{type:'button',class:'btn tk7l-register',text:'📋 ส่งสรุปรายชื่อ',disabled:!s,onclick:openRosterSummary});
+  actions.append(share,summary,main,del);
   renderDateTabs();renderTeams(s);renderLog(s);pullFormFrom(s);
  }
 
@@ -268,6 +269,45 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>''}){
  }
 
  // ป็อปอัพทีม: รายชื่อ (ชื่อละบรรทัด) + เปลี่ยนสีทั้งทีม
+ const summaryModal=el('div',{class:'tk7l-modal',role:'dialog','aria-modal':'true','aria-label':'สรุปรายชื่อจากระบบ',hidden:true});
+ document.body.append(summaryModal);
+ let summarySequence=0,summarySending=false,summaryTrigger=null;
+ function closeRosterSummary(){if(summarySending)return;summarySequence++;summaryModal.hidden=true;summaryModal.replaceChildren();summaryTrigger?.focus?.()}
+ window.TK7Backdrop.install(summaryModal,e=>e.target===summaryModal,closeRosterSummary);
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!summaryModal.hidden)closeRosterSummary()});
+ async function openRosterSummary(){
+  if(!canManage()||summarySending)return;
+  const chosen=session();if(!chosen)return;
+  const sequence=++summarySequence;summaryTrigger=document.activeElement;
+  const preview=el('textarea',{readonly:true,'aria-label':'ข้อความสรุปรายชื่อ',style:'min-height:280px;resize:vertical;font-size:15px;line-height:1.6'});
+  const notice=el('p',{role:'status',text:'กำลังอ่านรายชื่อล่าสุด…'});
+  const send=el('button',{type:'button',class:'btn btn-primary',text:'เลือกแชตหรือกลุ่ม LINE',disabled:true});
+  const copy=el('button',{type:'button',class:'btn btn-secondary',text:'คัดลอกข้อความ',disabled:true});
+  const refresh=el('button',{type:'button',class:'btn btn-secondary',text:'อัปเดตรายชื่อ',onclick:openRosterSummary});
+  const close=el('button',{type:'button',class:'tk7l-x',text:'✕','aria-label':'ปิด',onclick:closeRosterSummary});
+  summaryModal.replaceChildren(el('section',{class:'tk7l-sheet'},el('div',{class:'tk7l-sheet-head'},el('strong',{text:'📋 สรุปรายชื่อจากระบบ'}),close),el('div',{class:'tk7l-sheet-body'},preview,notice,send,copy,refresh)));
+  summaryModal.hidden=false;
+  try{
+   if(!await load(true))throw Error('อ่านรายชื่อล่าสุดไม่สำเร็จ กรุณากดอัปเดตอีกครั้ง');
+   if(sequence!==summarySequence)return;
+   const latest=session();if(!canManage()||latest?.id!==chosen.id)throw Error('วันที่หรือสิทธิ์เปลี่ยนแล้ว กรุณาปิดแล้วเปิดสรุปใหม่');
+   const text=window.TK7RosterSummary.build(latest);preview.value=text;send.disabled=false;copy.disabled=false;
+   notice.textContent='ตรวจรายชื่อก่อนส่ง · หากมีการแก้ไข ให้กดอัปเดตรายชื่อ';
+   send.onclick=async()=>{
+    if(summarySending||!canManage()||session()?.id!==chosen.id){notice.textContent='วันที่หรือสิทธิ์เปลี่ยนแล้ว กรุณาเปิดสรุปใหม่';return;}
+    summarySending=true;send.disabled=true;refresh.disabled=true;notice.textContent='กำลังเปิดหน้าเลือกผู้รับ…';
+    try{
+     const direct=window.TK7DirectShare;if(!direct?.configured)throw Error('LINE ยังไม่พร้อม กรุณาลองใหม่ หรือใช้ปุ่มคัดลอกข้อความ');
+     // The picker is invoked in this click, without awaiting a data read first.
+     const result=await direct.share([{type:'text',text}]);
+     notice.textContent=result?.login?'เข้าสู่ระบบ LINE แล้วเปิดสรุปและกดส่งอีกครั้ง':result?.status==='success'?'ส่งสรุปรายชื่อแล้ว':'ยกเลิกการส่ง';
+    }catch(error){notice.textContent=errText(error)}
+    finally{summarySending=false;send.disabled=false;refresh.disabled=false;}
+   };
+   copy.onclick=async()=>{if(!canManage()||session()?.id!==chosen.id){notice.textContent='วันที่หรือสิทธิ์เปลี่ยนแล้ว กรุณาเปิดสรุปใหม่';return;}try{await navigator.clipboard.writeText(text);notice.textContent='คัดลอกแล้ว เปิด LINE แล้ววางในแชตได้เลย'}catch{notice.textContent='คัดลอกไม่สำเร็จ เลือกข้อความด้านบนแล้วคัดลอกเองได้'}};
+  }catch(error){if(sequence===summarySequence)notice.textContent=errText(error)}
+ }
+
  let teamBusy=false,teamTrigger=null,teamBackdrop=null,activeJoinSlug=null;
  const modal=el('div',{class:'tk7l-modal',role:'dialog','aria-modal':'true',hidden:true});
  window.TK7Backdrop.install(modal,e=>e.target===modal||e.target.classList?.contains('tk7l-join-dim'),closeTeam);
@@ -488,6 +528,6 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>''}){
  const setupVisible=()=>!!$('page-setup')?.offsetParent;
  setInterval(()=>{if(!document.hidden&&setupVisible()&&!document.activeElement?.closest?.('#page-setup select'))load()},20000);
  document.querySelectorAll('.nav-btn').forEach(b=>b.addEventListener('click',()=>setTimeout(()=>setupVisible()&&load(),200)));
- db.auth.onAuthStateChange?.(()=>setTimeout(load,1200));
+ db.auth.onAuthStateChange?.(()=>setTimeout(()=>{if(!canManage())closeRosterSummary();load()},1200));
 }};
 
