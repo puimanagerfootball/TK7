@@ -1,0 +1,6 @@
+.tk7-privacy-toolbar{display:flex;justify-content:flex-end;padding:10px 16px 0}
+.tk7-privacy-button,.tk7-privacy-button:visited{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:32px;box-sizing:border-box;padding:7px 12px;border:1px solid #c9ddcc;border-radius:999px;background:#f0f7ee;color:#28543a;text-decoration:none;font-family:inherit;font-size:12px;font-weight:600;line-height:1.4;box-shadow:0 2px 5px #123d2b0a;white-space:nowrap;transition:background .15s,border-color .15s}
+.tk7-privacy-button:hover{background:#e3f0df;border-color:#96bd9b;color:#173f27;text-decoration:none}
+.tk7-privacy-button:focus-visible{outline:3px solid #a7d779;outline-offset:3px}
+.toprow>.tk7-privacy-button{margin-right:auto}
+.tk7-privacy-icon{font-size:15px;line-height:1}

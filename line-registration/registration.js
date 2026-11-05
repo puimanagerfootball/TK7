@@ -141,7 +141,8 @@ async function openRosterSummary(){
     if(!liff.isLoggedIn()||!liff.isApiAvailable('shareTargetPicker'))throw Error(english?'LINE sharing unavailable. Please reopen this page in LINE.':'LINE ยังไม่พร้อมแชร์ กรุณาเปิดหน้านี้ผ่าน LINE อีกครั้ง');
     // Keep the picker in the original send gesture; the fresh read completed above.
     const result=await liff.shareTargetPicker([{type:'text',text}]);
-    notice.textContent=result?.status==='success'?(english?'Player summary sent':'ส่งสรุปรายชื่อแล้ว'):(english?'Sharing cancelled':'ยกเลิกการส่ง');
+    if(result?.status==='success'){if(current())closeSheet();toast(english?'Player summary sent':'ส่งสรุปรายชื่อแล้ว');}
+    else notice.textContent=english?'Sharing cancelled':'ยกเลิกการส่ง';
    }catch(error){notice.textContent=error.message||(english?'Could not share':'ส่งสรุปไม่สำเร็จ')}
    finally{sending=false;send.disabled=false;}
   };

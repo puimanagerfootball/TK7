@@ -298,7 +298,8 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>''}){
      const direct=window.TK7DirectShare;if(!direct?.configured)throw Error('LINE ยังไม่พร้อม กรุณาปิดแล้วเปิดสรุปใหม่');
      // The picker is invoked in this click, without awaiting a data read first.
      const result=await direct.share([{type:'text',text}]);
-     notice.textContent=result?.login?'เข้าสู่ระบบ LINE แล้วเปิดสรุปและกดส่งอีกครั้ง':result?.status==='success'?'ส่งสรุปรายชื่อแล้ว':'ยกเลิกการส่ง';
+     if(result?.status==='success'){summarySending=false;closeRosterSummary();say('ส่งสรุปรายชื่อแล้ว');}
+     else notice.textContent=result?.login?'เข้าสู่ระบบ LINE แล้วเปิดสรุปและกดส่งอีกครั้ง':'ยกเลิกการส่ง';
     }catch(error){notice.textContent=errText(error)}
     finally{summarySending=false;send.disabled=false;}
    };

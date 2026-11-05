@@ -20,15 +20,17 @@ class Node{
  append(...children){this.children.push(...children.flat())}replaceChildren(...children){this.children=children.flat()}focus(){}
  all(tag){return this.children.flatMap(child=>[...(child.tag===tag?[child]:[]),...child.all(tag)])}
 }
-function ui({success=true}={}){
- let current=session();const sent=[];const body=new Node('body');const context={window:{TK7Backdrop:{install(){}},TK7RosterSummary:globalThis.TK7RosterSummary,TK7DirectShare:{configured:true,share:messages=>{sent.push(messages);return Promise.resolve({status:'success'})}}},document:{body,activeElement:null,addEventListener(){}},el:(tag,props,...children)=>new Node(tag,props,children),canManage:()=>true,session:()=>current,load:async()=>success,errText:e=>e.message,navigator:{clipboard:{writeText:async()=>{}}}};
+function ui({success=true,shareStatus='success',shareError=false}={}){
+ let current=session();const sent=[];const body=new Node('body');const context={window:{TK7Backdrop:{install(){}},TK7RosterSummary:globalThis.TK7RosterSummary,TK7DirectShare:{configured:true,share:messages=>{sent.push(messages);return shareError?Promise.reject(Error('share failed')):Promise.resolve({status:shareStatus})}}},document:{body,activeElement:null,addEventListener(){}},el:(tag,props,...children)=>new Node(tag,props,children),canManage:()=>true,session:()=>current,load:async()=>success,say(){},errText:e=>e.message,navigator:{clipboard:{writeText:async()=>{}}}};
  vm.createContext(context);const source=fs.readFileSync(new URL('admin-integration.js',import.meta.url),'utf8');vm.runInContext(source.slice(source.indexOf(' const summaryModal='),source.indexOf(' let teamBusy=')),context);
  return {context,sent,modal:body.children[0],changeDate:()=>current={...current,id:'other'}};
 }
 test('preview fetches before enabling send and never sends automatically; recipient selection starts only on click',async()=>{
- const h=ui();await h.context.openRosterSummary();assert.equal(h.sent.length,0);assert.match(h.modal.all('textarea')[0].value,/Alice/);assert.equal(h.modal.all('button').length,2);const send=h.modal.all('button').find(b=>b.text==='เลือกแชตหรือกลุ่ม LINE');const promise=send.onclick();assert.equal(h.sent.length,1);await promise;
+ const h=ui();await h.context.openRosterSummary();assert.equal(h.sent.length,0);assert.match(h.modal.all('textarea')[0].value,/Alice/);assert.equal(h.modal.all('button').length,2);const send=h.modal.all('button').find(b=>b.text==='เลือกแชตหรือกลุ่ม LINE');const promise=send.onclick();assert.equal(h.sent.length,1);await promise;assert.equal(h.modal.hidden,true);
 });
 test('a failed refresh or a changed match date cannot share an incorrect roster',async()=>{
  const failed=ui({success:false});await failed.context.openRosterSummary();assert.equal(failed.modal.all('button').find(b=>b.text==='เลือกแชตหรือกลุ่ม LINE').disabled,true);
  const h=ui();await h.context.openRosterSummary();h.changeDate();await h.modal.all('button').find(b=>b.text==='เลือกแชตหรือกลุ่ม LINE').onclick();assert.equal(h.sent.length,0);
 });
+
+test('web cancellation and share failure leave the summary open for retry',async()=>{for(const options of [{shareStatus:'cancelled'},{shareError:true}]){const h=ui(options);await h.context.openRosterSummary();await h.modal.all('button').find(b=>b.text==='เลือกแชตหรือกลุ่ม LINE').onclick();assert.equal(h.modal.hidden,false);assert.match(h.modal.all('textarea')[0].value,/Alice/)}});
