@@ -25,6 +25,7 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>''}){
  document.head.append(el('style',{text:`
   .tk7l-header{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:16px}
   #tk7-line-card .tk7l-dates{display:flex;justify-self:end;max-width:100%;min-width:0;gap:8px;overflow-x:auto;padding:4px;scrollbar-width:thin}
+  #tk7-line-card .tk7l-dates:empty{display:none}
   #tk7-line-card .tk7l-dtab{flex:0 0 auto;display:flex;flex-wrap:wrap;align-items:center;gap:4px 9px;min-height:44px;margin:0;padding:7px 11px;border:1px solid #cfdfd3;border-radius:11px;background:#fff;color:#244b34;font:inherit;text-align:left;cursor:pointer;box-shadow:none}
   #tk7-line-card .tk7l-dtab.on{background:#e3f1e7;border-color:#5b9c6e;color:#174e30}
   .tk7l-dtab b{font-size:14px;font-weight:600}
@@ -57,6 +58,11 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>''}){
   .tk7l-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
   #tk7-line-card .tk7l-action{display:flex;align-items:center;gap:8px;min-width:0;min-height:46px;margin:0;padding:7px 10px;border:1px solid #cfe0d4;border-radius:11px;background:#e9f4ec;color:#1c5435;font:inherit;font-size:clamp(12px,1.5vw,15px);font-weight:600;line-height:1.25;text-align:left;overflow-wrap:anywhere;cursor:pointer}
   .tk7l-action-icon{display:grid;place-items:center;flex:none;width:25px;height:25px;border-radius:7px;background:#ffffffa6;font-size:14px}
+  .tk7l-name-paste{margin:8px 0;color:#1f7a43}
+  .tk7l-name-paste summary{cursor:pointer;font-weight:600}
+  .tk7l-name-paste textarea{display:block;margin-top:8px;resize:vertical}
+  .tk7l-name-paste .hint:empty{display:none}
+  .tk7l-paste-apply{margin-top:6px;border:1px solid #c9e1d1;border-radius:9px;padding:8px 10px;background:#e9f4ec;color:#1c5435;font:inherit;cursor:pointer}
   #tk7-line-card .tk7l-action.tk7l-share{background:#1c683d;border-color:#1c683d;color:#fff}
   #tk7-line-card .tk7l-share .tk7l-action-icon{background:#ffffff26}
   #tk7-line-card .tk7l-action.tk7l-main{background:#fff;border-color:#cfdbd3;color:#334f3d}
@@ -206,7 +212,7 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>''}){
  // หลายวันเปิดรับ: ปุ่มสลับวัน
  function renderDateTabs(){
   const c=cfg();dateTabs.replaceChildren();dateTabs.hidden=false;
-  const list=(data?.sessions||[]).filter(x=>x.group_id===c.group_id&&x.environment===c.environment).sort((a,b)=>a.match_date.localeCompare(b.match_date));
+  const list=(data?.sessions||[]).filter(x=>x.group_id===c.group_id&&x.environment===c.environment&&(x.is_open||x.match_date===date()));
   if(date()&&!list.some(x=>x.match_date===date()))list.push({match_date:date(),is_open:false,draft:true});
   list.sort((a,b)=>a.match_date.localeCompare(b.match_date));
   for(const x of list){const on=x.match_date===date();
@@ -408,7 +414,14 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>''}){
    }finally{teamBusy=false;mutating=false;controls.forEach((n,i)=>n.disabled=disabled[i])}
   };
   if(!enabled)body.append(el('p',{class:'tk7l-empty',text:'ปิดรับลงทะเบียนแล้ว เปิดลงทะเบียนก่อนแก้รายชื่อ'}));
-  if(isJoin&&players.length<7)body.append(rows,addFriend,el('p',{class:'tk7l-join-hint',text:'ใช้ชื่อเล่นได้ · แจ้งและขออนุญาตเพื่อนก่อนลงชื่อ · รายชื่อเก็บ 30 วันหลังแข่ง'}),join,el('button',{type:'button',class:'tk7l-cancel-join',text:'ยกเลิก',onclick:closeTeam}));
+  if(isJoin&&players.length<7){
+   const paste=enabled?window.TK7NamePaste.create({el,capacity:7-players.length,apply:names=>{
+    fields.length=0;rows.replaceChildren();names.forEach(addName);
+   }}):null;
+   body.append(rows,addFriend);
+   if(paste)body.append(paste);
+   body.append(el('p',{class:'tk7l-join-hint',text:'ใช้ชื่อเล่นได้ · แจ้งและขออนุญาตเพื่อนก่อนลงชื่อ · รายชื่อเก็บ 30 วันหลังแข่ง'}),join,el('button',{type:'button',class:'tk7l-cancel-join',text:'ยกเลิก',onclick:closeTeam}));
+  }
   const cardView=el('div',{class:'tk7-team-card'}),plist=el('div',{class:'plist'});
   const shirt=el('span',{class:'shirt'});shirt.innerHTML=icon.innerHTML;
   let colorDetails=null;

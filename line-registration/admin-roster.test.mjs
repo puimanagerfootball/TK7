@@ -1,3 +1,4 @@
+import './name-paste.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -14,7 +15,7 @@ class Node{
 function setup({closed=false,missing=false,fail=false,view="join",displayName=""}={}){
  const s={id:'session',revision:4,is_open:!closed,teams:['green','red','blue'],roster:{entries:[{id:'p1',name:'Alex',team:'green',slot:1},{id:'p2',name:'Pui',team:'green',slot:2}]}};
  const calls=[],modal=new Node('div'),colors={green:'เขียว',red:'แดง',blue:'ฟ้า'};
- const ctx={getDisplayName:()=>displayName,teamBackdrop:null,activeJoinSlug:null,canManage:()=>true,teamBusy:false,teamTrigger:null,mutating:false,document:{activeElement:null},session:()=>missing?null:s,playersOf:(x,t)=>(x?.roster.entries||[]).filter(e=>e.team===t),COLORS:colors,ORDER:Object.keys(colors),el:(t,p,...kids)=>new Node(t,p,kids),modal,closeTeam:()=>{modal.hidden=true},main:{click:()=>calls.push('open')},date:()=> '2026-11-06',crypto:webcrypto,confirm:()=>true,refreshOverview:{invalidate(){}},rpc:async(n,a)=>{calls.push({n,a});if(fail)throw Error('offline')},load:async()=>true,errText:e=>e.message,say(){},recolor(){}};
+ const ctx={window:{TK7NamePaste:globalThis.TK7NamePaste},getDisplayName:()=>displayName,teamBackdrop:null,activeJoinSlug:null,canManage:()=>true,teamBusy:false,teamTrigger:null,mutating:false,document:{activeElement:null},session:()=>missing?null:s,playersOf:(x,t)=>(x?.roster.entries||[]).filter(e=>e.team===t),COLORS:colors,ORDER:Object.keys(colors),el:(t,p,...kids)=>new Node(t,p,kids),modal,closeTeam:()=>{modal.hidden=true},main:{click:()=>calls.push('open')},date:()=> '2026-11-06',crypto:webcrypto,confirm:()=>true,refreshOverview:{invalidate(){}},rpc:async(n,a)=>{calls.push({n,a});if(fail)throw Error('offline')},load:async()=>true,errText:e=>e.message,say(){},recolor(){}};
  vm.createContext(ctx);vm.runInContext(code,ctx);ctx.openTeam('green',{view});return {ctx,modal,calls};
 }
 const button=(m,text)=>m.querySelectorAll('button').find(n=>text.startsWith('＋ ลงชื่อทีม')?n.class?.split(' ').includes('tk7l-add'):n.textContent===text);

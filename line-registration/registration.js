@@ -91,11 +91,12 @@ $("alert-scrim").onclick=()=>{$("alert").classList.remove("show");$("alert-scrim
 // ---------- render ----------
 function renderDates(){
  const nav=$("dates");nav.replaceChildren();
- for(const d of dates){
+ const visible=dates.filter(d=>d.isOpen||d.id===sessionId);
+ for(const d of visible){
   nav.append(el("button",{class:"date","aria-pressed":String(d.id===sessionId),onclick:()=>{if(d.id===sessionId)return;sessionId=d.id;renderDates();loadRoster(true)}},
    el("b",{text:d.date?dateLabel(d.date):d.label}),el("small",{text:"🕗 "+d.startTime+(d.isOpen?"":T("closedShort"))})));
  }
- nav.hidden=dates.length<2;
+ nav.hidden=visible.length<2;
 }
 // การ์ดข้อมูลแมตช์ (ดีไซน์เดียวกับการ์ดตอบกลับในไลน์)
 const dmy=d=>{const [y,m,dd]=String(d||"").split("-").map(Number);return y?dd+"-"+m+"-"+y:""};
@@ -308,6 +309,9 @@ function openRegister(slug){
   const row=el("div",{class:"field"},input,del);rows.append(row);sync();return input;
  }
  addBtn.onclick=()=>{addRow().focus()};
+ const paste=window.TK7NamePaste.create({el,capacity:left,english:lang==='en',apply:names=>{
+  rows.replaceChildren();names.forEach(addRow);
+ }});
  submit.onclick=async()=>{
   const names=values();
   if(names.length>left)return alertBox(T("notSaved"),T("onlyLeft",{n:left}));
@@ -321,7 +325,7 @@ function openRegister(slug){
  };
  box.append(el("div",{class:"sheet-head"},el("div",{class:"band c-"+slug,style:"height:auto;padding:4px;border-radius:10px"},shirt(slug)),
   el("div",{},el("h2",{text:T("joinColor",{c:label(slug)})}),el("p",{text:T("seatsInfo",{n:left})+(players.length?T("has")+players.map(p=>p.name).join(", "):"")}))),
-  el("div",{class:"sheet-body"},rows,addBtn,el("p",{class:"hint",text:T("joinHint")}),submit,el("button",{class:"ghost",type:"button",text:T("cancel"),onclick:closeSheet})));
+  el("div",{class:"sheet-body"},rows,addBtn,paste,el("p",{class:"hint",text:T("joinHint")}),submit,el("button",{class:"ghost",type:"button",text:T("cancel"),onclick:closeSheet})));
  openSheet(box);
  const first=addRow(myName);if(!myName)setTimeout(()=>first.focus(),250);
 }
