@@ -23,10 +23,13 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>''}){
  const el=(tag,props={},...kids)=>{const n=document.createElement(tag);for(const[k,v]of Object.entries(props)){if(k==='class')n.className=v;else if(k==='text')n.textContent=v;else if(k==='style')n.style.cssText=v;else if(k.startsWith('on'))n[k]=v;else if(v!=null&&v!==false)n.setAttribute(k,v===true?'':v)}for(const c of kids.flat())if(c!=null)n.append(c);return n};
 
  document.head.append(el('style',{text:`
-  #tk7-line-card .tk7l-dates{display:flex;gap:10px;flex-wrap:nowrap;overflow-x:auto;padding:2px 2px 8px}
-  #tk7-line-card .tk7l-dtab{min-width:150px;flex:0 0 auto;border-radius:14px!important;padding:14px 18px!important;text-align:left}
-  #tk7-line-card .tk7l-dtab b{display:block;font-size:17px}
-  #tk7-line-card .tk7l-dtab small{display:block;font-size:11px;opacity:.8;margin-top:5px}
+  .tk7l-header{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:16px}
+  #tk7-line-card .tk7l-dates{display:flex;justify-self:end;max-width:100%;min-width:0;gap:8px;overflow-x:auto;padding:4px;scrollbar-width:thin}
+  #tk7-line-card .tk7l-dtab{flex:0 0 auto;display:flex;flex-wrap:wrap;align-items:center;gap:4px 9px;min-height:44px;margin:0;padding:7px 11px;border:1px solid #cfdfd3;border-radius:11px;background:#fff;color:#244b34;font:inherit;text-align:left;cursor:pointer;box-shadow:none}
+  #tk7-line-card .tk7l-dtab.on{background:#e3f1e7;border-color:#5b9c6e;color:#174e30}
+  .tk7l-dtab b{font-size:14px;font-weight:600}
+  .tk7l-dtab small{font-size:11px;line-height:1.3;border-radius:999px;padding:3px 7px;background:#eef1ee;color:#465d4e}
+  .tk7l-dtab small.is-open{background:#cfe8d7;color:#14542e}
   #tk7-line-card .tk7l-status:empty{display:none}
 
   #tk7-line-card{background:#f5faf6!important;border:1px solid #d9e8dc!important;border-radius:22px!important;padding:24px!important;box-shadow:0 12px 28px #183c1812!important}
@@ -35,10 +38,16 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>''}){
   #tk7-line-card .tk7l-sharecta{display:block;background:#b9ed83;color:#123d2b;text-decoration:none;border:0;cursor:pointer;font:inherit;border-radius:12px;padding:14px 18px;font-weight:700;text-align:center}
   #tk7-line-card .tk7l-copylink{margin:0;border:1px solid #ffffff40;border-radius:12px;padding:13px;background:transparent;color:white;font:inherit;font-size:13px;cursor:pointer;box-shadow:none}
   #tk7-line-card :focus-visible{outline:3px solid #74b54e;outline-offset:3px}
-  @media(max-width:680px){.tk7l-sharebar{grid-template-columns:1fr}#tk7-line-card{padding:18px!important}}
+  @media(max-width:680px){
+   .tk7l-sharebar{grid-template-columns:1fr}
+   #tk7-line-card{padding:14px!important}
+   .tk7l-header{grid-template-columns:minmax(0,1fr);gap:4px}
+   #tk7-line-card .tk7l-dates{justify-self:stretch}
+  }
 
   #tk7-line-card{display:flex;flex-direction:column;gap:12px;text-align:left}
-  #tk7-line-card h2{margin:0;display:flex;align-items:center;justify-content:space-between;gap:8px}
+  #tk7-line-card h2{display:flex;align-items:center;gap:9px;margin:0;font-size:clamp(18px,2.4vw,23px);color:#204d32}
+  .tk7l-title-icon{display:grid;place-items:center;width:36px;height:36px;flex:none;border-radius:11px;background:#e3f1e7;font-size:19px}
   .tk7l-pill{font-size:13px;font-weight:600;padding:4px 12px;border-radius:999px;background:#dff3e4;color:#1f6b3a;white-space:nowrap}
   .tk7l-pill.off{background:#fff0d4;color:#7a5200}
   .tk7l-pill.none{background:#eceff1;color:#546e7a}
@@ -46,10 +55,19 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>''}){
   .tk7l-sum b{font-weight:600}
   .tk7l-hint{font-size:13px;line-height:1.6;margin:0;color:#5f7466}
   .tk7l-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-  #tk7-line-card .tk7l-actions .btn,#tk7-line-card .tk7l-main{margin:0!important;width:100%;font-size:14px;min-height:44px;padding:10px 8px}
-  #tk7-line-card .tk7l-register{background:#238947!important;color:#fff!important;box-shadow:0 4px 0 #146331!important}
-  #tk7-line-card .tk7l-register:hover{background:#2a9951!important}
-  .tk7l-actions .tk7l-danger{background:#fdeaea!important;color:#b3261e!important;box-shadow:0 3px 0 #e8b4b0!important}
+  #tk7-line-card .tk7l-action{display:flex;align-items:center;gap:8px;min-width:0;min-height:46px;margin:0;padding:7px 10px;border:1px solid #cfe0d4;border-radius:11px;background:#e9f4ec;color:#1c5435;font:inherit;font-size:clamp(12px,1.5vw,15px);font-weight:600;line-height:1.25;text-align:left;overflow-wrap:anywhere;cursor:pointer}
+  .tk7l-action-icon{display:grid;place-items:center;flex:none;width:25px;height:25px;border-radius:7px;background:#ffffffa6;font-size:14px}
+  #tk7-line-card .tk7l-action.tk7l-share{background:#1c683d;border-color:#1c683d;color:#fff}
+  #tk7-line-card .tk7l-share .tk7l-action-icon{background:#ffffff26}
+  #tk7-line-card .tk7l-action.tk7l-main{background:#fff;border-color:#cfdbd3;color:#334f3d}
+  #tk7-line-card .tk7l-action.tk7l-danger{background:#fff4f3;border-color:#efcfcb;color:#9c3025}
+  #tk7-line-card .tk7l-action:hover:not(:disabled){filter:brightness(.96)}
+  #tk7-line-card .tk7l-action:active:not(:disabled){filter:brightness(.91)}
+  #tk7-line-card .tk7l-action:disabled{opacity:.55;cursor:not-allowed}
+  @media(max-width:380px){
+   #tk7-line-card .tk7l-action{gap:5px;padding-inline:6px}
+   .tk7l-action-icon{width:21px;height:21px;font-size:12px}
+  }
   .tk7l-status{font-size:14px;margin:0;min-height:1.2em;color:#2d4a37}
   .tk7l-status.err{color:#c62828}
   #tk7-line-card details{border-top:1px solid rgba(0,0,0,.08);padding-top:10px}
@@ -88,14 +106,11 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>''}){
   .tk7l-colorgrid small{font-size:11px;opacity:.85;font-weight:400}
   .tk7l-checklist{display:grid;gap:6px;margin:8px 0 12px}.tk7l-checkrow,.tk7l-select-all{display:flex;align-items:center;gap:10px;padding:10px;background:white;border-radius:10px;cursor:pointer;text-align:left}.tk7l-checkrow input,.tk7l-select-all input{width:20px;height:20px;accent-color:#238947;margin:0}.tk7l-edit-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}.tk7l-edit-btn{font:inherit;font-weight:600;font-size:14px;padding:12px 8px;border:0;border-radius:10px;cursor:pointer;min-height:44px}.tk7l-edit-btn.primary{background:#238947;color:white}.tk7l-edit-btn.danger{background:#fdeaea;color:#b3261e}.tk7l-sheet :disabled{opacity:.5;cursor:default}.tk7l-sheet textarea,.tk7l-sheet select{box-sizing:border-box;width:100%;font:inherit;padding:10px;border:1px solid #c8dacc;border-radius:10px;background:#fff;color:#1d2b22}.tk7l-add{width:100%;margin-top:8px}.tk7l-team-notice{font-size:13px;white-space:pre-line}.tk7l-team-notice:empty{display:none}.tk7l-sheet .tk7l-sub{display:block;margin-top:14px}
   .tk7l-empty{margin:4px 0 6px;color:#5f7466}
-  .tk7l-dates{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
-  #tk7-line-card .tk7l-dtab{font:inherit;font-size:13px;padding:6px 12px;border-radius:999px;border:1px solid rgba(31,122,67,.35);background:#fff;color:#1f4d30;cursor:pointer;min-height:0;margin:0;box-shadow:none}
-  #tk7-line-card .tk7l-dtab.on{background:#1f7a43;color:#fff;border-color:#1f7a43}
   .tk7l-colorbox{display:flex;flex-direction:column;gap:6px}
   .tk7l-colors{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
   #tk7-line-card .tk7l-chip{width:100%!important;max-width:none!important;display:flex!important;justify-content:center;align-items:center;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   @media (max-width:480px){#tk7-line-card .tk7l-chip{font-size:11.5px!important;padding:6px 2px!important}}
-  #tk7-line-card .tk7l-log summary{cursor:pointer;font-weight:600;font-size:14px;color:#2d4a37}
+  #tk7-line-card .tk7l-log summary{cursor:pointer;font-weight:600;font-size:14px;color:#2d4a37;padding:4px 0}
   .tk7l-loglist{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:4px;max-height:320px;overflow:auto}
   .tk7l-loglist li{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;background:rgba(255,255,255,.6);border-radius:10px;padding:8px 10px;font-size:13px;line-height:1.4;color:#1d2b22}
   .tk7l-loglist time{color:#6b7d71;font-size:12px;white-space:nowrap}
@@ -109,7 +124,6 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>''}){
   /* คอม: การ์ด LINE อยู่ล่างสุดของคอลัมน์ขวา (ใต้รูปแบบตาราง + นัดเปิดสนาม) */
   /* คอม: การ์ด LINE กว้างเต็มหน้า ใต้สองคอลัมน์ */
   #setup-content-wrapper > #tk7-line-card{grid-column:1 / -1 !important;margin:8px 0 0}
-  #setup-content-wrapper > #tk7-line-card .tk7l-main{max-width:420px}
   #setup-content-wrapper > #tk7-line-card .tk7l-grid{grid-template-columns:2fr 1fr 1fr 1fr}
  `}));
 
@@ -118,7 +132,12 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>''}){
 
  const dateTabs=el('div',{class:'tk7l-dates'});
 
- const main=el('button',{type:'button',class:'btn btn-primary tk7l-main'});
+ const actionLabel=(icon,text)=>[el('span',{class:'tk7l-action-icon','aria-hidden':'true',text:icon}),el('span',{text})];
+ const actionButton=(icon,label,props={})=>{
+  const {class:variant='',...options}=props;
+  return el('button',{type:'button',class:('tk7l-action '+variant).trim(),...options},actionLabel(icon,label));
+ };
+ const main=actionButton('🔓','เปิดลงทะเบียน',{class:'tk7l-main'});
  const actions=el('div',{class:'tk7l-actions'});
  const status=el('p',{class:'tk7l-status',role:'status'});
 
@@ -131,7 +150,8 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>''}){
   }catch(error){say(error?.message||'แชร์ไม่สำเร็จ กรุณาลองอีกครั้ง',true);}
  }
  const logBox=el('details',{class:'tk7l-log'});
- card.append(el('h2',{},el('span',{text:'⚽ ลงชื่อเตะบอล'})),dateTabs,actions,status,logBox);
+ const title=el('h2',{},el('span',{class:'tk7l-title-icon','aria-hidden':'true',text:'⚽'}),el('span',{text:'ลงชื่อเตะบอล'}));
+ card.append(el('div',{class:'tk7l-header'},title,dateTabs),actions,status,logBox);
  // มือถือ: ใต้ช่องวันที่/เวลา · คอม: กว้างเต็มหน้า ใต้สองคอลัมน์ (เหนือปุ่มบันทึกตาราง)
  const wide=matchMedia('(min-width: 768px), (orientation: landscape)');
  // การ์ด LINE อยู่ล่างสุดของหน้าจัดการทีม (ใต้ปุ่มบันทึก/แชร์) ทั้งมือถือและคอม
@@ -192,7 +212,7 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>''}){
   for(const x of list){const on=x.match_date===date();
    dateTabs.append(el('button',{type:'button',class:'tk7l-dtab'+(on?' on':''),'aria-pressed':String(on),
     onclick:()=>{const i=$('match-date');if(!i||on)return;i.value=x.match_date;i.dispatchEvent(new Event('change',{bubbles:true}))}},
-    el('b',{text:thai(x.match_date)}),el('small',{text:x.draft?'ยังไม่เปิด':x.is_open?'เปิดรับลงทะเบียน':'ปิดลงทะเบียน'})));
+    el('b',{text:thai(x.match_date)}),el('small',{class:x.is_open?'is-open':'',text:x.draft?'ยังไม่เปิด':x.is_open?'เปิดรับลงทะเบียน':'ปิดลงทะเบียน'})));
   }
  }
 
@@ -213,8 +233,8 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>''}){
  function render(){
   const s=session();const c=cfg();
   actions.replaceChildren();
-  const share=el('button',{type:'button',class:'btn tk7l-register',text:'แชร์ลงทะเบียนผ่านระบบ',onclick:openCardShare});
-  main.hidden=false;main.textContent=s?.is_open?'🔒 ปิดลงทะเบียน':'🔓 เปิดลงทะเบียน';
+  const share=actionButton('↗','แชร์ลงทะเบียนผ่านระบบ',{class:'tk7l-share',onclick:openCardShare});
+  main.replaceChildren(...actionLabel(s?.is_open?'🔒':'🔓',s?.is_open?'ปิดลงทะเบียน':'เปิดลงทะเบียน'));
   main.disabled=!c.group_id||!date();
   main.onclick=()=>act(main,async()=>{
    if(!s){
@@ -226,14 +246,14 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>''}){
    await logWeb(s.id,s.is_open?'close':'reopen',s.is_open?'ปิดรับลงชื่อ':'เปิดรับลงชื่ออีกครั้ง');
    return s.is_open?'ปิดลงทะเบียนแล้ว':'เปิดลงทะเบียนแล้ว';
   });
-  const del=el('button',{type:'button',class:'btn tk7l-danger',text:'🗓 ลบวันลงทะเบียน',disabled:!s});
+  const del=actionButton('🗓','ลบวันลงทะเบียน',{class:'tk7l-danger',disabled:!s});
   del.onclick=()=>{
    if(!s||!confirm('ลบวันลงทะเบียน '+thai(date())+' ?\nรายชื่อและประวัติของวันนี้จะถูกลบและกู้คืนไม่ได้'))return;
    act(del,async()=>{await rpc('tk7_admin_delete_session',{p_session:s.id});removeDeletedSession(s);return 'ลบวันลงทะเบียนแล้ว'});
   };
-  const summary=el('button',{type:'button',class:'btn tk7l-register',text:'📋 ส่งสรุป (กลุ่มใหญ่)',disabled:!s,onclick:()=>openRosterSummary('all')});
-  const teamSummary=el('button',{type:'button',class:'btn tk7l-register',text:'👕 ส่งสรุป (กลุ่มย่อย)',disabled:!s,onclick:()=>openRosterSummary('team')});
-  const importButton=el('button',{type:'button',class:'btn tk7l-register',text:'📥 นำเข้าจาก LINE',disabled:!s||!s.is_open,onclick:importer.open});
+  const summary=actionButton('📋','ส่งสรุป (กลุ่มใหญ่)',{disabled:!s,onclick:()=>openRosterSummary('all')});
+  const teamSummary=actionButton('👕','ส่งสรุป (กลุ่มย่อย)',{disabled:!s,onclick:()=>openRosterSummary('team')});
+  const importButton=actionButton('📥','นำเข้าจาก LINE',{disabled:!s||!s.is_open,onclick:importer.open});
   actions.append(share,importButton,summary,teamSummary,main,del);
   renderDateTabs();renderTeams(s);renderLog(s);pullFormFrom(s);
  }
