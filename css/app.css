@@ -1155,12 +1155,13 @@
 
         .opener-slot { width: 100%; display: flex; justify-content: center; }
         .opener-slot-machine {
+            --cabinet-side: 20px;
             display: grid; grid-template-columns: minmax(0, 1fr);
-            align-items: end; gap: 0 8px;
+            align-items: end; gap: 0 var(--cabinet-side);
             width: 100%; max-width: 420px;
-            padding: 4px 3px 8px;
+            padding: 4px calc(var(--cabinet-side) + 3px) 12px 3px;
         }
-        .opener-slot-machine.has-lever { grid-template-columns: minmax(0, 1fr) auto; max-width: 500px; }
+        .opener-slot-machine.has-lever { grid-template-columns: minmax(0, 1fr) auto; max-width: 500px; padding-right: 3px; }
         .opener-slot-machine .opener-marquee {
             position: relative; grid-column: 1; justify-self: center;
             box-sizing: border-box; width: 90%; margin: 0 0 -2px;
@@ -1172,19 +1173,26 @@
                 linear-gradient(145deg, #9b5c1e, #ffe49c 23%, #b97f35 55%, #f7cc6a 76%, #7a4015) border-box;
             color: #fff0bf; text-shadow: 0 2px 0 #503015, 0 3px 8px #090d0b;
             font-size: clamp(18px, 3.7vw, 27px); font-weight: 800; line-height: 1.12;
-            box-shadow: inset 0 0 0 1px #f6d39175, 0 3px 0 #583312;
+            box-shadow: inset 0 0 0 1px #f6d39175, 2px 2px 0 #9b672b, 5px 5px 0 #583312;
         }
         .opener-cabinet {
-            grid-column: 1; min-width: 0; padding: 10px 10px 6px;
+            position: relative; grid-column: 1; min-width: 0; padding: 11px 10px 7px;
             border: 2px solid #7d4c24; border-radius: 12px;
-            background: linear-gradient(155deg, #ffe5a7, #be8340 30%, #ebbc65 58%, #7a441f 100%);
-            box-shadow: inset 0 1px 0 #fff0c3, 0 4px 0 #3d281c, 0 7px 12px #213c285c;
+            background: linear-gradient(153deg, #fff1b7, #b07937 30%, #f5ce77 48%, #d4a154 65%, #764018);
+            box-shadow: inset 0 1px 0 #fff8cf, inset 0 -4px 0 #6c3e1e, 0 5px 0 #3d281c, 3px 9px 12px #213c285c;
+        }
+        .opener-cabinet::after {
+            content: ''; position: absolute; left: calc(100% - 1px); top: 2px; bottom: -4px;
+            width: var(--cabinet-side); pointer-events: none;
+            clip-path: polygon(0 0, 100% 12px, 100% calc(100% - 11px), 0 100%);
+            background: linear-gradient(135deg, #bd8842, #684729 28%, #3b2b21 77%, #251b16);
+            box-shadow: inset 3px 0 0 #f1c57177, inset -2px 0 0 #291b13;
         }
         .opener-reels {
             display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px;
-            padding: 4px; border: 1px solid #3f2917; border-radius: 9px;
+            padding: 5px; border: 2px solid #3f2917; border-radius: 9px;
             background: linear-gradient(#1a1a17, #313026 48%, #181914);
-            box-shadow: inset 0 2px 7px #080a07;
+            box-shadow: inset 0 3px 8px #080a07, 0 1px 0 #fff3b8;
         }
         .opener-reel { min-width: 0; }
         .opener-reel-bezel {
@@ -1195,12 +1203,12 @@
             position: relative; overflow: hidden;
             width: 100%; height: 83px; border-radius: 4px;
             display: grid; place-items: center;
-            background: linear-gradient(#a59e82, #fcf2d6 22%, #fff8e4 48%, #e6d5ab 79%, #8f8061);
-            box-shadow: inset 0 4px 6px #20190880, inset 0 -4px 6px #20190873;
+            background: linear-gradient(#74664b, #ebdfbc 17%, #fff7df 43%, #f2e4bc 59%, #ba9f70 82%, #725a3a);
+            box-shadow: inset 0 6px 7px #20190896, inset 0 -6px 7px #20190882;
         }
         .opener-reel-glass {
             position: absolute; inset: 0; pointer-events: none;
-            background: linear-gradient(160deg, #fff6 0%, transparent 44%, transparent 72%, #21170b32);
+            background: linear-gradient(165deg, #fff7 0%, transparent 29%, transparent 70%, #21170b50);
         }
         .opener-reel-window .team-emblem {
             width: calc(100% - 8px); height: calc(100% - 14px);
@@ -1219,115 +1227,87 @@
             text-shadow: 0 1px 0 #fff0c1, 0 2px 0 #d5ab67;
         }
         .opener-plinth {
-            height: 10px; margin: 6px 4px 1px; border-radius: 4px;
-            background: linear-gradient(#58422b, #31261c);
-            box-shadow: inset 0 1px 0 #ffc97570, 0 1px 0 #eac87c;
+            height: 12px; margin: 7px 3px 1px; border-radius: 4px;
+            background: linear-gradient(#e7bd71 0 22%, #81603a 26%, #493020 82%, #2c201a);
+            box-shadow: inset 0 1px 0 #ffe8a5, 0 2px 0 #633c20;
         }
         .opener-pick-hint { margin: 2px 0 0; }
         .opener-lever {
-            --lever-y: 4px;
-            --lever-y-pulled: 32px;
-            position: relative;
-            grid-column: 2; grid-row: 1 / span 2; align-self: end;
-            width: 66px;
-            height: 148px;
-            flex-shrink: 0;
-            border: none;
-            background: transparent;
-            padding: 0;
-            cursor: grab;
-            touch-action: manipulation;
-            -webkit-tap-highlight-color: transparent;
-            z-index: 2;
-            transform: translateZ(18px);
+            position: relative; grid-column: 2; grid-row: 1 / span 2; align-self: end;
+            width: 66px; height: 147px; margin: 0; padding: 0; border: 0;
+            background: none; color: #294932; cursor: grab;
+            touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+            perspective: 260px; z-index: 2;
         }
         .opener-lever:active { cursor: grabbing; }
+        .opener-lever:disabled { cursor: default; }
         .opener-lever::before {
-            content: ''; position: absolute; left: -11px; top: 58%; width: 17px; height: 22px;
-            border: 1px solid #714515; border-radius: 7px 0 0 7px;
-            background: linear-gradient(#ffe3a0, #b88036 43%, #68401d);
-            box-shadow: 0 2px 3px #301e1a55; pointer-events: none;
-        }
-        .opener-lever:disabled {
-            cursor: default;
-            opacity: 0.72;
-        }
-        .opener-lever .lever-console {
-            position: absolute; inset: 0; border-radius: 15px;
-            background: radial-gradient(ellipse at 50% 32%, #66816d, #345945 58%, #142d23);
-            border: 1px solid #436f60;
-            box-shadow: inset 0 1px 0 #ffffff45, inset 0 -4px 0 #061911, 0 4px 0 #0b2118, 0 7px 12px #193b2859;
-        }
-        .opener-lever .lever-rail {
-            position: absolute; left: 50%; top: 18px; bottom: 22px;
-            width: 13px; transform: translateX(-50%); border-radius: 999px;
-            background: linear-gradient(90deg, #8b570e, #d49b31 27%, #ffe390 49%, #d39323 72%, #89520d);
-            border: 1px solid #84500c; box-shadow: inset 0 -2px 3px #80510b5c, 0 2px 3px #4534153b;
-        }
-        .opener-lever .lever-rail::before {
-            content: ''; position: absolute; inset: 5px auto 5px 3px; width: 1px; border-radius: 999px;
-            background: #fff0b67d;
-        }
-        .opener-lever .lever-marks {
-            position: absolute; right: 8px; top: 20px; bottom: 26px; width: 5px;
-            background: repeating-linear-gradient(180deg, #f1c771 0 2px, transparent 2px 10px);
-        }
-        .opener-lever .lever-caption {
-            position: absolute; inset: auto 0 5px;
-            color: #fff0c2; font-size: 12px; font-weight: 700; line-height: 1;
+            content: ''; position: absolute; left: -7px; bottom: 25px; width: 30px; height: 18px;
+            border-radius: 4px; background: linear-gradient(#694719, #e3b15d 25%, #835321 82%, #492b14);
+            box-shadow: 0 3px 3px #2c1e1966; pointer-events: none;
         }
         .opener-lever .lever-grip {
-            position: absolute; left: 50%; top: var(--lever-y); width: 48px;
-            transform: translateX(-50%); z-index: 5;
-            display: flex; flex-direction: column; align-items: center;
-            transition: top .18s cubic-bezier(.2,.9,.3,1);
-            filter: drop-shadow(0 3px 3px #263a2355); pointer-events: none;
-        }
-        .opener-lever .lever-knob {
-            position: relative; z-index: 2; width: 54px; height: 73px;
-            display: grid; place-items: center;
-        }
-        .opener-lever .lever-art {
-            position: absolute; inset: 0; display: block;
-            width: 100%; height: 100%; object-fit: contain;
-            filter: drop-shadow(0 0 1px #f4d57b) drop-shadow(0 2px 2px #102417);
+            position: absolute; left: 23px; bottom: 34px; width: 38px; height: 103px;
+            transform: translateX(-50%) rotate(11deg);
+            transform-origin: center bottom; transform-style: preserve-3d;
+            transition: transform .24s cubic-bezier(.2,.8,.3,1);
+            pointer-events: none;
         }
         .opener-lever .lever-stem {
-            width: 11px; height: 27px; margin: -4px 0 0; border-radius: 3px 3px 6px 6px;
-            background: linear-gradient(90deg, #9c5e10, #ffc853 35%, #fff0aa 50%, #e7a92d 67%, #9b5c10);
-            border: 1px solid #8b530c; box-shadow: inset 0 1px 0 #fff4c1;
+            position: absolute; left: 50%; top: 39px; bottom: 0; width: 10px;
+            transform: translateX(-50%); border-radius: 5px;
+            background: linear-gradient(90deg, #713c0a, #ca8e28 22%, #fff3b4 45%, #edbc54 67%, #805013);
+            border: 1px solid #82510c; box-shadow: 2px 2px 4px #402b1966;
         }
-        .opener-lever:hover:not(:disabled) .lever-knob { filter: brightness(1.08); }
-        .opener-lever:focus-visible { outline: 3px solid #f0c56a; outline-offset: 3px; border-radius: 15px; }
-        @media (prefers-reduced-motion: reduce) { .opener-lever .lever-grip { transition: none; } }
-        .opener-lever.pulled {
-            --lever-y: var(--lever-y-pulled);
+        .opener-lever .lever-knob {
+            position: absolute; left: 50%; top: 0; width: 36px; height: 55px;
+            transform: translateX(-50%); transition: transform .24s cubic-bezier(.2,.8,.3,1);
         }
-        .opener-lever.pulled .lever-grip {
-            /* ดึงลงตามราง — ไม่เอียง ไม่หมุน */
-            transition-duration: 0.14s;
-            transition-timing-function: cubic-bezier(0.55, 0.05, 0.9, 0.45);
-            filter: drop-shadow(0 2px 3px rgba(0,0,0,0.5));
+        .opener-lever .lever-art {
+            display: block; width: 100%; height: 100%; object-fit: contain;
+            filter: drop-shadow(0 1px 1px #fff1a0) drop-shadow(1px 3px 2px #2f2115a0);
         }
-        .opener-lever:not(.pulled) .lever-grip {
-            transition-duration: 0.28s;
-            transition-timing-function: cubic-bezier(0.2, 0.85, 0.25, 1);
+        .opener-lever .lever-pivot {
+            position: absolute; left: 23px; bottom: 34px; width: 31px; height: 31px;
+            transform: translate(-50%, 50%); border: 1px solid #704716; border-radius: 50%;
+            background: radial-gradient(circle at 38% 28%, #fff0a1, #dda64d 45%, #90612a 67%, #462c13 86%);
+            box-shadow: inset 0 0 0 3px #c8923e, 2px 3px 5px #3f2b1c77;
+        }
+        .opener-lever .lever-pivot::after {
+            content: ''; position: absolute; inset: 6px; border-radius: 50%;
+            background: radial-gradient(circle at 35% 24%, #526257, #1c2921 70%);
+            border: 1px solid #68491d;
+        }
+        .opener-lever .lever-caption {
+            position: absolute; inset: auto 6px 0 0;
+            font-size: 12px; font-weight: 700; line-height: 1;
+        }
+        .opener-lever:hover:not(:disabled) .lever-art { filter: brightness(1.08) drop-shadow(1px 3px 2px #2f2115a0); }
+        .opener-lever:focus-visible { outline: 3px solid #75501d; outline-offset: 2px; border-radius: 12px; }
+        .opener-lever.pulled .lever-grip { transform: translateX(-50%) rotate(14deg) rotateX(57deg); }
+        .opener-lever.pulled .lever-knob { transform: translateX(-50%) rotateX(-57deg); }
+        @media (prefers-reduced-motion: reduce) {
+            .opener-lever .lever-grip, .opener-lever .lever-knob { transition: none; }
         }
         .opener-slot-machine.spinning .opener-cabinet {
             box-shadow: inset 0 1px 0 #fff0c3, 0 4px 0 #3d281c, 0 0 14px #ffc96da0;
         }
         @media (max-width: 767px) {
-            .opener-slot-machine { gap: 0 6px; }
+            .opener-slot-machine { --cabinet-side: 12px; }
             .opener-slot-machine .opener-marquee { min-height: 49px; padding: 10px 5px 8px; border-width: 3px; }
             .opener-cabinet { padding: 6px 5px 4px; }
             .opener-reels { gap: 3px; padding: 3px; }
             .opener-reel-window { height: 64px; }
             .opener-reel-window .team-emblem { width: calc(100% - 4px); font-size: 11px; padding: 2px; }
             .opener-plinth { height: 7px; margin-top: 4px; }
-            .opener-lever { width: 47px; height: 113px; --lever-y-pulled: 23px; }
-            .opener-lever .lever-knob { width: 37px; height: 52px; }
-            .opener-lever .lever-stem { height: 21px; }
-            .opener-lever .lever-marks { right: 4px; width: 3px; }
+            .opener-lever { width: 45px; height: 115px; }
+            .opener-lever::before { left: -5px; bottom: 22px; width: 22px; height: 14px; }
+            .opener-lever .lever-grip { left: 17px; bottom: 29px; height: 83px; transform: translateX(-50%) rotate(8deg); }
+            .opener-lever .lever-stem { top: 31px; width: 8px; }
+            .opener-lever .lever-knob { width: 29px; height: 43px; }
+            .opener-lever .lever-pivot { left: 17px; bottom: 29px; width: 24px; height: 24px; }
+            .opener-lever .lever-pivot::after { inset: 5px; }
+            .opener-lever.pulled .lever-grip { transform: translateX(-50%) rotate(11deg) rotateX(57deg); }
         }
 
         /* --- STYLES FOR EXPORT ONLY --- */

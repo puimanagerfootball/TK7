@@ -1,5 +1,5 @@
 /* ==========================================================================
-   TK7 app logic (Ver 5.2.13)
+   TK7 app logic (Ver 5.2.14)
    แยกจาก index.html เพื่อแก้/ค้นหาง่ายขึ้น
    Sections (ค้นหาด้วย // --- SECTION:):
      CONFIG, AUTH, REGISTRATION, SCHEDULE, LINEUP, SETUP,
@@ -843,14 +843,12 @@
             const awayTeam = TEAMS.find(t => t.slug === awaySlug) || { name: 'รอสุ่ม', slug: 'opener-pending' };
             const leverHtml = showLever
                 ? `<button type="button" class="opener-lever" title="ดึงคันชักสุ่มคู่เปิดสนาม" aria-label="ดึงคันชักสุ่มคู่เปิดสนาม">
-                        <span class="lever-console" aria-hidden="true"></span>
-                        <span class="lever-rail"></span>
-                        <span class="lever-marks" aria-hidden="true"></span>
-                        <span class="lever-caption" aria-hidden="true">สุ่ม</span>
-                        <span class="lever-grip">
-                            <span class="lever-knob" aria-hidden="true"><img class="lever-art" src="line-registration/world-cup-trophy.png" alt="" width="106" height="252" draggable="false"></span>
+                        <span class="lever-grip" aria-hidden="true">
                             <span class="lever-stem"></span>
+                            <span class="lever-knob" aria-hidden="true"><img class="lever-art" src="line-registration/world-cup-trophy.png" alt="" width="106" height="252" draggable="false"></span>
                         </span>
+                        <span class="lever-pivot" aria-hidden="true"></span>
+                        <span class="lever-caption" aria-hidden="true">สุ่ม</span>
                    </button>`
                 : '';
             const homeEl = clickable
