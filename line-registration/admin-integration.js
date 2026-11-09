@@ -5,7 +5,10 @@ function createTK7OverviewLoader(read,apply,onError){
   if(fresh)epoch++;
   while(running){if(!fresh)return running;await running;}
   const started=epoch;
-  const job=Promise.resolve().then(read).then(value=>{if(started===epoch)apply(value);return true;},error=>{onError(error);return false;});
+  const job=Promise.resolve().then(read).then(
+   value=>{if(started===epoch)apply(value);return true;},
+   error=>{if(started===epoch)onError(error);return false;}
+  );
   running=job;
   try{return await job;}finally{if(running===job)running=null;}
  };
@@ -55,9 +58,9 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>''}){
   .tk7l-sum{font-size:15px;line-height:1.6;margin:0;color:#2d4a37}
   .tk7l-sum b{font-weight:600}
   .tk7l-hint{font-size:13px;line-height:1.6;margin:0;color:#5f7466}
-  .tk7l-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-  #tk7-line-card .tk7l-action{display:flex;align-items:center;gap:8px;min-width:0;min-height:46px;margin:0;padding:7px 10px;border:1px solid #cfe0d4;border-radius:11px;background:#e9f4ec;color:#1c5435;font:inherit;font-size:clamp(12px,1.5vw,15px);font-weight:600;line-height:1.25;text-align:left;overflow-wrap:anywhere;cursor:pointer}
-  .tk7l-action-icon{display:grid;place-items:center;flex:none;width:25px;height:25px;border-radius:7px;background:#ffffffa6;font-size:14px}
+  .tk7l-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px 10px;padding-bottom:4px}
+  #tk7-line-card .tk7l-action{display:flex;align-items:center;gap:9px;min-width:0;min-height:48px;margin:0;padding:8px 11px;border:1px solid var(--action-edge);border-radius:12px;background:var(--action-face);color:#fff;box-shadow:inset 0 1px 0 #ffffff38,0 4px 0 var(--action-edge),0 6px 10px #112a2426;font:inherit;font-size:clamp(12px,1.5vw,15px);font-weight:600;line-height:1.25;text-align:left;overflow-wrap:anywhere;cursor:pointer;transition:transform .12s,box-shadow .12s,filter .12s}
+  .tk7l-action-icon{display:grid;place-items:center;flex:none;width:28px;height:28px;border-radius:8px;background:#fff;color:#18382c;box-shadow:inset 0 -2px 0 #0f30221c;font-size:15px}
   .tk7l-import-actions{display:grid;gap:14px;margin-top:10px}
   .tk7l-import-actions .btn{margin:0}
   .tk7l-import-suggestions:not(:empty){display:grid;gap:8px;margin:12px 0}
@@ -65,22 +68,25 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>''}){
   .tk7l-import-suggestions input{appearance:auto;flex:none;width:20px;height:20px;margin:0;accent-color:#1f7a43}
   .tk7l-sheet.tk7l-join-sheet .tk7l-name-field{grid-template-columns:minmax(0,1fr) 58px 44px;gap:8px}
   .tk7l-sheet .tk7l-name-field .tk7l-quantity{width:100%;min-height:44px;padding:0 4px;border:1px solid #b7d6c2;background:#e9f4ec;color:#174e30;font-weight:600;font-size:16px}
-  #tk7-line-card .tk7l-action.tk7l-share{background:#1c683d;border-color:#1c683d;color:#fff}
-  #tk7-line-card .tk7l-share .tk7l-action-icon{background:#ffffff26}
-  #tk7-line-card .tk7l-action.tk7l-import{background:#e8f1fc;border-color:#bfd4ec;color:#194d78}
-  #tk7-line-card .tk7l-action.tk7l-summary-all{background:#e4f3f3;border-color:#b9dcdc;color:#175b61}
-  #tk7-line-card .tk7l-action.tk7l-summary-team{background:#f0eafa;border-color:#d8c8ec;color:#553581}
-  #tk7-line-card .tk7l-action.tk7l-main{background:#fff2d9;border-color:#e9d2a5;color:#684807}
-  #tk7-line-card .tk7l-action.tk7l-danger{background:#fff4f3;border-color:#efcfcb;color:#9c3025}
-  #tk7-line-card .tk7l-action:hover:not(:disabled){filter:brightness(.96)}
-  #tk7-line-card .tk7l-action:active:not(:disabled){filter:brightness(.91)}
-  #tk7-line-card .tk7l-action:disabled{opacity:.55;cursor:not-allowed}
+  .tk7l-share{--action-face:#147044;--action-edge:#0b482a}
+  .tk7l-import{--action-face:#1c57a7;--action-edge:#123975}
+  .tk7l-summary-all{--action-face:#076a70;--action-edge:#08464a}
+  .tk7l-summary-team{--action-face:#6539a4;--action-edge:#43256d}
+  .tk7l-main{--action-face:#98500c;--action-edge:#653406}
+  .tk7l-danger{--action-face:#ad292c;--action-edge:#761b20}
+  #tk7-line-card .tk7l-action:hover:not(:disabled){filter:brightness(1.07);transform:translateY(-1px);box-shadow:inset 0 1px 0 #ffffff38,0 5px 0 var(--action-edge),0 7px 12px #112a2433}
+  #tk7-line-card .tk7l-action:active:not(:disabled){transform:translateY(3px);box-shadow:inset 0 1px 0 #ffffff26,0 1px 0 var(--action-edge)}
+  #tk7-line-card .tk7l-action:disabled{opacity:.58;cursor:not-allowed;box-shadow:0 2px 0 var(--action-edge)}
+  @media(prefers-reduced-motion:reduce){#tk7-line-card .tk7l-action{transition:none}}
   @media(max-width:380px){
    #tk7-line-card .tk7l-action{gap:5px;padding-inline:6px}
    .tk7l-action-icon{width:21px;height:21px;font-size:12px}
   }
   .tk7l-status{font-size:14px;margin:0;min-height:1.2em;color:#2d4a37}
   .tk7l-status.err{color:#c62828}
+  .tk7l-connection[hidden]{display:none}
+  .tk7l-connection{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;padding:9px 12px;border:1px solid #ebc993;border-radius:10px;background:#fff5e4;color:#653c0a;font-size:14px}
+  .tk7l-connection button{border:1px solid #98500c;border-radius:8px;padding:5px 10px;background:#fff;color:#653c0a;font:inherit;cursor:pointer}
   #tk7-line-card details{border-top:1px solid rgba(0,0,0,.08);padding-top:10px}
   #tk7-line-card summary{cursor:pointer;font-weight:600;font-size:14px;color:#2d4a37}
   .tk7l-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
@@ -151,6 +157,12 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>''}){
  const main=actionButton('unlock','เปิดลงทะเบียน',{class:'tk7l-main'});
  const actions=el('div',{class:'tk7l-actions'});
  const status=el('p',{class:'tk7l-status',role:'status'});
+ const connectionMessage=el('span',{role:'status'});
+ const connectionRetry=el('button',{type:'button',text:'ลองใหม่',onclick:async()=>{
+  connectionRetry.disabled=true;connectionMessage.textContent='กำลังโหลดข้อมูลลงชื่อ…';
+  try{await load(true)}finally{connectionRetry.disabled=false}
+ }});
+ const connection=el('div',{class:'tk7l-connection',hidden:true},connectionMessage,connectionRetry);
 
  async function openCardShare(){
   const direct=window.TK7DirectShare;
@@ -162,7 +174,7 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>''}){
  }
  const logBox=el('details',{class:'tk7l-log'});
  const title=el('h2',{},el('span',{class:'tk7l-title-icon','aria-hidden':'true'},globalThis.TK7Icons?.node('ball')),el('span',{text:'ลงชื่อเตะบอล'}));
- card.append(el('div',{class:'tk7l-header'},title,dateTabs),actions,status,logBox);
+ card.append(el('div',{class:'tk7l-header'},title,dateTabs),actions,connection,status,logBox);
  // มือถือ: ใต้ช่องวันที่/เวลา · คอม: กว้างเต็มหน้า ใต้สองคอลัมน์ (เหนือปุ่มบันทึกตาราง)
  const wide=matchMedia('(min-width: 768px), (orientation: landscape)');
  // การ์ด LINE อยู่ล่างสุดของหน้าจัดการทีม (ใต้ปุ่มบันทึก/แชร์) ทั้งมือถือและคอม
@@ -191,8 +203,17 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>''}){
 
  const refreshOverview=createTK7OverviewLoader(
   ()=>rpc('tk7_admin_overview'),
-  next=>{if(!canManage())return;if(JSON.stringify(data)===JSON.stringify(next))return;data=next;pickLatestOpenDate();render();},
-  error=>say('โหลดข้อมูลลงชื่อไม่สำเร็จ: '+errText(error),true)
+  next=>{
+   connection.hidden=true;
+   if(!canManage()||JSON.stringify(data)===JSON.stringify(next))return;
+   data=next;pickLatestOpenDate();render();
+  },
+  error=>{
+   connectionMessage.textContent=/failed to fetch|networkerror|load failed/i.test(errText(error))
+    ?'เชื่อมต่อระบบลงชื่อไม่ได้ กรุณาลองใหม่'
+    :'โหลดข้อมูลลงชื่อไม่สำเร็จ: '+errText(error);
+   connection.hidden=false;
+  }
  );
  async function load(fresh=false){
   if(!canManage()){card.style.display='none';return;}

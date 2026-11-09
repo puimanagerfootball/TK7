@@ -27,6 +27,17 @@ test('failed refresh does not leave subsequent reads stuck',async()=>{
  assert.equal(await refresh(),false);assert.equal(await refresh(true),true);
  assert.deepEqual(errors,['offline']);assert.deepEqual(applied,['new']);
 });
+test('an obsolete read cannot show a connection error while a newer refresh is queued',async()=>{
+ const stale=deferred(),errors=[],applied=[];
+ let calls=0;
+ const refresh=createLoader(()=>++calls===1?stale.promise:'latest',value=>applied.push(value),error=>errors.push(error.message));
+ const poll=refresh(),retry=refresh(true);
+ stale.reject(Error('Failed to fetch'));
+ assert.equal(await poll,false);
+ assert.equal(await retry,true);
+ assert.deepEqual(errors,[]);
+ assert.deepEqual(applied,['latest']);
+});
 function deletionHarness(selected,sessions){
  const context={data:{settings:{group_id:'dataset',environment:'production'},sessions},lastSig:'old',pulledFor:'old',refreshOverview:{invalidate(){}},renderCalls:0,Event:class{}};
  const input={value:selected,dispatchEvent(){}};

@@ -28,8 +28,29 @@
   palette:'<path d="M20 12a8 8 0 1 0-8 8h2a2 2 0 0 0 1-4c-1-1 0-2 1-2h2a2 2 0 0 0 2-2ZM8 10h.01m4-3h.01m4 3h.01m-8 5h.01"/>',
   bell:'<path d="M5 17h14l-2-3V9a5 5 0 0 0-10 0v5l-2 3Zm5 3h4"/>'
  };
+ const accents = {
+  ball:'<circle cx="12" cy="12" r="8.7" fill="#eff7ff"/><path fill="#2773c4" d="m12 8 4 3-1.5 4.5h-5L8 11ZM12 3v5L8.3 4Zm8.5 6L16 11l3 4ZM9.5 15.5l-3 4-2-4Z"/>',
+  share:'<path d="M5 7h6v6h6v6H5Z" fill="#87d9b2"/><path d="M13 5h6v6l-3-3Z" fill="#52bb87"/>',
+  import:'<path d="M4 15h16v5H4Z" fill="#87b8f3"/><path d="m8 10 4 4 4-4h-3V3h-2v7Z" fill="#4a8de1"/>',
+  list:'<rect x="5" y="4" width="14" height="16" rx="2" fill="#9cddda"/>',
+  shirt:'<path d="m9 4-5 2-2 5 4 2 2-3v10h8V10l2 3 4-2-2-5-5-2a3 3 0 0 1-6 0Z" fill="#c5a9f1"/>',
+  lock:'<rect x="5" y="10" width="14" height="11" rx="2" fill="#ffd178"/>',
+  unlock:'<rect x="5" y="10" width="14" height="11" rx="2" fill="#9cd8b2"/>',
+  trash:'<path d="m6 7 1 13h10l1-13Z" fill="#f4a6a4"/>',
+  clock:'<circle cx="12" cy="12" r="8.7" fill="#b7d8f6"/>',
+  calendar:'<rect x="4" y="6" width="16" height="14" rx="2" fill="#d5e6ff"/><path d="M4 7h16v4H4Z" fill="#8fb8f3"/>',
+  users:'<circle cx="9" cy="8" r="3" fill="#9bc7ff"/><path d="M3 20v-2a6 6 0 0 1 12 0v2Z" fill="#b1d5fc"/>',
+  shield:'<path d="M12 3 4 6v5c0 5 3 8 8 10 5-2 8-5 8-10V6Z" fill="#8bd6ae"/>',
+  settings:'<circle cx="12" cy="12" r="3" fill="#abd2f9"/>',
+  trophy:'<path d="M8 4h8v6a4 4 0 0 1-8 0Z" fill="#ffcc65"/>',
+  save:'<path d="M5 4h12l3 3v13H4V5Z" fill="#a4c9ff"/><path d="M8 14h8v6H8Z" fill="#eef6ff"/>',
+  edit:'<path d="m5 16-1 4 4-1L20 7l-3-3Z" fill="#ffcc81"/>',
+  pin:'<path d="M19 10c0 5-7 11-7 11s-7-6-7-11a7 7 0 1 1 14 0Z" fill="#f4a6a4"/>',
+  warning:'<path d="M12 4 2 20h20Z" fill="#ffd178"/>',
+  bell:'<path d="M5 17h14l-2-3V9a5 5 0 0 0-10 0v5Z" fill="#ffd178"/>'
+ };
  const html = name => Object.hasOwn(paths,name)
-  ? '<svg class="tk7-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">'+paths[name]+'</svg>' : '';
+  ? '<svg class="tk7-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">'+(accents[name]?'<g stroke="none">'+accents[name]+'</g>':'')+paths[name]+'</svg>' : '';
  function node(name) {
   const template=document.createElement('template');
   template.innerHTML=html(name);

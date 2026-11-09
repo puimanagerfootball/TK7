@@ -1273,11 +1273,11 @@
         }
         /* คันชักแบบคันเร่งเครื่องบิน — เลื่อนขึ้น/ลงตามราง */
         .opener-lever {
-            --lever-y: 4px;
-            --lever-y-pulled: 58px;
+            --lever-y: 7px;
+            --lever-y-pulled: 46px;
             position: relative;
-            width: 64px;
-            height: 110px;
+            width: 68px;
+            height: 118px;
             flex-shrink: 0;
             border: none;
             background: transparent;
@@ -1295,128 +1295,52 @@
             opacity: 0.72;
         }
         .opener-lever .lever-console {
-            position: absolute;
-            inset: 0;
-            border-radius: 12px;
-            background: #d2e3cb;
-            border: 1px solid rgba(27, 94, 32, 0.22);
-            box-shadow: var(--depth-1);
-        }
-        .opener-lever .lever-console::after {
-            content: '';
-            position: absolute;
-            left: 8px;
-            right: 8px;
-            top: 6px;
-            height: 8px;
-            border-radius: 999px;
-            background: linear-gradient(180deg, rgba(255,255,255,0.28), transparent);
-            opacity: 0.55;
+            position: absolute; inset: 0; border-radius: 15px;
+            background: linear-gradient(145deg, #366555, #162f29 58%, #0e231e);
+            border: 1px solid #436f60;
+            box-shadow: inset 0 1px 0 #ffffff45, inset 0 -4px 0 #061911, 0 4px 0 #0b2118;
         }
         .opener-lever .lever-rail {
-            position: absolute;
-            left: 50%;
-            top: 12px;
-            bottom: 12px;
-            width: 18px;
-            margin-left: -9px;
-            border-radius: 10px;
-            z-index: 1;
-            background:
-                linear-gradient(90deg, #050607 0%, #2f343a 40%, #0b0d10 100%);
-            border: 1px solid rgba(255,255,255,0.12);
-            box-shadow:
-                0 0 0 1px rgba(0,0,0,0.7) inset,
-                0 8px 12px rgba(0,0,0,0.65) inset,
-                0 0 10px rgba(95,173,69,0.08);
+            position: absolute; left: 50%; top: 12px; bottom: 21px;
+            width: 19px; transform: translateX(-50%); border-radius: 10px;
+            background: linear-gradient(90deg, #071610, #223e34 48%, #0b1d16);
+            border: 1px solid #729285; box-shadow: inset 0 2px 5px #000b;
         }
         .opener-lever .lever-rail::before {
-            content: '';
-            position: absolute;
-            left: 50%;
-            top: 5px;
-            bottom: 5px;
-            width: 4px;
-            margin-left: -2px;
-            border-radius: 999px;
-            background:
-                linear-gradient(180deg, #d7dde3 0%, #7a828a 35%, #dce2e7 55%, #4a5056 100%);
-            box-shadow:
-                1px 0 0 rgba(255,255,255,0.25),
-                -1px 0 0 rgba(0,0,0,0.55),
-                0 0 8px rgba(255,255,255,0.12);
+            content: ''; position: absolute; inset: 5px 6px; border-radius: 6px;
+            background: linear-gradient(90deg, #6d827a, #e4ece8 46%, #6b837a);
         }
         .opener-lever .lever-marks {
-            position: absolute;
-            right: 7px;
-            top: 16px;
-            bottom: 16px;
-            width: 9px;
-            z-index: 1;
-            background:
-                repeating-linear-gradient(
-                    180deg,
-                    rgba(27,94,32,0.55) 0 2px,
-                    rgba(255,255,255,0.55) 2px 3px,
-                    transparent 3px 11px
-                );
-            opacity: 0.75;
-            border-radius: 1px;
-            filter: none;
+            position: absolute; right: 8px; top: 20px; bottom: 26px; width: 5px;
+            background: repeating-linear-gradient(180deg, #f1c771 0 2px, transparent 2px 10px);
+            opacity: .85;
+        }
+        .opener-lever .lever-caption {
+            position: absolute; inset: auto 0 5px;
+            color: #fff0c2; font-size: 11px; font-weight: 700; line-height: 1;
         }
         .opener-lever .lever-grip {
-            position: absolute;
-            left: 50%;
-            top: var(--lever-y);
-            width: 48px;
-            transform: translateX(-50%);
-            z-index: 5;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            transition: top 0.18s cubic-bezier(0.2, 0.9, 0.3, 1);
-            filter: drop-shadow(0 6px 8px rgba(0,0,0,0.55));
-            will-change: top;
-            pointer-events: none;
+            position: absolute; left: 50%; top: var(--lever-y); width: 48px;
+            transform: translateX(-50%); z-index: 5;
+            display: flex; flex-direction: column; align-items: center;
+            transition: top .18s cubic-bezier(.2,.9,.3,1);
+            filter: drop-shadow(0 4px 4px #061c12aa); pointer-events: none;
         }
         .opener-lever .lever-knob {
-            position: relative;
-            z-index: 2;
-            width: 44px;
-            height: 44px;
-            margin: 0;
-            border: none;
-            background: transparent;
-            box-shadow: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 42px;
-            line-height: 1;
-            text-align: center;
-            text-shadow: 0 3px 4px rgba(0,0,0,0.45);
-            /* ชดเชย glyph emoji ที่มักเยื้องเล็กน้อย */
-            transform: translateX(0.5px);
+            position: relative; z-index: 2; width: 44px; height: 44px;
+            display: grid; place-items: center; border-radius: 50%;
+            border: 1px solid #a8c7df; color: #123758;
+            background: radial-gradient(circle at 31% 22%, #fff 0%, #edf6ff 32%, #b5d1eb 69%, #648db6 100%);
+            box-shadow: inset 0 2px 3px #fff, inset 0 -3px 5px #133e6d44, 0 3px 0 #0b3148;
         }
-        .opener-lever .lever-knob::before { display: none; }
         .opener-lever .lever-stem {
-            position: relative;
-            z-index: 1; /* อยู่ใต้ลูกบอล — ก้านเสียบเข้าไปในลูก */
-            width: 10px;
-            height: 16px;
-            margin: -4px 0 0;
-            border-radius: 0 0 5px 5px;
-            background:
-                linear-gradient(90deg, #5a6168 0%, #f4f7fa 36%, #a7b0b8 58%, #3a4046 100%);
-            border: 1px solid rgba(0,0,0,0.45);
-            box-shadow:
-                0 1px 0 rgba(255,255,255,0.55) inset,
-                0 5px 8px rgba(0,0,0,0.4);
-            flex-shrink: 0;
+            width: 10px; height: 14px; margin: -3px 0 0; border-radius: 0 0 5px 5px;
+            background: linear-gradient(90deg, #6a7e77, #eef4f0 43%, #a6b8ae 64%, #415b50);
+            border: 1px solid #293f34;
         }
-        .opener-lever:hover:not(:disabled) .lever-knob {
-            transform: translateX(0.5px) scale(1.06);
-        }
+        .opener-lever:hover:not(:disabled) .lever-knob { filter: brightness(1.08); }
+        .opener-lever:focus-visible { outline: 3px solid #f0c56a; outline-offset: 3px; border-radius: 15px; }
+        @media (prefers-reduced-motion: reduce) { .opener-lever .lever-grip { transition: none; } }
         .opener-lever.pulled {
             --lever-y: var(--lever-y-pulled);
         }
@@ -1447,8 +1371,8 @@
                 padding: 12px 10px 14px;
                 transform: rotateX(4deg);
             }
-            .opener-lever { width: 58px; height: 108px; --lever-y-pulled: 52px; }
-            .opener-lever .lever-knob { width: 40px; height: 40px; font-size: 38px; }
+            .opener-lever { width: 58px; height: 108px; --lever-y-pulled: 42px; }
+            .opener-lever .lever-knob { width: 39px; height: 39px; }
             .opener-reel { width: 80px; }
             .opener-reel-window .team-emblem { font-size: 12px; padding: 4px; }
             .opener-slot-machine .vs { min-width: 32px; height: 32px; font-size: 11px; }
@@ -1655,5 +1579,5 @@
 .team-emblem.opener-pending{background:#e8efe7;color:#657760;--emblem-lip:#bac8b5;text-shadow:none}
 
 .tk7-icon{display:inline-block;width:1.15em;height:1.15em;vertical-align:-.18em;flex:none}
-.lever-knob .tk7-icon{width:65%;height:65%}
+.lever-knob .tk7-icon{width:85%;height:85%}
 #no-data-message .tk7-icon{width:1em;height:1em}

@@ -1,5 +1,5 @@
 /* ==========================================================================
-   TK7 app logic (Ver 5.2.5)
+   TK7 app logic (Ver 5.2.6)
    แยกจาก index.html เพื่อแก้/ค้นหาง่ายขึ้น
    Sections (ค้นหาด้วย // --- SECTION:):
      CONFIG, AUTH, REGISTRATION, SCHEDULE, LINEUP, SETUP,
@@ -846,6 +846,7 @@
                         <span class="lever-console"></span>
                         <span class="lever-rail"></span>
                         <span class="lever-marks"></span>
+                        <span class="lever-caption" aria-hidden="true">สุ่ม</span>
                         <span class="lever-grip">
                             <span class="lever-knob" aria-hidden="true">${globalThis.TK7Icons?.html('ball')||''}</span>
                             <span class="lever-stem"></span>
