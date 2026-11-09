@@ -55,8 +55,10 @@ globalThis.TK7RosterImportUI={create({el,getSession,refresh,rpc,canManage,setBus
     const existing=latest.roster?.entries||[];
     for(const block of parsed.blocks){
      const names=block.slots.filter(Boolean);
-     if(names.length!==1||!teamPrefix.test(names[0]))continue;
-     const key=teamNameKey(names[0]);
+     if(names.length!==1)continue;
+     const [name]=names;
+     if(block.slots[0]&&!teamPrefix.test(name))continue;
+     const key=teamNameKey(name);
      if(!key||existing.some(entry=>entry.team===block.team&&teamNameKey(entry.name)!==key))continue;
      const checkbox=el('input',{type:'checkbox',onchange:()=>{
       if(busy)return;
@@ -64,7 +66,7 @@ globalThis.TK7RosterImportUI={create({el,getSession,refresh,rpc,canManage,setBus
       renderPreview();
      }});
      suggestionChecks.push(checkbox);
-     suggestions.append(el('label',{},checkbox,el('span',{text:'จองสี'+rosterText.labels[block.team]+' ทั้งทีม 7 ที่ให้ “'+names[0]+'”'})));
+     suggestions.append(el('label',{},checkbox,el('span',{text:'จองสี'+rosterText.labels[block.team]+' ทั้งทีม 7 ที่ให้ “'+name+'”'})));
     }
    }catch(error){notice.textContent=errText(error)}
    finally{review.disabled=false;}

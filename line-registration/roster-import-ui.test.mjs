@@ -52,6 +52,19 @@ test('whole-team suggestion is hidden if the colour contains other players',asyn
  await h.review.onclick();
  assert.equal(h.modal.find(node=>node.class==='tk7l-import-suggestions').children.length,0);
 });
+test('one name in slots 2–7 suggests a whole team without needing a prefix',async()=>{
+ for(const slot of [1,2,6,7]){
+  const h=setup({entries:[]});
+  h.input.value='📅 6-11-2026\n'+paste('เก็ตแมน').replace('1. เก็ตแมน','1.').replace(slot+'.',slot+'.เก็ตแมน');
+  await h.review.onclick();
+  const checkbox=h.modal.find(node=>node.class==='tk7l-import-suggestions').find(node=>node.type==='checkbox');
+  assert.equal(Boolean(checkbox),slot!==1);
+  if(checkbox){checkbox.checked=true;checkbox.onchange();}
+  assert.equal(h.calls.length,0);
+  await h.apply.onclick();
+  assert.deepEqual(Array.from(h.calls[0].params.p_blocks[0].slots),slot===1?['เก็ตแมน',null,null,null,null,null,null]:Array(7).fill('เก็ตแมน'));
+ }
+});
 test('an existing whole team can use the same name with a team prefix',async()=>{
  const h=setup({entries:Array.from({length:7},(_,slot)=>({team:'green',slot:slot+1,name:'เก็ตแมน'}))});
  h.input.value='📅 6-11-2026\n'+paste('ทีมเก็ตแมน').replace('1. ทีมเก็ตแมน','1.').replace('4.','4.ทีมเก็ตแมน');
