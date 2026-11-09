@@ -1328,10 +1328,7 @@
         }
         .opener-lever .lever-knob {
             position: relative; z-index: 2; width: 44px; height: 44px;
-            display: grid; place-items: center; border-radius: 50%;
-            border: 1px solid #a8c7df; color: #123758;
-            background: radial-gradient(circle at 31% 22%, #fff 0%, #edf6ff 32%, #b5d1eb 69%, #648db6 100%);
-            box-shadow: inset 0 2px 3px #fff, inset 0 -3px 5px #133e6d44, 0 3px 0 #0b3148;
+            display: grid; place-items: center;
         }
         .opener-lever .lever-stem {
             width: 10px; height: 14px; margin: -3px 0 0; border-radius: 0 0 5px 5px;
@@ -1579,5 +1576,11 @@
 .team-emblem.opener-pending{background:#e8efe7;color:#657760;--emblem-lip:#bac8b5;text-shadow:none}
 
 .tk7-icon{display:inline-block;width:1.15em;height:1.15em;vertical-align:-.18em;flex:none}
-.lever-knob .tk7-icon{width:85%;height:85%}
+.nav-btn .tk7-icon-badge,.nav-btn .icon-svg.pitch-icon{width:32px;height:32px;display:block;filter:drop-shadow(0 1px 1px #102f1e44)}
+.nav-btn .icon{min-height:32px}
+.lever-knob .tk7-icon-world-cup{width:100%;height:100%;filter:drop-shadow(0 2px 1px #211202b8)}
 #no-data-message .tk7-icon{width:1em;height:1em}
+@media(max-width:767px){
+    .nav-btn .tk7-icon-badge,.nav-btn .icon-svg.pitch-icon{width:29px;height:29px}
+    .nav-btn .icon{min-height:29px}
+}
