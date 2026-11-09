@@ -21,6 +21,20 @@ function setup({closed=false,missing=false,fail=false,view="join",displayName=""
 const button=(m,text)=>m.querySelectorAll('button').find(n=>text.startsWith('＋ ลงชื่อทีม')?n.class?.split(' ').includes('tk7l-add'):n.textContent===text);
 const nameInput=m=>m.querySelectorAll('input').find(n=>n.type==='text');
 const checks=m=>m.querySelectorAll('input').filter(n=>n.type==='checkbox');
+test('quantity reserves one slot per copy and accounts for other names',async()=>{
+ const {modal,calls}=setup();
+ nameInput(modal).value='ทีมเก็ตแมน';
+ const quantity=modal.querySelectorAll('select').find(n=>n.class==='tk7l-quantity');
+ assert.equal(quantity.children[5].disabled,true);
+ quantity.value='4';quantity.onchange();
+ button(modal,'＋ เพิ่มชื่อเพื่อน').onclick();
+ const fields=modal.querySelectorAll('input').filter(n=>n.type==='text');
+ fields[1].value='แมน';fields[1].oninput();
+ assert.equal(quantity.children[4].disabled,true);
+ assert.equal(button(modal,'＋ เพิ่มชื่อเพื่อน').hidden,true);
+ await button(modal,'＋ ลงชื่อทีมเขียว').onclick();
+ assert.deepEqual(Array.from(calls[0].a.p_names),['ทีมเก็ตแมน','ทีมเก็ตแมน','ทีมเก็ตแมน','ทีมเก็ตแมน','แมน']);
+});
 test('adding names sends admin RPC and uses each line as one player',async()=>{const {modal,calls}=setup();nameInput(modal).value=' Alex ';button(modal,'＋ เพิ่มชื่อเพื่อน').onclick();modal.querySelectorAll('input').filter(n=>n.type==='text')[1].value='Pui';await button(modal,'＋ ลงชื่อทีมเขียว').onclick();assert.equal(calls[0].n,'tk7_admin_roster_edit');assert.deepEqual(Array.from(calls[0].a.p_names),['Alex','Pui']);assert.equal(calls[0].a.p_action,'add')});
 test('selected deletion sends only ticked IDs',async()=>{const {modal,calls}=setup({view:'roster'});const chosen=checks(modal);chosen[0].checked=true;chosen[0].onchange();await button(modal,'ลบชื่อที่เลือก').onclick();assert.deepEqual(Array.from(calls[0].a.p_entries),['p1']);assert.equal(calls[0].a.p_action,'delete')});
 test('select-all can be cleared and moving submits selected people and target',async()=>{const {modal,calls}=setup({view:'roster'});const all=checks(modal).find(n=>n.props['aria-label']==='เลือกทุกชื่อในทีม');all.checked=true;all.onchange();assert.equal(button(modal,'ย้ายชื่อที่เลือก').disabled,false);all.checked=false;all.onchange();assert.equal(button(modal,'ย้ายชื่อที่เลือก').disabled,true);all.checked=true;all.onchange();modal.querySelector('select').value='red';await button(modal,'ย้ายชื่อที่เลือก').onclick();assert.equal(calls[0].a.p_target,'red');assert.equal(calls[0].a.p_entries.length,2)});

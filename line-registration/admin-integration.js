@@ -63,6 +63,8 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>''}){
   .tk7l-name-paste textarea{display:block;margin-top:8px;resize:vertical}
   .tk7l-name-paste .hint:empty{display:none}
   .tk7l-paste-apply{margin-top:6px;border:1px solid #c9e1d1;border-radius:9px;padding:8px 10px;background:#e9f4ec;color:#1c5435;font:inherit;cursor:pointer}
+  .tk7l-sheet.tk7l-join-sheet .tk7l-name-field{grid-template-columns:minmax(0,1fr) 58px 44px;gap:8px}
+  .tk7l-sheet .tk7l-name-field .tk7l-quantity{width:100%;min-height:44px;padding:0 4px;border:1px solid #b7d6c2;background:#e9f4ec;color:#174e30;font-weight:600;font-size:16px}
   #tk7-line-card .tk7l-action.tk7l-share{background:#1c683d;border-color:#1c683d;color:#fff}
   #tk7-line-card .tk7l-share .tk7l-action-icon{background:#ffffff26}
   #tk7-line-card .tk7l-action.tk7l-main{background:#fff;border-color:#cfdbd3;color:#334f3d}
@@ -370,18 +372,30 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>''}){
   }
   const enabled=s.is_open&&s.teams.includes(slug);
   const fields=[],rows=el('div',{class:'tk7l-name-fields'});
-  const values=()=>fields.map(i=>i.value.trim()).filter(Boolean);
+  const capacity=7-players.length,entry=window.TK7NamePaste;
+  const values=()=>entry.names(fields);
   const addFriend=el('button',{type:'button',class:'tk7l-add-friend',text:'＋ เพิ่มชื่อเพื่อน',disabled:!enabled});
   const join=el('button',{type:'button',class:'tk7l-edit-btn primary tk7l-add',text:'ยืนยันลงสี'+COLORS[slug],disabled:!enabled,onclick:()=>submit('add')});
-  const syncNames=()=>{const count=values().length;join.textContent='ยืนยันลงสี'+COLORS[slug]+(count?' ('+count+' คน)':'');join.disabled=!enabled||!count;addFriend.hidden=fields.length>=7-players.length;};
-  function addName(value=''){
-   if(fields.length>=7-players.length)return;
+  const syncNames=()=>{
+   const count=values().length;
+   entry.limitQuantities(fields,capacity);
+   join.textContent=count>capacity?'สีนี้ว่าง '+capacity+' ที่ · กรุณาลดจำนวน':'ยืนยันลงสี'+COLORS[slug]+(count?' ('+count+' คน)':'');
+   join.disabled=!enabled||!count||count>capacity;
+   addFriend.hidden=entry.slots(fields)>=capacity;
+  };
+  function addName(value='',amount=1,restoring=false){
+   if(!restoring&&entry.slots(fields)>=capacity)return;
    const input=el('input',{type:'text',maxlength:'40',placeholder:fields.length?'ชื่อเพื่อน':'ชื่อของคุณ',autocomplete:'off','aria-label':fields.length?'ชื่อเพื่อน':'ชื่อของคุณ',disabled:!enabled});input.value=value;input.oninput=syncNames;
-   const row=el('div',{class:'tk7l-name-field'},input,el('button',{type:'button',class:'tk7l-remove-field','aria-label':'ลบช่องชื่อนี้',text:'✕',disabled:!enabled,onclick:()=>{row.remove();fields.splice(fields.indexOf(input),1);if(!fields.length)addName();syncNames()}}));
-   fields.push(input);rows.append(row);syncNames();return input;
+   const quantity=entry.quantity({el,amount,disabled:!enabled,onchange:syncNames});
+   const field={input,quantity};
+   const row=el('div',{class:'tk7l-name-field'},input,quantity,el('button',{type:'button',class:'tk7l-remove-field','aria-label':'ลบช่องชื่อนี้',text:'✕',disabled:!enabled,onclick:()=>{row.remove();fields.splice(fields.indexOf(field),1);if(!fields.length)addName();syncNames()}}));
+   fields.push(field);rows.append(row);syncNames();return input;
   }
   addFriend.onclick=()=>addName()?.focus();
-  if(players.length<7){const draft=(restore.draft??(getDisplayName()||'')).split(/\r?\n/);for(const name of draft)addName(name);}
+  if(capacity>0){
+   const draft=restore.draft??[{name:getDisplayName()||'',amount:1}];
+   for(const {name,amount} of draft)addName(name,amount,true);
+  }
 
   let pending=null;
   const submit=async(action,extra={})=>{
@@ -390,7 +404,8 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>''}){
    const ids=[...chosen];
    if((action==='delete'||action==='move')&&!ids.length){notice.textContent='กรุณาติ๊กชื่อที่ต้องการก่อน';return;}
    const added=values();
-   if(action==='add'&&(!added.length||added.length>7||added.some(n=>n.length>40))){notice.textContent='ใส่ 1–7 ชื่อ ชื่อละไม่เกิน 40 ตัวอักษร';return;}
+   if(action==='add'&&added.length>capacity){notice.textContent='สีนี้ว่าง '+capacity+' ที่ กรุณาลดจำนวนก่อน';return;}
+   if(action==='add'&&(!added.length||added.some(n=>n.length>40))){notice.textContent='ใส่ชื่ออย่างน้อยหนึ่งชื่อ ชื่อละไม่เกิน 40 ตัวอักษร';return;}
    if(action==='clear'&&!confirm('ลบรายชื่อทีม'+COLORS[slug]+'ทั้งหมด '+players.length+' คน?'))return;
    if(action==='delete'&&!confirm('ลบรายชื่อที่เลือก '+ids.length+' คน?'))return;
    const input={p_session:s.id,p_revision:s.revision,p_action:action,p_team:slug,p_entries:['delete','move'].includes(action)?ids:null,p_names:action==='add'?added:null,p_target:extra.target||null};
@@ -409,14 +424,14 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>''}){
     notice.textContent=errText(error);
     if(error.message==='Roster changed; refresh first'){
      pending=null;await load(true);teamBusy=false;
-     if(session()?.id===s.id){openTeam(slug,{draft:fields.map(i=>i.value).join('\n'),selected:ids,view:isJoin?'join':undefined});modal.querySelector('[role="status"]').textContent='รายชื่อเปลี่ยนแล้ว ตรวจรายการล่าสุดแล้วลองอีกครั้ง';}else closeTeam();
+     if(session()?.id===s.id){openTeam(slug,{draft:fields.map(({input,quantity})=>({name:input.value,amount:Number(quantity.value)})),selected:ids,view:isJoin?'join':undefined});modal.querySelector('[role="status"]').textContent='รายชื่อเปลี่ยนแล้ว ตรวจรายการล่าสุดแล้วลองอีกครั้ง';}else closeTeam();
     }
    }finally{teamBusy=false;mutating=false;controls.forEach((n,i)=>n.disabled=disabled[i])}
   };
   if(!enabled)body.append(el('p',{class:'tk7l-empty',text:'ปิดรับลงทะเบียนแล้ว เปิดลงทะเบียนก่อนแก้รายชื่อ'}));
   if(isJoin&&players.length<7){
    const paste=enabled?window.TK7NamePaste.create({el,capacity:7-players.length,apply:names=>{
-    fields.length=0;rows.replaceChildren();names.forEach(addName);
+    fields.length=0;rows.replaceChildren();names.forEach(name=>addName(name));
    }}):null;
    body.append(rows,addFriend);
    if(paste)body.append(paste);

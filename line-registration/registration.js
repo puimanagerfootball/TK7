@@ -296,24 +296,38 @@ async function openHistory(all=false){
 function openRegister(slug){
  const players=roster.entries.filter(e=>e.team===slug);const left=MAX-players.length;
  const box=el("div");
- const rows=el("div");
+ const rows=el("div"),fields=[];
  const submit=el("button",{class:"primary",type:"button"});
  const addBtn=el("button",{class:"add",type:"button",text:T("addFriend")});
  const requestId={value:null,key:""};
- const values=()=>[...rows.querySelectorAll("input")].map(i=>i.value.trim().replace(/\s+/g," ")).filter(Boolean);
- function sync(){const n=values().length;submit.textContent=n?T("confirmJoin",{c:label(slug),n}):T("needName");submit.disabled=!n||busy;addBtn.hidden=rows.children.length>=left}
+ const entry=window.TK7NamePaste;
+ function sync(){
+  const n=entry.names(fields).length;
+  entry.limitQuantities(fields,left);
+  submit.textContent=n?T("confirmJoin",{c:label(slug),n}):T("needName");
+  submit.disabled=!n||n>left||busy;
+  addBtn.hidden=entry.slots(fields)>=left;
+ }
  function addRow(v=""){
+  if(entry.slots(fields)>=left)return;
   const input=el("input",{type:"text",maxlength:"40",placeholder:rows.children.length?T("friend"):T("you"),value:v,autocomplete:"off",enterkeyhint:"done"});
   input.oninput=sync;
-  const del=el("button",{type:"button","aria-label":T("removeRow"),text:"✕",onclick:()=>{row.remove();if(!rows.children.length)addRow();sync()}});
-  const row=el("div",{class:"field"},input,del);rows.append(row);sync();return input;
+  const quantity=entry.quantity({el,english:lang==='en',onchange:sync});
+  const field={input,quantity};
+  const del=el("button",{type:"button","aria-label":T("removeRow"),text:"✕",onclick:()=>{
+   row.remove();fields.splice(fields.indexOf(field),1);if(!fields.length)addRow();sync();
+  }});
+  const row=el("div",{class:"field"},input,quantity,del);
+  fields.push(field);rows.append(row);sync();return input;
  }
- addBtn.onclick=()=>{addRow().focus()};
- const paste=window.TK7NamePaste.create({el,capacity:left,english:lang==='en',apply:names=>{
-  rows.replaceChildren();names.forEach(addRow);
+ addBtn.onclick=()=>addRow()?.focus();
+ const paste=entry.create({el,capacity:left,english:lang==='en',apply:names=>{
+  fields.length=0;rows.replaceChildren();names.forEach(name=>addRow(name));
  }});
  submit.onclick=async()=>{
-  const names=values();
+  if(busy)return;
+  const names=entry.names(fields);
+  if(!names.length)return;
   if(names.length>left)return alertBox(T("notSaved"),T("onlyLeft",{n:left}));
   const key=JSON.stringify([sessionId,slug,names]);if(requestId.key!==key){requestId.key=key;requestId.value=crypto.randomUUID()}
   busy=true;loadSeq++;sync();submit.textContent=T("saving");
@@ -327,7 +341,7 @@ function openRegister(slug){
   el("div",{},el("h2",{text:T("joinColor",{c:label(slug)})}),el("p",{text:T("seatsInfo",{n:left})+(players.length?T("has")+players.map(p=>p.name).join(", "):"")}))),
   el("div",{class:"sheet-body"},rows,addBtn,paste,el("p",{class:"hint",text:T("joinHint")}),submit,el("button",{class:"ghost",type:"button",text:T("cancel"),onclick:closeSheet})));
  openSheet(box);
- const first=addRow(myName);if(!myName)setTimeout(()=>first.focus(),250);
+ const first=addRow(myName);if(!myName&&first)setTimeout(()=>first.focus(),250);
 }
 
 // ---------- manage sheet ----------
