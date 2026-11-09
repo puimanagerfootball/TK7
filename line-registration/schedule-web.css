@@ -1273,8 +1273,8 @@
         }
         /* คันชักแบบคันเร่งเครื่องบิน — เลื่อนขึ้น/ลงตามราง */
         .opener-lever {
-            --lever-y: 7px;
-            --lever-y-pulled: 46px;
+            --lever-y: 4px;
+            --lever-y-pulled: 43px;
             position: relative;
             width: 68px;
             height: 118px;
@@ -1287,53 +1287,41 @@
             -webkit-tap-highlight-color: transparent;
             z-index: 2;
             transform: translateZ(18px);
-            filter: drop-shadow(0 10px 12px rgba(0,0,0,0.45));
         }
         .opener-lever:active { cursor: grabbing; }
         .opener-lever:disabled {
             cursor: default;
             opacity: 0.72;
         }
-        .opener-lever .lever-console {
-            position: absolute; inset: 0; border-radius: 15px;
-            background: linear-gradient(145deg, #366555, #162f29 58%, #0e231e);
-            border: 1px solid #436f60;
-            box-shadow: inset 0 1px 0 #ffffff45, inset 0 -4px 0 #061911, 0 4px 0 #0b2118;
-        }
         .opener-lever .lever-rail {
-            position: absolute; left: 50%; top: 12px; bottom: 21px;
-            width: 19px; transform: translateX(-50%); border-radius: 10px;
-            background: linear-gradient(90deg, #071610, #223e34 48%, #0b1d16);
-            border: 1px solid #729285; box-shadow: inset 0 2px 5px #000b;
+            position: absolute; left: 50%; top: 18px; bottom: 22px;
+            width: 13px; transform: translateX(-50%); border-radius: 999px;
+            background: linear-gradient(90deg, #8b570e, #d49b31 27%, #ffe390 49%, #d39323 72%, #89520d);
+            border: 1px solid #84500c; box-shadow: inset 0 -2px 3px #80510b5c, 0 2px 3px #4534153b;
         }
         .opener-lever .lever-rail::before {
-            content: ''; position: absolute; inset: 5px 6px; border-radius: 6px;
-            background: linear-gradient(90deg, #6d827a, #e4ece8 46%, #6b837a);
-        }
-        .opener-lever .lever-marks {
-            position: absolute; right: 8px; top: 20px; bottom: 26px; width: 5px;
-            background: repeating-linear-gradient(180deg, #f1c771 0 2px, transparent 2px 10px);
-            opacity: .85;
+            content: ''; position: absolute; inset: 5px auto 5px 3px; width: 1px; border-radius: 999px;
+            background: #fff0b67d;
         }
         .opener-lever .lever-caption {
             position: absolute; inset: auto 0 5px;
-            color: #fff0c2; font-size: 11px; font-weight: 700; line-height: 1;
+            color: #234c31; font-size: 12px; font-weight: 700; line-height: 1;
         }
         .opener-lever .lever-grip {
             position: absolute; left: 50%; top: var(--lever-y); width: 48px;
             transform: translateX(-50%); z-index: 5;
             display: flex; flex-direction: column; align-items: center;
             transition: top .18s cubic-bezier(.2,.9,.3,1);
-            filter: drop-shadow(0 4px 4px #061c12aa); pointer-events: none;
+            filter: drop-shadow(0 3px 3px #263a2355); pointer-events: none;
         }
         .opener-lever .lever-knob {
-            position: relative; z-index: 2; width: 44px; height: 44px;
+            position: relative; z-index: 2; width: 49px; height: 49px;
             display: grid; place-items: center;
         }
         .opener-lever .lever-stem {
-            width: 10px; height: 14px; margin: -3px 0 0; border-radius: 0 0 5px 5px;
-            background: linear-gradient(90deg, #6a7e77, #eef4f0 43%, #a6b8ae 64%, #415b50);
-            border: 1px solid #293f34;
+            width: 11px; height: 17px; margin: -4px 0 0; border-radius: 3px 3px 6px 6px;
+            background: linear-gradient(90deg, #9c5e10, #ffc853 35%, #fff0aa 50%, #e7a92d 67%, #9b5c10);
+            border: 1px solid #8b530c; box-shadow: inset 0 1px 0 #fff4c1;
         }
         .opener-lever:hover:not(:disabled) .lever-knob { filter: brightness(1.08); }
         .opener-lever:focus-visible { outline: 3px solid #f0c56a; outline-offset: 3px; border-radius: 15px; }
@@ -1368,8 +1356,8 @@
                 padding: 12px 10px 14px;
                 transform: rotateX(4deg);
             }
-            .opener-lever { width: 58px; height: 108px; --lever-y-pulled: 42px; }
-            .opener-lever .lever-knob { width: 39px; height: 39px; }
+            .opener-lever { width: 58px; height: 108px; --lever-y-pulled: 37px; }
+            .opener-lever .lever-knob { width: 43px; height: 43px; }
             .opener-reel { width: 80px; }
             .opener-reel-window .team-emblem { font-size: 12px; padding: 4px; }
             .opener-slot-machine .vs { min-width: 32px; height: 32px; font-size: 11px; }
@@ -1576,11 +1564,11 @@
 .team-emblem.opener-pending{background:#e8efe7;color:#657760;--emblem-lip:#bac8b5;text-shadow:none}
 
 .tk7-icon{display:inline-block;width:1.15em;height:1.15em;vertical-align:-.18em;flex:none}
-.nav-btn .tk7-icon-badge,.nav-btn .icon-svg.pitch-icon{width:32px;height:32px;display:block;filter:drop-shadow(0 1px 1px #102f1e44)}
+.nav-btn .tk7-icon-shape,.nav-btn .icon-svg.pitch-icon{width:32px;height:32px;display:block;filter:drop-shadow(0 1px 1px #102f1e44)}
 .nav-btn .icon{min-height:32px}
 .lever-knob .tk7-icon-world-cup{width:100%;height:100%;filter:drop-shadow(0 2px 1px #211202b8)}
 #no-data-message .tk7-icon{width:1em;height:1em}
 @media(max-width:767px){
-    .nav-btn .tk7-icon-badge,.nav-btn .icon-svg.pitch-icon{width:29px;height:29px}
+    .nav-btn .tk7-icon-shape,.nav-btn .icon-svg.pitch-icon{width:29px;height:29px}
     .nav-btn .icon{min-height:29px}
 }
