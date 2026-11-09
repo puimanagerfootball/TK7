@@ -1,5 +1,5 @@
 /* ==========================================================================
-   TK7 app logic (Ver 5.2.14)
+   TK7 app logic (Ver 5.2.15)
    แยกจาก index.html เพื่อแก้/ค้นหาง่ายขึ้น
    Sections (ค้นหาด้วย // --- SECTION:):
      CONFIG, AUTH, REGISTRATION, SCHEDULE, LINEUP, SETUP,
@@ -764,7 +764,7 @@
             return schedule.map(match => ({ ...match, homeScore: null, awayScore: null }));
         }
 
-        let openerSpinning = false;
+        let openerDrawing = false;
 
         function openerPairKey(pair) {
             return pair?.home && pair?.away && pair.home !== pair.away ? [pair.home, pair.away].sort().join('|') : '';
@@ -802,8 +802,8 @@
             return [saved, ...(data || []).map(day => day.schedule?.[0])].filter(pair => openerPairKey(pair));
         }
 
-        function setOpenerReelTeam(reelWindow, slug, { clickable = false, side = '' } = {}) {
-            if (!reelWindow) return;
+        function setOpenerTeam(teamChoice, slug, { clickable = false, side = '' } = {}) {
+            if (!teamChoice) return;
             const team = TEAMS.find(t => t.slug === slug);
             if (!team) return;
             const clickableClass = clickable ? ' opener-pick' : '';
@@ -812,12 +812,12 @@
             const teamHtml = clickable
                 ? `<button type="button" class="team-emblem ${team.slug}${clickableClass}"${sideAttr}${title}>${escapeHtml(team.name)}</button>`
                 : `<div class="team-emblem ${team.slug}">${escapeHtml(team.name)}</div>`;
-            reelWindow.innerHTML = `${teamHtml}<span class="opener-reel-glass" aria-hidden="true"></span>`;
+            teamChoice.innerHTML = teamHtml;
         }
 
         function getOpenerPairFromRoot(root) {
-            const homeBtn = root.querySelector('[data-reel="home"] .team-emblem');
-            const awayBtn = root.querySelector('[data-reel="away"] .team-emblem');
+            const homeBtn = root.querySelector('[data-team-side="home"] .team-emblem');
+            const awayBtn = root.querySelector('[data-team-side="away"] .team-emblem');
             const homeSlug = [...(homeBtn?.classList || [])].find(c => TEAMS.some(t => t.slug === c));
             const awaySlug = [...(awayBtn?.classList || [])].find(c => TEAMS.some(t => t.slug === c));
             if (!homeSlug || !awaySlug) return null;
@@ -838,60 +838,43 @@
             };
         }
 
-        function buildOpenerSlotHtml(homeSlug, awaySlug, { showLever = true, clickable = true } = {}) {
-            const homeTeam = TEAMS.find(t => t.slug === homeSlug) || { name: 'รอสุ่ม', slug: 'opener-pending' };
-            const awayTeam = TEAMS.find(t => t.slug === awaySlug) || { name: 'รอสุ่ม', slug: 'opener-pending' };
-            const leverHtml = showLever
-                ? `<button type="button" class="opener-lever" title="ดึงคันชักสุ่มคู่เปิดสนาม" aria-label="ดึงคันชักสุ่มคู่เปิดสนาม">
-                        <span class="lever-grip" aria-hidden="true">
-                            <span class="lever-stem"></span>
-                            <span class="lever-knob" aria-hidden="true"><img class="lever-art" src="line-registration/world-cup-trophy.png" alt="" width="106" height="252" draggable="false"></span>
+        function buildOpenerBoardHtml(homeSlug, awaySlug, { showRandom = true, clickable = true } = {}) {
+            const teamPanel = (side, slug) => {
+                const team = TEAMS.find(t => t.slug === slug) || { name: 'รอสุ่ม', slug: 'opener-pending' };
+                const name = escapeHtml(team.name);
+                const teamLabel = clickable
+                    ? '<button type="button" class="team-emblem ' + team.slug + ' opener-pick" data-side="' + side + '" title="แตะเพื่อเปลี่ยนทีม">' + name + '</button>'
+                    : '<div class="team-emblem ' + team.slug + '">' + name + '</div>';
+                return '<div class="opener-team" data-team-side="' + side + '"><div class="opener-team-choice">' + teamLabel + '</div></div>';
+            };
+            const actions = showRandom
+                ? `<div class="opener-board-actions">
+                    <button type="button" class="opener-random" aria-label="สุ่มคู่เปิดสนาม">
+                        <span class="opener-random-cap" aria-hidden="true">
+                            <img src="line-registration/opener-random-ball.png" alt="" width="512" height="512" draggable="false">
                         </span>
-                        <span class="lever-pivot" aria-hidden="true"></span>
-                        <span class="lever-caption" aria-hidden="true">สุ่ม</span>
-                   </button>`
+                    </button>
+                    <span class="opener-random-label" role="status">สุ่มคู่เปิดสนาม</span>
+                </div>`
                 : '';
-            const homeEl = clickable
-                ? `<button type="button" class="team-emblem ${homeTeam.slug} opener-pick" data-side="home" title="แตะเพื่อเปลี่ยนทีม">${escapeHtml(homeTeam.name)}</button>`
-                : `<div class="team-emblem ${homeTeam.slug}">${escapeHtml(homeTeam.name)}</div>`;
-            const awayEl = clickable
-                ? `<button type="button" class="team-emblem ${awayTeam.slug} opener-pick" data-side="away" title="แตะเพื่อเปลี่ยนทีม">${escapeHtml(awayTeam.name)}</button>`
-                : `<div class="team-emblem ${awayTeam.slug}">${escapeHtml(awayTeam.name)}</div>`;
-            const reel = (side, content) => `<div class="opener-reel" data-reel="${side}">
-                <div class="opener-reel-bezel">
-                    <div class="opener-reel-window">
-                        ${content}
-                        <span class="opener-reel-glass" aria-hidden="true"></span>
-                    </div>
-                </div>
-            </div>`;
-            return `
-                <div class="opener-slot">
-                    <div class="opener-slot-machine${showLever ? ' has-lever' : ''}">
-                        <h2 class="opener-marquee">นัดเปิดสนาม</h2>
-                        <div class="opener-cabinet">
-                            <div class="opener-reels">
-                                ${reel('home', homeEl)}
-                                ${reel('versus', '<span class="opener-versus">VS</span>')}
-                                ${reel('away', awayEl)}
-                            </div>
-                            <div class="opener-plinth" aria-hidden="true"></div>
-                        </div>
-                        ${leverHtml}
-                    </div>
-                </div>
-            `;
+            return '<section class="opener-board" aria-label="นัดเปิดสนาม">' +
+                '<header class="opener-board-header"><span class="opener-board-kicker">TK7 FOOTBALL</span><h2>นัดเปิดสนาม</h2></header>' +
+                '<div class="opener-pitch" aria-live="polite">' +
+                    teamPanel('home', homeSlug) +
+                    '<span class="opener-versus">VS</span>' +
+                    teamPanel('away', awaySlug) +
+                '</div>' + actions + '</section>';
         }
 
-        function wireOpenerSlotControls(root, { teamPool, getPair, onPairChange, getDate = () => document.getElementById('match-date')?.value || currentDateKey, enableLever = true, clickable = true } = {}) {
+        function wireOpenerBoardControls(root, { teamPool, getPair, onPairChange, getDate = () => document.getElementById('match-date')?.value || currentDateKey, enableRandom = true, clickable = true } = {}) {
             if (!root) return;
-            const homeWindow = root.querySelector('[data-reel="home"] .opener-reel-window');
-            const awayWindow = root.querySelector('[data-reel="away"] .opener-reel-window');
+            const homeWindow = root.querySelector('[data-team-side="home"] .opener-team-choice');
+            const awayWindow = root.querySelector('[data-team-side="away"] .opener-team-choice');
 
             const applyPair = (pair) => {
                 if (!pair) return;
-                setOpenerReelTeam(homeWindow, pair.home, { clickable, side: 'home' });
-                setOpenerReelTeam(awayWindow, pair.away, { clickable, side: 'away' });
+                setOpenerTeam(homeWindow, pair.home, { clickable, side: 'home' });
+                setOpenerTeam(awayWindow, pair.away, { clickable, side: 'away' });
                 if (clickable) bindPicks();
                 if (typeof onPairChange === 'function') onPairChange(pair);
             };
@@ -899,7 +882,7 @@
             const bindPicks = () => {
                 root.querySelectorAll('.opener-pick').forEach(btn => {
                     btn.onclick = () => {
-                        if (openerSpinning) return;
+                        if (openerDrawing) return;
                         const pool = typeof teamPool === 'function' ? teamPool() : teamPool;
                         const current = (typeof getPair === 'function' ? getPair() : null) || getOpenerPairFromRoot(root);
                         const next = cycleOpenerPairSide(current, btn.dataset.side, pool);
@@ -910,97 +893,53 @@
 
             if (clickable) bindPicks();
 
-            const lever = root.querySelector('.opener-lever');
-            if (lever && enableLever) {
-                root.tk7SpinOpener = () => {
+            const randomButton = root.querySelector('.opener-random');
+            if (randomButton && enableRandom) {
+                root.tk7DrawOpener = () => {
                     const pool = typeof teamPool === 'function' ? teamPool() : teamPool;
                     const current = (typeof getPair === 'function' ? getPair() : null) || getOpenerPairFromRoot(root);
-                    return spinOpenerSlotMachine({
+                    return drawOpenerPair({
                         root,
                         teamPool: pool,
                         currentPair: current,
                         matchDate: getDate(),
                         isCurrent: (date) => getDate() === date && root.isConnected !== false,
-                        clickable,
                         onDone: (result) => applyPair(result)
                     });
                 };
-                lever.onclick = root.tk7SpinOpener;
+                randomButton.onclick = root.tk7DrawOpener;
             }
         }
 
-        function sleep(ms) {
-            return new Promise(resolve => setTimeout(resolve, ms));
-        }
-
-        async function spinOpenerSlotMachine({ root, teamPool, currentPair, onDone, matchDate, isCurrent = () => true, clickable = true }) {
-            if (openerSpinning || !root) return;
-            if (!teamPool || teamPool.length < 2) {
+        async function drawOpenerPair({ root, teamPool, currentPair, onDone, matchDate, isCurrent = () => true }) {
+            if (openerDrawing || !root) return;
+            if (!teamPool || new Set(teamPool).size < 2) {
                 alert('ต้องมีทีมอย่างน้อย 2 ทีมเพื่อสุ่มคู่เปิดสนาม');
                 return;
             }
-            const machine = root.querySelector('.opener-slot-machine');
-            const lever = root.querySelector('.opener-lever');
-            const homeWindow = root.querySelector('[data-reel="home"] .opener-reel-window');
-            const awayWindow = root.querySelector('[data-reel="away"] .opener-reel-window');
-            if (!machine || !homeWindow || !awayWindow) return;
-
-            openerSpinning = true;
-            if (lever) {
-                lever.disabled = true;
-                // ดึงคันลงตามรางก่อน แล้วค่อยหมุนวงล้อ
-                lever.classList.add('pulled');
-            }
+            const randomButton = root.querySelector('.opener-random');
+            const randomLabel = root.querySelector('.opener-random-label');
+            const pitch = root.querySelector('.opener-pitch');
+            openerDrawing = true;
+            if (randomButton) randomButton.disabled = true;
+            if (randomLabel) randomLabel.textContent = 'กำลังสุ่มคู่เปิดสนาม…';
+            pitch?.setAttribute('aria-busy', 'true');
             try {
-            const history = await readPreviousOpenerPairs(matchDate);
-            await sleep(220);
-            machine.classList.add('spinning');
-
-            const result = pickRandomOpenerPair(teamPool, currentPair, history);
-            if (!isCurrent(matchDate)) return;
-            const homeStopAt = 14 + Math.floor(Math.random() * 4);
-            const awayStopAt = homeStopAt + 4 + Math.floor(Math.random() * 4);
-            let homeSlug = currentPair?.home || teamPool[0];
-            let awaySlug = currentPair?.away || teamPool[1];
-
-            for (let step = 0; step <= awayStopAt; step++) {
+                const history = await readPreviousOpenerPairs(matchDate);
                 if (!isCurrent(matchDate)) return;
-                if (step <= homeStopAt) {
-                    homeSlug = teamPool[Math.floor(Math.random() * teamPool.length)];
-                    setOpenerReelTeam(homeWindow, homeSlug);
-                } else if (step === homeStopAt + 1) {
-                    homeSlug = result.home;
-                    setOpenerReelTeam(homeWindow, homeSlug);
-                }
-                if (step < awayStopAt) {
-                    const awayCandidates = teamPool.filter(slug => slug !== (step >= homeStopAt ? result.home : homeSlug));
-                    awaySlug = (awayCandidates.length ? awayCandidates : teamPool)[Math.floor(Math.random() * (awayCandidates.length || teamPool.length))];
-                    setOpenerReelTeam(awayWindow, awaySlug);
-                } else {
-                    awaySlug = result.away;
-                    setOpenerReelTeam(awayWindow, awaySlug);
-                }
-                await sleep(step < 8 ? 45 : (step < homeStopAt ? 70 : 95));
-            }
-
-            setOpenerReelTeam(homeWindow, result.home, { clickable, side: 'home' });
-            setOpenerReelTeam(awayWindow, result.away, { clickable, side: 'away' });
-            machine.classList.remove('spinning');
-            if (lever) {
-                // ค้างด้านล่างนิดหนึ่ง แล้วเด้งกลับขึ้น
-                await sleep(160);
-                lever.classList.remove('pulled');
-                await sleep(280);
-                lever.disabled = false;
-            }
-            if (isCurrent(matchDate) && typeof onDone === 'function') onDone(result);
+                const result = pickRandomOpenerPair(teamPool, currentPair, history);
+                if (result && typeof onDone === 'function') onDone(result);
             } catch (error) {
                 if (isCurrent(matchDate)) showToast(error.message || 'สุ่มคู่เปิดสนามไม่สำเร็จ');
             } finally {
-                machine.classList.remove('spinning');
-                if (lever) { lever.classList.remove('pulled'); lever.disabled = false; }
-                openerSpinning = false;
-                if (!isCurrent(matchDate)) { renderSchedulePreview(true); renderScheduleOpenerCard(currentDateKey); }
+                pitch?.removeAttribute('aria-busy');
+                if (randomButton) randomButton.disabled = false;
+                if (randomLabel) randomLabel.textContent = 'สุ่มคู่เปิดสนาม';
+                openerDrawing = false;
+                if (!isCurrent(matchDate)) {
+                    renderSchedulePreview(true);
+                    renderScheduleOpenerCard(currentDateKey);
+                }
             }
         }
 
@@ -1043,7 +982,7 @@
             const content = document.getElementById('schedule-opener-content');
             const updateBtn = document.getElementById('schedule-update-btn');
             if (!card || !content) return;
-            if (openerSpinning && content.querySelector('.opener-slot-machine')) return;
+            if (openerDrawing && content.querySelector('.opener-board')) return;
             const dayData = appData[date];
             if (!dayData?.schedule?.length) {
                 card.style.display = 'none';
@@ -1067,15 +1006,15 @@
             const hint = card.querySelector('.opener-pick-hint');
             if (hint) {
                 hint.textContent = editable
-                    ? 'แตะสีทีมหรือดึงคันชักสุ่ม แล้วกดอัปเดตเพื่อสร้างตารางใหม่ทั้งชุด'
+                    ? 'แตะสีทีมหรือกดสุ่ม แล้วกดอัปเดตเพื่อสร้างตารางใหม่ทั้งชุด'
                     : 'คู่เปิดสนามของวันนี้';
             }
-            content.innerHTML = buildOpenerSlotHtml(homeTeam.slug, awayTeam.slug, {
-                showLever: editable,
+            content.innerHTML = buildOpenerBoardHtml(homeTeam.slug, awayTeam.slug, {
+                showRandom: editable,
                 clickable: editable
             });
             if (editable) {
-                wireOpenerSlotControls(content, {
+                wireOpenerBoardControls(content, {
                     teamPool: () => getScheduleTeamPool(date),
                     getDate: () => currentDateKey,
                     getPair: () => getScheduleOpenerPair(date),
@@ -1599,7 +1538,7 @@
             const previewCard = document.getElementById('schedule-preview-card');
             const previewContent = document.getElementById('schedule-preview-content');
             if (!previewCard || !previewContent) return;
-            if (openerSpinning && previewContent.querySelector('.opener-slot-machine')) return;
+            if (openerDrawing && previewContent.querySelector('.opener-board')) return;
             const date = document.getElementById('match-date')?.value || currentDateKey;
             const dayData = appData[date];
             const s1 = document.getElementById('lock-team-1'), s2 = document.getElementById('lock-team-2');
@@ -1612,8 +1551,8 @@
             }
             const home = teams.includes(s1?.value) ? s1.value : null;
             const away = teams.includes(s2?.value) && s2.value !== home ? s2.value : null;
-            previewContent.innerHTML = buildOpenerSlotHtml(home, away, { showLever: true, clickable: true });
-            wireOpenerSlotControls(previewContent, {
+            previewContent.innerHTML = buildOpenerBoardHtml(home, away, { showRandom: true, clickable: true });
+            wireOpenerBoardControls(previewContent, {
                 teamPool: () => [...document.querySelectorAll('.team-switch:checked')].map(sw => sw.dataset.teamSlug),
                 getDate: () => document.getElementById('match-date')?.value || currentDateKey,
                 getPair: () => ({ home: s1?.value, away: s2?.value }),
@@ -1676,7 +1615,7 @@
         let creatingSchedule = false;
         async function generateAndSaveSchedule() {
             if (!canManage()) return alert('ต้องเป็นผู้ดูแลที่อนุมัติแล้วเท่านั้น');
-            if (creatingSchedule || openerSpinning) return;
+            if (creatingSchedule || openerDrawing) return;
             const input = document.getElementById('match-date');
             const date = input.value;
             if (!date) return alert('กรุณาเลือกวันที่แข่งขัน');
@@ -1705,9 +1644,9 @@
                 if (!s1.value || !s2.value || s1.value === s2.value) {
                     renderSchedulePreview(false);
                     const root = document.getElementById('schedule-preview-content');
-                    if (!root?.tk7SpinOpener) return alert('ต้องเลือกอย่างน้อย 2 ทีมก่อนสร้างตาราง');
-                    if (button) button.textContent = 'กำลังดึงคันชักสุ่มคู่เปิดสนาม…';
-                    await root.tk7SpinOpener();
+                    if (!root?.tk7DrawOpener) return alert('ต้องเลือกอย่างน้อย 2 ทีมก่อนสร้างตาราง');
+                    if (button) button.textContent = 'กำลังสุ่มคู่เปิดสนาม…';
+                    await root.tk7DrawOpener();
                     if (formSnapshot() !== snapshot) return;
                     if (!s1.value || !s2.value || s1.value === s2.value) return;
                 }
