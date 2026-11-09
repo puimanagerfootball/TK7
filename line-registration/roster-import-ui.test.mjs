@@ -48,11 +48,19 @@ test('a lone team name offers an optional seven-slot booking without changing th
   assert.deepEqual(Array.from(slots),expanded?Array(7).fill('ทีมเก็ตแมน'):[null,null,null,'ทีมเก็ตแมน',null,null,null]);
  }
 });
-test('whole-team suggestion is hidden if the colour contains other players',async()=>{
- const h=setup();
- h.input.value='📅 6-11-2026\n'+paste('ทีมเก็ตแมน');
+test('a lone name in slot six offers seven places with an explicit warning about the two existing names',async()=>{
+ const h=setup({entries:[{team:'green',slot:1,name:'เดิมหนึ่ง'},{team:'green',slot:2,name:'เดิมสอง'}]});
+ h.input.value='📅 6-11-2026\n'+paste('ทีมเขียว').replace('1. ทีมเขียว','1.').replace('6.','6.ทีมเขียว');
  await h.review.onclick();
- assert.equal(h.modal.find(node=>node.class==='tk7l-import-suggestions').children.length,0);
+ const suggestion=h.modal.find(node=>node.class==='tk7l-import-suggestions');
+ const checkbox=suggestion.find(node=>node.type==='checkbox');
+ assert.ok(checkbox);
+ assert.equal(Boolean(checkbox.checked),false);
+ assert.match(suggestion.find(node=>node.class==='tk7l-import-replace').text,/2 ชื่อเดิม/);
+ checkbox.checked=true;checkbox.onchange();
+ assert.equal(h.calls.length,0);
+ await h.apply.onclick();
+ assert.deepEqual(Array.from(h.calls[0].params.p_blocks[0].slots),Array(7).fill('ทีมเขียว'));
 });
 test('one name in slots 2–7 suggests a whole team without needing a prefix',async()=>{
  for(const slot of [1,2,6,7]){

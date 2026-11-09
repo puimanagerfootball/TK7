@@ -72,14 +72,17 @@ globalThis.TK7RosterImportUI={create({el,getSession,refresh,rpc,canManage,setBus
      const [name]=names;
      if(block.slots[0]&&!teamPrefix.test(name))continue;
      const key=teamNameKey(name);
-     if(!key||existing.some(entry=>entry.team===block.team&&teamNameKey(entry.name)!==key))continue;
+     if(!key)continue;
+     const replaced=existing.filter(entry=>entry.team===block.team&&teamNameKey(entry.name)!==key).length;
      const checkbox=el('input',{type:'checkbox',onchange:()=>{
       if(busy)return;
       if(checkbox.checked)selected.add(block.team);else selected.delete(block.team);
       renderPreview();
      }});
      suggestionChecks.push(checkbox);
-     suggestions.append(el('label',{},checkbox,el('span',{text:'จองสี'+rosterText.labels[block.team]+' ทั้งทีม 7 ที่ให้ “'+name+'”'})));
+     const description=el('span',{},el('span',{text:'จองสี'+rosterText.labels[block.team]+' ทั้งทีม 7 ที่ให้ “'+name+'”'}));
+     if(replaced)description.append(el('small',{class:'tk7l-import-replace',text:'หากเลือก จะลงชื่อทีมแทน '+replaced+' ชื่อเดิมในสีนี้'}));
+     suggestions.append(el('label',{},checkbox,description));
     }
    }catch(error){if(current())notice.textContent=errText(error)}
    finally{if(current())review.disabled=false;}
@@ -113,7 +116,7 @@ globalThis.TK7RosterImportUI={create({el,getSession,refresh,rpc,canManage,setBus
     return count?badge(kind,count):null;
    }).filter(Boolean);
    const label='ทีม'+labels[block.team]+(selected.has(block.team)?' · '+block.slots[0]+' ×7':'');
-   const details=el('details',{class:'tk7l-import-team'},
+   const details=el('details',{class:'tk7l-import-team',open:selected.has(block.team)&&rows.some(item=>item.kind==='change')},
     el('summary',{},el('span',{class:'tk7l-import-team-summary'},el('strong',{text:label}),el('span',{class:'tk7l-import-counts'},...counts))),
     el('ul',{},...rows.map(item=>el('li',{class:item.kind,text:'#'+item.slot+' '+(item.before||'(ว่าง)')+' → '+(item.after||'(ว่าง)')}))));
    output.append(details);

@@ -69,6 +69,7 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>''}){
   .tk7l-import-suggestions:not(:empty){display:grid;gap:8px;margin:12px 0}
   .tk7l-import-suggestions label{display:flex;align-items:center;gap:9px;padding:10px;border:1px solid #c9e1d1;border-radius:10px;background:#e9f4ec;color:#174e30;cursor:pointer}
   .tk7l-import-suggestions input{appearance:auto;flex:none;width:20px;height:20px;margin:0;accent-color:#1f7a43}
+  .tk7l-import-replace{display:block;color:#80381b;font-size:12px;margin-top:3px}
   .tk7l-import-preview:not(:empty){display:grid;gap:8px;margin:10px 0 14px}
   .tk7l-import-counts{display:flex;flex-wrap:wrap;gap:5px}
   .tk7l-import-count{padding:3px 8px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}
