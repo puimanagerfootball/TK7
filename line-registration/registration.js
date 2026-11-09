@@ -321,9 +321,6 @@ function openRegister(slug){
   fields.push(field);rows.append(row);sync();return input;
  }
  addBtn.onclick=()=>addRow()?.focus();
- const paste=entry.create({el,capacity:left,english:lang==='en',apply:names=>{
-  fields.length=0;rows.replaceChildren();names.forEach(name=>addRow(name));
- }});
  submit.onclick=async()=>{
   if(busy)return;
   const names=entry.names(fields);
@@ -339,7 +336,7 @@ function openRegister(slug){
  };
  box.append(el("div",{class:"sheet-head"},el("div",{class:"band c-"+slug,style:"height:auto;padding:4px;border-radius:10px"},shirt(slug)),
   el("div",{},el("h2",{text:T("joinColor",{c:label(slug)})}),el("p",{text:T("seatsInfo",{n:left})+(players.length?T("has")+players.map(p=>p.name).join(", "):"")}))),
-  el("div",{class:"sheet-body"},rows,addBtn,paste,el("p",{class:"hint",text:T("joinHint")}),submit,el("button",{class:"ghost",type:"button",text:T("cancel"),onclick:closeSheet})));
+  el("div",{class:"sheet-body"},rows,addBtn,el("p",{class:"hint",text:T("joinHint")}),submit,el("button",{class:"ghost",type:"button",text:T("cancel"),onclick:closeSheet})));
  openSheet(box);
  const first=addRow(myName);if(!myName&&first)setTimeout(()=>first.focus(),250);
 }

@@ -58,11 +58,11 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>''}){
   .tk7l-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
   #tk7-line-card .tk7l-action{display:flex;align-items:center;gap:8px;min-width:0;min-height:46px;margin:0;padding:7px 10px;border:1px solid #cfe0d4;border-radius:11px;background:#e9f4ec;color:#1c5435;font:inherit;font-size:clamp(12px,1.5vw,15px);font-weight:600;line-height:1.25;text-align:left;overflow-wrap:anywhere;cursor:pointer}
   .tk7l-action-icon{display:grid;place-items:center;flex:none;width:25px;height:25px;border-radius:7px;background:#ffffffa6;font-size:14px}
-  .tk7l-name-paste{margin:8px 0;color:#1f7a43}
-  .tk7l-name-paste summary{cursor:pointer;font-weight:600}
-  .tk7l-name-paste textarea{display:block;margin-top:8px;resize:vertical}
-  .tk7l-name-paste .hint:empty{display:none}
-  .tk7l-paste-apply{margin-top:6px;border:1px solid #c9e1d1;border-radius:9px;padding:8px 10px;background:#e9f4ec;color:#1c5435;font:inherit;cursor:pointer}
+  .tk7l-import-actions{display:grid;gap:14px;margin-top:10px}
+  .tk7l-import-actions .btn{margin:0}
+  .tk7l-import-suggestions:not(:empty){display:grid;gap:8px;margin:12px 0}
+  .tk7l-import-suggestions label{display:flex;align-items:center;gap:9px;padding:10px;border:1px solid #c9e1d1;border-radius:10px;background:#e9f4ec;color:#174e30;cursor:pointer}
+  .tk7l-import-suggestions input{appearance:auto;flex:none;width:20px;height:20px;margin:0;accent-color:#1f7a43}
   .tk7l-sheet.tk7l-join-sheet .tk7l-name-field{grid-template-columns:minmax(0,1fr) 58px 44px;gap:8px}
   .tk7l-sheet .tk7l-name-field .tk7l-quantity{width:100%;min-height:44px;padding:0 4px;border:1px solid #b7d6c2;background:#e9f4ec;color:#174e30;font-weight:600;font-size:16px}
   #tk7-line-card .tk7l-action.tk7l-share{background:#1c683d;border-color:#1c683d;color:#fff}
@@ -430,11 +430,7 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>''}){
   };
   if(!enabled)body.append(el('p',{class:'tk7l-empty',text:'ปิดรับลงทะเบียนแล้ว เปิดลงทะเบียนก่อนแก้รายชื่อ'}));
   if(isJoin&&players.length<7){
-   const paste=enabled?window.TK7NamePaste.create({el,capacity:7-players.length,apply:names=>{
-    fields.length=0;rows.replaceChildren();names.forEach(name=>addName(name));
-   }}):null;
    body.append(rows,addFriend);
-   if(paste)body.append(paste);
    body.append(el('p',{class:'tk7l-join-hint',text:'ใช้ชื่อเล่นได้ · แจ้งและขออนุญาตเพื่อนก่อนลงชื่อ · รายชื่อเก็บ 30 วันหลังแข่ง'}),join,el('button',{type:'button',class:'tk7l-cancel-join',text:'ยกเลิก',onclick:closeTeam}));
   }
   const cardView=el('div',{class:'tk7-team-card'}),plist=el('div',{class:'plist'});

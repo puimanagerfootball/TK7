@@ -14,9 +14,9 @@ class Node {
  focus(){}
  find(predicate){return predicate(this)?this:this.children.map(node=>node.find(predicate)).find(Boolean);}
 }
-function setup({refresh=async()=>true,fail=false}={}){
+function setup({refresh=async()=>true,fail=false,entries=[{team:'green',slot:1,name:'Previous'}]}={}){
  const body=new Node('body'),calls=[];
- const session={id:'chosen',match_date:'2026-11-06',is_open:true,revision:7,teams:['green','red'],roster:{entries:[{team:'green',slot:1,name:'Previous'}]}};
+ const session={id:'chosen',match_date:'2026-11-06',is_open:true,revision:7,teams:['green','red'],roster:{entries}};
  const context=vm.createContext({window:{TK7Backdrop:{install(){}},TK7RosterText:globalThis.TK7RosterText},document:{body,addEventListener(){}},crypto:{randomUUID}});
  vm.runInContext(source,context);
  context.TK7RosterImportUI.create({
@@ -30,6 +30,28 @@ function setup({refresh=async()=>true,fail=false}={}){
  const dateCheck=modal.find(node=>node.type==='checkbox');
  return {modal,input,review,apply,dateCheck,calls};
 }
+test('a lone team name offers an optional seven-slot booking without changing the default import',async()=>{
+ for(const expanded of [false,true]){
+  const h=setup({entries:[]});
+  h.input.value='📅 6-11-2026\n'+paste('ทีมเก็ตแมน').replace('1. ทีมเก็ตแมน','1.').replace('4.','4.ทีมเก็ตแมน');
+  await h.review.onclick();
+  const suggestion=h.modal.find(node=>node.class==='tk7l-import-suggestions');
+  const checkbox=suggestion.find(node=>node.type==='checkbox');
+  assert.ok(checkbox);
+  assert.equal(h.calls.length,0);
+  checkbox.checked=expanded;checkbox.onchange();
+  assert.equal(h.calls.length,0);
+  await h.apply.onclick();
+  const slots=h.calls[0].params.p_blocks[0].slots;
+  assert.deepEqual(Array.from(slots),expanded?Array(7).fill('ทีมเก็ตแมน'):[null,null,null,'ทีมเก็ตแมน',null,null,null]);
+ }
+});
+test('whole-team suggestion is hidden if the colour contains other players',async()=>{
+ const h=setup();
+ h.input.value='📅 6-11-2026\n'+paste('ทีมเก็ตแมน');
+ await h.review.onclick();
+ assert.equal(h.modal.find(node=>node.class==='tk7l-import-suggestions').children.length,0);
+});
 test('undated LINE text needs explicit date confirmation and keeps the request ID for a retry',async()=>{
  const h=setup({fail:true});
  h.input.value=paste('Updated');h.input.oninput();
