@@ -16,8 +16,10 @@ class Node {
 }
 function setup({refresh=async()=>true,fail=false,entries=[{team:'green',slot:1,name:'Previous'}]}={}){
  const body=new Node('body'),calls=[];
+ const timers=new Map();
  const session={id:'chosen',match_date:'2026-11-06',is_open:true,revision:7,teams:['green','red'],roster:{entries}};
- const context=vm.createContext({window:{TK7Backdrop:{install(){}},TK7RosterText:globalThis.TK7RosterText},document:{body,addEventListener(){}},crypto:{randomUUID}});
+ const context=vm.createContext({window:{TK7Backdrop:{install(){}},TK7RosterText:globalThis.TK7RosterText},document:{body,addEventListener(){}},crypto:{randomUUID},
+  setTimeout:fn=>{const id=Symbol();timers.set(id,fn);return id;},clearTimeout:id=>timers.delete(id)});
  vm.runInContext(source,context);
  context.TK7RosterImportUI.create({
   el:(...args)=>new Node(...args),getSession:()=>session,canManage:()=>true,refresh,
@@ -28,7 +30,7 @@ function setup({refresh=async()=>true,fail=false,entries=[{team:'green',slot:1,n
  const review=modal.find(node=>node.text==='ตรวจสอบก่อนนำเข้า');
  const apply=modal.find(node=>node.text==='ยืนยันนำเข้า');
  const dateCheck=modal.find(node=>node.type==='checkbox');
- return {modal,input,review,apply,dateCheck,calls};
+ return {modal,input,review,apply,dateCheck,calls,timers,runQueued:()=>[...timers.values()][0]?.()};
 }
 test('a lone team name offers an optional seven-slot booking without changing the default import',async()=>{
  for(const expanded of [false,true]){
@@ -105,4 +107,21 @@ test('editing pasted text during a pending roster read invalidates the preview',
  assert.equal(h.apply.disabled,true);
  await h.apply.onclick();
  assert.equal(h.calls.length,0);
+});
+test('pasting or editing queues one automatic preview and groups changes by team without writing',async()=>{
+ let reads=0;
+ const h=setup({refresh:async()=>{reads++;return true;}});
+ h.input.value='📅 6-11-2026\n'+paste('First');h.input.oninput();
+ h.input.value='📅 6-11-2026\n'+paste('Updated');h.input.oninput();
+ assert.equal(h.timers.size,1);
+ assert.equal(h.apply.disabled,true);
+ await h.runQueued();
+ assert.equal(reads,1);
+ assert.equal(h.calls.length,0);
+ assert.ok(h.modal.find(node=>node.class==='tk7l-import-team').find(node=>node.text==='ทีมเขียว'));
+ assert.equal(h.apply.disabled,false);
+ h.input.value='';h.input.oninput();
+ assert.equal(h.timers.size,0);
+ assert.equal(h.apply.disabled,true);
+ assert.equal(h.modal.find(node=>node.class==='tk7l-import-team'),undefined);
 });
