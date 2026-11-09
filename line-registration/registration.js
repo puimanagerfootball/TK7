@@ -93,7 +93,10 @@ function renderDates(){
  const nav=$("dates");nav.replaceChildren();
  const visible=dates.filter(d=>d.isOpen||d.id===sessionId);
  for(const d of visible){
-  nav.append(el("button",{class:"date","aria-pressed":String(d.id===sessionId),onclick:()=>{if(d.id===sessionId)return;sessionId=d.id;renderDates();loadRoster(true)}},
+  nav.append(el("button",{class:"date","aria-pressed":String(d.id===sessionId),onclick:()=>{
+   if(busy||d.id===sessionId)return;
+   closeSheet();selected.clear();sessionId=d.id;renderDates();loadRoster(true);
+  }},
    el("b",{text:d.date?dateLabel(d.date):d.label}),el("small",{text:""+d.startTime+(d.isOpen?"":T("closedShort"))})));
  }
  nav.hidden=visible.length<2;
@@ -294,6 +297,7 @@ async function openHistory(all=false){
 
 // ---------- register sheet ----------
 function openRegister(slug){
+ const signupSession=sessionId;
  const players=roster.entries.filter(e=>e.team===slug);const left=MAX-players.length;
  const box=el("div");
  const rows=el("div"),fields=[];
@@ -322,13 +326,13 @@ function openRegister(slug){
  }
  addBtn.onclick=()=>addRow()?.focus();
  submit.onclick=async()=>{
-  if(busy)return;
+  if(busy||sessionId!==signupSession)return;
   const names=entry.names(fields);
   if(!names.length)return;
   if(names.length>left)return alertBox(T("notSaved"),T("onlyLeft",{n:left}));
-  const key=JSON.stringify([sessionId,slug,names]);if(requestId.key!==key){requestId.key=key;requestId.value=crypto.randomUUID()}
+  const key=JSON.stringify([signupSession,slug,names]);if(requestId.key!==key){requestId.key=key;requestId.value=crypto.randomUUID()}
   busy=true;loadSeq++;sync();submit.textContent=T("saving");
-  try{const r=await api("register",{team:slug,names,requestId:requestId.value});myName=names[0];closeSheet();toast(r.message||T("joined"));quiet=true;await loadRoster(false,true)}
+  try{const r=await api("register",{sessionId:signupSession,team:slug,names,requestId:requestId.value});myName=names[0];closeSheet();toast(r.message||T("joined"));quiet=true;await loadRoster(false,true)}
   catch(e){myName=names[0];quiet=true;await loadRoster(false,true);
    const nowLeft=roster?MAX-roster.entries.filter(x=>x.team===slug).length:0;
    alertBox(T("notSaved"),e.message+(roster&&roster.isOpen?"\n\n"+(nowLeft>0?T("nowLeft",{c:label(slug),n:nowLeft}):T("nowFull",{c:label(slug)})):""))}

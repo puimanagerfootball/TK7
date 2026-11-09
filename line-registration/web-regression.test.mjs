@@ -1,6 +1,41 @@
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import vm from 'node:vm';
 const source=fs.readFileSync(new URL('../js/app.js',import.meta.url),'utf8');
 const between=(a,b)=>source.slice(source.indexOf(a),source.indexOf(b,source.indexOf(a)));
+test('refreshing the date list preserves the independent setup and schedule selections',async()=>{
+ const scheduleDay='2026-11-06',setupDay='2026-11-13',today='2026-11-09';
+ const dates=[setupDay,today,scheduleDay];
+ const input={value:''},calls=[];
+ const context={
+  db:{from:()=>({select:()=>({order:async()=>({data:dates.map(match_date=>({match_date}))})})})},
+  matchDayLoadSeq:0,currentDateKey:today,datePreference:kind=>({view:scheduleDay,setup:setupDay})[kind],
+  todayDateKey:()=>today,updateDateSelectorsUI(){},loadDataForDate:async d=>calls.push(['view',d]),
+  document:{getElementById:()=>input},prepareSetupFormForDate:async d=>calls.push(['setup',d]),
+  activePage:'page-schedule',canManage:()=>true,setActivePage(){}
+ };
+ vm.runInNewContext(between('        async function loadInitialData(','        function formatAuthError('),context);
+ await context.loadInitialData();
+ assert.deepEqual(calls,[['view',scheduleDay],['setup',setupDay]]);
+ calls.length=0;
+ Object.assign(context,{matchDayLoadSeq:1,currentDateKey:setupDay});
+ input.value=scheduleDay;
+ await context.loadInitialData();
+ assert.deepEqual(calls,[['view',setupDay],['setup',scheduleDay]]);
+});
+test('a failed date switch cannot leave the previous day’s score controls on screen',async()=>{
+ let finish;
+ const rendered=[];
+ const context={currentDateKey:'old',appData:{old:{schedule:[{homeScore:4}]}},document:{getElementById:()=>null},
+  db:{from:()=>({select:()=>({eq:()=>new Promise(resolve=>{finish=resolve;})})})},
+  renderVisiblePage:date=>rendered.push([date,context.appData[date]]),console:{error(){}},alert(){}};
+ vm.createContext(context);
+ vm.runInContext(between('        let matchDayLoadSeq=0;','        function loadSettingsFromData('),context);
+ const pending=context.loadDataForDate('new',{syncSetupDate:false});
+ assert.deepEqual(rendered,[['new',undefined]]);
+ finish({error:{message:'offline'}});
+ await pending;
+ assert.equal(context.currentDateKey,'new');
+ assert.deepEqual(rendered,[['new',undefined]]);
+});
 test('rendering a date builds only the visible page and preserves unsaved setup settings',()=>{
  const calls=[];const context={activePage:'page-scores',appData:{a:{settings:{}}},setupPageSetup:()=>{},document:{getElementById:()=>({value:'a'})},loadSettingsFromData:()=>calls.push('settings'),canManage:()=>true,resetSettingsForm:()=>{},updateGenerateButtonForDate:()=>{},renderSchedulePage:()=>calls.push('schedule'),renderScoresPage:()=>calls.push('scores'),renderLeaderboardPage:()=>calls.push('leaderboard'),renderLineupPage:()=>calls.push('lineup')};
  vm.createContext(context);vm.runInContext(between('        function renderVisiblePage(', '        function updateTemplateSelector('),context);context.renderAllPagesForDate('a');assert.deepEqual(calls,['scores']);

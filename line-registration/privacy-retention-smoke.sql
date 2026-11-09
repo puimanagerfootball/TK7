@@ -6,10 +6,11 @@ declare old_id uuid; fresh_id uuid; grp text:='retention-test-'||gen_random_uuid
 begin
  select count(*) into old_count from public.match_days;
  insert into public.tk7_signup_sessions(match_date,group_id,environment,is_open)
- values(day_zero-30,grp,'test',true) returning id into old_id;
+ values(day_zero+1,grp,'test',true) returning id into old_id;
  insert into public.tk7_signup_sessions(match_date,group_id,environment,is_open)
- values(day_zero-29,grp,'test',true) returning id into fresh_id;
+ values(day_zero-29,grp,'test',false) returning id into fresh_id;
  perform public.tk7_secure_mutation('tk7_signup_batch',jsonb_build_object('p_session',old_id,'p_request',fixture_request,'p_team','green','p_names',jsonb_build_array('Retention fixture')),'retention-test','Fixture','register','Retention fixture');
+ update public.tk7_signup_sessions set match_date=day_zero-30,is_open=false where id=old_id;
  if exists(select 1 from public.tk7_signup_outbox where session_id=old_id) then raise exception 'TEST: retired bot still stores a snapshot';end if;
  if not exists(select 1 from public.tk7_signup_log where session_id=old_id) then raise exception 'TEST: history missing before retention';end if;
  perform public.tk7_purge_expired_registrations();

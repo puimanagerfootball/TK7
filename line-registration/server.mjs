@@ -4,6 +4,7 @@ import {thaiDate,TEAM_COLORS} from './delivery.mjs';
 const uuid=x=>typeof x==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(x);
 const COLOR_SLUGS=TEAM_COLORS.map(c=>c[0]);
 export const bangkokToday=()=>new Date(Date.now()+7*3600e3).toISOString().slice(0,10);
+const isRegistrationOpen=s=>s.is_open&&Date.now()<Date.parse(s.match_date+'T'+(s.start_time||'20:00')+'+07:00');
 export function createHandler(env,fetcher=fetch){
  const get=k=>env[k]||'';
  async function db(path,body){
@@ -59,10 +60,11 @@ export function createHandler(env,fetcher=fetch){
    const filter=filterOf(a);
    if(b.action==='dates'){
     const sessions=await db('tk7_signup_sessions?select=id,match_date,is_open,start_time,time_per_match&'+filter+'&is_open=eq.true&match_date=gte.'+bangkokToday()+'&order=match_date');
-    return reply({account:{name:profileStatus==='ready'?actorName:null,status:profileStatus},dates:sessions.map(s=>({id:s.id,date:s.match_date,label:thaiDate(s.match_date),startTime:String(s.start_time||'20:00').slice(0,5),timePerMatch:s.time_per_match||8,isOpen:s.is_open}))});
+    const dates=sessions.filter(isRegistrationOpen).map(s=>({id:s.id,date:s.match_date,label:thaiDate(s.match_date),startTime:String(s.start_time||'20:00').slice(0,5),timePerMatch:s.time_per_match||8,isOpen:true}));
+    return reply({account:{name:profileStatus==='ready'?actorName:null,status:profileStatus},dates});
    }
    if(!uuid(b.sessionId))return reply({error:L('กรุณาเลือกวันแข่งขัน','Please choose a match date')},400);
-   const sessions=await db('tk7_signup_sessions?select=id,match_date,teams,is_open&'+filter+'&id=eq.'+b.sessionId);const s=sessions[0];
+   const sessions=await db('tk7_signup_sessions?select=id,match_date,teams,is_open,start_time&'+filter+'&id=eq.'+b.sessionId);const s=sessions[0];
    if(!s)return reply({error:L('ไม่พบวันแข่งขันนี้','Match date not found')},404);
    if(b.action==='roster'){
     // Independent reads overlap after the session has been authorized.
@@ -71,7 +73,7 @@ export function createHandler(env,fetcher=fetch){
      db('match_days?select=match_date,settings,schedule&match_date=eq.'+encodeURIComponent(s.match_date)+'&limit=1').catch(()=>[])
     ]);
     const schedule=globalThis.TK7Schedule.normalize(days?.[0]);
-    return reply({...roster,schedule});
+    return reply({...roster,isOpen:(roster.isOpen??s.is_open)&&isRegistrationOpen(s),schedule});
    }
    if(b.action==='log'){
     const rows=await db('tk7_signup_log?select=actor_name,action,detail,created_at&session_id=eq.'+s.id+'&order=created_at.desc&limit='+(b.all===true?200:3));

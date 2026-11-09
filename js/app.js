@@ -1,5 +1,5 @@
 /* ==========================================================================
-   TK7 app logic (Ver 5.2.21)
+   TK7 app logic (Ver 6.0.0)
    แยกจาก index.html เพื่อแก้/ค้นหาง่ายขึ้น
    Sections (ค้นหาด้วย // --- SECTION:):
      CONFIG, AUTH, REGISTRATION, SCHEDULE, LINEUP, SETUP,
@@ -107,6 +107,14 @@
         function todayDateKey() {
             const d = new Date();
             return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        }
+        function datePreference(kind, date) {
+            const key = 'tk7.match-date.' + kind;
+            try {
+                if (date !== undefined) sessionStorage.setItem(key, date);
+                const saved = sessionStorage.getItem(key);
+                return /^\d{4}-\d{2}-\d{2}$/.test(saved) ? saved : '';
+            } catch { return ''; }
         }
         let appData = {}, activePage = 'page-schedule', currentDateKey = todayDateKey(), isInitialSetupDone = false;
         let lastScrollPosition = 0, shouldRestoreScroll = false;
@@ -554,13 +562,13 @@
             const availableDates = datesData.map(d => d.match_date);
             const today = todayDateKey();
             updateDateSelectorsUI(availableDates);
-            // ตารางแข่ง/ผล/คะแนน → วันที่เพิ่งบันทึก หรือวันล่าสุดที่มีข้อมูล
-            const viewDate = (preferDate && availableDates.includes(preferDate))
-                ? preferDate
-                : (availableDates[0] || today);
+            const viewDate = [preferDate, matchDayLoadSeq ? currentDateKey : null, datePreference('view')].find(date => availableDates.includes(date))
+                || availableDates[0] || today;
+            if (preferDate === viewDate) datePreference('view', viewDate);
             await loadDataForDate(viewDate, { syncSetupDate: false });
-            // หน้าจัดการทีมใช้วันที่แยกจากหน้าตาราง — ค่าเริ่มต้นเป็นวันนี้ (หรือวันที่เพิ่งบันทึก)
-            await prepareSetupFormForDate(preferDate || today);
+            const setupDate = document.getElementById('match-date')?.value;
+            if (preferDate) datePreference('setup', preferDate);
+            await prepareSetupFormForDate(preferDate || setupDate || datePreference('setup') || viewDate);
             if(!activePage || (!canManage() && activePage === 'page-setup')) { activePage = 'page-schedule'; }
             setActivePage(activePage);
         }
@@ -1530,6 +1538,7 @@
                     shouldRestoreScroll = false;
                     const date = e.target.value;
                     if (!date) return;
+                    datePreference('setup', date);
                     // เปลี่ยนแค่วันในฟอร์มตั้งค่า — ไม่สลับ/ทับวันตารางที่กำลังดู
                     await prepareSetupFormForDate(date);
                 });
@@ -1945,6 +1954,7 @@
         async function loadDataForDate(date, options = {}) {
             const requestSeq=++matchDayLoadSeq;
             const { syncSetupDate = true } = options;
+            const dateChanged = currentDateKey !== date;
             currentDateKey = date;
             [
                 document.getElementById('schedule-date-selector'),
@@ -1954,6 +1964,8 @@
             if (syncSetupDate && document.getElementById('match-date')) {
                 document.getElementById('match-date').value = date;
             }
+            // Never leave the previous day's score controls under the new date.
+            if (dateChanged) renderVisiblePage(date);
             
             const { data: results, error } = await db.from('match_days').select('*').eq('match_date', date);
             if (requestSeq!==matchDayLoadSeq||currentDateKey!==date) return;
@@ -2038,14 +2050,19 @@
             if (dateList.length > 0) {
                 mainSelector.value = dateList[0];
             }
-            mainSelector.onchange = (e) => { shouldRestoreScroll = false; loadDataForDate(e.target.value); };
+            const selectDate = e => {
+                datePreference('view', e.target.value);
+                shouldRestoreScroll = false;
+                loadDataForDate(e.target.value, { syncSetupDate: false });
+            };
+            mainSelector.onchange = selectDate;
             [
                 document.getElementById('scores-date-selector'),
                 document.getElementById('leaderboard-date-selector')
             ].forEach(s => {
                 if (!s) return;
                 s.value = mainSelector.value;
-                s.onchange = (e) => { mainSelector.value = e.target.value; shouldRestoreScroll = false; loadDataForDate(e.target.value); };
+                s.onchange = selectDate;
             });
             document.getElementById('delete-day-btn').onclick = deleteDay;
         }

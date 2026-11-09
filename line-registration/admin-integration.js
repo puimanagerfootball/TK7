@@ -201,7 +201,6 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>''}){
  }
  place();wide.addEventListener?.('change',place);
 
- let autoDated=false;
  let data=null,mutating=false,lastSig='',syncTimer=null,pulledFor='',presetTimer=null,applying=false;
  const date=()=>$('match-date')?.value||'';
  const minutes=()=>parseInt($('time-per-match')?.value,10)||8;
@@ -223,7 +222,7 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>''}){
   next=>{
    connection.hidden=true;
    if(!canManage()||JSON.stringify(data)===JSON.stringify(next))return;
-   data=next;pickLatestOpenDate();render();
+   data=next;render();
   },
   error=>{
    connectionMessage.textContent=/failed to fetch|networkerror|load failed/i.test(errText(error))
@@ -263,19 +262,6 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>''}){
     onclick:()=>{const i=$('match-date');if(!i||on)return;i.value=x.match_date;i.dispatchEvent(new Event('change',{bubbles:true}))}},
     el('b',{text:thai(x.match_date)}),el('small',{class:x.is_open?'is-open':'',text:x.draft?'ยังไม่เปิด':x.is_open?'เปิดรับลงทะเบียน':'ปิดลงทะเบียน'})));
   }
- }
-
- // ครั้งแรกที่โหลด: ตั้งวันที่แข่งเป็นวันล่าสุดที่เปิดรับลงชื่อ
- function pickLatestOpenDate(){
-  if(autoDated)return false;autoDated=true;
-  const c=cfg();
-  const today=new Date(Date.now()+7*3600e3).toISOString().slice(0,10);
-  const open=(data?.sessions||[]).filter(s=>s.is_open&&s.group_id===c.group_id&&s.environment===c.environment&&s.match_date>=today).map(s=>s.match_date).sort();
-  const next=open[0];const input=$('match-date');
-  if(!next||!input||input.value===next)return false;
-  input.value=next;input.dispatchEvent(new Event('change',{bubbles:true}));
-
-  return true;
  }
 
  // ---------- render ----------
@@ -598,7 +584,7 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>''}){
 
  // events
  $('match-date')?.addEventListener('change',()=>{
-  clearTimeout(syncTimer);clearTimeout(presetTimer);autoDated=true;pulledFor='';lastSig='';
+  clearTimeout(syncTimer);clearTimeout(presetTimer);pulledFor='';lastSig='';
   if(data)render();else load();
  });
  document.addEventListener('tk7:setup-date-ready',event=>{
