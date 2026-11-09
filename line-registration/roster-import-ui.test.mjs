@@ -52,6 +52,17 @@ test('whole-team suggestion is hidden if the colour contains other players',asyn
  await h.review.onclick();
  assert.equal(h.modal.find(node=>node.class==='tk7l-import-suggestions').children.length,0);
 });
+test('an existing whole team can use the same name with a team prefix',async()=>{
+ const h=setup({entries:Array.from({length:7},(_,slot)=>({team:'green',slot:slot+1,name:'เก็ตแมน'}))});
+ h.input.value='📅 6-11-2026\n'+paste('ทีมเก็ตแมน').replace('1. ทีมเก็ตแมน','1.').replace('4.','4.ทีมเก็ตแมน');
+ await h.review.onclick();
+ const checkbox=h.modal.find(node=>node.class==='tk7l-import-suggestions').find(node=>node.type==='checkbox');
+ assert.ok(checkbox);
+ assert.equal(h.calls.length,0);
+ checkbox.checked=true;checkbox.onchange();
+ await h.apply.onclick();
+ assert.deepEqual(Array.from(h.calls[0].params.p_blocks[0].slots),Array(7).fill('ทีมเก็ตแมน'));
+});
 test('undated LINE text needs explicit date confirmation and keeps the request ID for a retry',async()=>{
  const h=setup({fail:true});
  h.input.value=paste('Updated');h.input.oninput();

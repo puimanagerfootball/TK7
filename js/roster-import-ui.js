@@ -50,11 +50,14 @@ globalThis.TK7RosterImportUI={create({el,getSession,refresh,rpc,canManage,setBus
     };
     needsDate=!parsed.date;
     renderPreview();
+    const teamPrefix=/^(?:ทีม\s*|team\s+)/iu;
+    const teamNameKey=name=>name.normalize('NFC').trim().replace(teamPrefix,'').trim().replace(/\s+/g,' ').toLowerCase();
+    const existing=latest.roster?.entries||[];
     for(const block of parsed.blocks){
      const names=block.slots.filter(Boolean);
-     if(names.length!==1||!/^(?:ทีม\s*\S|team\s+\S)/iu.test(names[0]))continue;
-     const existing=latest.roster?.entries||[];
-     if(existing.some(entry=>entry.team===block.team&&entry.name!==names[0]))continue;
+     if(names.length!==1||!teamPrefix.test(names[0]))continue;
+     const key=teamNameKey(names[0]);
+     if(!key||existing.some(entry=>entry.team===block.team&&teamNameKey(entry.name)!==key))continue;
      const checkbox=el('input',{type:'checkbox',onchange:()=>{
       if(busy)return;
       if(checkbox.checked)selected.add(block.team);else selected.delete(block.team);
