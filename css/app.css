@@ -639,7 +639,11 @@
             padding: 8px 14px; font-size: 14px; width: auto; max-width: none; vertical-align: middle;
             border-radius: 10px; white-space: nowrap; flex-shrink: 0; line-height: 1.2;
             font-family: 'Kanit', sans-serif; font-weight: 600; cursor: pointer;
+            min-height: 36px;
         }
+        .tk7-auth-label { display: inline-flex; align-items: center; gap: 5px; line-height: 1.2; vertical-align: middle; }
+        .tk7-auth-label .tk7-icon-emoji { width: 1.2em; height: 1.2em; font-size: 1em; }
+        #auth-section .tk7-privacy-button { min-height: 36px; font-size: 14px; }
         #auth-section .btn-secondary {
             --btn-lip: #1565c0;
             background: #64b5f6;
@@ -770,7 +774,9 @@
             #auth-section button {
                 padding: 5px 7px; font-size: 11px; border-radius: 7px; border-bottom-width: 2px;
                 box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+                min-height: 29px;
             }
+            #auth-section .tk7-privacy-button { min-height: 29px; padding: 4px 7px; font-size: 11px; gap: 5px; }
             #auth-section #logout-btn .label-full { display: none; }
             #auth-section #logout-btn .label-short { display: inline; }
             #user-info { font-size: 11px; max-width: 55vw; flex: 0 1 auto; }
@@ -1274,10 +1280,10 @@
         /* คันชักแบบคันเร่งเครื่องบิน — เลื่อนขึ้น/ลงตามราง */
         .opener-lever {
             --lever-y: 4px;
-            --lever-y-pulled: 34px;
+            --lever-y-pulled: 38px;
             position: relative;
-            width: 68px;
-            height: 118px;
+            width: 76px;
+            height: 148px;
             flex-shrink: 0;
             border: none;
             background: transparent;
@@ -1295,7 +1301,7 @@
         }
         .opener-lever .lever-console {
             position: absolute; inset: 0; border-radius: 15px;
-            background: linear-gradient(145deg, #366555, #162f29 58%, #0e231e);
+            background: radial-gradient(ellipse at 50% 32%, #66816d, #345945 58%, #142d23);
             border: 1px solid #436f60;
             box-shadow: inset 0 1px 0 #ffffff45, inset 0 -4px 0 #061911, 0 4px 0 #0b2118, 0 7px 12px #193b2859;
         }
@@ -1325,8 +1331,12 @@
             filter: drop-shadow(0 3px 3px #263a2355); pointer-events: none;
         }
         .opener-lever .lever-knob {
-            position: relative; z-index: 2; width: 49px; height: 49px;
+            position: relative; z-index: 2; width: 54px; height: 73px;
             display: grid; place-items: center;
+        }
+        .opener-lever .lever-art {
+            display: block; width: 100%; height: 100%; object-fit: contain;
+            filter: drop-shadow(0 0 1px #f4d57b) drop-shadow(0 2px 2px #102417);
         }
         .opener-lever .lever-stem {
             width: 11px; height: 17px; margin: -4px 0 0; border-radius: 3px 3px 6px 6px;
@@ -1366,8 +1376,8 @@
                 padding: 12px 10px 14px;
                 transform: rotateX(4deg);
             }
-            .opener-lever { width: 58px; height: 108px; --lever-y-pulled: 30px; }
-            .opener-lever .lever-knob { width: 43px; height: 43px; }
+            .opener-lever { width: 58px; height: 128px; --lever-y-pulled: 30px; }
+            .opener-lever .lever-knob { width: 44px; height: 61px; }
             .opener-reel { width: 80px; }
             .opener-reel-window .team-emblem { font-size: 12px; padding: 4px; }
             .opener-slot-machine .vs { min-width: 32px; height: 32px; font-size: 11px; }
@@ -1578,7 +1588,6 @@
 .nav-btn .tk7-icon-emoji,.nav-btn .icon-svg.pitch-icon{width:32px;height:32px;filter:drop-shadow(0 1px 1px #102f1e44)}
 .nav-btn .tk7-icon-emoji{font-size:27px}
 .nav-btn .icon{min-height:32px}
-.lever-knob .tk7-icon-world-cup{width:100%;height:100%;filter:drop-shadow(0 2px 1px #211202b8)}
 #no-data-message .tk7-icon{width:1em;height:1em}
 @media(max-width:767px){
     .nav-btn .tk7-icon-emoji,.nav-btn .icon-svg.pitch-icon{width:29px;height:29px}

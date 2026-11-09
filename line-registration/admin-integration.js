@@ -62,7 +62,8 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>''}){
   .tk7l-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px 10px;padding-bottom:4px}
   #tk7-line-card .tk7l-action{display:flex;align-items:center;gap:9px;min-width:0;min-height:48px;margin:0;padding:8px 11px;border:1px solid var(--action-edge);border-radius:12px;background:var(--action-face);color:#fff;box-shadow:inset 0 1px 0 #ffffff38,0 4px 0 var(--action-edge),0 6px 10px #112a2426;font:inherit;font-size:clamp(12px,1.5vw,15px);font-weight:600;line-height:1.25;text-align:left;overflow-wrap:anywhere;cursor:pointer;transition:transform .12s,box-shadow .12s,filter .12s}
   .tk7l-action-icon{display:grid;place-items:center;flex:none;width:31px;height:31px}
-  .tk7l-action-icon .tk7-icon{width:100%;height:100%;font-size:21px;filter:drop-shadow(0 1px 1px #00180e66)}
+  .tk7l-action-icon .tk7-icon{width:100%;height:100%;font-size:21px;line-height:1;filter:drop-shadow(0 1px 1px #00180e66)}
+  .tk7l-action-label,.tk7l-log-heading{display:inline-flex;align-items:center;gap:5px;line-height:1.25}
   .tk7l-import-actions{display:grid;gap:14px;margin-top:10px}
   .tk7l-import-actions .btn{margin:0}
   .tk7l-import-suggestions:not(:empty){display:grid;gap:8px;margin:12px 0}
@@ -70,15 +71,15 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>''}){
   .tk7l-import-suggestions input{appearance:auto;flex:none;width:20px;height:20px;margin:0;accent-color:#1f7a43}
   .tk7l-sheet.tk7l-join-sheet .tk7l-name-field{grid-template-columns:minmax(0,1fr) 58px 44px;gap:8px}
   .tk7l-sheet .tk7l-name-field .tk7l-quantity{width:100%;min-height:44px;padding:0 4px;border:1px solid #b7d6c2;background:#e9f4ec;color:#174e30;font-weight:600;font-size:16px}
-  .tk7l-share{--action-face:#147044;--action-edge:#0b482a}
-  .tk7l-import{--action-face:#1c57a7;--action-edge:#123975}
-  .tk7l-summary-all{--action-face:#076a70;--action-edge:#08464a}
-  .tk7l-summary-team{--action-face:#6539a4;--action-edge:#43256d}
-  .tk7l-main{--action-face:#98500c;--action-edge:#653406}
-  .tk7l-danger{--action-face:#ad292c;--action-edge:#761b20}
+  .tk7l-share{--action-face:#147044;--action-edge:#0b482a;--action-disabled:#416657}
+  .tk7l-import{--action-face:#1c57a7;--action-edge:#123975;--action-disabled:#405d80}
+  .tk7l-summary-all{--action-face:#076a70;--action-edge:#08464a;--action-disabled:#42646a}
+  .tk7l-summary-team{--action-face:#6539a4;--action-edge:#43256d;--action-disabled:#654f7d}
+  .tk7l-main{--action-face:#98500c;--action-edge:#653406;--action-disabled:#765338}
+  .tk7l-danger{--action-face:#ad292c;--action-edge:#761b20;--action-disabled:#844b50}
   #tk7-line-card .tk7l-action:hover:not(:disabled){filter:brightness(1.07);transform:translateY(-1px);box-shadow:inset 0 1px 0 #ffffff38,0 5px 0 var(--action-edge),0 7px 12px #112a2433}
   #tk7-line-card .tk7l-action:active:not(:disabled){transform:translateY(3px);box-shadow:inset 0 1px 0 #ffffff26,0 1px 0 var(--action-edge)}
-  #tk7-line-card .tk7l-action:disabled{opacity:.58;cursor:not-allowed;box-shadow:0 2px 0 var(--action-edge)}
+  #tk7-line-card .tk7l-action:disabled{opacity:1;background:var(--action-disabled);cursor:not-allowed;box-shadow:0 2px 0 var(--action-edge)}
   @media(prefers-reduced-motion:reduce){#tk7-line-card .tk7l-action{transition:none}}
   @media(max-width:380px){
    #tk7-line-card .tk7l-action{gap:5px;padding-inline:6px}
@@ -152,7 +153,7 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>''}){
 
  const dateTabs=el('div',{class:'tk7l-dates'});
 
-  const actionLabel=(icon,text)=>[el('span',{class:'tk7l-action-icon','aria-hidden':'true'},globalThis.TK7Icons?.node(icon)),el('span',{text})];
+  const actionLabel=(icon,text)=>[el('span',{class:'tk7l-action-icon','aria-hidden':'true'},globalThis.TK7Icons?.node(icon)),el('span',{class:'tk7l-action-label',text})];
  const actionButton=(icon,label,props={})=>{
   const {class:variant='',...options}=props;
   return el('button',{type:'button',class:('tk7l-action '+variant).trim(),...options},actionLabel(icon,label));
@@ -563,7 +564,7 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>''}){
  function renderLog(s){
   const open=logBox.open;logBox.replaceChildren();
   const rows=s?.log||[];logBox.hidden=false;
-  logBox.append(el('summary',{},globalThis.TK7Icons?.node('clock'),el('span',{text:' ประวัติการแก้ไข'})));
+  logBox.append(el('summary',{},el('span',{class:'tk7l-log-heading'},globalThis.TK7Icons?.node('clock'),el('span',{text:'ประวัติการแก้ไข'}))));
   if(!rows.length){logBox.append(el('p',{class:'tk7l-hint',style:'margin-top:8px',text:'ยังไม่มีประวัติ'}));logBox.open=open;return}
   const ul=el('ul',{class:'tk7l-loglist'});
   for(const r of rows)ul.append(logItem(r));
