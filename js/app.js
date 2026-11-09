@@ -1,5 +1,5 @@
 /* ==========================================================================
-   TK7 app logic (Ver 5.2.15)
+   TK7 app logic (Ver 5.2.17)
    แยกจาก index.html เพื่อแก้/ค้นหาง่ายขึ้น
    Sections (ค้นหาด้วย // --- SECTION:):
      CONFIG, AUTH, REGISTRATION, SCHEDULE, LINEUP, SETUP,
@@ -847,23 +847,19 @@
                     : '<div class="team-emblem ' + team.slug + '">' + name + '</div>';
                 return '<div class="opener-team" data-team-side="' + side + '"><div class="opener-team-choice">' + teamLabel + '</div></div>';
             };
-            const actions = showRandom
-                ? `<div class="opener-board-actions">
-                    <button type="button" class="opener-random" aria-label="สุ่มคู่เปิดสนาม">
-                        <span class="opener-random-cap" aria-hidden="true">
-                            <img src="line-registration/opener-random-ball.png" alt="" width="512" height="512" draggable="false">
-                        </span>
-                    </button>
-                    <span class="opener-random-label" role="status">สุ่มคู่เปิดสนาม</span>
-                </div>`
+            const versus = showRandom
+                ? '<button type="button" class="opener-random" aria-label="สุ่มคู่เปิดสนาม"><span class="opener-random-cap" aria-hidden="true">VS</span></button>'
+                : '<span class="opener-versus">VS</span>';
+            const status = showRandom
+                ? '<div class="opener-board-actions"><span class="opener-random-label" role="status">กด VS เพื่อสุ่มคู่เปิดสนาม</span></div>'
                 : '';
             return '<section class="opener-board" aria-label="นัดเปิดสนาม">' +
                 '<header class="opener-board-header"><span class="opener-board-kicker">TK7 FOOTBALL</span><h2>นัดเปิดสนาม</h2></header>' +
                 '<div class="opener-pitch" aria-live="polite">' +
                     teamPanel('home', homeSlug) +
-                    '<span class="opener-versus">VS</span>' +
+                    versus +
                     teamPanel('away', awaySlug) +
-                '</div>' + actions + '</section>';
+                '</div>' + status + '</section>';
         }
 
         function wireOpenerBoardControls(root, { teamPool, getPair, onPairChange, getDate = () => document.getElementById('match-date')?.value || currentDateKey, enableRandom = true, clickable = true } = {}) {
@@ -920,6 +916,9 @@
             const randomButton = root.querySelector('.opener-random');
             const randomLabel = root.querySelector('.opener-random-label');
             const pitch = root.querySelector('.opener-pitch');
+            const homeChoice = root.querySelector('[data-team-side="home"] .opener-team-choice');
+            const awayChoice = root.querySelector('[data-team-side="away"] .opener-team-choice');
+            const pool = [...new Set(teamPool)];
             openerDrawing = true;
             if (randomButton) randomButton.disabled = true;
             if (randomLabel) randomLabel.textContent = 'กำลังสุ่มคู่เปิดสนาม…';
@@ -928,13 +927,24 @@
                 const history = await readPreviousOpenerPairs(matchDate);
                 if (!isCurrent(matchDate)) return;
                 const result = pickRandomOpenerPair(teamPool, currentPair, history);
-                if (result && typeof onDone === 'function') onDone(result);
+                if (!result || typeof onDone !== 'function') return;
+                if (homeChoice && awayChoice && !globalThis.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches) {
+                    const offset = Math.floor(Math.random() * pool.length);
+                    for (const [step, delay] of [70, 75, 85, 105, 125, 155, 190].entries()) {
+                        if (!isCurrent(matchDate)) return;
+                        // Only the display cycles; the result above uses the saved matchup history.
+                        setOpenerTeam(homeChoice, pool[(offset + step) % pool.length]);
+                        setOpenerTeam(awayChoice, pool[(offset + step + 1) % pool.length]);
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                    }
+                }
+                if (isCurrent(matchDate)) onDone(result);
             } catch (error) {
                 if (isCurrent(matchDate)) showToast(error.message || 'สุ่มคู่เปิดสนามไม่สำเร็จ');
             } finally {
                 pitch?.removeAttribute('aria-busy');
                 if (randomButton) randomButton.disabled = false;
-                if (randomLabel) randomLabel.textContent = 'สุ่มคู่เปิดสนาม';
+                if (randomLabel) randomLabel.textContent = 'กด VS เพื่อสุ่มคู่เปิดสนาม';
                 openerDrawing = false;
                 if (!isCurrent(matchDate)) {
                     renderSchedulePreview(true);
