@@ -1,5 +1,5 @@
 /* ==========================================================================
-   TK7 app logic (Ver 5.2.11)
+   TK7 app logic (Ver 5.2.12)
    แยกจาก index.html เพื่อแก้/ค้นหาง่ายขึ้น
    Sections (ค้นหาด้วย // --- SECTION:):
      CONFIG, AUTH, REGISTRATION, SCHEDULE, LINEUP, SETUP,
@@ -848,7 +848,7 @@
                         <span class="lever-marks" aria-hidden="true"></span>
                         <span class="lever-caption" aria-hidden="true">สุ่ม</span>
                         <span class="lever-grip">
-                            <span class="lever-knob" aria-hidden="true"><img class="lever-art" src="line-registration/world-cup-2026.png" alt="" width="156" height="241" draggable="false"></span>
+                            <span class="lever-knob" aria-hidden="true"><img class="lever-art" src="line-registration/world-cup-trophy.png" alt="" width="106" height="252" draggable="false"></span>
                             <span class="lever-stem"></span>
                         </span>
                    </button>`
