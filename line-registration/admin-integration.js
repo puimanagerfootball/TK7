@@ -52,7 +52,7 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>''}){
   #tk7-line-card{display:flex;flex-direction:column;gap:12px;text-align:left}
   #tk7-line-card h2{display:flex;align-items:center;gap:9px;margin:0;font-size:clamp(18px,2.4vw,23px);color:#204d32}
   .tk7l-title-icon{display:grid;place-items:center;width:36px;height:36px;flex:none}
-  .tk7l-title-icon .tk7-icon{width:34px;height:34px}
+  .tk7l-title-icon .tk7-icon{width:34px;height:34px;font-size:26px}
   .tk7l-pill{font-size:13px;font-weight:600;padding:4px 12px;border-radius:999px;background:#dff3e4;color:#1f6b3a;white-space:nowrap}
   .tk7l-pill.off{background:#fff0d4;color:#7a5200}
   .tk7l-pill.none{background:#eceff1;color:#546e7a}
@@ -62,7 +62,7 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>''}){
   .tk7l-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px 10px;padding-bottom:4px}
   #tk7-line-card .tk7l-action{display:flex;align-items:center;gap:9px;min-width:0;min-height:48px;margin:0;padding:8px 11px;border:1px solid var(--action-edge);border-radius:12px;background:var(--action-face);color:#fff;box-shadow:inset 0 1px 0 #ffffff38,0 4px 0 var(--action-edge),0 6px 10px #112a2426;font:inherit;font-size:clamp(12px,1.5vw,15px);font-weight:600;line-height:1.25;text-align:left;overflow-wrap:anywhere;cursor:pointer;transition:transform .12s,box-shadow .12s,filter .12s}
   .tk7l-action-icon{display:grid;place-items:center;flex:none;width:31px;height:31px}
-  .tk7l-action-icon .tk7-icon{width:100%;height:100%;filter:drop-shadow(0 1px 1px #00180e66)}
+  .tk7l-action-icon .tk7-icon{width:100%;height:100%;font-size:21px;filter:drop-shadow(0 1px 1px #00180e66)}
   .tk7l-import-actions{display:grid;gap:14px;margin-top:10px}
   .tk7l-import-actions .btn{margin:0}
   .tk7l-import-suggestions:not(:empty){display:grid;gap:8px;margin:12px 0}
@@ -83,6 +83,7 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>''}){
   @media(max-width:380px){
    #tk7-line-card .tk7l-action{gap:5px;padding-inline:6px}
    .tk7l-action-icon{width:24px;height:24px}
+   .tk7l-action-icon .tk7-icon{font-size:17px}
   }
   .tk7l-status{font-size:14px;margin:0;min-height:1.2em;color:#2d4a37}
   .tk7l-status.err{color:#c62828}
