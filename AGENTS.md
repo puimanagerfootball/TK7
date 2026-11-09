@@ -25,6 +25,8 @@
 - Render the visible page only. Background score updates must not reset unsaved setup fields.
 - Keep saved fixture order, scores and times unchanged unless the user edits them. New fixtures use exactly the minutes entered in the form.
 - Use `node scripts/sync-liff-site.mjs <existing-tk7-site-release-path>` for the LIFF mirror. It copies required browser assets only, excluding server/admin-only code.
-- The user explicitly requires keeping the legacy text-copy/group-merge signup menu. Maintain js/legacy-registration.js, its on-demand loader, css/legacy-registration.css and its button/modal alongside Flex sharing.
-- Web and LIFF player summaries use roster-summary.js, include slots 1–7 and expose only send/close in the summary dialog. Keep the separate legacy copy menu.
+- The user replaced the legacy copy/group-merge menu with all-team summary, one-team summary and LINE import actions. Keep legacy text formats supported by the import parser.
+- Web and LIFF summaries use roster-summary.js and seven numbered slots. One-team summaries allow choosing a colour; dialogs expose send/close only.
+- Import is an approved-admin preview/confirm action. Missing teams stay unchanged. Empty numbered slots delete only after the preview is explicitly confirmed. Preserve revision checks, idempotency and atomic audit writes.
+- Registration actions use two columns on desktop and mobile. Privacy belongs first in the help/members/logout control group.
 - Shared roster text contains the title, date/time, TK7 Google Maps link, colour headings, seven slots and registration link. Omit totals, registration status, capacity counts, empty-roster labels and the Snapshot footer.

@@ -40,8 +40,7 @@
     }
 
     /* ปุ่มบันทึก/แชร์: ชิดใต้สองคอลัมน์ทันที */
-    #generate-schedule-btn,
-    #copy-reg-template-btn {
+    #generate-schedule-btn {
         grid-column: 1 / -1 !important;
         margin-top: 4px !important;
     }

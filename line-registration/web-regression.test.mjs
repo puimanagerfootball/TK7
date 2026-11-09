@@ -18,9 +18,9 @@ test('Auth callback returns before starting any database refresh',async()=>{
  let callback;const timers=[],reads=[];const context={db:{auth:{onAuthStateChange:fn=>callback=fn}},currentUser:null,userProfile:null,pendingPasswordRecovery:false,loginModal:{style:{}},refreshAuthUI(){},openResetPasswordModal(){},refreshUserAccess:async()=>reads.push('profile'),loadInitialData:async()=>reads.push('data'),showToast(){},setTimeout:fn=>timers.push(fn)};
  vm.createContext(context);vm.runInContext(between('            let authRefreshSequence = 0;','            listenToRealtimeChanges();'),context);assert.equal(callback('SIGNED_IN',{user:{id:'one'}}),undefined);assert.equal(reads.length,0);await timers[0]();assert.deepEqual(reads,['profile','data']);
 });
-test('unused preview modals are absent while the requested legacy signup menu remains',()=>{
+test('retired preview and legacy signup modals are absent',()=>{
  const html=fs.readFileSync(new URL('../index.html',import.meta.url),'utf8');for(const id of ['team-select-modal','share-image-modal'])assert.ok(!html.includes('id="'+id+'"'),id);
- for(const id of ['share-reg-modal','copy-reg-template-btn'])assert.ok(html.includes('id="'+id+'"'),id);
+ for(const id of ['share-reg-modal','copy-reg-template-btn'])assert.ok(!html.includes('id="'+id+'"'),id);
  for(const name of ['isPhoneLikeDevice','desiredOrientationForPage'])assert.ok(source.includes('function '+name+'('));
 });
 test('root image sharing cancels without download and releases fallback object URLs',async()=>{

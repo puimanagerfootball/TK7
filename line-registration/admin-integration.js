@@ -35,7 +35,7 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>''}){
   #tk7-line-card .tk7l-sharecta{display:block;background:#b9ed83;color:#123d2b;text-decoration:none;border:0;cursor:pointer;font:inherit;border-radius:12px;padding:14px 18px;font-weight:700;text-align:center}
   #tk7-line-card .tk7l-copylink{margin:0;border:1px solid #ffffff40;border-radius:12px;padding:13px;background:transparent;color:white;font:inherit;font-size:13px;cursor:pointer;box-shadow:none}
   #tk7-line-card :focus-visible{outline:3px solid #74b54e;outline-offset:3px}
-  @media(max-width:680px){.tk7l-sharebar{grid-template-columns:1fr}.tk7l-actions{grid-template-columns:1fr!important}#tk7-line-card{padding:18px!important}}
+  @media(max-width:680px){.tk7l-sharebar{grid-template-columns:1fr}#tk7-line-card{padding:18px!important}}
 
   #tk7-line-card{display:flex;flex-direction:column;gap:12px;text-align:left}
   #tk7-line-card h2{margin:0;display:flex;align-items:center;justify-content:space-between;gap:8px}
@@ -45,7 +45,7 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>''}){
   .tk7l-sum{font-size:15px;line-height:1.6;margin:0;color:#2d4a37}
   .tk7l-sum b{font-weight:600}
   .tk7l-hint{font-size:13px;line-height:1.6;margin:0;color:#5f7466}
-  .tk7l-actions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+  .tk7l-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
   #tk7-line-card .tk7l-actions .btn,#tk7-line-card .tk7l-main{margin:0!important;width:100%;font-size:14px;min-height:44px;padding:10px 8px}
   #tk7-line-card .tk7l-register{background:#238947!important;color:#fff!important;box-shadow:0 4px 0 #146331!important}
   #tk7-line-card .tk7l-register:hover{background:#2a9951!important}
@@ -136,7 +136,7 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>''}){
  const wide=matchMedia('(min-width: 768px), (orientation: landscape)');
  // การ์ด LINE อยู่ล่างสุดของหน้าจัดการทีม (ใต้ปุ่มบันทึก/แชร์) ทั้งมือถือและคอม
  function place(){
-  const last=$('copy-reg-template-btn')||$('generate-schedule-btn');
+  const last=$('generate-schedule-btn');
   if(last)last.after(card);else document.querySelector('.setup-settings-card')?.after(card);
  }
  place();wide.addEventListener?.('change',place);
@@ -156,6 +156,7 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>''}){
  const playersOf=(s,t)=>entriesOf(s).filter(e=>e.team===t).sort((a,b)=>a.slot-b.slot);
  const presetOf=s=>s?.preset_teams||[];
  const checkedTeams=()=>[...document.querySelectorAll('.team-switch:checked')].map(x=>x.dataset.teamSlug);
+ const importer=window.TK7RosterImportUI.create({el,getSession:session,refresh:()=>load(true),rpc,canManage,errText,message:text=>say(text),setBusy:value=>{mutating=value;refreshOverview.invalidate()},afterSave:(id,result)=>{const current=(data?.sessions||[]).find(row=>row.id===id);if(current){current.roster=result.roster;current.revision=result.revision;}lastSig='';render();}});
 
  const refreshOverview=createTK7OverviewLoader(
   ()=>rpc('tk7_admin_overview'),
@@ -230,8 +231,10 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>''}){
    if(!s||!confirm('ลบวันลงทะเบียน '+thai(date())+' ?\nรายชื่อและประวัติของวันนี้จะถูกลบและกู้คืนไม่ได้'))return;
    act(del,async()=>{await rpc('tk7_admin_delete_session',{p_session:s.id});removeDeletedSession(s);return 'ลบวันลงทะเบียนแล้ว'});
   };
-  const summary=el('button',{type:'button',class:'btn tk7l-register',text:'📋 ส่งสรุปรายชื่อ',disabled:!s,onclick:openRosterSummary});
-  actions.append(share,summary,main,del);
+  const summary=el('button',{type:'button',class:'btn tk7l-register',text:'📋 ส่งสรุป (กลุ่มใหญ่)',disabled:!s,onclick:()=>openRosterSummary('all')});
+  const teamSummary=el('button',{type:'button',class:'btn tk7l-register',text:'👕 ส่งสรุป (กลุ่มย่อย)',disabled:!s,onclick:()=>openRosterSummary('team')});
+  const importButton=el('button',{type:'button',class:'btn tk7l-register',text:'📥 นำเข้าจาก LINE',disabled:!s||!s.is_open,onclick:importer.open});
+  actions.append(share,importButton,summary,teamSummary,main,del);
   renderDateTabs();renderTeams(s);renderLog(s);pullFormFrom(s);
  }
 
@@ -275,25 +278,32 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>''}){
  function closeRosterSummary(){if(summarySending)return;summarySequence++;summaryModal.hidden=true;summaryModal.replaceChildren();summaryTrigger?.focus?.()}
  window.TK7Backdrop.install(summaryModal,e=>e.target===summaryModal,closeRosterSummary);
  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!summaryModal.hidden)closeRosterSummary()});
- async function openRosterSummary(){
+ async function openRosterSummary(mode='all'){
   if(!canManage()||summarySending)return;
   const chosen=session();if(!chosen)return;
   const sequence=++summarySequence;summaryTrigger=document.activeElement;
   const preview=el('textarea',{readonly:true,'aria-label':'ข้อความสรุปรายชื่อ',style:'min-height:280px;resize:vertical;font-size:15px;line-height:1.6'});
   const notice=el('p',{role:'status',text:'กำลังอ่านรายชื่อล่าสุด…'});
   const send=el('button',{type:'button',class:'btn btn-primary',text:'เลือกแชตหรือกลุ่ม LINE',disabled:true});
+  const colour=mode==='team'?el('select',{'aria-label':'เลือกทีมสำหรับกลุ่มย่อย',disabled:true}):null;
   const close=el('button',{type:'button',class:'tk7l-x',text:'✕','aria-label':'ปิด',onclick:closeRosterSummary});
-  summaryModal.replaceChildren(el('section',{class:'tk7l-sheet'},el('div',{class:'tk7l-sheet-head'},el('strong',{text:'📋 สรุปรายชื่อจากระบบ'}),close),el('div',{class:'tk7l-sheet-body'},preview,notice,send)));
+  summaryModal.replaceChildren(el('section',{class:'tk7l-sheet'},el('div',{class:'tk7l-sheet-head'},el('strong',{text:mode==='team'?'👕 ส่งสรุปกลุ่มย่อย':'📋 ส่งสรุปกลุ่มใหญ่'}),close),el('div',{class:'tk7l-sheet-body'},colour,preview,notice,send)));
   summaryModal.hidden=false;
   try{
    if(!await load(true))throw Error('อ่านรายชื่อล่าสุดไม่สำเร็จ กรุณาปิดแล้วเปิดสรุปใหม่');
    if(sequence!==summarySequence)return;
    const latest=session();if(!canManage()||latest?.id!==chosen.id)throw Error('วันที่หรือสิทธิ์เปลี่ยนแล้ว กรุณาปิดแล้วเปิดสรุปใหม่');
-   const text=window.TK7RosterSummary.build(latest);preview.value=text;send.disabled=false;
+   if(colour){
+    for(const slug of ORDER.filter(t=>(latest.preset_teams||[]).includes(t)||(latest.roster?.entries||[]).some(e=>e.team===t)))colour.append(el('option',{value:slug,text:'ทีม'+COLORS[slug]}));
+    if(!colour.children.length)throw Error('ยังไม่มีสีทีมให้ส่งสรุปกลุ่มย่อย');
+    colour.value=colour.children[0].value;colour.disabled=false;
+   }
+   let text='';const updateText=()=>{text=window.TK7RosterSummary.build(latest,{team:colour?.value||null});preview.value=text;};updateText();if(colour)colour.onchange=updateText;send.disabled=false;
    notice.textContent='ตรวจรายชื่อก่อนส่ง';
    send.onclick=async()=>{
     if(summarySending||!canManage()||session()?.id!==chosen.id){notice.textContent='วันที่หรือสิทธิ์เปลี่ยนแล้ว กรุณาเปิดสรุปใหม่';return;}
     summarySending=true;send.disabled=true;notice.textContent='กำลังเปิดหน้าเลือกผู้รับ…';
+    if(colour)colour.disabled=true;
     try{
      const direct=window.TK7DirectShare;if(!direct?.configured)throw Error('LINE ยังไม่พร้อม กรุณาปิดแล้วเปิดสรุปใหม่');
      // The picker is invoked in this click, without awaiting a data read first.
@@ -301,7 +311,7 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>''}){
      if(result?.status==='success'){summarySending=false;closeRosterSummary();say('ส่งสรุปรายชื่อแล้ว');}
      else notice.textContent=result?.login?'เข้าสู่ระบบ LINE แล้วเปิดสรุปและกดส่งอีกครั้ง':'ยกเลิกการส่ง';
     }catch(error){notice.textContent=errText(error)}
-    finally{summarySending=false;send.disabled=false;}
+    finally{summarySending=false;send.disabled=false;if(colour)colour.disabled=false;}
    };
   }catch(error){if(sequence===summarySequence)notice.textContent=errText(error)}
  }

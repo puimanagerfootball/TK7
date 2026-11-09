@@ -21,8 +21,8 @@
     <script src="vendor/morphdom-2.7.0.min.js" integrity="sha384-GvO679xZge/ZQsypeI50Wg7FqQIjFNfdoVpniNdlJ0H3z/+RxLNIUBMDhvtU018w" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="css/app.css">
     <link rel="stylesheet" href="css/motion.css">
-    <link rel="stylesheet" href="line-registration/team-card.css?v=5.1.6">
-    <link rel="stylesheet" href="line-registration/privacy-control.css?v=5.1.6">
+    <link rel="stylesheet" href="line-registration/team-card.css?v=5.2.0">
+    <link rel="stylesheet" href="line-registration/privacy-control.css?v=5.2.0">
 </head>
 <body>
     <svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute;overflow:hidden" aria-hidden="true">
@@ -47,13 +47,13 @@
     </svg>
 
     <div id="app">
-        <nav class="tk7-privacy-toolbar" aria-label="ความเป็นส่วนตัว"><a class="tk7-privacy-button" href="privacy.html" target="_blank" rel="noopener noreferrer" title="ดูรายละเอียดและขอแก้ไขหรือลบข้อมูล"><span class="tk7-privacy-icon" aria-hidden="true">🛡</span>ความเป็นส่วนตัว / Privacy</a></nav>
         <div id="auth-section">
     <div class="auth-meta">
-        <span class="version-tag">Ver 5.1.6</span>
+        <span class="version-tag">Ver 5.2.0</span>
         <span id="user-info"></span>
     </div>
     <div class="auth-user-controls">
+        <a class="tk7-privacy-button" href="privacy.html" target="_blank" rel="noopener noreferrer" title="ดูรายละเอียดและขอแก้ไขหรือลบข้อมูล"><span class="tk7-privacy-icon" aria-hidden="true">🛡</span>Privacy</a>
         <button id="help-btn" class="btn-help" type="button" title="วิธีใช้งาน" aria-label="วิธีใช้งาน">❓ วิธีใช้</button>
         <button type="button" id="claim-superadmin-btn" class="export-btn" style="display:none;background:#f0b27a;color:#2a3d2e;" title="ตั้ง Superadmin คนแรก">👑 Superadmin</button>
         <button id="members-btn" class="btn-secondary" style="display: none;" title="สมาชิก" aria-label="สมาชิก">👥 สมาชิก</button>
@@ -108,7 +108,6 @@
                         <div id="team-toggle-container"></div>
                     </div>
                     <button id="generate-schedule-btn" class="btn btn-primary">💾 บันทึกตารางแข่งขัน</button>
-                    <button id="copy-reg-template-btn" class="btn btn-warning" style="margin-top: 10px;">📱 แชร์รูปแบบลงทะเบียน LINE</button>
                 </div>
                 <div id="setup-login-prompt"></div>
             </div>
@@ -374,47 +373,17 @@
         </div>
     </div>
 
-    <div id="share-reg-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-modal-btn">×</span>
-            <h2>📱 แชร์ลงทะเบียน LINE</h2>
-            <p style="text-align: center; color: var(--text-muted); font-size: 14px; margin-bottom: 4px;">เลือกประเภทการแชร์</p>
-            <div class="share-mode-btns">
-                <button type="button" class="share-mode-btn active" data-mode="all">📢 กลุ่มใหญ่<br><span style="font-size: 12px; font-weight: 400;">ทุกทีม</span></button>
-                <button type="button" class="share-mode-btn" data-mode="single">🎨 กลุ่มย่อย<br><span style="font-size: 12px; font-weight: 400;">เลือกสีเดียว</span></button>
-                <button type="button" class="share-mode-btn" data-mode="merge">🔄 อัปเดต<br><span style="font-size: 12px; font-weight: 400;">ใหญ่ ← ย่อย</span></button>
-            </div>
-            <div id="share-reg-all-actions" style="display: block;">
-                <p id="share-reg-hint" style="text-align: center; color: var(--text-muted); font-size: 13px;">รูปแบบลงทะเบียนครบทุกทีม → วางในกลุ่มใหญ่</p>
-                <button type="button" id="share-reg-line-btn" class="btn btn-line" style="margin-top: 12px;">📋 คัดลอกเพื่อวางใน LINE</button>
-            </div>
-            <div id="share-reg-single-panel" style="display: none;">
-                <p id="share-reg-single-hint" style="text-align: center; color: var(--text-muted); font-size: 13px;">เลือกสีทีม → คัดลอกแล้ววางในกลุ่มย่อย</p>
-                <div id="share-reg-team-list"></div>
-            </div>
-            <div id="share-reg-merge-panel" style="display: none;">
-                <p id="share-reg-merge-hint" style="text-align: center; color: var(--text-muted); font-size: 13px; margin-bottom: 4px;">วางข้อความจาก LINE → ระบบตรวจรูปแบบให้อัตโนมัติ</p>
-                <label class="share-reg-merge-label" for="share-reg-merge-large">1) กลุ่มใหญ่ล่าสุด <span>(ว่างได้ถ้าลงชื่อคนแรก)</span></label>
-                <textarea id="share-reg-merge-large" class="share-reg-merge-ta is-empty" spellcheck="false"></textarea>
-                <div id="share-reg-merge-large-status" class="share-reg-status">ว่างได้ถ้าเป็นคนแรก — หรือวางกลุ่มใหญ่ล่าสุดจาก LINE</div>
-                <label class="share-reg-merge-label" for="share-reg-merge-small">2) กลุ่มย่อยล่าสุด <span>(วางจาก LINE)</span></label>
-                <textarea id="share-reg-merge-small" class="share-reg-merge-ta is-empty" spellcheck="false"></textarea>
-                <div id="share-reg-merge-small-status" class="share-reg-status">รอวางข้อความจาก LINE</div>
-                <button type="button" id="share-reg-merge-btn" class="btn btn-line" style="margin-top: 14px;" disabled>3) อัปเดตแล้วคัดลอกส่ง LINE</button>
-            </div>
-        </div>
-    </div>
-
-    <script src="line-registration/direct-share-config.js?v=5.1.6" defer></script>
-    <script type="module" src="line-registration/direct-share.mjs?v=5.1.6"></script>
-    <script src="line-registration/backdrop-guard.js?v=5.1.6" defer></script>
-    <script src="line-registration/roster-summary.js?v=5.1.6" defer></script>
-    <script src="line-registration/admin-integration.js?v=5.1.6" defer></script>
-    <script src="line-registration/browser-safety.js?v=5.1.6" defer></script>
-    <script src="js/legacy-registration-loader.js?v=5.1.6" defer></script>
-    <script src="js/match-stats.js?v=5.1.6" defer></script>
-    <script src="js/score-writer.js?v=5.1.6" defer></script>
-    <script src="js/app.js?v=5.1.6" defer></script>
+    <script src="line-registration/direct-share-config.js?v=5.2.0" defer></script>
+    <script type="module" src="line-registration/direct-share.mjs?v=5.2.0"></script>
+    <script src="line-registration/backdrop-guard.js?v=5.2.0" defer></script>
+    <script src="line-registration/roster-summary.js?v=5.2.0" defer></script>
+    <script src="line-registration/roster-text.js?v=5.2.0" defer></script>
+    <script src="js/roster-import-ui.js?v=5.2.0" defer></script>
+    <script src="line-registration/admin-integration.js?v=5.2.0" defer></script>
+    <script src="line-registration/browser-safety.js?v=5.2.0" defer></script>
+    <script src="js/match-stats.js?v=5.2.0" defer></script>
+    <script src="js/score-writer.js?v=5.2.0" defer></script>
+    <script src="js/app.js?v=5.2.0" defer></script>
 
     <div id="orient-hint" class="orient-hint" aria-live="polite">
         <div class="orient-icon" aria-hidden="true">📱</div>

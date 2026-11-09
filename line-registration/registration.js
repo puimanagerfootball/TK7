@@ -116,27 +116,35 @@ function renderInfo(){
   el("div",{class:"m-foot"},el("span",{text:T("teams",{t:teams,p:roster.entries.length})}),
    el("button",{type:"button",class:"m-hist",text:T("history"),onclick:()=>openHistory(false)})));
  if(roster.schedule?.matches?.length)card.append(el("div",{class:"schedule-actions"},el("button",{type:"button",class:"schedule-view",text:lang==="en"?"📋 View schedule":"📋 ดูตารางแข่ง",onclick:openSchedule}),el("button",{type:"button",class:"schedule-share",text:lang==="en"?"↗ Share image":"↗ แชร์รูปตารางแข่ง",onclick:shareSchedule})));
- card.append(el('div',{style:'padding:0 12px 12px'},el('button',{type:'button',class:'primary',style:'width:100%;padding:12px;border-radius:12px;font:inherit;font-weight:600',text:lang==='en'?'📋 Share player summary':'📋 ส่งสรุปรายชื่อ',onclick:openRosterSummary})));
+ card.append(el('div',{class:'schedule-actions'},el('button',{type:'button',class:'schedule-share',text:lang==='en'?'📋 All teams':'📋 สรุป (กลุ่มใหญ่)',onclick:()=>openRosterSummary('all')}),el('button',{type:'button',class:'schedule-share',text:lang==='en'?'👕 One team':'👕 สรุป (กลุ่มย่อย)',onclick:()=>openRosterSummary('team')})));
  info.append(card);
 }
-async function openRosterSummary(){
+async function openRosterSummary(mode='all'){
  const sid=sessionId;if(!sid||busy)return;
  const english=lang==='en';
  const preview=el('textarea',{readonly:true,'aria-label':english?'Player summary':'ข้อความสรุปรายชื่อ',style:'width:100%;min-height:280px;box-sizing:border-box;resize:vertical;padding:12px;border:1px solid #c8dacc;border-radius:12px;background:#fff;color:#162b20;font:inherit;font-size:15px;line-height:1.6'});
  const notice=el('p',{class:'hint',role:'status',text:english?'Loading latest players…':'กำลังอ่านรายชื่อล่าสุด…'});
  const send=el('button',{type:'button',class:'primary',disabled:true,text:english?'Choose LINE chat or group':'เลือกแชตหรือกลุ่ม LINE'});
- const box=el('div',{},el('div',{class:'sheet-head'},el('div',{},el('h2',{text:english?'📋 Player summary':'📋 สรุปรายชื่อจากระบบ'})),el('button',{type:'button',class:'m-hist','aria-label':english?'Close':'ปิด',text:'✕',onclick:closeSheet})),el('div',{class:'sheet-body'},preview,notice,send));
+ const colour=mode==='team'?el('select',{'aria-label':english?'Choose team':'เลือกทีมสำหรับกลุ่มย่อย',disabled:true,style:'width:100%;padding:12px;border:1px solid #c8dacc;border-radius:10px;background:white;color:#162b20;font:inherit;margin-bottom:10px'}):null;
+ const box=el('div',{},el('div',{class:'sheet-head'},el('div',{},el('h2',{text:mode==='team'?(english?'👕 One-team summary':'👕 สรุปกลุ่มย่อย'):(english?'📋 All-team summary':'📋 สรุปกลุ่มใหญ่')})),el('button',{type:'button',class:'m-hist','aria-label':english?'Close':'ปิด',text:'✕',onclick:closeSheet})),el('div',{class:'sheet-body'},colour,preview,notice,send));
  const current=()=>sessionId===sid&&$('sheet').classList.contains('show')&&$('sheet-content').firstElementChild===box;
  openSheet(box);
  try{
   const latest=await api('roster',{sessionId:sid});if(!current())return;
-  const text=window.TK7RosterSummary.build({match_date:latest.matchDate,start_time:latest.startTime,is_open:latest.isOpen,preset_teams:latest.presetTeams,roster:latest});
-  preview.value=text;send.disabled=false;notice.textContent=english?'Check the names before sending':'ตรวจรายชื่อก่อนส่ง';
+  const snapshot={match_date:latest.matchDate,start_time:latest.startTime,is_open:latest.isOpen,preset_teams:latest.presetTeams,roster:latest};
+  if(colour){
+   for(const [slug] of COLORS.filter(([t])=>(latest.presetTeams||[]).includes(t)||(latest.entries||[]).some(e=>e.team===t)))colour.append(el('option',{value:slug,text:label(slug)}));
+   if(!colour.children.length)throw Error(english?'No team available':'ยังไม่มีทีมให้ส่งสรุป');
+   colour.value=colour.children[0].value;colour.disabled=false;
+  }
+  let text='';const updateText=()=>{text=window.TK7RosterSummary.build(snapshot,{team:colour?.value||null});preview.value=text;};updateText();if(colour)colour.onchange=updateText;
+  send.disabled=false;notice.textContent=english?'Check the names before sending':'ตรวจรายชื่อก่อนส่ง';
   let sending=false;
   send.onclick=async()=>{
    if(sending)return;
    if(!current()){notice.textContent=english?'Match date changed. Reopen the summary.':'วันที่เปลี่ยนแล้ว กรุณาเปิดสรุปใหม่';return;}
    sending=true;send.disabled=true;notice.textContent=english?'Opening recipients…':'กำลังเปิดหน้าเลือกผู้รับ…';
+   if(colour)colour.disabled=true;
    try{
     if(!liff.isLoggedIn()||!liff.isApiAvailable('shareTargetPicker'))throw Error(english?'LINE sharing unavailable. Please reopen this page in LINE.':'LINE ยังไม่พร้อมแชร์ กรุณาเปิดหน้านี้ผ่าน LINE อีกครั้ง');
     // Keep the picker in the original send gesture; the fresh read completed above.
@@ -144,7 +152,7 @@ async function openRosterSummary(){
     if(result?.status==='success'){if(current())closeSheet();toast(english?'Player summary sent':'ส่งสรุปรายชื่อแล้ว');}
     else notice.textContent=english?'Sharing cancelled':'ยกเลิกการส่ง';
    }catch(error){notice.textContent=error.message||(english?'Could not share':'ส่งสรุปไม่สำเร็จ')}
-   finally{sending=false;send.disabled=false;}
+   finally{sending=false;send.disabled=false;if(colour)colour.disabled=false;}
   };
  }catch(error){if(current())notice.textContent=error.message||(english?'Close and reopen the summary to retry':'กรุณาปิดแล้วเปิดสรุปใหม่')}
 }
