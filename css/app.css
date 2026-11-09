@@ -1153,136 +1153,83 @@
         }
         #schedule-opener-card { margin-bottom: 12px; }
 
-        .opener-slot {
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            perspective: 900px;
-        }
+        .opener-slot { width: 100%; display: flex; justify-content: center; }
         .opener-slot-machine {
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            width: 100%;
-            max-width: 440px;
-            padding: 16px 16px 18px;
-            border-radius: 18px;
-            transform: none;
-            transform-style: flat;
-            background: #dce8d6;
-            border: 1px solid rgba(27, 94, 32, 0.18);
-            box-shadow: var(--depth-2);
+            display: grid; grid-template-columns: minmax(0, 1fr);
+            align-items: end; gap: 0 8px;
+            width: 100%; max-width: 420px;
+            padding: 4px 3px 8px;
         }
-        .opener-slot-machine::before {
-            content: '';
-            position: absolute;
-            inset: 5px;
-            border-radius: 14px;
-            pointer-events: none;
-            background: transparent;
-            box-shadow: 0 0 0 1px rgba(27,94,32,0.1) inset;
+        .opener-slot-machine.has-lever { grid-template-columns: minmax(0, 1fr) auto; max-width: 500px; }
+        .opener-slot-machine .opener-marquee {
+            position: relative; grid-column: 1; justify-self: center;
+            box-sizing: border-box; width: 90%; margin: 0 0 -2px;
+            min-height: 62px; padding: 13px 8px 10px;
+            display: grid; place-items: center; z-index: 1;
+            border: 4px solid transparent; border-radius: 50% 50% 12px 12px / 68% 68% 12px 12px;
+            background:
+                radial-gradient(ellipse at 50% 0%, #455045, #141e19 74%) padding-box,
+                linear-gradient(145deg, #9b5c1e, #ffe49c 23%, #b97f35 55%, #f7cc6a 76%, #7a4015) border-box;
+            color: #fff0bf; text-shadow: 0 2px 0 #503015, 0 3px 8px #090d0b;
+            font-size: clamp(18px, 3.7vw, 27px); font-weight: 800; line-height: 1.12;
+            box-shadow: inset 0 0 0 1px #f6d39175, 0 3px 0 #583312;
         }
-        .opener-slot-machine::after {
-            content: '';
-            position: absolute;
-            left: 14px;
-            right: 14px;
-            top: 7px;
-            height: 10px;
-            border-radius: 999px;
-            pointer-events: none;
-            background: linear-gradient(180deg, rgba(255,255,255,0.22), transparent);
-            opacity: 0.55;
+        .opener-cabinet {
+            grid-column: 1; min-width: 0; padding: 10px 10px 6px;
+            border: 2px solid #7d4c24; border-radius: 12px;
+            background: linear-gradient(155deg, #ffe5a7, #be8340 30%, #ebbc65 58%, #7a441f 100%);
+            box-shadow: inset 0 1px 0 #fff0c3, 0 4px 0 #3d281c, 0 7px 12px #213c285c;
         }
-        .opener-reel {
-            position: relative;
-            flex: 0 0 auto;
-            width: 96px;
-            z-index: 1;
-            transform-style: preserve-3d;
+        .opener-reels {
+            display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px;
+            padding: 4px; border: 1px solid #3f2917; border-radius: 9px;
+            background: linear-gradient(#1a1a17, #313026 48%, #181914);
+            box-shadow: inset 0 2px 7px #080a07;
         }
+        .opener-reel { min-width: 0; }
         .opener-reel-bezel {
-            padding: 5px;
-            border-radius: 12px;
-            background: linear-gradient(160deg, #3d4a3f 0%, #1f2922 45%, #2a3530 100%);
-            border: 1px solid rgba(0,0,0,0.35);
-            box-shadow:
-                inset 0 1px 0 rgba(255,255,255,0.18),
-                0 3px 0 #121816,
-                0 6px 12px rgba(0,0,0,0.28);
+            padding: 2px; border-radius: 6px;
+            background: linear-gradient(135deg, #f1cc78, #7f512a 60%, #e7ba66);
         }
         .opener-reel-window {
-            position: relative;
-            overflow: hidden;
-            border-radius: 8px;
-            width: 100%;
-            aspect-ratio: 1;
-            min-height: 0;
-            height: auto;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #111814;
-            border: 1px solid rgba(255,255,255,0.08);
-            box-shadow: inset 0 2px 8px rgba(0,0,0,0.55);
+            position: relative; overflow: hidden;
+            width: 100%; height: 83px; border-radius: 4px;
+            display: grid; place-items: center;
+            background: linear-gradient(#a59e82, #fcf2d6 22%, #fff8e4 48%, #e6d5ab 79%, #8f8061);
+            box-shadow: inset 0 4px 6px #20190880, inset 0 -4px 6px #20190873;
         }
-        .opener-reel-window::before,
-        .opener-reel-window::after { display: none; }
         .opener-reel-glass {
-            position: absolute;
-            inset: 0;
-            pointer-events: none;
-            z-index: 3;
-            background: linear-gradient(145deg, rgba(255,255,255,0.16) 0%, transparent 42%);
-            opacity: 0.55;
+            position: absolute; inset: 0; pointer-events: none;
+            background: linear-gradient(160deg, #fff6 0%, transparent 44%, transparent 72%, #21170b32);
         }
-        /* เฉพาะช่องสุ่มนัดเปิด: สี่เหลี่ยมจัตุรัสแบบสกอร์บอร์ด */
         .opener-reel-window .team-emblem {
-            width: calc(100% - 8px);
-            height: calc(100% - 8px);
-            min-width: 0; max-width: none;
-            min-height: 0; max-height: none;
-            margin: 0;
-            aspect-ratio: 1;
-            border-radius: 7px;
-            font-size: 14px;
-            font-weight: 800;
-            white-space: normal;
-            line-height: 1.15;
-            transform: translateZ(0);
+            width: calc(100% - 8px); height: calc(100% - 14px);
+            min-width: 0; max-width: none; min-height: 0; max-height: none;
+            margin: 0; padding: 4px; border-radius: 6px;
+            font-size: 14px; font-weight: 800; line-height: 1.12;
+            white-space: normal; overflow-wrap: anywhere;
         }
+        .opener-reel-window .opener-pick:focus-visible { outline: 2px solid #fff; outline-offset: -3px; }
         .opener-slot-machine.spinning .opener-reel-window .team-emblem {
-            filter: brightness(1.1);
-            transform: scale(0.97);
-            pointer-events: none;
+            filter: brightness(1.15); transform: scale(.96); pointer-events: none;
         }
-        .opener-slot-machine .vs {
-            position: relative;
-            z-index: 1;
-            flex-shrink: 0;
-            min-width: 36px;
-            height: 36px;
-            display: grid;
-            place-items: center;
-            border-radius: 50%;
-            font-size: 12px;
-            font-weight: 800;
-            letter-spacing: 0.04em;
-            color: #fff;
-            background: var(--primary-color);
-            border: 1px solid rgba(27,94,32,0.2);
-            box-shadow: var(--depth-1);
-            text-shadow: none;
+        .opener-versus {
+            color: #642a1c; font-size: clamp(16px, 3.7vw, 28px);
+            font-weight: 800; letter-spacing: .055em;
+            text-shadow: 0 1px 0 #fff0c1, 0 2px 0 #d5ab67;
         }
-        /* คันชักแบบคันเร่งเครื่องบิน — เลื่อนขึ้น/ลงตามราง */
+        .opener-plinth {
+            height: 10px; margin: 6px 4px 1px; border-radius: 4px;
+            background: linear-gradient(#58422b, #31261c);
+            box-shadow: inset 0 1px 0 #ffc97570, 0 1px 0 #eac87c;
+        }
+        .opener-pick-hint { margin: 2px 0 0; }
         .opener-lever {
             --lever-y: 4px;
-            --lever-y-pulled: 38px;
+            --lever-y-pulled: 32px;
             position: relative;
-            width: 76px;
+            grid-column: 2; grid-row: 1 / span 2; align-self: end;
+            width: 66px;
             height: 148px;
             flex-shrink: 0;
             border: none;
@@ -1295,6 +1242,12 @@
             transform: translateZ(18px);
         }
         .opener-lever:active { cursor: grabbing; }
+        .opener-lever::before {
+            content: ''; position: absolute; left: -11px; top: 58%; width: 17px; height: 22px;
+            border: 1px solid #714515; border-radius: 7px 0 0 7px;
+            background: linear-gradient(#ffe3a0, #b88036 43%, #68401d);
+            box-shadow: 0 2px 3px #301e1a55; pointer-events: none;
+        }
         .opener-lever:disabled {
             cursor: default;
             opacity: 0.72;
@@ -1335,11 +1288,12 @@
             display: grid; place-items: center;
         }
         .opener-lever .lever-art {
-            display: block; width: 100%; height: 100%; object-fit: contain;
+            position: absolute; inset: 0; display: block;
+            width: 100%; height: 100%; object-fit: contain;
             filter: drop-shadow(0 0 1px #f4d57b) drop-shadow(0 2px 2px #102417);
         }
         .opener-lever .lever-stem {
-            width: 11px; height: 17px; margin: -4px 0 0; border-radius: 3px 3px 6px 6px;
+            width: 11px; height: 27px; margin: -4px 0 0; border-radius: 3px 3px 6px 6px;
             background: linear-gradient(90deg, #9c5e10, #ffc853 35%, #fff0aa 50%, #e7a92d 67%, #9b5c10);
             border: 1px solid #8b530c; box-shadow: inset 0 1px 0 #fff4c1;
         }
@@ -1359,28 +1313,21 @@
             transition-duration: 0.28s;
             transition-timing-function: cubic-bezier(0.2, 0.85, 0.25, 1);
         }
-        .opener-slot-machine.spinning {
-            box-shadow: var(--depth-3);
-            border-color: rgba(27,94,32,0.28);
-        }
-        .opener-slot-machine.spinning .opener-reel-window {
-            box-shadow: inset 0 2px 8px rgba(0,0,0,0.55);
-            background: #111814;
-        }
-        .opener-slot-machine.spinning .vs {
-            box-shadow: var(--depth-2);
+        .opener-slot-machine.spinning .opener-cabinet {
+            box-shadow: inset 0 1px 0 #fff0c3, 0 4px 0 #3d281c, 0 0 14px #ffc96da0;
         }
         @media (max-width: 767px) {
-            .opener-slot-machine {
-                gap: 8px;
-                padding: 12px 10px 14px;
-                transform: rotateX(4deg);
-            }
-            .opener-lever { width: 58px; height: 128px; --lever-y-pulled: 30px; }
-            .opener-lever .lever-knob { width: 44px; height: 61px; }
-            .opener-reel { width: 80px; }
-            .opener-reel-window .team-emblem { font-size: 12px; padding: 4px; }
-            .opener-slot-machine .vs { min-width: 32px; height: 32px; font-size: 11px; }
+            .opener-slot-machine { gap: 0 6px; }
+            .opener-slot-machine .opener-marquee { min-height: 49px; padding: 10px 5px 8px; border-width: 3px; }
+            .opener-cabinet { padding: 6px 5px 4px; }
+            .opener-reels { gap: 3px; padding: 3px; }
+            .opener-reel-window { height: 64px; }
+            .opener-reel-window .team-emblem { width: calc(100% - 4px); font-size: 11px; padding: 2px; }
+            .opener-plinth { height: 7px; margin-top: 4px; }
+            .opener-lever { width: 47px; height: 113px; --lever-y-pulled: 23px; }
+            .opener-lever .lever-knob { width: 37px; height: 52px; }
+            .opener-lever .lever-stem { height: 21px; }
+            .opener-lever .lever-marks { right: 4px; width: 3px; }
         }
 
         /* --- STYLES FOR EXPORT ONLY --- */

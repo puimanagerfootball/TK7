@@ -1,5 +1,5 @@
 /* ==========================================================================
-   TK7 app logic (Ver 5.2.12)
+   TK7 app logic (Ver 5.2.13)
    แยกจาก index.html เพื่อแก้/ค้นหาง่ายขึ้น
    Sections (ค้นหาด้วย // --- SECTION:):
      CONFIG, AUTH, REGISTRATION, SCHEDULE, LINEUP, SETUP,
@@ -859,25 +859,25 @@
             const awayEl = clickable
                 ? `<button type="button" class="team-emblem ${awayTeam.slug} opener-pick" data-side="away" title="แตะเพื่อเปลี่ยนทีม">${escapeHtml(awayTeam.name)}</button>`
                 : `<div class="team-emblem ${awayTeam.slug}">${escapeHtml(awayTeam.name)}</div>`;
+            const reel = (side, content) => `<div class="opener-reel" data-reel="${side}">
+                <div class="opener-reel-bezel">
+                    <div class="opener-reel-window">
+                        ${content}
+                        <span class="opener-reel-glass" aria-hidden="true"></span>
+                    </div>
+                </div>
+            </div>`;
             return `
                 <div class="opener-slot">
-                    <div class="opener-slot-machine">
-                        <div class="opener-reel" data-reel="home">
-                            <div class="opener-reel-bezel">
-                                <div class="opener-reel-window">
-                                    ${homeEl}
-                                    <span class="opener-reel-glass" aria-hidden="true"></span>
-                                </div>
+                    <div class="opener-slot-machine${showLever ? ' has-lever' : ''}">
+                        <h2 class="opener-marquee">นัดเปิดสนาม</h2>
+                        <div class="opener-cabinet">
+                            <div class="opener-reels">
+                                ${reel('home', homeEl)}
+                                ${reel('versus', '<span class="opener-versus">VS</span>')}
+                                ${reel('away', awayEl)}
                             </div>
-                        </div>
-                        <span class="vs">VS</span>
-                        <div class="opener-reel" data-reel="away">
-                            <div class="opener-reel-bezel">
-                                <div class="opener-reel-window">
-                                    ${awayEl}
-                                    <span class="opener-reel-glass" aria-hidden="true"></span>
-                                </div>
-                            </div>
+                            <div class="opener-plinth" aria-hidden="true"></div>
                         </div>
                         ${leverHtml}
                     </div>
