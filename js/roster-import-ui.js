@@ -78,7 +78,7 @@ globalThis.TK7RosterImportUI={create({el,getSession,refresh,rpc,canManage,setBus
    finally{busy=false;setBusy(false);input.disabled=false;review.disabled=false;dateCheck.disabled=false;suggestionChecks.forEach(check=>check.disabled=false);apply.disabled=!plan||(needsDate&&!dateCheck.checked);}
   };
   const actions=el('div',{class:'tk7l-import-actions'},review,apply);
-  modal.replaceChildren(el('section',{class:'tk7l-sheet'},el('div',{class:'tk7l-sheet-head'},el('strong',{text:'📥 นำเข้าจาก LINE · '+chosen.match_date}),closeButton),el('div',{class:'tk7l-sheet-body'},input,suggestions,notice,output,dateConfirm,actions)));
+  modal.replaceChildren(el('section',{class:'tk7l-sheet'},el('div',{class:'tk7l-sheet-head'},el('strong',{text:'นำเข้าจาก LINE · '+chosen.match_date}),closeButton),el('div',{class:'tk7l-sheet-body'},input,suggestions,notice,output,dateConfirm,actions)));
   modal.hidden=false;input.focus();
  }
  return {open,close};

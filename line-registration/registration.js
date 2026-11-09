@@ -24,16 +24,16 @@ const $=id=>document.getElementById(id);
 // ---------- 2 ภาษา (ไทย / English) ----------
 const COLORS=[["green","เขียว","Green"],["red","แดง","Red"],["white","ขาว","White"],["blue","น้ำเงิน","Blue"],["black","ดำ","Black"],["yellow","เหลือง","Yellow"],["pink","ชมพู","Pink"],["orange","ส้ม","Orange"],["navy","น้ำเงินเข้ม","Navy"],["purple","ม่วง","Purple"]];
 const I18N={
- th:{title:"👇 เลือกสีเสื้อ แล้วลงชื่อ",relogin:"กำลังเข้าสู่ระบบใหม่…",down:"ระบบไม่พร้อม กรุณาลองใหม่",closedShort:" · ปิดแล้ว",start:"🕗 เริ่ม {t} น.",perMatch:"⏱️ {n} นาที/แมตช์",teams:"👥 {t} ทีม · {p} คน",closed:"🔒 ปิดรับลงชื่อแล้ว",
+ th:{title:"เลือกสีเสื้อ แล้วลงชื่อ",relogin:"กำลังเข้าสู่ระบบใหม่…",down:"ระบบไม่พร้อม กรุณาลองใหม่",closedShort:" · ปิดแล้ว",start:"เริ่ม {t} น.",perMatch:"{n} นาที/แมตช์",teams:"{t} ทีม · {p} คน",closed:"ปิดรับลงชื่อแล้ว",
   joinColor:"ลงชื่อสี{c}",closedCta:"ปิดรับแล้ว",full:"เต็มแล้ว ✓",joinLeft:"＋ ลงสีนี้ (ว่าง {n})",openTeam:"＋ เปิดทีมสี{c}",openSec:"ทีมที่เปิดแล้ว",otherSec:"สีอื่น · แตะเพื่อเปิดทีมใหม่",firstSec:"ยังไม่มีใครลง · เลือกสีเปิดทีมแรกได้เลย",closedEmpty:"ปิดรับลงชื่อแล้ว และยังไม่มีรายชื่อ",
   addFriend:"＋ เพิ่มชื่อเพื่อน",confirmJoin:"ยืนยันลงสี{c} ({n} คน)",needName:"ใส่ชื่ออย่างน้อย 1 ชื่อ",friend:"ชื่อเพื่อน",you:"ชื่อของคุณ",removeRow:"ลบช่องนี้",dupNames:"มีชื่อซ้ำกันในรายการ",onlyLeft:"สีนี้ว่างแค่ {n} ที่",saving:"กำลังบันทึก…",joined:"ลงชื่อสำเร็จ",
   seatsInfo:"ว่าง {n} จาก 7 ที่",has:" · มี ",joinHint:"ใช้ชื่อเล่นได้ · แจ้งและขออนุญาตเพื่อนก่อนลงชื่อ · รายชื่อแชร์ร่วมกันและเก็บ 30 วันหลังแข่ง",cancel:"ยกเลิก",pickTarget:"เลือกสีปลายทาง หรือคนที่จะสลับ",moveTo:"ย้ายไปสี{c}",swapWith:"สลับกับ {n}",orSwap:"หรือสลับกับ",saved:"บันทึกแล้ว",
-  removeName:"ยกเลิกชื่อ {n}",tapAgain:"แตะอีกครั้งเพื่อยืนยันยกเลิก",inColor:"อยู่สี{c} · ลำดับ {n}",moveLabel:"ย้ายไปสี",close:"ปิด",noConfig:"ยังไม่ได้ตั้งค่า LIFF ID และ API",noDates:"ยังไม่มีวันเปิดรับลงชื่อ\nรอผู้ดูแลเปิดวันแข่งในเว็บ TK7",connFail:"เชื่อมต่อไม่สำเร็จ: ",refresh:"รีเฟรชรายชื่อ",selected:"เลือก {n} คน",moveSel:"ย้ายไปสี…",cancelSel:"ยกเลิกชื่อ",swapSel:"สลับ…",clearSel:"ล้างที่เลือก",moveSelTitle:"ย้าย {n} คนไปสี",cancelConfirm:"แตะอีกครั้ง: ยกเลิก {n} ชื่อ",recolorTitle:"เปลี่ยนสีทีม{c}ทั้งทีม",recolorHint:"สีที่มีคนอยู่แล้ว = สลับสีกันทั้งทีม",recolorTo:"เปลี่ยนเป็น",swapTeams:"สลับกับ",moreColors:"＋ สีอื่น ({n})",lessColors:"ซ่อนสีอื่น",tapHint:"แตะชื่อเพื่อเลือก (หลายคนได้) · แตะแถบสีเพื่อย่อ/ขยาย",recolorBtn:"เปลี่ยนสี",ok:"ตกลง",notSaved:"ยังไม่ได้บันทึก",nowLeft:"ตอนนี้สี{c}เหลือว่าง {n} ช่อง",updated:"มีคนอัปเดตรายชื่อ",nAdd:"+ {n} ลงสี{c}",nMove:"↔ {n} ย้ายไปสี{c}",nDel:"− {n} ยกเลิก (สี{c})",nOpen:"🔓 เปิดรับลงชื่อแล้ว",nClose:"🔒 ปิดรับลงชื่อแล้ว",nMore:"และอีก {n} รายการ",nowFull:"⛔ สี{c} เต็มแล้ว",collapseAll:"ย่อทั้งหมด ▴",expandAll:"ขยายทั้งหมด ▾",history:"🕘 ประวัติ",seeAll:"ดูทั้งหมด",allTitle:"ประวัติทั้งหมด",emptySlot:"ว่าง",historyTitle:"แก้ไขล่าสุด 3 รายการ",noHistory:"ยังไม่มีประวัติ"},
- en:{title:"👇 Pick a shirt colour & sign up",relogin:"Signing in again…",down:"Service unavailable, please try again",closedShort:" · closed",start:"🕗 Kick-off {t}",perMatch:"⏱️ {n} min/match",teams:"👥 {t} teams · {p} players",closed:"🔒 Registration closed",
+  removeName:"ยกเลิกชื่อ {n}",tapAgain:"แตะอีกครั้งเพื่อยืนยันยกเลิก",inColor:"อยู่สี{c} · ลำดับ {n}",moveLabel:"ย้ายไปสี",close:"ปิด",noConfig:"ยังไม่ได้ตั้งค่า LIFF ID และ API",noDates:"ยังไม่มีวันเปิดรับลงชื่อ\nรอผู้ดูแลเปิดวันแข่งในเว็บ TK7",connFail:"เชื่อมต่อไม่สำเร็จ: ",refresh:"รีเฟรชรายชื่อ",selected:"เลือก {n} คน",moveSel:"ย้ายไปสี…",cancelSel:"ยกเลิกชื่อ",swapSel:"สลับ…",clearSel:"ล้างที่เลือก",moveSelTitle:"ย้าย {n} คนไปสี",cancelConfirm:"แตะอีกครั้ง: ยกเลิก {n} ชื่อ",recolorTitle:"เปลี่ยนสีทีม{c}ทั้งทีม",recolorHint:"สีที่มีคนอยู่แล้ว = สลับสีกันทั้งทีม",recolorTo:"เปลี่ยนเป็น",swapTeams:"สลับกับ",moreColors:"＋ สีอื่น ({n})",lessColors:"ซ่อนสีอื่น",tapHint:"แตะชื่อเพื่อเลือก (หลายคนได้) · แตะแถบสีเพื่อย่อ/ขยาย",recolorBtn:"เปลี่ยนสี",ok:"ตกลง",notSaved:"ยังไม่ได้บันทึก",nowLeft:"ตอนนี้สี{c}เหลือว่าง {n} ช่อง",updated:"มีคนอัปเดตรายชื่อ",nAdd:"+ {n} ลงสี{c}",nMove:"{n} ย้ายไปสี{c}",nDel:"− {n} ยกเลิก (สี{c})",nOpen:"เปิดรับลงชื่อแล้ว",nClose:"ปิดรับลงชื่อแล้ว",nMore:"และอีก {n} รายการ",nowFull:"สี{c} เต็มแล้ว",collapseAll:"ย่อทั้งหมด ▴",expandAll:"ขยายทั้งหมด ▾",history:"ประวัติ",seeAll:"ดูทั้งหมด",allTitle:"ประวัติทั้งหมด",emptySlot:"ว่าง",historyTitle:"แก้ไขล่าสุด 3 รายการ",noHistory:"ยังไม่มีประวัติ"},
+ en:{title:"Pick a shirt colour & sign up",relogin:"Signing in again…",down:"Service unavailable, please try again",closedShort:" · closed",start:"Kick-off {t}",perMatch:"{n} min/match",teams:"{t} teams · {p} players",closed:"Registration closed",
   joinColor:"Join {c}",closedCta:"Closed",full:"Full ✓",joinLeft:"＋ Join ({n} left)",openTeam:"＋ Start {c} team",openSec:"Open teams",otherSec:"Other colours · tap to start a new team",firstSec:"No one yet · pick a colour to start the first team",closedEmpty:"Registration closed, no players yet",
   addFriend:"＋ Add a friend",confirmJoin:"Join {c} ({n} players)",needName:"Enter at least 1 name",friend:"Friend's name",you:"Your name",removeRow:"Remove",dupNames:"Duplicate names in the list",onlyLeft:"Only {n} spots left in this colour",saving:"Saving…",joined:"Signed up",
   seatsInfo:"{n} of 7 spots left",has:" · ",joinHint:"Nicknames welcome · ask friends before adding them · shared names are kept for 30 days after the match",cancel:"Cancel",pickTarget:"Choose a colour or a player to swap",moveTo:"Move to {c}",swapWith:"Swap with {n}",orSwap:"Or swap with",saved:"Saved",
-  removeName:"Remove {n}",tapAgain:"Tap again to confirm",inColor:"{c} · spot {n}",moveLabel:"Move to",close:"Close",noConfig:"LIFF ID / API not configured",noDates:"No match open for sign-up yet\nPlease wait for the admin",connFail:"Connection failed: ",refresh:"Refresh",selected:"{n} selected",moveSel:"Move to…",cancelSel:"Remove",swapSel:"Swap…",clearSel:"Clear",moveSelTitle:"Move {n} to",cancelConfirm:"Tap again: remove {n}",recolorTitle:"Change {c} team colour",recolorHint:"A colour that already has players = swap the two teams",recolorTo:"Change to",swapTeams:"Swap with",moreColors:"＋ Other colours ({n})",lessColors:"Hide other colours",tapHint:"Tap names to select (multiple) · tap the colour bar to collapse/expand",recolorBtn:"Colour",ok:"OK",notSaved:"Not saved",nowLeft:"{c} now has {n} spot(s) left",updated:"The list was updated",nAdd:"+ {n} joined {c}",nMove:"↔ {n} moved to {c}",nDel:"− {n} left ({c})",nOpen:"🔓 Registration opened",nClose:"🔒 Registration closed",nMore:"and {n} more",nowFull:"⛔ {c} is now full",collapseAll:"Collapse all ▴",expandAll:"Expand all ▾",history:"🕘 History",seeAll:"See all",allTitle:"All changes",emptySlot:"open",historyTitle:"Latest 3 changes",noHistory:"No changes yet"}
+  removeName:"Remove {n}",tapAgain:"Tap again to confirm",inColor:"{c} · spot {n}",moveLabel:"Move to",close:"Close",noConfig:"LIFF ID / API not configured",noDates:"No match open for sign-up yet\nPlease wait for the admin",connFail:"Connection failed: ",refresh:"Refresh",selected:"{n} selected",moveSel:"Move to…",cancelSel:"Remove",swapSel:"Swap…",clearSel:"Clear",moveSelTitle:"Move {n} to",cancelConfirm:"Tap again: remove {n}",recolorTitle:"Change {c} team colour",recolorHint:"A colour that already has players = swap the two teams",recolorTo:"Change to",swapTeams:"Swap with",moreColors:"＋ Other colours ({n})",lessColors:"Hide other colours",tapHint:"Tap names to select (multiple) · tap the colour bar to collapse/expand",recolorBtn:"Colour",ok:"OK",notSaved:"Not saved",nowLeft:"{c} now has {n} spot(s) left",updated:"The list was updated",nAdd:"+ {n} joined {c}",nMove:"{n} moved to {c}",nDel:"− {n} left ({c})",nOpen:"Registration opened",nClose:"Registration closed",nMore:"and {n} more",nowFull:"{c} is now full",collapseAll:"Collapse all ▴",expandAll:"Expand all ▾",history:"History",seeAll:"See all",allTitle:"All changes",emptySlot:"open",historyTitle:"Latest 3 changes",noHistory:"No changes yet"}
 };
 const LANG_KEY="tk7.lang";
 let lang=(()=>{try{const v=localStorage.getItem(LANG_KEY);if(v==='th'||v==='en')return v}catch{}const n=(navigator.language||"th").toLowerCase();return n.startsWith("th")?"th":"en"})();
@@ -57,10 +57,10 @@ function shirt(slug){
  s.append(p);return s;
 }
 let toastTimer;
-function alertBox(title,msg,{icon="⚠️",tone="warn"}={}){
+function alertBox(title,msg,{icon="warning",tone="warn"}={}){
  $("banner").classList.remove("show");const d=$("alert");d.className="alert show "+tone;
  const ok=el("button",{type:"button",class:"primary",text:T("ok"),onclick:()=>{d.classList.remove("show");$("alert-scrim").classList.remove("show")}});
- d.replaceChildren(el("div",{class:"a-icon",text:icon}),el("h3",{text:title}),el("p",{text:msg}),ok);
+ d.replaceChildren(el("div",{class:"a-icon"},globalThis.TK7Icons?.node(icon)),el("h3",{text:title}),el("p",{text:msg}),ok);
  $("alert-scrim").classList.add("show");setTimeout(()=>ok.focus(),50);
  try{navigator.vibrate&&navigator.vibrate(tone==="warn"?[60,40,60]:30)}catch{}
 }
@@ -94,7 +94,7 @@ function renderDates(){
  const visible=dates.filter(d=>d.isOpen||d.id===sessionId);
  for(const d of visible){
   nav.append(el("button",{class:"date","aria-pressed":String(d.id===sessionId),onclick:()=>{if(d.id===sessionId)return;sessionId=d.id;renderDates();loadRoster(true)}},
-   el("b",{text:d.date?dateLabel(d.date):d.label}),el("small",{text:"🕗 "+d.startTime+(d.isOpen?"":T("closedShort"))})));
+   el("b",{text:d.date?dateLabel(d.date):d.label}),el("small",{text:""+d.startTime+(d.isOpen?"":T("closedShort"))})));
  }
  nav.hidden=visible.length<2;
 }
@@ -105,19 +105,19 @@ function renderInfo(){
  const d=dates.find(x=>x.id===sessionId)||{};
  const teams=new Set([...roster.entries.map(e=>e.team),...(roster.presetTeams||[])]).size;
  const row=(icon,lab,val,href)=>el(href?"a":"div",{class:"m-row",href:href||null,target:href?"_blank":null,rel:href?"noopener":null},
-  el("span",{class:"m-ico",text:icon}),el("span",{class:"m-txt"},el("small",{text:lab}),el("b",{class:href?"link":"",text:val})));
+  el("span",{class:"m-ico"},globalThis.TK7Icons?.node(icon)),el("span",{class:"m-txt"},el("small",{text:lab}),el("b",{class:href?"link":"",text:val})));
  const card=el("div",{class:"match"},
-  el("div",{class:"m-head"},el("div",{},el("div",{class:"m-title",text:"⚽ FOOTBALL MATCH"}),el("div",{class:"m-sub",text:"@ TK7 Stadium"})),
+  el("div",{class:"m-head"},el("div",{},el("div",{class:"m-title"},globalThis.TK7Icons?.node("ball"),el("span",{text:" FOOTBALL MATCH"})),el("div",{class:"m-sub",text:"@ TK7 Stadium"})),
    roster.isOpen?el("span",{class:"m-badge",text:lang==="en"?"OPEN":"เปิดรับ"}):el("span",{class:"m-badge off",text:lang==="en"?"CLOSED":"ปิดรับแล้ว"})),
   el("div",{class:"m-rows"},
-   row("📅","Date / วันที่",dmy(roster.matchDate||d.date)),
-   row("🕗","Kick-off / เวลาเตะ",(roster.startTime||d.startTime||"20:00")+(lang==="en"?"":" น.")),
-   row("⏱️",lang==="en"?"Per match":"เวลาต่อแมตช์",(roster.timePerMatch||d.timePerMatch||8)+(lang==="en"?" min":" นาที")),
-   row("📍","Location / สถานที่",lang==="en"?"Open map ›":"เปิดแผนที่ ›","https://maps.app.goo.gl/37K6rD4LqWA5Qz5KA")),
+   row("calendar","Date / วันที่",dmy(roster.matchDate||d.date)),
+   row("clock","Kick-off / เวลาเตะ",(roster.startTime||d.startTime||"20:00")+(lang==="en"?"":" น.")),
+   row("clock",lang==="en"?"Per match":"เวลาต่อแมตช์",(roster.timePerMatch||d.timePerMatch||8)+(lang==="en"?" min":" นาที")),
+   row("pin","Location / สถานที่",lang==="en"?"Open map ›":"เปิดแผนที่ ›","https://maps.app.goo.gl/37K6rD4LqWA5Qz5KA")),
   el("div",{class:"m-foot"},el("span",{text:T("teams",{t:teams,p:roster.entries.length})}),
    el("button",{type:"button",class:"m-hist",text:T("history"),onclick:()=>openHistory(false)})));
- if(roster.schedule?.matches?.length)card.append(el("div",{class:"schedule-actions"},el("button",{type:"button",class:"schedule-view",text:lang==="en"?"📋 View schedule":"📋 ดูตารางแข่ง",onclick:openSchedule}),el("button",{type:"button",class:"schedule-share",text:lang==="en"?"↗ Share image":"↗ แชร์รูปตารางแข่ง",onclick:shareSchedule})));
- card.append(el('div',{class:'schedule-actions'},el('button',{type:'button',class:'schedule-share',text:lang==='en'?'📋 All teams':'📋 สรุป (กลุ่มใหญ่)',onclick:()=>openRosterSummary('all')}),el('button',{type:'button',class:'schedule-share',text:lang==='en'?'👕 One team':'👕 สรุป (กลุ่มย่อย)',onclick:()=>openRosterSummary('team')})));
+ if(roster.schedule?.matches?.length)card.append(el("div",{class:"schedule-actions"},el("button",{type:"button",class:"schedule-view",text:lang==="en"?"View schedule":"ดูตารางแข่ง",onclick:openSchedule}),el("button",{type:"button",class:"schedule-share",text:lang==="en"?"Share image":"แชร์รูปตารางแข่ง",onclick:shareSchedule})));
+ card.append(el('div',{class:'schedule-actions'},el('button',{type:'button',class:'schedule-share summary-all',text:lang==='en'?'All teams':'สรุป (กลุ่มใหญ่)',onclick:()=>openRosterSummary('all')}),el('button',{type:'button',class:'schedule-share summary-team',text:lang==='en'?'One team':'สรุป (กลุ่มย่อย)',onclick:()=>openRosterSummary('team')})));
  info.append(card);
 }
 async function openRosterSummary(mode='all'){
@@ -127,7 +127,7 @@ async function openRosterSummary(mode='all'){
  const notice=el('p',{class:'hint',role:'status',text:english?'Loading latest players…':'กำลังอ่านรายชื่อล่าสุด…'});
  const send=el('button',{type:'button',class:'primary',disabled:true,text:english?'Choose LINE chat or group':'เลือกแชตหรือกลุ่ม LINE'});
  const colour=mode==='team'?el('select',{'aria-label':english?'Choose team':'เลือกทีมสำหรับกลุ่มย่อย',disabled:true,style:'width:100%;padding:12px;border:1px solid #c8dacc;border-radius:10px;background:white;color:#162b20;font:inherit;margin-bottom:10px'}):null;
- const box=el('div',{},el('div',{class:'sheet-head'},el('div',{},el('h2',{text:mode==='team'?(english?'👕 One-team summary':'👕 สรุปกลุ่มย่อย'):(english?'📋 All-team summary':'📋 สรุปกลุ่มใหญ่')})),el('button',{type:'button',class:'m-hist','aria-label':english?'Close':'ปิด',text:'✕',onclick:closeSheet})),el('div',{class:'sheet-body'},colour,preview,notice,send));
+ const box=el('div',{},el('div',{class:'sheet-head'},el('div',{},el('h2',{text:mode==='team'?(english?'One-team summary':'สรุปกลุ่มย่อย'):(english?'All-team summary':'สรุปกลุ่มใหญ่')})),el('button',{type:'button',class:'m-hist','aria-label':english?'Close':'ปิด',text:'✕',onclick:closeSheet})),el('div',{class:'sheet-body'},colour,preview,notice,send));
  const current=()=>sessionId===sid&&$('sheet').classList.contains('show')&&$('sheet-content').firstElementChild===box;
  openSheet(box);
  try{
@@ -167,8 +167,8 @@ function openSchedule(){
  const schedule=roster?.schedule;if(!schedule)return;
  const S=window.TK7Schedule;
  const preview=el('div',{class:'schedule-image-preview'}),status=el('p',{class:'hint',role:'status',text:lang==='en'?'Preparing schedule image…':'กำลังเตรียมรูปตารางแข่ง…'});
- const share=el('button',{type:'button',class:'primary',disabled:true,text:lang==='en'?'↗ Share schedule image':'↗ แชร์รูปตารางแข่ง',onclick:shareSchedule});
- const box=el('div',{},el('div',{class:'sheet-head'},el('div',{},el('h2',{text:lang==='en'?'📋 Match schedule':'📋 ตารางแข่ง'}),el('p',{text:S.dateLabel(schedule.date)}))),el('div',{class:'sheet-body'},preview,status,share,el('button',{type:'button',class:'ghost',text:T('close'),onclick:closeSheet})));
+ const share=el('button',{type:'button',class:'primary',disabled:true,text:lang==='en'?'Share schedule image':'แชร์รูปตารางแข่ง',onclick:shareSchedule});
+ const box=el('div',{},el('div',{class:'sheet-head'},el('div',{},el('h2',{text:lang==='en'?'Match schedule':'ตารางแข่ง'}),el('p',{text:S.dateLabel(schedule.date)}))),el('div',{class:'sheet-body'},preview,status,share,el('button',{type:'button',class:'ghost',text:T('close'),onclick:closeSheet})));
  openSheet(box);
  window.TK7ScheduleImage.prepare(schedule).then(image=>{
   const img=el('img',{src:image.url,alt:lang==='en'?'TK7 match schedule':'ตารางการแข่งขัน TK7'});
@@ -189,7 +189,7 @@ function teamCard(slug){
  const toggle=()=>{if(active){collapsed.has(slug)?collapsed.delete(slug):collapsed.add(slug);saveCollapsed()}else{expandedFree.has(slug)?expandedFree.delete(slug):expandedFree.add(slug)}renderBoard()};
  const band=el("div",{class:"band c-"+slug,role:"button",tabindex:"0","aria-expanded":String(!isCollapsed),onclick:toggle,onkeydown:e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();toggle()}}},
   shirt(slug),el("span",{class:"name",text:label(slug)}),el("span",{class:"count",text:players.length+"/"+MAX}),
-  active&&roster.isOpen?el("button",{type:"button",class:"recolor-btn","aria-label":T("recolorTitle",{c:label(slug)}),onclick:e=>{e.stopPropagation();openRecolor(slug)}},el("span",{"aria-hidden":"true",text:"🎨"}),el("span",{class:"rc-t",text:T("recolorBtn")})):null,
+  active&&roster.isOpen?el("button",{type:"button",class:"recolor-btn","aria-label":T("recolorTitle",{c:label(slug)}),onclick:e=>{e.stopPropagation();openRecolor(slug)}},globalThis.TK7Icons?.node("palette"),el("span",{class:"rc-t",text:T("recolorBtn")})):null,
   el("span",{class:"fold","aria-hidden":"true",text:isCollapsed?"▾":"▴"}));
  card.append(band);
  if(isCollapsed){
@@ -394,7 +394,7 @@ function notify(ch){
  const line=c=>c.t==="add"?T("nAdd",{n:c.name,c:label(c.team)}):c.t==="move"?T("nMove",{n:c.name,c:label(c.team)}):c.t==="del"?T("nDel",{n:c.name,c:label(c.team)}):T(c.t==="open"?"nOpen":"nClose");
  const msg=ch.slice(0,3).map(line).join("\n")+(ch.length>3?"\n"+T("nMore",{n:ch.length-3}):"");
  const fullTeams=COLORS.map(c=>c[0]).filter(t=>roster.entries.filter(e=>e.team===t).length>=MAX&&ch.some(c=>c.team===t&&c.t!=="del"));
- banner("🔔 "+T("updated"),msg+(fullTeams.length?"\n"+T("nowFull",{c:fullTeams.map(label).join(", ")}):""));
+ banner(""+T("updated"),msg+(fullTeams.length?"\n"+T("nowFull",{c:fullTeams.map(label).join(", ")}):""));
 }
 function banner(title,msg){
  const b=$("banner");b.replaceChildren(el("strong",{text:title}),el("span",{text:msg}),el("button",{type:"button","aria-label":T("close"),text:"✕",onclick:()=>b.classList.remove("show")}));

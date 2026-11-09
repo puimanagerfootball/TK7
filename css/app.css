@@ -1653,3 +1653,7 @@
         }
 
 .team-emblem.opener-pending{background:#e8efe7;color:#657760;--emblem-lip:#bac8b5;text-shadow:none}
+
+.tk7-icon{display:inline-block;width:1.15em;height:1.15em;vertical-align:-.18em;flex:none}
+.lever-knob .tk7-icon{width:65%;height:65%}
+#no-data-message .tk7-icon{width:1em;height:1em}

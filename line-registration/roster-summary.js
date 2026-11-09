@@ -18,8 +18,6 @@ globalThis.TK7RosterSummary={build(session,{team=null}={}){
    lines.push(slot+'.'+(player?' '+clean(player.name):''));
   }
  }
- lines.push('',session.is_open?'ดูรายชื่อล่าสุด / Latest roster:':'หน้าลงทะเบียน / Registration:',
-  'https://liff.line.me/2012278818-W0pIi2y0'+(session.is_open?'?date='+session.match_date:''));
  const text=lines.join('\n');
  if(text.length>5000)throw Error('รายชื่อยาวเกินขนาดข้อความ LINE กรุณาลดความยาวชื่อก่อนส่ง');
  return text;

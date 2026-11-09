@@ -10,8 +10,8 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="team-card.css?v=5.2.4">
-<link rel="stylesheet" href="privacy-control.css?v=5.2.4">
+<link rel="stylesheet" href="team-card.css?v=5.2.5">
+<link rel="stylesheet" href="privacy-control.css?v=5.2.5">
 <style>
 :root{
  --bg:#0e1f15;--pitch-a:#123a24;--pitch-b:#10331f;--card:#ffffff;--ink:#16241b;--muted:#5d6e63;--line:#e3ebe5;
@@ -180,16 +180,20 @@ button.chip{border:1px solid transparent}
 .account-row{display:flex;justify-content:space-between;gap:12px;align-items:center;color:#647b6c;font-size:12px;margin:8px 0}.account-row small{white-space:nowrap}#line-account button{margin-left:8px;border:0;border-radius:8px;padding:5px 8px;color:#226b3b;background:#e5f2e8;font:inherit;cursor:pointer}
 .schedule-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 12px 12px}.schedule-actions button{padding:11px 8px;border-radius:11px;font-size:14px;font-weight:600}.schedule-view{background:#eaf5ee;color:#1f7a43}.schedule-share{background:#1f7a43;color:#fff}.schedule-table{width:100%;border-collapse:collapse;font-size:14px}.schedule-table th{background:#eef5f0;text-align:left;color:#61756a;font-weight:500}.schedule-table th,.schedule-table td{padding:9px 6px;border-bottom:1px solid #e3ebe5}.schedule-table td:nth-child(-n+2){white-space:nowrap}.schedule-team{display:inline-block;padding:3px 8px;border-radius:8px;font-size:13px}
 .schedule-image-preview img{display:block;width:100%;height:auto;border-radius:12px}.schedule-image-preview a{display:block}
+.tk7-icon{display:inline-block;width:1.15em;height:1.15em;vertical-align:-.18em;flex:none}
+.tk7-icon+span,.tk7-icon:not(:last-child){margin-inline-end:.25em}
+.schedule-share.summary-all{background:#e4f3f3;color:#175b61}
+.schedule-share.summary-team{background:#f0eafa;color:#553581}
 </style>
 </head>
 <body>
 <div class="wrap">
  <header class="top">
-  <div class="toprow"><a class="tk7-privacy-button" href="privacy.html" target="_blank" rel="noopener noreferrer" title="ดูรายละเอียด / Read privacy notice"><span class="tk7-privacy-icon" aria-hidden="true">🛡</span>ความเป็นส่วนตัว / Privacy</a><div class="lang" id="lang" role="group" aria-label="Language"><button type="button" data-lang="th">ไทย</button><button type="button" data-lang="en">EN</button></div></div>
-  <div class="account-row"><div id="line-account" aria-live="polite"></div><small>Ver 5.2.4</small></div>
+  <div class="toprow"><a class="tk7-privacy-button" href="privacy.html" target="_blank" rel="noopener noreferrer" title="ดูรายละเอียด / Read privacy notice"><span class="tk7-privacy-icon" aria-hidden="true"><span data-tk7-icon="shield" aria-hidden="true"></span></span>ความเป็นส่วนตัว / Privacy</a><div class="lang" id="lang" role="group" aria-label="Language"><button type="button" data-lang="th">ไทย</button><button type="button" data-lang="en">EN</button></div></div>
+  <div class="account-row"><div id="line-account" aria-live="polite"></div><small>Ver 5.2.5</small></div>
   <nav class="dates" id="dates" aria-label="วันแข่ง"></nav>
   <div class="info" id="info"></div>
-  <h1 id="title">👇 เลือกสีเสื้อ แล้วลงชื่อ</h1>
+  <h1 id="title"> เลือกสีเสื้อ แล้วลงชื่อ</h1>
  </header>
  <main id="board">
   <div class="grid"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>
@@ -204,15 +208,16 @@ button.chip{border:1px solid transparent}
 <div class="alert" id="alert" role="alertdialog" aria-modal="true"></div>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <script src="config.js"></script>
-<script src="share-launcher.js?v=5.2.4"></script>
-<script src="backdrop-guard.js?v=5.2.4"></script>
-<script src="schedule.js?v=5.2.4"></script>
-<script src="schedule-image.js?v=5.2.4"></script>
-<script src="browser-safety.js?v=5.2.4"></script>
-<script src="roster-summary.js?v=5.2.4"></script>
-<script src="name-paste.js?v=5.2.4"></script>
-<script src="registration.js?v=5.2.4"></script>
-<script type="module" src="share-menu.mjs?v=5.2.4"></script>
+<script src="share-launcher.js?v=5.2.5"></script>
+<script src="backdrop-guard.js?v=5.2.5"></script>
+<script src="schedule.js?v=5.2.5"></script>
+<script src="schedule-image.js?v=5.2.5"></script>
+<script src="browser-safety.js?v=5.2.5"></script>
+<script src="icons.js?v=5.2.5"></script>
+<script src="roster-summary.js?v=5.2.5"></script>
+<script src="name-paste.js?v=5.2.5"></script>
+<script src="registration.js?v=5.2.5"></script>
+<script type="module" src="share-menu.mjs?v=5.2.5"></script>
 </body>
 </html>
 

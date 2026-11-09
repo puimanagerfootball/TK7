@@ -1,5 +1,5 @@
 /* ==========================================================================
-   TK7 app logic (Ver 5.2.4)
+   TK7 app logic (Ver 5.2.5)
    แยกจาก index.html เพื่อแก้/ค้นหาง่ายขึ้น
    Sections (ค้นหาด้วย // --- SECTION:):
      CONFIG, AUTH, REGISTRATION, SCHEDULE, LINEUP, SETUP,
@@ -135,16 +135,16 @@
 
         // Mapping ชื่อสีและ Emoji สำหรับลงทะเบียน
         const TEAM_SHIRT_INFO = {
-            green: { emoji: '🟢', label: 'Green Shirt (สีเขียว)' },
-            red: { emoji: '🔴', label: 'Red Shirt (สีแดง)' },
-            white: { emoji: '⚪️', label: 'White Shirt (สีขาว)' },
-            blue: { emoji: '🔵', label: 'Blue Shirt (สีน้ำเงิน)' },
-            black: { emoji: '⚫', label: 'Black Shirt (สีดำ)' },
-            yellow: { emoji: '🟡', label: 'Yellow Shirt (สีเหลือง)' },
-            pink: { emoji: '🩷', label: 'Pink Shirt (สีชมพู)' },
-            orange: { emoji: '🟠', label: 'Orange Shirt (สีส้ม)' },
-            navy: { emoji: '🔵', label: 'Navy Shirt (สีน้ำเงินเข้ม)' },
-            purple: { emoji: '🟣', label: 'Purple Shirt (สีม่วง)' }
+            green: { label: 'Green Shirt (สีเขียว)' },
+            red: { label: 'Red Shirt (สีแดง)' },
+            white: { label: 'White Shirt (สีขาว)' },
+            blue: { label: 'Blue Shirt (สีน้ำเงิน)' },
+            black: { label: 'Black Shirt (สีดำ)' },
+            yellow: { label: 'Yellow Shirt (สีเหลือง)' },
+            pink: { label: 'Pink Shirt (สีชมพู)' },
+            orange: { label: 'Orange Shirt (สีส้ม)' },
+            navy: { label: 'Navy Shirt (สีน้ำเงินเข้ม)' },
+            purple: { label: 'Purple Shirt (สีม่วง)' }
         };
 
         // แผน 7 คน (x/y เป็น % บนสนาม — บน = รุก, ล่าง = เซฟ)
@@ -395,7 +395,7 @@
             document.getElementById('login-form').style.display = isLogin ? 'block' : 'none';
             document.getElementById('signup-form').style.display = isLogin ? 'none' : 'block';
             document.getElementById('forgot-password-wrap').style.display = isLogin ? 'block' : 'none';
-            document.getElementById('auth-modal-title').textContent = isLogin ? '🔐 เข้าสู่ระบบ' : '📝 สมัคร Admin';
+            document.getElementById('auth-modal-title').replaceChildren(globalThis.TK7Icons?.node(isLogin?'lock':'edit')||'', isLogin?' เข้าสู่ระบบ':' สมัคร Admin');
         }
 
         let profileLoadSequence = 0;
@@ -409,7 +409,7 @@
             if (error) {
                 console.error('profiles error:', error);
                 if (error.code === '42P01' || (error.message || '').includes('profiles')) {
-                    showToast('⚠️ ยังไม่ได้รัน SQL ระบบสมาชิกใน Supabase');
+                    showToast('ยังไม่ได้รัน SQL ระบบสมาชิกใน Supabase');
                 }
                 return;
             }
@@ -458,10 +458,10 @@
             const pendingBanner = document.getElementById('pending-approval-banner');
             if (loggedIn && userProfile && userProfile.status === 'pending') {
                 pendingBanner.style.display = 'block';
-                pendingBanner.textContent = '⏳ บัญชีของคุณรอการอนุมัติจาก Superadmin — ยังไม่สามารถจัดการตารางได้';
+                pendingBanner.textContent = 'บัญชีของคุณรอการอนุมัติจาก Superadmin — ยังไม่สามารถจัดการตารางได้';
             } else if (loggedIn && userProfile && userProfile.status === 'rejected') {
                 pendingBanner.style.display = 'block';
-                pendingBanner.textContent = '❌ บัญชีของคุณถูกปฏิเสธ — ติดต่อ Superadmin หากต้องการใช้งาน';
+                pendingBanner.textContent = 'บัญชีของคุณถูกปฏิเสธ — ติดต่อ Superadmin หากต้องการใช้งาน';
             } else {
                 pendingBanner.style.display = 'none';
             }
@@ -470,9 +470,9 @@
                 const roleLabel = userProfile.role === 'superadmin'
                     ? 'Superadmin'
                     : (userProfile.status === 'approved' ? 'Admin' : (userProfile.status === 'rejected' ? 'ถูกปฏิเสธ' : 'รออนุมัติ'));
-                userInfo.textContent = `👤 ${userProfile.display_name || currentUser.email} (${roleLabel})`;
+                userInfo.textContent = `${userProfile.display_name || currentUser.email} (${roleLabel})`;
             } else if (loggedIn) {
-                userInfo.textContent = `👤 ${currentUser.email}`;
+                userInfo.textContent = `${currentUser.email}`;
             } else {
                 userInfo.textContent = '';
             }
@@ -502,7 +502,7 @@
             }
             userProfile = data || userProfile;
             hasSuperadmin = true;
-            showToast('👑 ตั้งเป็น Superadmin แล้ว');
+            showToast('ตั้งเป็น Superadmin แล้ว');
             refreshAuthUI();
         }
 
@@ -511,11 +511,11 @@
             if (!generateBtn) return;
             const hasSchedule = !!(appData[date]?.schedule && appData[date].schedule.length > 0);
             if (hasSchedule) {
-                generateBtn.textContent = '💾 อัปเดตตารางแข่งขัน';
+                generateBtn.replaceChildren(globalThis.TK7Icons?.node('save')||'', ' อัปเดตตารางแข่งขัน');
                 generateBtn.classList.remove('btn-primary', 'btn-secondary');
                 generateBtn.classList.add('btn-warning');
             } else {
-                generateBtn.textContent = '💾 บันทึกตารางแข่งขัน';
+                generateBtn.replaceChildren(globalThis.TK7Icons?.node('save')||'', ' บันทึกตารางแข่งขัน');
                 generateBtn.classList.remove('btn-warning', 'btn-secondary');
                 generateBtn.classList.add('btn-primary');
             }
@@ -647,8 +647,8 @@
                 return;
             }
             list.innerHTML = data.map(p => {
-                const statusLabel = p.status === 'approved' ? '✅ อนุมัติแล้ว' : (p.status === 'rejected' ? '❌ ปฏิเสธ' : '⏳ รออนุมัติ');
-                const roleLabel = p.role === 'superadmin' ? '👑 Superadmin' : '🛡️ Admin';
+                const statusLabel = p.status === 'approved' ? 'อนุมัติแล้ว' : (p.status === 'rejected' ? 'ปฏิเสธ' : 'รออนุมัติ');
+                const roleLabel = p.role === 'superadmin' ? 'Superadmin' : 'Admin';
                 const isSelf = currentUser && p.id === currentUser.id;
                 const safeName = escapeHtml(p.display_name || '-');
                 const safeEmail = escapeHtml(p.email || '');
@@ -691,12 +691,12 @@
             };
             const { error } = await db.from('profiles').update(payload).eq('id', memberId);
             if (error) { alert('อัปเดตไม่สำเร็จ: ' + error.message); return; }
-            showToast(status === 'approved' ? '✅ อนุมัติแล้ว' : (status === 'rejected' ? '❌ ปฏิเสธแล้ว' : 'พักสิทธิ์แล้ว'));
+            showToast(status === 'approved' ? 'อนุมัติแล้ว' : (status === 'rejected' ? 'ปฏิเสธแล้ว' : 'พักสิทธิ์แล้ว'));
             await renderMembersList();
         }
 
         async function updateScheduleInDB(newSchedule, options = {}) {
-            const { toastMessage = '✅ อัปเดตตารางแล้ว' } = options;
+            const { toastMessage = 'อัปเดตตารางแล้ว' } = options;
             saveScrollPosition();
             shouldRestoreScroll = true;
             if (!canManage()) return false;
@@ -847,7 +847,7 @@
                         <span class="lever-rail"></span>
                         <span class="lever-marks"></span>
                         <span class="lever-grip">
-                            <span class="lever-knob" aria-hidden="true">⚽</span>
+                            <span class="lever-knob" aria-hidden="true">${globalThis.TK7Icons?.html('ball')||''}</span>
                             <span class="lever-stem"></span>
                         </span>
                    </button>`
@@ -1035,7 +1035,7 @@
                 return;
             }
             scheduleOpenerDraft = null;
-            showToast('✅ อัปเดตตารางแข่งขันแล้ว');
+            showToast('อัปเดตตารางแข่งขันแล้ว');
             await loadDataForDate(date, { syncSetupDate: false });
         }
 
@@ -1098,7 +1098,7 @@
             const dayData = appData[date];
 
             if (!dayData || !dayData.schedule || dayData.schedule.length === 0) {
-                renderWithMorph(container, createNoDataMessage('ยังไม่มีตารางการแข่งขันสำหรับวันนี้', '📅'));
+                renderWithMorph(container, createNoDataMessage('ยังไม่มีตารางการแข่งขันสำหรับวันนี้', 'calendar'));
                 applyColumnMajorGrid(container);
                 templateInfoBadge.textContent = '';
                 templateInfoBadge.style.display = 'none';
@@ -1116,7 +1116,7 @@
                 templateName = "รูปแบบดั้งเดิม";
             }
 
-            templateInfoBadge.textContent = `📋 ${templateName}`;
+            templateInfoBadge.textContent = `${templateName}`;
             templateInfoBadge.style.display = 'inline-block';
 
             const { schedule } = dayData;
@@ -1136,9 +1136,9 @@
                 
                 const matchLabel = `แมตช์ที่ ${index + 1}`;
 
-                return `<div class="card match-card" data-index="${index}"><div class="match-header"><span>${matchLabel}</span><span>⏱️ ${timeStr}</span>${adminActions}</div><div class="match-body"><div class="team-emblem ${homeTeam.slug}">${homeTeam.name}</div><span class="vs">VS</span><div class="team-emblem ${awayTeam.slug}">${awayTeam.name}</div></div></div>`;
+                return `<div class="card match-card" data-index="${index}"><div class="match-header"><span>${matchLabel}</span><span>${globalThis.TK7Icons?.html('clock')||''} ${timeStr}</span>${adminActions}</div><div class="match-body"><div class="team-emblem ${homeTeam.slug}">${homeTeam.name}</div><span class="vs">VS</span><div class="team-emblem ${awayTeam.slug}">${awayTeam.name}</div></div></div>`;
             }).join('');
-            if (canManage() && dayData.schedule) { html += `<button id="add-match-btn" class="btn btn-primary">➕ เพิ่มแมตช์ใหม่</button>`; }
+            if (canManage() && dayData.schedule) { html += `<button id="add-match-btn" class="btn btn-primary">${globalThis.TK7Icons?.html('plus')||''} เพิ่มแมตช์ใหม่</button>`; }
             renderWithMorph(container, html);
             applyColumnMajorGrid(container);
             renderScheduleOpenerCard(date);
@@ -1184,7 +1184,7 @@
             const matchesToBecomeFirst = currentSchedule.slice(idx);
             
             const newSchedule = [...matchesToBecomeFirst, ...matchesToBecomeLast];
-            await updateScheduleInDB(newSchedule, { toastMessage: '✅ อัปเดตคู่เปิดสนามแล้ว' });
+            await updateScheduleInDB(newSchedule, { toastMessage: 'อัปเดตคู่เปิดสนามแล้ว' });
         }
 
         function isPhoneLikeDevice() {
@@ -1417,7 +1417,7 @@
             const source = document.getElementById('help-infographic');
             if (!btn || !source) return;
             const originalText = btn.innerHTML;
-            btn.innerHTML = '⌛ กำลังสร้าง...';
+            btn.innerHTML = 'กำลังสร้าง...';
             btn.disabled = true;
 
             const exportCard = document.createElement('div');
@@ -1465,7 +1465,7 @@
             rememberLineupDraft();
             const btn = document.getElementById('share-lineup-btn');
             const originalText = btn.innerHTML;
-            btn.innerHTML = '⌛ กำลังสร้าง...';
+            btn.innerHTML = 'กำลังสร้าง...';
             btn.disabled = true;
             purgeCaptureStages();
 
@@ -1481,7 +1481,7 @@
             pitch.querySelectorAll('.pitch-slot.active').forEach(el => el.classList.remove('active'));
 
             const formation = getCurrentFormation();
-            const info = TEAM_SHIRT_INFO[lineupTeamSlug] || { emoji: '⚽', label: lineupTeamSlug };
+            const info = TEAM_SHIRT_INFO[lineupTeamSlug] || { label: lineupTeamSlug };
             const team = TEAMS.find(t => t.slug === lineupTeamSlug);
             const teamLabel = team ? team.name : (info.label || lineupTeamSlug);
 
@@ -1566,7 +1566,7 @@
                 const msg = currentUser
                     ? (userProfile?.status === 'pending' ? 'บัญชีของคุณรอการอนุมัติจาก Superadmin' : 'คุณไม่มีสิทธิ์จัดการการแข่งขัน')
                     : 'กรุณาเข้าสู่ระบบผู้ดูแลเพื่อตั้งค่าการแข่งขัน';
-                loginPrompt.innerHTML = createNoDataMessage(msg, currentUser ? '⏳' : '🔐');
+                loginPrompt.innerHTML = createNoDataMessage(msg, currentUser ? 'clock' : 'lock');
                 return;
             }
             contentWrapper.style.display = '';
@@ -1722,7 +1722,7 @@
                 if (error) throw error;
                 scheduleOpenerDraft = null;
                 appData[date] = { match_date: date, settings, schedule: finalSchedule };
-                showToast(targetDay?.schedule?.length ? '✅ อัปเดตตารางเรียบร้อย!' : '✅ บันทึกตารางเรียบร้อย!');
+                showToast(targetDay?.schedule?.length ? 'อัปเดตตารางเรียบร้อย!' : 'บันทึกตารางเรียบร้อย!');
                 if (input.value === date) { await loadInitialData({ preferDate: date }); setActivePage('page-schedule'); }
             } catch (error) {
                 alert('เกิดข้อผิดพลาด: '+error.message);
@@ -1761,7 +1761,7 @@
 
         async function handleExport(elementId, filename, buttonElement) {
             const originalText = buttonElement.innerHTML;
-            buttonElement.innerHTML = '⌛ กำลังโหลด...';
+            buttonElement.innerHTML = 'กำลังโหลด...';
             buttonElement.disabled = true;
 
             try {
@@ -1880,7 +1880,7 @@
             if (navigator.clipboard?.write && window.ClipboardItem) {
                 try {
                     await navigator.clipboard.write([new ClipboardItem({'image/png':pngBlob})]);
-                    showToast('📋 คัดลอกรูปแล้ว — เปิด LINE แล้ววางได้เลย');
+                    showToast('คัดลอกรูปแล้ว — เปิด LINE แล้ววางได้เลย');
                     return 'copied';
                 } catch { /* Fall back to a download without retaining the image in app state. */ }
             }
@@ -1896,7 +1896,7 @@
         async function shareElementToLine(elementId, filename, buttonElement) {
             const element = document.getElementById(elementId);
             if (!element || element.innerHTML.includes('no-data-message')) { alert('ไม่มีข้อมูลให้แชร์'); return; }
-            const originalText = buttonElement.innerHTML; buttonElement.innerHTML = '⌛ กำลังสร้าง...'; buttonElement.disabled = true;
+            const originalText = buttonElement.innerHTML; buttonElement.innerHTML = 'กำลังสร้าง...'; buttonElement.disabled = true;
             const exportWrapper = document.createElement('div');
             exportWrapper.className = 'temp-export-container capture-stage pitch-export-bg';
             exportWrapper.style.left = '0';
@@ -1904,7 +1904,7 @@
             let title = '';
             if (elementId === 'schedule-container') title = 'ตารางการแข่งขัน'; else if (elementId === 'scores-container') title = 'ผลการแข่งขัน'; else if (elementId === 'leaderboard-container') title = 'ตารางคะแนน';
             const formattedDate = new Date(currentDateKey + 'T00:00:00').toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' });
-            headerDiv.innerHTML = `<h1>⚽ ${title}</h1><h2>วันที่ ${formattedDate}</h2>`;
+            headerDiv.innerHTML = `<h1>${globalThis.TK7Icons?.html('ball')||''} ${title}</h1><h2>วันที่ ${formattedDate}</h2>`;
             exportWrapper.appendChild(headerDiv);
             const contentClone = element.cloneNode(true);
             contentClone.querySelectorAll('.match-actions, .action-btn, #add-match-btn, .interactive-controls').forEach(el => el.remove());
@@ -2102,7 +2102,7 @@
             document.getElementById('delete-day-btn').onclick = deleteDay;
         }
 
-        function createNoDataMessage(message, icon) { return `<div id="no-data-message"><div class="icon">${icon}</div><p>${message}</p></div>`; }
+        function createNoDataMessage(message, icon) { return `<div id="no-data-message"><div class="icon">${globalThis.TK7Icons?.html(icon)||''}</div><p>${message}</p></div>`; }
         
 // --- SECTION: SCORES ---
         // กด +/−/รีเซ็ต ทันที → หยุดกด ~0.5s ค่อยบันทึก DB (ไม่วาดทั้งหน้า / ไม่มีแบนเนอร์)
@@ -2169,7 +2169,7 @@
             const container = document.getElementById('scores-container');
             const dayData = appData[date];
             if (!dayData || !dayData.schedule || dayData.schedule.length === 0) {
-                renderWithMorph(container, createNoDataMessage('ยังไม่มีข้อมูลการแข่งขันสำหรับวันนี้', '✏️'));
+                renderWithMorph(container, createNoDataMessage('ยังไม่มีข้อมูลการแข่งขันสำหรับวันนี้', 'edit'));
                 applyColumnMajorGrid(container);
                 return;
             }
@@ -2183,7 +2183,7 @@
                 const readonlyAttr = isReadOnly ? 'readonly' : '';
                 const homeScoreText = match.homeScore !== null ? match.homeScore : ' ', awayScoreText = match.awayScore !== null ? match.awayScore : ' ';
                 const separator = (match.homeScore !== null && match.awayScore !== null) ? '-' : 'vs';
-                return `<div class="card match-card" data-score-card="1" data-index="${index}"><div class="match-header"><span>แมตช์ที่ ${index + 1}</span><span>⏱️ ${timeStr}</span></div><div class="score-line-export"><div class="team-emblem ${homeTeam.slug}">${homeTeam.name}</div><div class="score-block"><span class="score-value">${homeScoreText}</span><span class="vs-export">${separator}</span><span class="score-value">${awayScoreText}</span></div><div class="team-emblem ${awayTeam.slug}">${awayTeam.name}</div></div><div class="interactive-controls"><div class="team-score-wrapper"><div class="team-emblem ${homeTeam.slug}">${homeTeam.name}</div><div class="score-control"><button class="score-btn" data-index="${index}" data-team="home" data-op="-1" ${disabledAttr}>${svgMinus}</button><input type="number" class="score-input" value="${match.homeScore === null ? '' : match.homeScore}" data-index="${index}" data-team="home" ${readonlyAttr}><button class="score-btn" data-index="${index}" data-team="home" data-op="1" ${disabledAttr}>${svgPlus}</button></div></div><div class="match-center-controls"><span class="vs">VS</span><button class="reset-score-btn" data-index="${index}" ${disabledAttr}>${svgReset}</button></div><div class="team-score-wrapper"><div class="team-emblem ${awayTeam.slug}">${awayTeam.name}</div><div class="score-control"><button class="score-btn" data-index="${index}" data-team="away" data-op="-1" ${disabledAttr}>${svgMinus}</button><input type="number" class="score-input" value="${match.awayScore === null ? '' : match.awayScore}" data-index="${index}" data-team="away" ${readonlyAttr}><button class="score-btn" data-index="${index}" data-team="away" data-op="1" ${disabledAttr}>${svgPlus}</button></div></div></div></div>`;
+                return `<div class="card match-card" data-score-card="1" data-index="${index}"><div class="match-header"><span>แมตช์ที่ ${index + 1}</span><span>${globalThis.TK7Icons?.html('clock')||''} ${timeStr}</span></div><div class="score-line-export"><div class="team-emblem ${homeTeam.slug}">${homeTeam.name}</div><div class="score-block"><span class="score-value">${homeScoreText}</span><span class="vs-export">${separator}</span><span class="score-value">${awayScoreText}</span></div><div class="team-emblem ${awayTeam.slug}">${awayTeam.name}</div></div><div class="interactive-controls"><div class="team-score-wrapper"><div class="team-emblem ${homeTeam.slug}">${homeTeam.name}</div><div class="score-control"><button class="score-btn" data-index="${index}" data-team="home" data-op="-1" ${disabledAttr}>${svgMinus}</button><input type="number" class="score-input" value="${match.homeScore === null ? '' : match.homeScore}" data-index="${index}" data-team="home" ${readonlyAttr}><button class="score-btn" data-index="${index}" data-team="home" data-op="1" ${disabledAttr}>${svgPlus}</button></div></div><div class="match-center-controls"><span class="vs">VS</span><button class="reset-score-btn" data-index="${index}" ${disabledAttr}>${svgReset}</button></div><div class="team-score-wrapper"><div class="team-emblem ${awayTeam.slug}">${awayTeam.name}</div><div class="score-control"><button class="score-btn" data-index="${index}" data-team="away" data-op="-1" ${disabledAttr}>${svgMinus}</button><input type="number" class="score-input" value="${match.awayScore === null ? '' : match.awayScore}" data-index="${index}" data-team="away" ${readonlyAttr}><button class="score-btn" data-index="${index}" data-team="away" data-op="1" ${disabledAttr}>${svgPlus}</button></div></div></div></div>`;
             }).join('');
             renderWithMorph(container, html);
             applyColumnMajorGrid(container);
@@ -2191,11 +2191,11 @@
 
         function renderLeaderboardPage(date) { 
             const container = document.getElementById('leaderboard-container'), dayData = appData[date]; 
-            if (!dayData || !dayData.settings || !dayData.settings.activeTeams) { renderWithMorph(container, createNoDataMessage('ยังไม่มีข้อมูลตารางคะแนน', '📊')); return; } 
+            if (!dayData || !dayData.settings || !dayData.settings.activeTeams) { renderWithMorph(container, createNoDataMessage('ยังไม่มีข้อมูลตารางคะแนน', 'chart')); return; }
             const stats = calculateLeaderboard(date); 
             const sortedTeams = Object.values(stats).sort((a, b) => { if (b.pts !== a.pts) return b.pts - a.pts; if (b.gd !== a.gd) return b.gd - a.gd; if (b.gf !== a.gf) return b.gf - a.gf; return a.name.localeCompare(b.name); }); 
-            const medals = ['🥇', '🥈', '🥉']; 
-            const html = `<table class="leaderboard-table"><thead><tr><th>#</th><th class="team-name">ทีม</th><th>แข่ง</th><th>ชนะ</th><th>เสมอ</th><th>แพ้</th><th>ได้</th><th>เสีย</th><th>+/-</th><th>คะแนน</th></tr></thead><tbody>${sortedTeams.map((team, index) => `<tr><td>${medals[index] || index + 1}</td><td class="team-name"><div class="team-emblem ${team.slug}">${team.name}</div></td><td>${team.p}</td><td>${team.w}</td><td>${team.d}</td><td>${team.l}</td><td>${team.gf}</td><td>${team.ga}</td><td>${team.gd}</td><td><strong>${team.pts}</strong></td></tr>`).join('')}</tbody></table>`;
+
+            const html = `<table class="leaderboard-table"><thead><tr><th>#</th><th class="team-name">ทีม</th><th>แข่ง</th><th>ชนะ</th><th>เสมอ</th><th>แพ้</th><th>ได้</th><th>เสีย</th><th>+/-</th><th>คะแนน</th></tr></thead><tbody>${sortedTeams.map((team, index) => `<tr><td>${index + 1}</td><td class="team-name"><div class="team-emblem ${team.slug}">${team.name}</div></td><td>${team.p}</td><td>${team.w}</td><td>${team.d}</td><td>${team.l}</td><td>${team.gf}</td><td>${team.ga}</td><td>${team.gd}</td><td><strong>${team.pts}</strong></td></tr>`).join('')}</tbody></table>`;
             renderWithMorph(container, html); 
         }
 
@@ -2331,8 +2331,8 @@
                     <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 12px;">
                         <span style="font-weight:600;">${safeName} <small style="color:var(--text-muted)">(${(t.data || []).length} คู่)</small></span>
                         <div style="display:flex; gap:8px;">
-                            <button class="action-btn view-detail-btn" data-id="${safeId}" title="ดูรายละเอียด" style="background:none; border:none; cursor:pointer;">👁️</button>
-                            <button class="action-btn copy-template-btn" data-id="${safeId}" title="คัดลอกมาแก้ไข" style="background:none; border:none; cursor:pointer;">📋</button>
+                            <button class="action-btn view-detail-btn" data-id="${safeId}" title="ดูรายละเอียด" style="background:none; border:none; cursor:pointer;">${globalThis.TK7Icons?.html('view')||''}</button>
+                            <button class="action-btn copy-template-btn" data-id="${safeId}" title="คัดลอกมาแก้ไข" style="background:none; border:none; cursor:pointer;">${globalThis.TK7Icons?.html('list')||''}</button>
                             <button class="action-btn delete-template-btn" data-id="${safeId}" style="color:var(--team-red)">${SVG_TRASH}</button>
                         </div>
                     </div>

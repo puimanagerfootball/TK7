@@ -29,4 +29,4 @@
 - Web and LIFF summaries use roster-summary.js and seven numbered slots. One-team summaries allow choosing a colour; dialogs expose send/close only.
 - Import is an approved-admin preview/confirm action. Missing teams stay unchanged. Empty numbered slots delete only after the preview is explicitly confirmed. Preserve revision checks, idempotency and atomic audit writes.
 - Registration actions use two columns on desktop and mobile. Privacy belongs first in the help/members/logout control group.
-- Shared roster text contains the title, date/time, TK7 Google Maps link, colour headings, seven slots and registration link. Omit totals, registration status, capacity counts, empty-roster labels and the Snapshot footer.
+- Shared roster text contains the title, date/time, TK7 Google Maps link, colour headings and seven slots. During the trial, omit the registration link, totals, registration status, capacity counts, empty-roster labels and the Snapshot footer.

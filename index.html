@@ -19,10 +19,10 @@
 
     <script src="vendor/supabase-2.119.0.js" integrity="sha384-uteMfOloLDGt042uDz+xHGF3ym63/WQ6rFq7murQRG8Ih7QrXGEGNtWd8688sb4O" crossorigin="anonymous"></script>
     <script src="vendor/morphdom-2.7.0.min.js" integrity="sha384-GvO679xZge/ZQsypeI50Wg7FqQIjFNfdoVpniNdlJ0H3z/+RxLNIUBMDhvtU018w" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="css/app.css">
+    <link rel="stylesheet" href="css/app.css?v=5.2.5">
     <link rel="stylesheet" href="css/motion.css">
-    <link rel="stylesheet" href="line-registration/team-card.css?v=5.2.4">
-    <link rel="stylesheet" href="line-registration/privacy-control.css?v=5.2.4">
+    <link rel="stylesheet" href="line-registration/team-card.css?v=5.2.5">
+    <link rel="stylesheet" href="line-registration/privacy-control.css?v=5.2.5">
 </head>
 <body>
     <svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute;overflow:hidden" aria-hidden="true">
@@ -49,32 +49,32 @@
     <div id="app">
         <div id="auth-section">
     <div class="auth-meta">
-        <span class="version-tag">Ver 5.2.4</span>
+        <span class="version-tag">Ver 5.2.5</span>
         <span id="user-info"></span>
     </div>
     <div class="auth-user-controls">
-        <a class="tk7-privacy-button" href="privacy.html" target="_blank" rel="noopener noreferrer" title="ดูรายละเอียดและขอแก้ไขหรือลบข้อมูล"><span class="tk7-privacy-icon" aria-hidden="true">🛡</span>Privacy</a>
-        <button id="help-btn" class="btn-help" type="button" title="วิธีใช้งาน" aria-label="วิธีใช้งาน">❓ วิธีใช้</button>
-        <button type="button" id="claim-superadmin-btn" class="export-btn" style="display:none;background:#f0b27a;color:#2a3d2e;" title="ตั้ง Superadmin คนแรก">👑 Superadmin</button>
-        <button id="members-btn" class="btn-secondary" style="display: none;" title="สมาชิก" aria-label="สมาชิก">👥 สมาชิก</button>
-        <button id="login-btn" class="btn-secondary" title="เข้าสู่ระบบ">🔐 เข้าสู่ระบบ</button>
+        <a class="tk7-privacy-button" href="privacy.html" target="_blank" rel="noopener noreferrer" title="ดูรายละเอียดและขอแก้ไขหรือลบข้อมูล"><span class="tk7-privacy-icon" aria-hidden="true"><span data-tk7-icon="shield" aria-hidden="true"></span></span>Privacy</a>
+        <button id="help-btn" class="btn-help" type="button" title="วิธีใช้งาน" aria-label="วิธีใช้งาน"><span data-tk7-icon="help" aria-hidden="true"></span> วิธีใช้</button>
+        <button type="button" id="claim-superadmin-btn" class="export-btn" style="display:none;background:#f0b27a;color:#2a3d2e;" title="ตั้ง Superadmin คนแรก"><span data-tk7-icon="shield" aria-hidden="true"></span> Superadmin</button>
+        <button id="members-btn" class="btn-secondary" style="display: none;" title="สมาชิก" aria-label="สมาชิก"><span data-tk7-icon="users" aria-hidden="true"></span> สมาชิก</button>
+        <button id="login-btn" class="btn-secondary" title="เข้าสู่ระบบ"><span data-tk7-icon="lock" aria-hidden="true"></span> เข้าสู่ระบบ</button>
         <button id="logout-btn" class="btn-danger" title="ออกจากระบบ"><span class="label-full">ออกจากระบบ</span><span class="label-short">ออก</span></button>
     </div>
 </div>
 <div id="pending-approval-banner" style="display: none; background: #5d4037; color: #ffe0b2; text-align: center; padding: 10px 15px; font-size: 14px; border-bottom: 1px solid #6d4c41;">
-    ⏳ บัญชีของคุณรอการอนุมัติจาก Superadmin — ยังไม่สามารถจัดการตารางได้
+    <span data-tk7-icon="clock" aria-hidden="true"></span> บัญชีของคุณรอการอนุมัติจาก Superadmin — ยังไม่สามารถจัดการตารางได้
 </div>
 
         <div id="score-save-status" hidden role="status" style="padding:10px 16px;background:#fff3d1;color:#4c3c14"><span></span> <button type="button" id="retry-score-save-btn">ลองบันทึกอีกครั้ง</button></div>
         <main id="content">
             <div id="page-setup" class="page">
                 <div id="setup-content-wrapper">
-                    <div class="page-header"><h1>⚽ ตั้งค่าการแข่งขัน</h1></div>
+                    <div class="page-header"><h1><span data-tk7-icon="ball" aria-hidden="true"></span> ตั้งค่าการแข่งขัน</h1></div>
                     <div class="setup-right-col">
                         <div class="card setup-settings-card">
-                            <div class="form-group setup-field-date"><label for="match-date">📆 วันที่แข่งขัน</label><input type="date" id="match-date"></div>
+                            <div class="form-group setup-field-date"><label for="match-date"><span data-tk7-icon="calendar" aria-hidden="true"></span> วันที่แข่งขัน</label><input type="date" id="match-date"></div>
                             <div class="form-group setup-field-minutes">
-                                <label for="time-per-match"><span class="label-full">⏱️ เวลาแข่งขัน (นาที)</span><span class="label-short">⏱️ นาที/แมตช์</span></label>
+                                <label for="time-per-match"><span class="label-full"><span data-tk7-icon="clock" aria-hidden="true"></span> เวลาแข่งขัน (นาที)</span><span class="label-short"><span data-tk7-icon="clock" aria-hidden="true"></span> นาที/แมตช์</span></label>
                                 <div class="custom-number-input">
                                     <button class="num-stepper-btn" data-op="-1" data-target="time-per-match">-</button>
                                     <input type="number" id="time-per-match" value="8" step="1" min="1">
@@ -82,21 +82,21 @@
                                 </div>
                             </div>
                             <div class="form-group setup-field-start">
-                                <label for="start-time"><span class="label-full">🕗 เวลาเริ่มแข่งขัน</span><span class="label-short">🕗 เวลาเริ่ม</span></label>
+                                <label for="start-time"><span class="label-full"><span data-tk7-icon="clock" aria-hidden="true"></span> เวลาเริ่มแข่งขัน</span><span class="label-short"><span data-tk7-icon="clock" aria-hidden="true"></span> เวลาเริ่ม</span></label>
                                 <input type="time" id="start-time" value="20:00">
                             </div>
                         </div>
                         <div class="card" id="advanced-options-card">
                             <div id="template-selector-container" class="form-group" style="display: none;">
-                               <label for="template-selector">📋 รูปแบบตาราง</label>
+                               <label for="template-selector"><span data-tk7-icon="list" aria-hidden="true"></span> รูปแบบตาราง</label>
                                <div style="display: flex; gap: 8px;">
                                     <select id="template-selector" style="flex-grow: 1;"></select>
-                                    <button id="manage-templates-btn" class="export-btn btn-manage" type="button">⚙️ จัดการ</button>
+                                    <button id="manage-templates-btn" class="export-btn btn-manage" type="button"><span data-tk7-icon="settings" aria-hidden="true"></span> จัดการ</button>
                                 </div>
                             </div>
                         </div>
                         <div class="card" id="schedule-preview-card" style="display: none;">
-                            <h2>🏆 นัดเปิดสนาม</h2>
+                            <h2><span data-tk7-icon="trophy" aria-hidden="true"></span> นัดเปิดสนาม</h2>
                             <p class="opener-pick-hint">แตะสีทีมเพื่อเลือกเอง หรือดึงคันชักเพื่อสุ่ม</p>
                             <div id="schedule-preview-content"></div>
                             <select id="lock-team-1" hidden aria-hidden="true"></select>
@@ -104,16 +104,16 @@
                         </div>
                     </div>
                     <div class="card setup-teams-card">
-                        <h2>✅ เลือกทีมที่เข้าร่วม</h2>
+                        <h2><span data-tk7-icon="check" aria-hidden="true"></span> เลือกทีมที่เข้าร่วม</h2>
                         <div id="team-toggle-container"></div>
                     </div>
-                    <button id="generate-schedule-btn" class="btn btn-primary">💾 บันทึกตารางแข่งขัน</button>
+                    <button id="generate-schedule-btn" class="btn btn-primary"><span data-tk7-icon="save" aria-hidden="true"></span> บันทึกตารางแข่งขัน</button>
                 </div>
                 <div id="setup-login-prompt"></div>
             </div>
             
             <div id="page-schedule" class="page">
-                <div class="page-header"><h1>📅 ตารางการแข่งขัน</h1><button id="export-schedule-btn" class="export-btn line-share-btn" type="button"><svg class="line-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63s-.281.63-.627.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63.349 0 .631.285.631.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.3C24 4.857 18.615.726 12 .726S0 4.857 0 10.3c0 4.812 4.269 8.842 10.03 9.608.391.084.922.258 1.057.469.122.192.08.492.039.682l-.169.975c-.052.303-.231 1.185 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.3"/></svg><span>แชร์ LINE</span></button></div>
+                <div class="page-header"><h1><span data-tk7-icon="calendar" aria-hidden="true"></span> ตารางการแข่งขัน</h1><button id="export-schedule-btn" class="export-btn line-share-btn" type="button"><svg class="line-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63s-.281.63-.627.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63.349 0 .631.285.631.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.3C24 4.857 18.615.726 12 .726S0 4.857 0 10.3c0 4.812 4.269 8.842 10.03 9.608.391.084.922.258 1.057.469.122.192.08.492.039.682l-.169.975c-.052.303-.231 1.185 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.3"/></svg><span>แชร์ LINE</span></button></div>
                 <div class="date-selector-container">
                     <select id="schedule-date-selector"></select>
                     <span id="schedule-template-info" class="template-info-badge" style="display: none;"></span>
@@ -122,22 +122,22 @@
                     </button>
                 </div>
                 <div class="card" id="schedule-opener-card" style="display: none;">
-                    <h2>🏆 นัดเปิดสนาม</h2>
+                    <h2><span data-tk7-icon="trophy" aria-hidden="true"></span> นัดเปิดสนาม</h2>
                     <p class="opener-pick-hint">แตะสีทีมหรือดึงคันชักสุ่ม แล้วกดอัปเดตเพื่อสร้างตารางใหม่ทั้งชุด</p>
                     <div id="schedule-opener-content"></div>
-                    <button type="button" id="schedule-update-btn" class="btn btn-warning" style="display: none; width: 100%; margin-top: 12px;">💾 อัปเดตตารางแข่งขัน</button>
+                    <button type="button" id="schedule-update-btn" class="btn btn-warning" style="display: none; width: 100%; margin-top: 12px;"><span data-tk7-icon="save" aria-hidden="true"></span> อัปเดตตารางแข่งขัน</button>
                 </div>
                 <div id="schedule-container"></div>
             </div>
 
             <div id="page-scores" class="page">
-                <div class="page-header"><h1>📝 ผลการแข่งขัน</h1><button id="export-scores-btn" class="export-btn line-share-btn" type="button"><svg class="line-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63s-.281.63-.627.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63.349 0 .631.285.631.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.3C24 4.857 18.615.726 12 .726S0 4.857 0 10.3c0 4.812 4.269 8.842 10.03 9.608.391.084.922.258 1.057.469.122.192.08.492.039.682l-.169.975c-.052.303-.231 1.185 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.3"/></svg><span>แชร์ LINE</span></button></div>
+                <div class="page-header"><h1><span data-tk7-icon="edit" aria-hidden="true"></span> ผลการแข่งขัน</h1><button id="export-scores-btn" class="export-btn line-share-btn" type="button"><svg class="line-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63s-.281.63-.627.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63.349 0 .631.285.631.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.3C24 4.857 18.615.726 12 .726S0 4.857 0 10.3c0 4.812 4.269 8.842 10.03 9.608.391.084.922.258 1.057.469.122.192.08.492.039.682l-.169.975c-.052.303-.231 1.185 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.3"/></svg><span>แชร์ LINE</span></button></div>
                  <div class="date-selector-container"><select id="scores-date-selector"></select></div>
                  <div id="scores-container"></div>
             </div>
 
             <div id="page-leaderboard" class="page">
-                 <div class="page-header"><h1>📊 ตารางคะแนน</h1><button id="export-leaderboard-btn" class="export-btn line-share-btn" type="button"><svg class="line-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63s-.281.63-.627.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63.349 0 .631.285.631.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.3C24 4.857 18.615.726 12 .726S0 4.857 0 10.3c0 4.812 4.269 8.842 10.03 9.608.391.084.922.258 1.057.469.122.192.08.492.039.682l-.169.975c-.052.303-.231 1.185 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.3"/></svg><span>แชร์ LINE</span></button></div>
+                 <div class="page-header"><h1><span data-tk7-icon="chart" aria-hidden="true"></span> ตารางคะแนน</h1><button id="export-leaderboard-btn" class="export-btn line-share-btn" type="button"><svg class="line-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63s-.281.63-.627.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63.349 0 .631.285.631.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.3C24 4.857 18.615.726 12 .726S0 4.857 0 10.3c0 4.812 4.269 8.842 10.03 9.608.391.084.922.258 1.057.469.122.192.08.492.039.682l-.169.975c-.052.303-.231 1.185 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.3"/></svg><span>แชร์ LINE</span></button></div>
                  <div class="date-selector-container"><select id="leaderboard-date-selector"></select></div>
                  <div id="leaderboard-container" class="leaderboard-container"></div>
             </div>
@@ -171,18 +171,18 @@
         </main>
         
         <nav class="bottom-nav">
-            <button class="nav-btn" data-page="page-setup"><span class="icon">⚙️</span>จัดการทีม</button>
-            <button class="nav-btn" data-page="page-schedule"><span class="icon">📅</span>ตารางแข่ง</button>
+            <button class="nav-btn" data-page="page-setup"><span class="icon"><span data-tk7-icon="settings" aria-hidden="true"></span></span>จัดการทีม</button>
+            <button class="nav-btn" data-page="page-schedule"><span class="icon"><span data-tk7-icon="calendar" aria-hidden="true"></span></span>ตารางแข่ง</button>
             <button class="nav-btn" data-page="page-lineup"><span class="icon"><svg class="icon-svg pitch-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-football-pitch"/></svg></span>จัดตำแหน่ง</button>
-            <button class="nav-btn" data-page="page-scores"><span class="icon">✏️</span>บันทึกผล</button>
-            <button class="nav-btn" data-page="page-leaderboard"><span class="icon">🏆</span>ตารางคะแนน</button>
+            <button class="nav-btn" data-page="page-scores"><span class="icon"><span data-tk7-icon="edit" aria-hidden="true"></span></span>บันทึกผล</button>
+            <button class="nav-btn" data-page="page-leaderboard"><span class="icon"><span data-tk7-icon="trophy" aria-hidden="true"></span></span>ตารางคะแนน</button>
         </nav>
     </div>
     
     <div id="login-modal" class="modal">
     <div class="modal-content">
         <span class="close-modal-btn">×</span>
-        <h2 id="auth-modal-title">🔐 เข้าสู่ระบบ</h2>
+        <h2 id="auth-modal-title"><span data-tk7-icon="lock" aria-hidden="true"></span> เข้าสู่ระบบ</h2>
         <div class="share-mode-btns" style="margin-top: 0;">
             <button type="button" class="share-mode-btn active" id="auth-tab-login" data-auth-tab="login">เข้าสู่ระบบ</button>
             <button type="button" class="share-mode-btn" id="auth-tab-signup" data-auth-tab="signup">สมัคร Admin</button>
@@ -208,7 +208,7 @@
     <div id="members-modal" class="modal">
         <div class="modal-content" style="max-width: 560px;">
             <span class="close-modal-btn">×</span>
-            <h2>👥 จัดการสมาชิก</h2>
+            <h2><span data-tk7-icon="users" aria-hidden="true"></span> จัดการสมาชิก</h2>
             <p style="text-align: center; color: var(--text-muted); font-size: 13px; margin-bottom: 12px;">อนุมัติ Admin ที่สมัครเข้ามา</p>
             <div id="members-list"></div>
         </div>
@@ -218,7 +218,7 @@
 <div id="reset-password-modal" class="modal">
     <div class="modal-content">
         <span class="close-modal-btn" title="ปิด">×</span>
-        <h2>🆕 ตั้งรหัสผ่านใหม่</h2>
+        <h2><span data-tk7-icon="lock" aria-hidden="true"></span> ตั้งรหัสผ่านใหม่</h2>
         <p style="text-align:center;color:var(--text-muted);font-size:14px;margin-bottom:16px;">
             คุณมาจากลิงก์รีเซ็ตรหัสในอีเมล<br>กรอกรหัสผ่านใหม่ด้านล่าง แล้วกดบันทึก
         </p>
@@ -239,7 +239,7 @@
         <div class="modal-content">
             <span class="close-modal-btn">×</span>
             <div class="help-modal-toolbar">
-                <h2>❓ วิธีใช้งาน TK7</h2>
+                <h2><span data-tk7-icon="help" aria-hidden="true"></span> วิธีใช้งาน TK7</h2>
                 <button type="button" id="share-help-btn" class="export-btn line-share-btn"><svg class="line-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63s-.281.63-.627.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63.349 0 .631.285.631.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.3C24 4.857 18.615.726 12 .726S0 4.857 0 10.3c0 4.812 4.269 8.842 10.03 9.608.391.084.922.258 1.057.469.122.192.08.492.039.682l-.169.975c-.052.303-.231 1.185 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.3"/></svg><span>แชร์รูป</span></button>
             </div>
             <div class="help-scroll">
@@ -280,7 +280,7 @@
                         <h3><span class="num">2</span> เมนูด้านล่าง 5 หน้า</h3>
                         <div class="help-grid">
                             <div class="help-card">
-                                <p class="title">⚙️ จัดการทีม</p>
+                                <p class="title"><span data-tk7-icon="settings" aria-hidden="true"></span> จัดการทีม</p>
                                 <ol>
                                     <li>เลือกวัน / เวลาเริ่ม / นาทีต่อแมตช์</li>
                                     <li>ติ๊กทีมที่ลงแข่ง</li>
@@ -292,7 +292,7 @@
                                 <div class="help-note">เห็นเมนูนี้เฉพาะ Admin ที่อนุมัติแล้ว</div>
                             </div>
                             <div class="help-card">
-                                <p class="title">📅 ตารางแข่ง</p>
+                                <p class="title"><span data-tk7-icon="calendar" aria-hidden="true"></span> ตารางแข่ง</p>
                                 <ol>
                                     <li>เลือกวันจาก dropdown</li>
                                     <li>ดูคู่แข่ง + เวลาแต่ละแมตช์</li>
@@ -301,7 +301,7 @@
                                 </ol>
                             </div>
                             <div class="help-card">
-                                <p class="title">🏟️ จัดตำแหน่ง</p>
+                                <p class="title"><span data-tk7-icon="ball" aria-hidden="true"></span> จัดตำแหน่ง</p>
                                 <ol>
                                     <li>เลือกทีม (ครบทุกสี)</li>
                                     <li>เลือกแผน เช่น 2-3-1</li>
@@ -311,7 +311,7 @@
                                 <div class="help-note">ชื่อบนสนามไม่บันทึกลงระบบ — รีเฟรชแล้วหาย</div>
                             </div>
                             <div class="help-card">
-                                <p class="title">✏️ บันทึกผล + 🏆 คะแนน</p>
+                                <p class="title"><span data-tk7-icon="edit" aria-hidden="true"></span> บันทึกผล + <span data-tk7-icon="trophy" aria-hidden="true"></span> คะแนน</p>
                                 <ol>
                                     <li>บันทึกผล: กด +/− หรือพิมพ์สกอร์</li>
                                     <li>ตารางคะแนนคำนวณให้อัตโนมัติ</li>
@@ -367,27 +367,28 @@
                         </div>
                     </div>
 
-                    <div class="help-footer">TK7 FridayNight · กดปุ่ม ❓ วิธีใช้ มุมบนขวาได้ทุกเมื่อ</div>
+                    <div class="help-footer">TK7 FridayNight · กดปุ่ม <span data-tk7-icon="help" aria-hidden="true"></span> วิธีใช้ มุมบนขวาได้ทุกเมื่อ</div>
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="line-registration/direct-share-config.js?v=5.2.4" defer></script>
-    <script type="module" src="line-registration/direct-share.mjs?v=5.2.4"></script>
-    <script src="line-registration/backdrop-guard.js?v=5.2.4" defer></script>
-    <script src="line-registration/roster-summary.js?v=5.2.4" defer></script>
-    <script src="line-registration/name-paste.js?v=5.2.4" defer></script>
-    <script src="line-registration/roster-text.js?v=5.2.4" defer></script>
-    <script src="js/roster-import-ui.js?v=5.2.4" defer></script>
-    <script src="line-registration/admin-integration.js?v=5.2.4" defer></script>
-    <script src="line-registration/browser-safety.js?v=5.2.4" defer></script>
-    <script src="js/match-stats.js?v=5.2.4" defer></script>
-    <script src="js/score-writer.js?v=5.2.4" defer></script>
-    <script src="js/app.js?v=5.2.4" defer></script>
+    <script src="line-registration/direct-share-config.js?v=5.2.5" defer></script>
+    <script type="module" src="line-registration/direct-share.mjs?v=5.2.5"></script>
+    <script src="line-registration/backdrop-guard.js?v=5.2.5" defer></script>
+    <script src="line-registration/icons.js?v=5.2.5" defer></script>
+    <script src="line-registration/roster-summary.js?v=5.2.5" defer></script>
+    <script src="line-registration/name-paste.js?v=5.2.5" defer></script>
+    <script src="line-registration/roster-text.js?v=5.2.5" defer></script>
+    <script src="js/roster-import-ui.js?v=5.2.5" defer></script>
+    <script src="line-registration/admin-integration.js?v=5.2.5" defer></script>
+    <script src="line-registration/browser-safety.js?v=5.2.5" defer></script>
+    <script src="js/match-stats.js?v=5.2.5" defer></script>
+    <script src="js/score-writer.js?v=5.2.5" defer></script>
+    <script src="js/app.js?v=5.2.5" defer></script>
 
     <div id="orient-hint" class="orient-hint" aria-live="polite">
-        <div class="orient-icon" aria-hidden="true">📱</div>
+        <div class="orient-icon" aria-hidden="true"><span data-tk7-icon="phone" aria-hidden="true"></span></div>
         <p id="orient-hint-text">หมุนเครื่องเป็นแนวตั้ง</p>
         <small>หน้าตารางคะแนนใช้แนวนอน · หน้าอื่นใช้แนวตั้ง</small>
     </div>
@@ -395,14 +396,14 @@
     <div id="template-manager-modal" class="modal">
         <div class="modal-content" style="max-width: 600px;">
             <span class="close-modal-btn">×</span>
-            <h2>⚙️ จัดการ Template</h2>
+            <h2><span data-tk7-icon="settings" aria-hidden="true"></span> จัดการ Template</h2>
             <div id="template-list-area" style="margin-bottom: 20px;"></div>
             <div style="border-top: 1px solid #444; pt-4">
-                <h3 style="margin: 15px 0;">➕ เพิ่ม Template ใหม่ (<span id="current-team-count-label">0</span> ทีม)</h3>
+                <h3 style="margin: 15px 0;"><span data-tk7-icon="plus" aria-hidden="true"></span> เพิ่ม Template ใหม่ (<span id="current-team-count-label">0</span> ทีม)</h3>
                 <input type="text" id="new-template-name" placeholder="ชื่อตาราง เช่น พบกันหมด 2 รอบ" style="margin-bottom:10px;">
                 <div id="match-input-list"></div>
                 <button id="add-match-row-btn" class="btn-secondary" style="padding: 8px; font-size: 14px; margin: 10px 0;">+ เพิ่มคู่แข่งขัน</button>
-                <button id="save-template-btn" class="btn btn-primary">💾 บันทึก Template</button>
+                <button id="save-template-btn" class="btn btn-primary"><span data-tk7-icon="save" aria-hidden="true"></span> บันทึก Template</button>
             </div>
         </div>
     </div>
