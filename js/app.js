@@ -1,5 +1,5 @@
 /* ==========================================================================
-   TK7 app logic (Ver 6.0.0)
+   TK7 app logic (Ver 6.0.1)
    แยกจาก index.html เพื่อแก้/ค้นหาง่ายขึ้น
    Sections (ค้นหาด้วย // --- SECTION:):
      CONFIG, AUTH, REGISTRATION, SCHEDULE, LINEUP, SETUP,
@@ -117,6 +117,7 @@
             } catch { return ''; }
         }
         let appData = {}, activePage = 'page-schedule', currentDateKey = todayDateKey(), isInitialSetupDone = false;
+        let setupDateChosen = false;
         let lastScrollPosition = 0, shouldRestoreScroll = false;
         const contentContainer = document.getElementById('content');
         const pages = document.querySelectorAll('.page'), navButtons = document.querySelectorAll('.nav-btn'), loginBtn = document.getElementById('login-btn'), logoutBtn = document.getElementById('logout-btn'), userInfo = document.getElementById('user-info'), loginModal = document.getElementById('login-modal'), membersModal = document.getElementById('members-modal');
@@ -567,7 +568,10 @@
             if (preferDate === viewDate) datePreference('view', viewDate);
             await loadDataForDate(viewDate, { syncSetupDate: false });
             const setupDate = document.getElementById('match-date')?.value;
-            if (preferDate) datePreference('setup', preferDate);
+            if (preferDate) {
+                setupDateChosen = true;
+                datePreference('setup', preferDate);
+            }
             await prepareSetupFormForDate(preferDate || setupDate || datePreference('setup') || viewDate);
             if(!activePage || (!canManage() && activePage === 'page-setup')) { activePage = 'page-schedule'; }
             setActivePage(activePage);
@@ -1538,7 +1542,10 @@
                     shouldRestoreScroll = false;
                     const date = e.target.value;
                     if (!date) return;
-                    datePreference('setup', date);
+                    if (!e.detail?.registrationDefault) {
+                        setupDateChosen = true;
+                        datePreference('setup', date);
+                    }
                     // เปลี่ยนแค่วันในฟอร์มตั้งค่า — ไม่สลับ/ทับวันตารางที่กำลังดู
                     await prepareSetupFormForDate(date);
                 });
@@ -2464,6 +2471,14 @@ document.getElementById('reset-password-form').onsubmit = async (e) => {
 };
 
 // --- SECTION: BOOT ---
-        window.TK7Admin?.mount({db,canManage,getDisplayName:()=>userProfile?.display_name||''});
+        window.TK7Admin?.mount({
+            db,canManage,getDisplayName:()=>userProfile?.display_name||'',
+            selectDefaultSetupDate:date=>{
+                const input = document.getElementById('match-date');
+                if (!input || setupDateChosen || datePreference('setup') || input.value === date) return;
+                input.value = date;
+                input.dispatchEvent(new CustomEvent('change',{bubbles:true,detail:{registrationDefault:true}}));
+            }
+        });
         initializeApp();
     });

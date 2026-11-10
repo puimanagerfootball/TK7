@@ -5,6 +5,18 @@ import vm from 'node:vm';
 const source=fs.readFileSync(new URL('admin-integration.js',import.meta.url),'utf8');
 const factoryContext={};vm.runInNewContext(source.slice(0,source.indexOf('window.TK7Admin=')),factoryContext);
 const createLoader=factoryContext.createTK7OverviewLoader;
+test('setup defaults to the closest open registration that has not kicked off in Bangkok',()=>{
+ const settings={group_id:'tk7',environment:'production'};
+ const row=(match_date,overrides={})=>({...settings,match_date,start_time:'20:15:00',is_open:true,...overrides});
+ const sessions=[
+  row('2026-11-20'),row('2026-11-13'),row('2026-11-06'),
+  row('2026-11-09',{is_open:false}),row('2026-11-11',{environment:'test'}),row('2026-11-12',{group_id:'other'})
+ ];
+ const nearest=factoryContext.tk7NearestOpenRegistration;
+ assert.equal(nearest(sessions,settings,Date.parse('2026-11-06T13:14:59Z')),'2026-11-06');
+ assert.equal(nearest(sessions,settings,Date.parse('2026-11-06T13:15:00Z')),'2026-11-13');
+ assert.equal(nearest(sessions,settings,Date.parse('2026-11-20T13:15:00Z')),undefined);
+});
 const deferred=()=>{let resolve,reject;const promise=new Promise((a,b)=>{resolve=a;reject=b;});return {promise,resolve,reject};};
 test('a mutation refresh discards an earlier poll and waits for a fresh snapshot',async()=>{
  const requests=[],applied=[];

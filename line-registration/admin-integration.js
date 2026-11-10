@@ -15,11 +15,17 @@ function createTK7OverviewLoader(read,apply,onError){
  refresh.invalidate=()=>{epoch++;};
  return refresh;
 }
+function tk7NearestOpenRegistration(sessions,settings,now=Date.now()){
+ return sessions.filter(s=>s.is_open&&s.group_id===settings.group_id&&s.environment===settings.environment
+  &&Date.parse(s.match_date+'T'+(s.start_time||'20:00')+'+07:00')>now)
+  .map(s=>s.match_date).sort()[0];
+}
+
 // TK7 admin: เชื่อมหน้าจัดการทีมกับการลงชื่อใน LINE
 // - วันที่ / นาทีต่อแมตช์ / เวลาเริ่ม ในฟอร์ม = ค่าใน LINE (แก้ที่เดียว อัปเดตอัตโนมัติ)
 // - รายการ "เลือกทีมที่เข้าร่วม" แสดงจำนวน/ชื่อคนจาก LINE และติ๊กทีมที่มีคนลงให้เอง
 // - เปลี่ยนสีทั้งทีมได้ (ถ้าสีปลายทางมีคน = สลับกัน) และอัปเดตตารางแข่งที่บันทึกไว้ด้วย
-window.TK7Admin={mount({db,canManage,getDisplayName=()=>''}){
+window.TK7Admin={mount({db,canManage,getDisplayName=()=>'',selectDefaultSetupDate=()=>{}}){
  const COLORS={green:'เขียว',red:'แดง',white:'ขาว',blue:'ฟ้า',black:'ดำ',yellow:'เหลือง',pink:'ชมพู',orange:'ส้ม',navy:'น้ำเงิน',purple:'ม่วง'};
  const ORDER=Object.keys(COLORS);
  const $=id=>document.getElementById(id);
@@ -202,6 +208,7 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>''}){
  place();wide.addEventListener?.('change',place);
 
  let data=null,mutating=false,lastSig='',syncTimer=null,pulledFor='',presetTimer=null,applying=false;
+ let setupDefaultResolved=false;
  const date=()=>$('match-date')?.value||'';
  const minutes=()=>parseInt($('time-per-match')?.value,10)||8;
  const startTime=()=>$('start-time')?.value||'20:00';
@@ -235,7 +242,13 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>''}){
   if(!canManage()){card.style.display='none';return;}
   card.style.display='';
   if(mutating&&!fresh)return;
-  return refreshOverview(fresh);
+  const result=await refreshOverview(fresh);
+  if(result!==false&&data&&!mutating&&canManage()&&setupVisible()&&!setupDefaultResolved){
+   setupDefaultResolved=true;
+   const next=tk7NearestOpenRegistration(data.sessions||[],cfg());
+   if(next)selectDefaultSetupDate(next);
+  }
+  return result;
  }
  function removeDeletedSession(deleted){
   refreshOverview.invalidate();
