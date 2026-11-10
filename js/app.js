@@ -1,5 +1,5 @@
 /* ==========================================================================
-   TK7 app logic (Ver 6.0.2)
+   TK7 app logic (Ver 6.0.3)
    แยกจาก index.html เพื่อแก้/ค้นหาง่ายขึ้น
    Sections (ค้นหาด้วย // --- SECTION:):
      CONFIG, AUTH, REGISTRATION, SCHEDULE, LINEUP, SETUP,
@@ -1130,8 +1130,12 @@
             /* หน้าตารางแข่ง: ไม่ให้แตะเปลี่ยนทีมจากป้ายสี — ใช้เฉพาะนัดเปิดสนาม / เพิ่มแมตช์ */ 
             const addBtn = target.closest('#add-match-btn'); if (addBtn) { handleAddMatch(); return; } 
             const scoreBtn = target.closest('.score-btn'); if (scoreBtn) { updateScoreFromButton(scoreBtn); return; } 
-            const saveScoreBtn = target.closest('.commit-score-btn'); if (saveScoreBtn) { commitScore(saveScoreBtn.dataset.index); return; }
-            const resetBtn = target.closest('.reset-score-btn'); if (resetBtn) { resetScore(resetBtn); return; } 
+            const scoreAction = target.closest('.score-action-btn');
+            if (scoreAction) {
+                if (scoreAction.disabled) return;
+                if (scoreAction.dataset.action === 'reset') resetScore(scoreAction.dataset.index);
+                else commitScore(scoreAction.dataset.index);
+            }
         }
         
         async function handleAddMatch() { if (!canManage()) return; const dayData = appData[currentDateKey]; if (!dayData || !dayData.settings.activeTeams || dayData.settings.activeTeams.length < 2) { alert('ต้องมีทีมที่เข้าร่วมอย่างน้อย 2 ทีมเพื่อเพิ่มแมตช์'); return; } let newSchedule = dayData.schedule ? [...dayData.schedule] : []; newSchedule.push({ home: dayData.settings.activeTeams[0], away: dayData.settings.activeTeams[1], homeScore: null, awayScore: null }); await updateScheduleInDB(newSchedule); }
@@ -2084,6 +2088,16 @@
         const scoreEdits = new Map();
         const scoreEditKey = (date,index) => date+'#'+index;
         const scorePairReady = ({homeScore,awayScore}) => (homeScore == null)===(awayScore == null);
+        const scoreActionIcons = {
+            save: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7l-4-4Zm-1 2v5H7V5h9Zm3 14h-2v-6H7v6H5V5h1v7h12V6.8L19 8v11Zm-4 0H9v-4h6v4Z"/></svg>',
+            reset: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.65 6.35A7.95 7.95 0 0 0 12 4a8 8 0 1 0 7.93 9h-2.02A6 6 0 1 1 12 6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35Z"/></svg>'
+        };
+        function scoreActionFor(match,draft) {
+            if (!draft && (match.homeScore != null || match.awayScore != null)) {
+                return { action:'reset', label:'รีเซ็ตผล', disabled:false };
+            }
+            return { action:'save', label:'บันทึกผล', disabled:!draft || !scorePairReady(draft) };
+        }
         function scoreEditFor(date,index,match) {
             const draft=scoreEdits.get(scoreEditKey(date,index));
             return draft?.original===JSON.stringify(match) ? draft : null;
@@ -2124,8 +2138,15 @@
             const inputs = draft || match;
             if (homeInput) homeInput.value = inputs.homeScore == null ? '' : String(inputs.homeScore);
             if (awayInput) awayInput.value = inputs.awayScore == null ? '' : String(inputs.awayScore);
-            const saveButton = card.querySelector('.commit-score-btn');
-            if (saveButton) saveButton.disabled = !canManage() || !draft || !scorePairReady(draft);
+            const button = card.querySelector('.score-action-btn');
+            if (button) {
+                const {action,label,disabled} = scoreActionFor(match,draft);
+                if (button.dataset.action !== action) button.innerHTML = scoreActionIcons[action];
+                button.dataset.action = action;
+                button.title = label;
+                button.setAttribute('aria-label',label);
+                button.disabled = !canManage() || disabled;
+            }
             const scoreValues = card.querySelectorAll('.score-line-export .score-value');
             const vs = card.querySelector('.score-line-export .vs-export');
             if (scoreValues[0]) scoreValues[0].textContent = match.homeScore !== null ? String(match.homeScore) : '\u00a0';
@@ -2167,19 +2188,20 @@
                 applyColumnMajorGrid(container);
                 return;
             }
-            const svgMinus = `<svg viewBox="0 0 24 24"><path d="M19 13H5v-2h14v2z"/></svg>`, svgPlus = `<svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>`, svgReset = `<svg viewBox="0 0 24 24"><path d="M17.65,6.35C16.2,4.9,14.21,4,12,4c-4.42,0-7.99,3.58-7.99,8s3.57,8,7.99,8c3.73,0,6.84-2.55,7.73-6h-2.08c-0.82,2.33-3.04,4-5.65,4-3.31,0-6-2.69-6-6s2.69-6,6-6c1.66,0,3.14,0.69,4.22,1.78L13,11h7V4L17.65,6.35z"/></svg>`;
+            const svgMinus = `<svg viewBox="0 0 24 24"><path d="M19 13H5v-2h14v2z"/></svg>`, svgPlus = `<svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>`;
             const { schedule, settings } = dayData, startTime = new Date(`${date}T${settings.startTime}`);
             const isReadOnly = !canManage(), disabledAttr = isReadOnly ? 'disabled' : '';
             const html = schedule.map((rawMatch, index) => {
                 const match = {...rawMatch,homeScore:window.TK7MatchStats.score(rawMatch.homeScore),awayScore:window.TK7MatchStats.score(rawMatch.awayScore)};
                 const draft = !isReadOnly && scoreEditFor(date,index,rawMatch);
                 const inputs = draft || match;
+                const action = scoreActionFor(match,draft);
                 const timeStr = new Date(startTime.getTime() + index * settings.timePerMatch * 60000).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit'});
                 const homeTeam = TEAMS.find(t => t.slug === match.home) || { name: 'N/A', slug: 'black' }, awayTeam = TEAMS.find(t => t.slug === match.away) || { name: 'N/A', slug: 'black' };
                 const readonlyAttr = isReadOnly ? 'readonly' : '';
                 const homeScoreText = match.homeScore !== null ? match.homeScore : ' ', awayScoreText = match.awayScore !== null ? match.awayScore : ' ';
                 const separator = (match.homeScore !== null && match.awayScore !== null) ? '-' : 'vs';
-                return `<div class="card match-card" data-score-card="1" data-index="${index}"><div class="match-header"><span>แมตช์ที่ ${index + 1}</span><span>${globalThis.TK7Icons?.html('clock')||''} ${timeStr}</span></div><div class="score-line-export"><div class="team-emblem ${homeTeam.slug}">${homeTeam.name}</div><div class="score-block"><span class="score-value">${homeScoreText}</span><span class="vs-export">${separator}</span><span class="score-value">${awayScoreText}</span></div><div class="team-emblem ${awayTeam.slug}">${awayTeam.name}</div></div><div class="interactive-controls"><div class="team-score-wrapper"><div class="team-emblem ${homeTeam.slug}">${homeTeam.name}</div><div class="score-control"><button class="score-btn" data-index="${index}" data-team="home" data-op="-1" ${disabledAttr}>${svgMinus}</button><input type="number" class="score-input" value="${inputs.homeScore == null ? '' : inputs.homeScore}" data-index="${index}" data-team="home" ${readonlyAttr}><button class="score-btn" data-index="${index}" data-team="home" data-op="1" ${disabledAttr}>${svgPlus}</button></div></div><div class="match-center-controls"><span class="vs">VS</span><button class="reset-score-btn" data-index="${index}" ${disabledAttr}>${svgReset}</button></div><div class="team-score-wrapper"><div class="team-emblem ${awayTeam.slug}">${awayTeam.name}</div><div class="score-control"><button class="score-btn" data-index="${index}" data-team="away" data-op="-1" ${disabledAttr}>${svgMinus}</button><input type="number" class="score-input" value="${inputs.awayScore == null ? '' : inputs.awayScore}" data-index="${index}" data-team="away" ${readonlyAttr}><button class="score-btn" data-index="${index}" data-team="away" data-op="1" ${disabledAttr}>${svgPlus}</button></div></div></div>${isReadOnly ? "" : `<button type="button" class="commit-score-btn" data-index="${index}" ${draft && scorePairReady(draft) ? "" : "disabled"}>บันทึกผล</button>`}</div>`;
+                return `<div class="card match-card" data-score-card="1" data-index="${index}"><div class="match-header"><span>แมตช์ที่ ${index + 1}</span><span>${globalThis.TK7Icons?.html('clock')||''} ${timeStr}</span></div><div class="score-line-export"><div class="team-emblem ${homeTeam.slug}">${homeTeam.name}</div><div class="score-block"><span class="score-value">${homeScoreText}</span><span class="vs-export">${separator}</span><span class="score-value">${awayScoreText}</span></div><div class="team-emblem ${awayTeam.slug}">${awayTeam.name}</div></div><div class="interactive-controls"><div class="team-score-wrapper"><div class="team-emblem ${homeTeam.slug}">${homeTeam.name}</div><div class="score-control"><button class="score-btn" data-index="${index}" data-team="home" data-op="-1" ${disabledAttr}>${svgMinus}</button><input type="number" class="score-input" value="${inputs.homeScore == null ? '' : inputs.homeScore}" data-index="${index}" data-team="home" ${readonlyAttr}><button class="score-btn" data-index="${index}" data-team="home" data-op="1" ${disabledAttr}>${svgPlus}</button></div></div><div class="match-center-controls"><span class="vs">VS</span>${isReadOnly ? "" : `<button type="button" class="score-action-btn" data-index="${index}" data-action="${action.action}" aria-label="${action.label}" title="${action.label}" ${action.disabled ? "disabled" : ""}>${scoreActionIcons[action.action]}</button>`}</div><div class="team-score-wrapper"><div class="team-emblem ${awayTeam.slug}">${awayTeam.name}</div><div class="score-control"><button class="score-btn" data-index="${index}" data-team="away" data-op="-1" ${disabledAttr}>${svgMinus}</button><input type="number" class="score-input" value="${inputs.awayScore == null ? '' : inputs.awayScore}" data-index="${index}" data-team="away" ${readonlyAttr}><button class="score-btn" data-index="${index}" data-team="away" data-op="1" ${disabledAttr}>${svgPlus}</button></div></div></div></div>`;
             }).join('');
             renderWithMorph(container, html);
             applyColumnMajorGrid(container);
@@ -2248,14 +2270,16 @@
             const parsed = Number.parseInt(input.value, 10);
             updateScore(index, team, Number.isNaN(parsed) ? 0 : Math.max(0, parsed));
         }
-        function resetScore(button) {
-            const { index } = button.dataset;
+        function resetScore(index) {
             if (!canManage() || pendingPasswordRecovery) return;
             const date = currentDateKey, dayData = appData[date];
             if (!dayData?.schedule) return;
             const idx = parseInt(index, 10);
-            if (Number.isNaN(idx) || !dayData.schedule[idx]) return;
-            stageScore(date,idx,dayData.schedule[idx],{homeScore:null,awayScore:null});
+            const match = dayData.schedule[idx];
+            if (!match || scoreActionFor(match,scoreEditFor(date,idx,match)).action !== 'reset') return;
+            if (!confirm('ยืนยันรีเซ็ตผลแมตช์ที่ '+(idx+1)+'?')) return;
+            stageScore(date,idx,match,{homeScore:null,awayScore:null});
+            commitScore(idx);
         }
 
         function calculateLeaderboard(date) {

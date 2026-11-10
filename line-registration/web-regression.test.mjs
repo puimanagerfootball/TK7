@@ -3,13 +3,17 @@ const source=fs.readFileSync(new URL('../js/app.js',import.meta.url),'utf8');
 const between=(a,b)=>source.slice(source.indexOf(a),source.indexOf(b,source.indexOf(a)));
 test('score controls stage 3–1 and commit only the confirmed 3–2',()=>{
  const date='2026-11-13',writes=[];
+ let confirmed=false;
  const day={schedule:[{home:'green',away:'blue',homeScore:3,awayScore:0}]};
  const context={currentDateKey:date,appData:{[date]:day},canManage:()=>true,pendingPasswordRecovery:false,
-  patchMatchScoreCardUI(){},scheduleLeaderboardRefresh(){},queueScoreSave:()=>writes.push(day.schedule[0].awayScore)};
+  patchMatchScoreCardUI(){},scheduleLeaderboardRefresh(){},confirm:()=>confirmed,queueScoreSave:()=>writes.push(day.schedule[0].awayScore)};
  vm.createContext(context);
  vm.runInContext(between('        const scoreEdits =','        const SCORE_SAVE_DEBOUNCE_MS')+between('        function updateScore(index','        function calculateLeaderboard('),context);
  const plus={dataset:{index:'0',team:'away',op:'1'}};
+ assert.equal(context.scoreActionFor(day.schedule[0],null).action,'reset');
+ assert.equal(context.scoreActionFor({homeScore:null,awayScore:null},null).disabled,true);
  context.updateScoreFromButton(plus);
+ assert.equal(context.scoreActionFor(day.schedule[0],context.scoreEditFor(date,0,day.schedule[0])).action,'save');
  assert.equal(context.scoreEditFor(date,0,day.schedule[0]).awayScore,1);
  context.updateScoreFromButton(plus);
  assert.equal(context.scoreEditFor(date,0,day.schedule[0]).awayScore,2);
@@ -17,6 +21,13 @@ test('score controls stage 3–1 and commit only the confirmed 3–2',()=>{
  assert.deepEqual(writes,[]);
  context.commitScore(0);
  assert.deepEqual(writes,[2]);
+ assert.equal(context.scoreActionFor(day.schedule[0],null).action,'reset');
+ context.resetScore(0);
+ assert.deepEqual(writes,[2]);
+ confirmed=true;
+ context.resetScore(0);
+ assert.deepEqual(writes,[2,null]);
+ assert.equal(context.scoreActionFor(day.schedule[0],null).action,'save');
 });
 test('refreshing the date list preserves the independent setup and schedule selections',async()=>{
  const scheduleDay='2026-11-06',setupDay='2026-11-13',today='2026-11-09';

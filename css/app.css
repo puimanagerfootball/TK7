@@ -573,9 +573,6 @@
         .interactive-controls { display: flex; justify-content: space-between; align-items: flex-end; gap: 8px; }
         .team-score-wrapper { display: flex; flex-direction: column; align-items: center; gap: 12px; flex: 1; min-width: 0; }
         .match-center-controls { display: flex; flex-direction: column; align-items: center; gap: 10px; flex-shrink: 0; }
-        .commit-score-btn { display: block; margin: 10px auto 0; padding: 7px 20px; border: 0; border-radius: 8px; background: #217446; color: white; font: inherit; font-weight: 700; cursor: pointer; }
-        .commit-score-btn:disabled { background: #e3ebe5; color: #4c6454; cursor: default; }
-        .temp-export-container .commit-score-btn { display: none; }
         .score-control { display: flex; align-items: center; gap: 8px; width: 100%; max-width: 150px; }
         .score-btn {
             width: 40px; height: 40px; border-radius: 50%; border: none; cursor: pointer;
@@ -604,19 +601,18 @@
         }
         .score-input { width: 100%; height: 40px; text-align: center; font-size: 20px; font-weight: 700; }
         .score-input:read-only { background-color: #dce8d6; cursor: default; }
-        .score-btn:disabled, .reset-score-btn:disabled { background: #a8b8aa; color: #e8efe6; cursor: not-allowed; box-shadow: none; border-color: transparent; filter: none; }
-        .reset-score-btn {
+        .score-action-btn {
             width: 40px; height: 40px; border-radius: 50%; border: none; cursor: pointer;
-            background: #ffb74d; color: #4e2600;
-            display: flex; align-items: center; justify-content: center;
+            background: #217446; color: #fff;
+            display: flex; align-items: center; justify-content: center; padding: 0;
             transition: transform 0.2s, filter 0.2s, box-shadow 0.2s;
-            box-shadow:
-                0 3px 0 #e65100,
-                0 4px 8px rgba(20,50,24,0.14);
+            box-shadow: 0 3px 0 #174a2e, 0 4px 8px rgba(20,50,24,0.14);
         }
-        .reset-score-btn:hover:not(:disabled) { transform: scale(1.08); filter: brightness(1.05); }
-        .reset-score-btn svg { width: 22px; height: 22px; fill: currentColor; transition: transform 0.3s ease-out; }
-        .reset-score-btn:hover:not(:disabled) svg { transform: rotate(-90deg); }
+        .score-action-btn[data-action="reset"] { background: #ffb74d; color: #4e2600; box-shadow: 0 3px 0 #e65100, 0 4px 8px rgba(20,50,24,0.14); }
+        .score-btn:disabled, .score-action-btn:disabled { background: #a8b8aa; color: #253b2b; cursor: not-allowed; box-shadow: none; border-color: transparent; filter: none; }
+        .score-action-btn:hover:not(:disabled) { transform: scale(1.08); filter: brightness(1.05); }
+        .score-action-btn svg { width: 22px; height: 22px; fill: currentColor; transition: transform 0.3s ease-out; }
+        .score-action-btn[data-action="reset"]:hover:not(:disabled) svg { transform: rotate(-90deg); }
         .vs { margin: 0; font-size: 20px; color: var(--text-muted); font-weight: 700; }
         .score-line-export { display: none; }
         #auth-section {
@@ -727,9 +723,9 @@
             .delete-day-btn { width: 38px; height: 38px; }
             .delete-day-btn svg { width: 18px; height: 18px; }
             .num-stepper-btn { width: 38px; height: 38px; font-size: 20px; }
-            .score-btn, .reset-score-btn { width: 34px; height: 34px; }
+            .score-btn, .score-action-btn { width: 34px; height: 34px; }
             .score-btn svg { width: 20px; height: 20px; }
-            .reset-score-btn svg { width: 18px; height: 18px; }
+            .score-action-btn svg { width: 18px; height: 18px; }
             .score-input { height: 34px; font-size: 17px; }
             .score-control { gap: 6px; max-width: 130px; }
             .team-score-wrapper { gap: 8px; }
