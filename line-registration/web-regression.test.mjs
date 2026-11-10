@@ -1,6 +1,23 @@
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import vm from 'node:vm';
 const source=fs.readFileSync(new URL('../js/app.js',import.meta.url),'utf8');
 const between=(a,b)=>source.slice(source.indexOf(a),source.indexOf(b,source.indexOf(a)));
+test('score controls stage 3–1 and commit only the confirmed 3–2',()=>{
+ const date='2026-11-13',writes=[];
+ const day={schedule:[{home:'green',away:'blue',homeScore:3,awayScore:0}]};
+ const context={currentDateKey:date,appData:{[date]:day},canManage:()=>true,pendingPasswordRecovery:false,
+  patchMatchScoreCardUI(){},scheduleLeaderboardRefresh(){},queueScoreSave:()=>writes.push(day.schedule[0].awayScore)};
+ vm.createContext(context);
+ vm.runInContext(between('        const scoreEdits =','        const SCORE_SAVE_DEBOUNCE_MS')+between('        function updateScore(index','        function calculateLeaderboard('),context);
+ const plus={dataset:{index:'0',team:'away',op:'1'}};
+ context.updateScoreFromButton(plus);
+ assert.equal(context.scoreEditFor(date,0,day.schedule[0]).awayScore,1);
+ context.updateScoreFromButton(plus);
+ assert.equal(context.scoreEditFor(date,0,day.schedule[0]).awayScore,2);
+ assert.equal(day.schedule[0].awayScore,0);
+ assert.deepEqual(writes,[]);
+ context.commitScore(0);
+ assert.deepEqual(writes,[2]);
+});
 test('refreshing the date list preserves the independent setup and schedule selections',async()=>{
  const scheduleDay='2026-11-06',setupDay='2026-11-13',today='2026-11-09';
  const dates=[setupDay,today,scheduleDay];

@@ -99,7 +99,7 @@ function renderDates(){
   }},
    el("b",{text:d.date?dateLabel(d.date):d.label}),el("small",{text:""+d.startTime+(d.isOpen?"":T("closedShort"))})));
  }
- nav.hidden=visible.length<2;
+ nav.hidden=visible.length<(sessionId?2:1);
 }
 // การ์ดข้อมูลแมตช์ (ดีไซน์เดียวกับการ์ดตอบกลับในไลน์)
 const dmy=d=>{const [y,m,dd]=String(d||"").split("-").map(Number);return y?dd+"-"+m+"-"+y:""};
@@ -416,14 +416,18 @@ async function loadRosterNow(showSkeleton=false){
  const seq=++loadSeq;const sid=sessionId;if(!sid)return;
  $("refresh").classList.add("spin");
  if(showSkeleton){roster=null;renderBoard();$("board").append(el("div",{class:"grid"},[1,2,3,4].map(()=>el("div",{class:"skeleton"}))))}
- try{const next=await api("roster",{sessionId:sid});if(seq!==loadSeq||sid!==sessionId)return;
-  const prev=roster&&roster.sessionKey===sid?roster:null;next.sessionKey=sid;
+ const prev=roster&&roster.sessionKey===sid?roster:null;
+ try{const payload={sessionId:sid};
+  if(prev){payload.knownRosterRevision=prev.revision;payload.knownScheduleVersion=prev.scheduleVersion;}
+  const {rosterUnchanged,...result}=await api("roster",payload);if(seq!==loadSeq||sid!==sessionId)return;
+  const next={...(rosterUnchanged?prev:{schedule:prev?.schedule??null,scheduleVersion:prev?.scheduleVersion}),...result,sessionKey:sid};
   const changes=prev&&!quiet&&prev.revision!==next.revision?diffRoster(prev,next):[];quiet=false;
-  if(prev&&JSON.stringify(prev)===JSON.stringify(next))return;
+  if(prev&&Object.keys(next).every(k=>JSON.stringify(prev[k])===JSON.stringify(next[k])))return;
+  if(changes.length)fresh=new Set(changes.filter(c=>c.id).map(c=>c.id));
   roster=next;renderBoard();
-  if(roster.schedule)window.TK7ScheduleImage.prepare(roster.schedule).catch(()=>{});
+  if(roster.schedule&&(!prev||JSON.stringify(prev.schedule)!==JSON.stringify(roster.schedule)))window.TK7ScheduleImage.prepare(roster.schedule).catch(()=>{});
   if(!scheduleAutoOpened&&roster.schedule){const q=new URLSearchParams(location.search);const state=new URLSearchParams((q.get('liff.state')||'').split('?')[1]||'');if((q.get('view')||state.get('view'))==='schedule'){scheduleAutoOpened=true;openSchedule();}}
-  if(changes.length){fresh=new Set(changes.filter(c=>c.id).map(c=>c.id));renderBoard();setTimeout(()=>{fresh.clear();document.querySelectorAll(".prow.fresh").forEach(r=>r.classList.remove("fresh"))},4000);notify(changes)}
+  if(changes.length){setTimeout(()=>{fresh.clear();document.querySelectorAll(".prow.fresh").forEach(r=>r.classList.remove("fresh"))},4000);notify(changes)}
  }
  catch(e){if(seq===loadSeq)toast(e.message,true)}
  finally{if(seq===loadSeq)$("refresh").classList.remove("spin")}
@@ -468,10 +472,15 @@ function showLineLogin(){
    if(!a.name)account.append(el("button",{type:"button",text:lang==="en"?"Sign in again":"เข้าสู่ระบบใหม่",onclick:()=>tk7RecoverLineAccount(a,{...recoverOptions,manual:true})}));
    if(a.name)myName=a.name;
   }
-  if(!dates.length)return fail(T("noDates"));
   // เปิดจากปุ่มของวันไหน ให้เลือกวันนั้น (?date=YYYY-MM-DD) ไม่งั้นเลือกวันที่ใกล้ที่สุด
   const want=(()=>{try{const q=new URLSearchParams(location.search);let d=q.get("date");if(!d&&q.get("liff.state"))d=new URLSearchParams(q.get("liff.state").split("?")[1]||"").get("date");return d}catch{return null}})();
-  sessionId=(dates.find(d=>d.date===want)||dates.find(d=>d.isOpen)||dates[0]).id;
+  const match=want?dates.find(d=>d.date===want):dates.find(d=>d.isOpen)||dates[0];
+  if(!match){
+   if(want)scheduleAutoOpened=true;
+   renderDates();
+   return fail(want?(lang==="en"?"Registration for this date is closed or unavailable. Select another date above if available.":"วันที่ในลิงก์ปิดรับหรือไม่พร้อมใช้งาน หากมีวันอื่นให้เลือกจากด้านบน"):T("noDates"));
+  }
+  sessionId=match.id;
   renderDates();await loadRoster();
  }catch(e){fail(T("connFail")+e.message)}
 })();

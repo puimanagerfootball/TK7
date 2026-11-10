@@ -532,19 +532,15 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>'',selectDefaultSetupDat
   if(!confirm((nTo?'สลับสี '+COLORS[from]+' ⇄ '+COLORS[to]:'เปลี่ยนทีม'+COLORS[from]+' ทั้งหมดเป็นสี'+COLORS[to])+' ?'))return;
   say('กำลังเปลี่ยนสี…');
   try{
-   await rpc('tk7_admin_recolor',{p_session:s.id,p_from:from,p_to:to});await logWeb(s.id,'recolor','ทีมสี'+COLORS[from]+(nTo?' ⇄ ':' → ')+'สี'+COLORS[to]);
-   const sched=await swapScheduleColors(s.match_date,from,to);
+   const {data:row,error}=await db.from('match_days').select('schedule,settings,updated_at').eq('match_date',s.match_date).maybeSingle();
+   if(error)throw error;
+   if(row&&!row.updated_at)throw Error('ไม่พบรุ่นตาราง กรุณาโหลดใหม่');
+   const swap=v=>Array.isArray(v)?v.map(swap):v&&typeof v==='object'?Object.fromEntries(Object.entries(v).map(([k,x])=>[k===from?to:k===to?from:k,swap(x)])):v===from?to:v===to?from:v;
+   const sched=await rpc('tk7_admin_recolor_fixture',{p_session:s.id,p_from:from,p_to:to,p_revision:s.revision,
+    p_updated_at:row?.updated_at??null,p_schedule:row?swap(row.schedule):null,p_settings:row?swap(row.settings):null});
    lastSig='';await load(true);
    say('เปลี่ยนสีแล้ว: '+COLORS[from]+(nTo?' ⇄ ':' → ')+COLORS[to]+(sched?' · อัปเดตตารางแข่งที่บันทึกไว้ด้วย':''));
-  }catch(e){say(errText(e),true)}
- }
- // ตารางแข่งที่บันทึกแล้ว (match_days): สลับสีให้ตรงกัน
- async function swapScheduleColors(matchDate,a,b){
-  const {data:row,error}=await db.from('match_days').select('*').eq('match_date',matchDate).maybeSingle();
-  if(error||!row)return false;
-  const swap=v=>Array.isArray(v)?v.map(swap):v&&typeof v==='object'?Object.fromEntries(Object.entries(v).map(([k,x])=>[k===a?b:k===b?a:k,swap(x)])):v===a?b:v===b?a:v;
-  const {error:e2}=await db.from('match_days').update({schedule:swap(row.schedule),settings:swap(row.settings)}).eq('match_date',matchDate);
-  if(e2)throw e2;return true;
+  }catch(e){say(e.message==='Fixture changed; refresh first'?'ตารางหรือคะแนนเพิ่งเปลี่ยน กรุณาตรวจข้อมูลแล้วลองอีกครั้ง':errText(e),true)}
  }
 
  // ฟอร์ม ⇄ LINE

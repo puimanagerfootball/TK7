@@ -1,5 +1,16 @@
 // Coalesce score edits per date. Keep failed drafts and serialize server writes.
 globalThis.TK7ScoreWriter={
+async replaceFixture(db,{date,schedule,settings,existing}){
+ const table=db.from('match_days');
+ if(existing&&!existing.updated_at)throw Error('ไม่พบรุ่นข้อมูล กรุณาโหลดตารางใหม่');
+ const request=existing
+  ?table.update({schedule,settings}).eq('match_date',date).eq('updated_at',existing.updated_at)
+  :table.insert({match_date:date,schedule,settings});
+ const {data,error}=await request.select('updated_at').maybeSingle();
+ if(error?.code==='23505'||(!error&&!data))throw Error('ตารางเปลี่ยนจากอุปกรณ์อื่น กรุณาโหลดใหม่ก่อนบันทึก');
+ if(error)throw error;
+ return data;
+},
 async persist(db,{date,schedule,version,baseline}){
  if(!version){
   const {data,error}=await db.from('match_days').select('schedule,updated_at').eq('match_date',date).maybeSingle();

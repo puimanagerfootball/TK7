@@ -241,16 +241,26 @@ function createHandler(env,fetcher=fetch){
     return reply({account:{name:profileStatus==='ready'?actorName:null,status:profileStatus},dates});
    }
    if(!uuid(b.sessionId))return reply({error:L('กรุณาเลือกวันแข่งขัน','Please choose a match date')},400);
-   const sessions=await db('tk7_signup_sessions?select=id,match_date,teams,is_open,start_time&'+filter+'&id=eq.'+b.sessionId);const s=sessions[0];
+   const sessions=await db('tk7_signup_sessions?select=id,match_date,teams,is_open,start_time,revision&'+filter+'&id=eq.'+b.sessionId);const s=sessions[0];
    if(!s)return reply({error:L('ไม่พบวันแข่งขันนี้','Match date not found')},404);
    if(b.action==='roster'){
-    // Independent reads overlap after the session has been authorized.
-    const [roster,days]=await Promise.all([
-     db('rpc/tk7_read_roster',{p_session:s.id}),
-     db('match_days?select=match_date,settings,schedule&match_date=eq.'+encodeURIComponent(s.match_date)+'&limit=1').catch(()=>[])
+    const rosterUnchanged=Number.isSafeInteger(b.knownRosterRevision)&&b.knownRosterRevision===s.revision;
+    const fixtureFilter='&match_date=eq.'+encodeURIComponent(s.match_date)+'&limit=1';
+    const readSchedule=async()=>{
+     if(b.knownScheduleVersion===null||typeof b.knownScheduleVersion==='string'){
+      const [header]=await db('match_days?select=updated_at'+fixtureFilter);
+      const version=header?.updated_at??null;
+      if(version===b.knownScheduleVersion)return {scheduleVersion:version};
+      if(!header)return {scheduleVersion:null,schedule:null};
+     }
+     const [day]=await db('match_days?select=match_date,settings,schedule,updated_at'+fixtureFilter);
+     return {scheduleVersion:day?.updated_at??null,schedule:globalThis.TK7Schedule.normalize(day)};
+    };
+    const [roster,fixture]=await Promise.all([
+     rosterUnchanged?{rosterUnchanged:true}:db('rpc/tk7_read_roster',{p_session:s.id}),
+     readSchedule().catch(()=>({}))
     ]);
-    const schedule=globalThis.TK7Schedule.normalize(days?.[0]);
-    return reply({...roster,isOpen:(roster.isOpen??s.is_open)&&isRegistrationOpen(s),schedule});
+    return reply({...roster,isOpen:(roster.isOpen??s.is_open)&&isRegistrationOpen(s),...fixture});
    }
    if(b.action==='log'){
     const rows=await db('tk7_signup_log?select=actor_name,action,detail,created_at&session_id=eq.'+s.id+'&order=created_at.desc&limit='+(b.all===true?200:3));

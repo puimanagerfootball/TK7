@@ -26,7 +26,7 @@ function harness({identity={sub:'Uverified',name:'Pui'},verifyStatus=200,replaye
   if(url.includes('tk7_signup_sessions?')){
    assert.match(url,/group_id=eq.legacy-dataset&environment=eq.production/);
    if(missingSession)return ok([]);
-   return ok([{id:sid,match_date:matchDate,is_open:true,start_time:'20:15:00',time_per_match:8,teams:['green','red','purple']}]);
+   return ok([{id:sid,match_date:matchDate,is_open:true,start_time:'20:15:00',time_per_match:8,revision:1,teams:['green','red','purple']}]);
   }
   if(url.includes('match_days?')){if(readGate)await readGate('schedule');assert.ok(url.endsWith('match_date=eq.'+matchDate+'&limit=1'));return ok(scheduleDay?[scheduleDay]:[]);}
   if(url.endsWith('rpc/tk7_read_roster')){if(readGate)await readGate('roster');return ok({revision:1,entries:[{id:entry,name:'Alex',team:'green',slot:1}]});}
@@ -69,6 +69,16 @@ test('Bangkok kickoff closes the roster even before the stored open flag changes
  const roster=await call({action:'roster',sessionId:sid});
  assert.equal(roster.isOpen,false);
  assert.equal(roster.entries[0].name,'Alex');
+});
+
+test('a poll with unchanged roster and fixture revisions skips both full reads',async()=>{
+ const version='2026-11-06T13:00:00+00:00';
+ const {handler,calls}=harness({scheduleDay:{updated_at:version}});
+ const response=await handler(req({action:'roster',sessionId:sid,idToken:'valid',knownRosterRevision:1,knownScheduleVersion:version}));
+ assert.equal(response.status,200);
+ assert.deepEqual(await response.json(),{rosterUnchanged:true,isOpen:true,scheduleVersion:version});
+ assert.ok(calls.some(url=>url.includes('match_days?select=updated_at&')));
+ assert.ok(!calls.some(url=>url.endsWith('rpc/tk7_read_roster')||url.includes('select=match_date,settings,schedule')));
 });
 test('LINE login alone can list configured dates without Bot secrets or membership',async()=>{
  const {handler,calls}=harness();

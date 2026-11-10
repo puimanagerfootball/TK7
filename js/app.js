@@ -1,5 +1,5 @@
 /* ==========================================================================
-   TK7 app logic (Ver 6.0.1)
+   TK7 app logic (Ver 6.0.2)
    แยกจาก index.html เพื่อแก้/ค้นหาง่ายขึ้น
    Sections (ค้นหาด้วย // --- SECTION:):
      CONFIG, AUTH, REGISTRATION, SCHEDULE, LINEUP, SETUP,
@@ -343,6 +343,9 @@
                 }
             });
             contentContainer.addEventListener('click', handleMainClick);
+            contentContainer.addEventListener('change', event => {
+                if (event.target.matches('.score-input')) updateScoreFromInput(event.target);
+            });
             
             // ลิงก์รีเซ็ตรหัสหมดอายุ/ใช้แล้ว → แจ้งชัด ๆ แทนการเงียบ
             if (handleAuthRedirectError()) {
@@ -357,7 +360,6 @@
                 openResetPasswordModal();
             }
             await refreshUserAccess();
-            await fetchTemplates();
             await loadInitialData();
 
             // Return before querying the database: Auth holds a session lock here.
@@ -389,7 +391,7 @@
             listenToRealtimeChanges();
             document.getElementById('retry-score-save-btn').onclick = () => flushScoreSave();
             window.addEventListener('beforeunload', event => {
-                if (scoreWriter.hasPending()) { event.preventDefault(); event.returnValue = ''; }
+                if (scoreWriter.hasPending() || scoreEdits.size) { event.preventDefault(); event.returnValue = ''; }
             });
             window.addEventListener('pagehide', () => { flushScoreSave(); });
             document.addEventListener('visibilitychange', () => {
@@ -622,9 +624,10 @@
         }
 
         async function handleLogout() {
-            if (!await flushScoreSave()) {
+            if (!await flushScoreSave() || scoreEdits.size) {
                 if (!confirm('คะแนนยังไม่บันทึก ต้องการออกจากระบบและยกเลิกคะแนนที่แก้ในเครื่องหรือไม่?')) return;
                 scoreWriter.discard();
+                scoreEdits.clear();
                 showScoreSaveStatus('');
             }
             const { error } = await db.auth.signOut();
@@ -986,17 +989,18 @@
 
             const settings = { ...dayData.settings, activeTeams: finalOrder };
             const finalSchedule = buildScheduleFromTeamOrder(finalOrder, settings.templateId);
-            const { error } = await db.from('match_days').upsert(
-                { match_date: date, settings, schedule: finalSchedule },
-                { onConflict: 'match_date' }
-            );
-            if (error) {
+            const existing = {updated_at:dayData.updated_at};
+            try {
+                if (!await flushScoreSave(date)) return;
+                await window.TK7ScoreWriter.replaceFixture(db, {date,settings,schedule:finalSchedule,existing});
+            } catch (error) {
                 alert('เกิดข้อผิดพลาด: ' + error.message);
                 return;
             }
             scheduleOpenerDraft = null;
             showToast('อัปเดตตารางแข่งขันแล้ว');
-            await loadDataForDate(date, { syncSetupDate: false });
+            if (date === currentDateKey) await loadDataForDate(date, { syncSetupDate: false });
+            else delete appData[date];
         }
 
         function renderScheduleOpenerCard(date) {
@@ -1126,7 +1130,7 @@
             /* หน้าตารางแข่ง: ไม่ให้แตะเปลี่ยนทีมจากป้ายสี — ใช้เฉพาะนัดเปิดสนาม / เพิ่มแมตช์ */ 
             const addBtn = target.closest('#add-match-btn'); if (addBtn) { handleAddMatch(); return; } 
             const scoreBtn = target.closest('.score-btn'); if (scoreBtn) { updateScoreFromButton(scoreBtn); return; } 
-            const scoreInput = target.closest('.score-input'); if (scoreInput) { scoreInput.onchange = () => updateScoreFromInput(scoreInput); return; } 
+            const saveScoreBtn = target.closest('.commit-score-btn'); if (saveScoreBtn) { commitScore(saveScoreBtn.dataset.index); return; }
             const resetBtn = target.closest('.reset-score-btn'); if (resetBtn) { resetScore(resetBtn); return; } 
         }
         
@@ -1209,6 +1213,7 @@
             navButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.page === pageId)); 
             contentContainer.scrollTop = 0;
             renderVisiblePage(currentDateKey);
+            if (pageId === 'page-setup') loadSetupTemplates();
             applyPageOrientation(pageId);
         }
 
@@ -1641,6 +1646,7 @@
         let creatingSchedule = false;
         async function generateAndSaveSchedule() {
             if (!canManage()) return alert('ต้องเป็นผู้ดูแลที่อนุมัติแล้วเท่านั้น');
+            if (setupTemplatesFlight) await setupTemplatesFlight;
             if (creatingSchedule || openerDrawing) return;
             const input = document.getElementById('match-date');
             const date = input.value;
@@ -1682,10 +1688,10 @@
                 const settings = { timePerMatch: duration, startTime, activeTeams: finalOrder, templateId };
                 const finalSchedule = buildScheduleFromTeamOrder(finalOrder, templateId);
                 if (button) button.textContent = 'กำลังบันทึกตาราง…';
-                const { error } = await db.from('match_days').upsert({ match_date: date, settings, schedule: finalSchedule }, { onConflict: 'match_date' });
-                if (error) throw error;
+                if (!await flushScoreSave(date) || formSnapshot() !== snapshot) return;
+                const savedDay = await window.TK7ScoreWriter.replaceFixture(db, {date,settings,schedule:finalSchedule,existing:targetDay});
                 scheduleOpenerDraft = null;
-                appData[date] = { match_date: date, settings, schedule: finalSchedule };
+                appData[date] = { match_date: date, settings, schedule: finalSchedule, updated_at:savedDay.updated_at };
                 showToast(targetDay?.schedule?.length ? 'อัปเดตตารางเรียบร้อย!' : 'บันทึกตารางเรียบร้อย!');
                 if (input.value === date) { await loadInitialData({ preferDate: date }); setActivePage('page-schedule'); }
             } catch (error) {
@@ -1930,9 +1936,6 @@
                     }
                     if (changedDate === currentDateKey) {
                         // กำลังแก้คะแนนอยู่ / เพิ่งบันทึกเอง → อย่ารีโหลดทับ UI
-                        if (Object.prototype.hasOwnProperty.call(appData, changedDate)) {
-                            delete appData[changedDate];
-                        }
                         saveScrollPosition();
                         shouldRestoreScroll = true;
                         await loadDataForDate(currentDateKey, { syncSetupDate: false });
@@ -2077,8 +2080,14 @@
         function createNoDataMessage(message, icon) { return `<div id="no-data-message"><div class="icon">${globalThis.TK7Icons?.html(icon)||''}</div><p>${message}</p></div>`; }
         
 // --- SECTION: SCORES ---
-        // กด +/−/รีเซ็ต ทันที → หยุดกด ~0.5s ค่อยบันทึก DB (ไม่วาดทั้งหน้า / ไม่มีแบนเนอร์)
         const deferredScoreRefresh = new Set();
+        const scoreEdits = new Map();
+        const scoreEditKey = (date,index) => date+'#'+index;
+        const scorePairReady = ({homeScore,awayScore}) => (homeScore == null)===(awayScore == null);
+        function scoreEditFor(date,index,match) {
+            const draft=scoreEdits.get(scoreEditKey(date,index));
+            return draft?.original===JSON.stringify(match) ? draft : null;
+        }
         const SCORE_SAVE_DEBOUNCE_MS = 500;
         function showScoreSaveStatus(message) {
             const status = document.getElementById('score-save-status');
@@ -2111,8 +2120,12 @@
             if (!card) return;
             const homeInput = card.querySelector('.score-input[data-team="home"]');
             const awayInput = card.querySelector('.score-input[data-team="away"]');
-            if (homeInput) homeInput.value = match.homeScore === null ? '' : String(match.homeScore);
-            if (awayInput) awayInput.value = match.awayScore === null ? '' : String(match.awayScore);
+            const draft = scoreEditFor(currentDateKey,index,match);
+            const inputs = draft || match;
+            if (homeInput) homeInput.value = inputs.homeScore == null ? '' : String(inputs.homeScore);
+            if (awayInput) awayInput.value = inputs.awayScore == null ? '' : String(inputs.awayScore);
+            const saveButton = card.querySelector('.commit-score-btn');
+            if (saveButton) saveButton.disabled = !canManage() || !draft || !scorePairReady(draft);
             const scoreValues = card.querySelectorAll('.score-line-export .score-value');
             const vs = card.querySelector('.score-line-export .vs-export');
             if (scoreValues[0]) scoreValues[0].textContent = match.homeScore !== null ? String(match.homeScore) : '\u00a0';
@@ -2140,6 +2153,15 @@
         function renderScoresPage(date) {
             const container = document.getElementById('scores-container');
             const dayData = appData[date];
+            let staleDraft = false;
+            for (const [key,draft] of scoreEdits) {
+                if (!key.startsWith(date+'#')) continue;
+                const index = Number(key.slice(date.length+1));
+                if (draft.original===JSON.stringify(dayData?.schedule?.[index])) continue;
+                scoreEdits.delete(key);
+                staleDraft = true;
+            }
+            if (staleDraft) showToast('ตารางหรือคะแนนเปลี่ยนแล้ว กรุณากรอกผลของแมตช์ที่เปลี่ยนอีกครั้ง');
             if (!dayData || !dayData.schedule || dayData.schedule.length === 0) {
                 renderWithMorph(container, createNoDataMessage('ยังไม่มีข้อมูลการแข่งขันสำหรับวันนี้', 'edit'));
                 applyColumnMajorGrid(container);
@@ -2150,12 +2172,14 @@
             const isReadOnly = !canManage(), disabledAttr = isReadOnly ? 'disabled' : '';
             const html = schedule.map((rawMatch, index) => {
                 const match = {...rawMatch,homeScore:window.TK7MatchStats.score(rawMatch.homeScore),awayScore:window.TK7MatchStats.score(rawMatch.awayScore)};
+                const draft = !isReadOnly && scoreEditFor(date,index,rawMatch);
+                const inputs = draft || match;
                 const timeStr = new Date(startTime.getTime() + index * settings.timePerMatch * 60000).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit'});
                 const homeTeam = TEAMS.find(t => t.slug === match.home) || { name: 'N/A', slug: 'black' }, awayTeam = TEAMS.find(t => t.slug === match.away) || { name: 'N/A', slug: 'black' };
                 const readonlyAttr = isReadOnly ? 'readonly' : '';
                 const homeScoreText = match.homeScore !== null ? match.homeScore : ' ', awayScoreText = match.awayScore !== null ? match.awayScore : ' ';
                 const separator = (match.homeScore !== null && match.awayScore !== null) ? '-' : 'vs';
-                return `<div class="card match-card" data-score-card="1" data-index="${index}"><div class="match-header"><span>แมตช์ที่ ${index + 1}</span><span>${globalThis.TK7Icons?.html('clock')||''} ${timeStr}</span></div><div class="score-line-export"><div class="team-emblem ${homeTeam.slug}">${homeTeam.name}</div><div class="score-block"><span class="score-value">${homeScoreText}</span><span class="vs-export">${separator}</span><span class="score-value">${awayScoreText}</span></div><div class="team-emblem ${awayTeam.slug}">${awayTeam.name}</div></div><div class="interactive-controls"><div class="team-score-wrapper"><div class="team-emblem ${homeTeam.slug}">${homeTeam.name}</div><div class="score-control"><button class="score-btn" data-index="${index}" data-team="home" data-op="-1" ${disabledAttr}>${svgMinus}</button><input type="number" class="score-input" value="${match.homeScore === null ? '' : match.homeScore}" data-index="${index}" data-team="home" ${readonlyAttr}><button class="score-btn" data-index="${index}" data-team="home" data-op="1" ${disabledAttr}>${svgPlus}</button></div></div><div class="match-center-controls"><span class="vs">VS</span><button class="reset-score-btn" data-index="${index}" ${disabledAttr}>${svgReset}</button></div><div class="team-score-wrapper"><div class="team-emblem ${awayTeam.slug}">${awayTeam.name}</div><div class="score-control"><button class="score-btn" data-index="${index}" data-team="away" data-op="-1" ${disabledAttr}>${svgMinus}</button><input type="number" class="score-input" value="${match.awayScore === null ? '' : match.awayScore}" data-index="${index}" data-team="away" ${readonlyAttr}><button class="score-btn" data-index="${index}" data-team="away" data-op="1" ${disabledAttr}>${svgPlus}</button></div></div></div></div>`;
+                return `<div class="card match-card" data-score-card="1" data-index="${index}"><div class="match-header"><span>แมตช์ที่ ${index + 1}</span><span>${globalThis.TK7Icons?.html('clock')||''} ${timeStr}</span></div><div class="score-line-export"><div class="team-emblem ${homeTeam.slug}">${homeTeam.name}</div><div class="score-block"><span class="score-value">${homeScoreText}</span><span class="vs-export">${separator}</span><span class="score-value">${awayScoreText}</span></div><div class="team-emblem ${awayTeam.slug}">${awayTeam.name}</div></div><div class="interactive-controls"><div class="team-score-wrapper"><div class="team-emblem ${homeTeam.slug}">${homeTeam.name}</div><div class="score-control"><button class="score-btn" data-index="${index}" data-team="home" data-op="-1" ${disabledAttr}>${svgMinus}</button><input type="number" class="score-input" value="${inputs.homeScore == null ? '' : inputs.homeScore}" data-index="${index}" data-team="home" ${readonlyAttr}><button class="score-btn" data-index="${index}" data-team="home" data-op="1" ${disabledAttr}>${svgPlus}</button></div></div><div class="match-center-controls"><span class="vs">VS</span><button class="reset-score-btn" data-index="${index}" ${disabledAttr}>${svgReset}</button></div><div class="team-score-wrapper"><div class="team-emblem ${awayTeam.slug}">${awayTeam.name}</div><div class="score-control"><button class="score-btn" data-index="${index}" data-team="away" data-op="-1" ${disabledAttr}>${svgMinus}</button><input type="number" class="score-input" value="${inputs.awayScore == null ? '' : inputs.awayScore}" data-index="${index}" data-team="away" ${readonlyAttr}><button class="score-btn" data-index="${index}" data-team="away" data-op="1" ${disabledAttr}>${svgPlus}</button></div></div></div>${isReadOnly ? "" : `<button type="button" class="commit-score-btn" data-index="${index}" ${draft && scorePairReady(draft) ? "" : "disabled"}>บันทึกผล</button>`}</div>`;
             }).join('');
             renderWithMorph(container, html);
             applyColumnMajorGrid(container);
@@ -2182,21 +2206,36 @@
                 safeValue = Number.parseInt(safeValue, 10);
                 if (Number.isNaN(safeValue) || safeValue < 0) safeValue = 0;
             }
-            if (!['home','away'].includes(team) || dayData.schedule[idx][team+'Score'] === safeValue) return;
-            const previousSchedule = dayData.schedule;
-            const newSchedule = previousSchedule.map((m, i) => i === idx ? { ...m } : m);
-            if (team === 'home') newSchedule[idx].homeScore = safeValue;
-            else newSchedule[idx].awayScore = safeValue;
-            appData[date].schedule = newSchedule;
+            if (!['home','away'].includes(team)) return;
+            const match=dayData.schedule[idx], current=scoreEditFor(date,idx,match)||match;
+            const pair={homeScore:current.homeScore??null,awayScore:current.awayScore??null};
+            pair[team+'Score']=safeValue;
+            stageScore(date,idx,match,pair);
+        }
+        function stageScore(date,index,match,pair) {
+            const key=scoreEditKey(date,index);
+            if ((match.homeScore??null)===pair.homeScore&&(match.awayScore??null)===pair.awayScore) scoreEdits.delete(key);
+            else scoreEdits.set(key,{...pair,original:JSON.stringify(match)});
+            patchMatchScoreCardUI(index);
+        }
+        function commitScore(index) {
+            if (!canManage() || pendingPasswordRecovery) return;
+            const date=currentDateKey, idx=Number(index), day=appData[date], match=day?.schedule?.[idx];
+            const draft=match&&scoreEditFor(date,idx,match);
+            if (!draft||!scorePairReady(draft)) return;
+            const previous=day.schedule;
+            day.schedule=previous.map((item,i)=>i===idx ? {...item,homeScore:draft.homeScore,awayScore:draft.awayScore} : item);
+            scoreEdits.delete(scoreEditKey(date,idx));
             patchMatchScoreCardUI(idx);
             scheduleLeaderboardRefresh(date);
-            queueScoreSave(date, previousSchedule);
+            queueScoreSave(date,previous);
         }
         function updateScoreFromButton(button) {
             const { index, team, op } = button.dataset;
             const dayData = appData[currentDateKey];
             const idx = parseInt(index, 10);
-            const match = dayData?.schedule?.[idx];
+            const saved = dayData?.schedule?.[idx];
+            const match = saved && (scoreEditFor(currentDateKey,idx,saved)||saved);
             const currentValue = match
                 ? (Number.parseInt(team === 'home' ? match.homeScore : match.awayScore, 10) || 0)
                 : 0;
@@ -2216,14 +2255,7 @@
             if (!dayData?.schedule) return;
             const idx = parseInt(index, 10);
             if (Number.isNaN(idx) || !dayData.schedule[idx]) return;
-            if (dayData.schedule[idx].homeScore == null && dayData.schedule[idx].awayScore == null) return;
-            const previousSchedule = dayData.schedule;
-            appData[date].schedule = previousSchedule.map((m, i) => (
-                i === idx ? { ...m, homeScore: null, awayScore: null } : m
-            ));
-            patchMatchScoreCardUI(idx);
-            scheduleLeaderboardRefresh(date);
-            queueScoreSave(date, previousSchedule);
+            stageScore(date,idx,dayData.schedule[idx],{homeScore:null,awayScore:null});
         }
 
         function calculateLeaderboard(date) {
@@ -2231,12 +2263,27 @@
         }
 
 // --- SECTION: TEMPLATES ---
+        let setupTemplatesLoaded = false, setupTemplatesFlight = null;
+        function loadSetupTemplates() {
+            if (setupTemplatesLoaded || setupTemplatesFlight) return setupTemplatesFlight;
+            setupTemplatesFlight = fetchTemplates().then(loaded => {
+                setupTemplatesLoaded = loaded;
+                if (loaded && activePage === 'page-setup') {
+                    updateTemplateSelector();
+                    renderSchedulePreview(true);
+                }
+            }).finally(() => { setupTemplatesFlight = null; });
+            return setupTemplatesFlight;
+        }
+
         async function fetchTemplates() {
             const { data, error } = await db.from('match_templates').select('*').order('created_at', { ascending: true });
             if (!error) dbTemplates = data;
+            return !error;
         }
 
         async function openTemplateManager() {
+            await loadSetupTemplates();
             const activeTeams = Array.from(document.querySelectorAll('.team-switch:checked')).map(sw => sw.dataset.teamSlug);
             if (activeTeams.length < 2) return alert('โปรดเลือกทีมก่อนอย่างน้อย 2 ทีม');
             
