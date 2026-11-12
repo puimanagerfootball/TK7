@@ -51,7 +51,13 @@ globalThis.TK7RosterImportUI={create({el,getSession,refresh,rpc,canManage,setBus
     const rosterText=window.TK7RosterText;
     const selected=new Set();
     const renderPreview=()=>{
-     const blocks=parsed.blocks.map(block=>selected.has(block.team)?{...block,slots:Array(7).fill(block.slots.find(Boolean))}:block);
+     const blocks=parsed.blocks.map(block=>{
+      const names=block.slots.filter(Boolean);
+      const slots=selected.has(block.team)
+       ?Array(7).fill(names[0])
+       :names.concat(Array(7-names.length).fill(null));
+      return {...block,slots};
+     });
      const diff=rosterText.diff({...parsed,blocks},latest);
      output.replaceChildren();
      notice.textContent='รายการนำเข้า · '+latest.match_date;
