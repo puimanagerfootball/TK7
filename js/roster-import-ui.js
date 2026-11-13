@@ -11,9 +11,9 @@ globalThis.TK7RosterImportUI={create({el,getSession,refresh,rpc,canManage,setBus
   const chosen=getSession();if(!chosen)return;
   cancelReview();
   const generation=++sequence;trigger=document.activeElement;let plan=null,needsDate=false,previewEpoch=0;
-  const input=el('textarea',{'aria-label':'วางข้อความรายชื่อจาก LINE',placeholder:'วางข้อความกลุ่มใหญ่ หรือกลุ่มย่อย พร้อมเลขครบ 7 ช่องต่อสี',maxLength:20000,style:'min-height:220px;resize:vertical'});
-  const notice=el('p',{role:'status',text:'เฉพาะสีที่อยู่ในข้อความจะถูกปรับ สีที่ไม่ได้ส่งมาคงเดิม · ช่องว่างจะลบชื่อในช่องนั้น'});
-  const dateCheck=el('input',{type:'checkbox'}),dateConfirm=el('label',{hidden:true},dateCheck,el('span',{text:'ข้อความไม่มีวันที่ — ยืนยันนำเข้าให้วันที่ '+chosen.match_date}));
+  const input=el('textarea',{'aria-label':'วางข้อความรายชื่อจาก LINE',placeholder:'วางข้อความกลุ่มใหญ่หรือกลุ่มย่อย พร้อมเลขครบ 7 ช่องต่อทีม',maxLength:20000,rows:5});
+  const notice=el('p',{class:'tk7l-import-status',role:'status',text:'วางข้อความเพื่อตรวจสอบรายชื่อ'});
+  const dateCheck=el('input',{type:'checkbox'}),dateConfirm=el('label',{class:'tk7l-import-date-confirm',hidden:true},dateCheck,el('span',{text:'ข้อความไม่มีวันที่ ยืนยันนำเข้าให้วันที่ '+chosen.match_date}));
   const suggestions=el('div',{class:'tk7l-import-suggestions'});
   let suggestionChecks=[];
   const output=el('div',{class:'tk7l-import-preview'});
@@ -60,7 +60,7 @@ globalThis.TK7RosterImportUI={create({el,getSession,refresh,rpc,canManage,setBus
      });
      const diff=rosterText.diff({...parsed,blocks},latest);
      output.replaceChildren();
-     notice.textContent='รายการนำเข้า · '+latest.match_date;
+     notice.textContent='ตรวจสอบแล้ว · '+blocks.length+' ทีม';
      renderChanges(diff, selected, rosterText.labels, output);
      plan=diff.changes.length?{p_session:latest.id,p_request:crypto.randomUUID(),p_revision:latest.revision,p_match_date:latest.match_date,p_blocks:diff.blocks}:null;
      if(!plan)notice.textContent+=' · ตรงกับระบบแล้ว';
@@ -106,27 +106,40 @@ globalThis.TK7RosterImportUI={create({el,getSession,refresh,rpc,canManage,setBus
    finally{busy=false;setBusy(false);input.disabled=false;review.disabled=false;dateCheck.disabled=false;suggestionChecks.forEach(check=>check.disabled=false);apply.disabled=!plan||(needsDate&&!dateCheck.checked);}
   };
   const actions=el('div',{class:'tk7l-import-actions'},review,apply);
-  modal.replaceChildren(el('section',{class:'tk7l-sheet'},el('div',{class:'tk7l-sheet-head'},el('strong',{text:'นำเข้าจาก LINE · '+chosen.match_date}),closeButton),el('div',{class:'tk7l-sheet-body'},input,suggestions,notice,output,dateConfirm,actions)));
+  const displayDate=chosen.match_date.split('-').reverse().join('/');
+  modal.replaceChildren(el('section',{class:'tk7l-sheet tk7l-import-sheet'},
+   el('div',{class:'tk7l-sheet-head'},el('div',{},el('strong',{text:'นำเข้าจาก LINE'}),el('small',{class:'tk7l-import-date',text:'วันแข่ง '+displayDate})),closeButton),
+   el('div',{class:'tk7l-sheet-body tk7l-import-body'},
+    el('label',{class:'tk7l-import-source'},el('strong',{text:'ข้อความรายชื่อจาก LINE'}),input),
+    notice,suggestions,output,dateConfirm),
+   actions));
   modal.hidden=false;input.focus();
  }
  function renderChanges(diff,selected,labels,output){
-  if(!diff.changes.length)return;
   const badge=(kind,count)=>el('span',{class:'tk7l-import-count '+kind,text:({add:'เพิ่ม',change:'เปลี่ยน',delete:'ลบ'}[kind])+' '+count});
-  output.append(el('div',{class:'tk7l-import-counts'},badge('add',diff.added),badge('change',diff.changed),badge('delete',diff.deleted)));
-  if(diff.deleted)output.append(el('p',{class:'tk7l-import-warning',text:'รายการนี้จะลบ '+diff.deleted+' ชื่อ กดที่สีทีมเพื่อดูรายละเอียดก่อนยืนยัน'}));
+  output.append(el('div',{class:'tk7l-import-preview-head'},el('strong',{text:'รายชื่อหลังนำเข้า'}),
+   el('div',{class:'tk7l-import-counts'},badge('add',diff.added),badge('change',diff.changed),badge('delete',diff.deleted))));
+  if(diff.deleted)output.append(el('p',{class:'tk7l-import-warning',text:'จะล้าง '+diff.deleted+' ช่องจากรายชื่อเดิม ตรวจรายการเปลี่ยนแปลงของแต่ละทีมก่อนยืนยัน'}));
+  const teams=el('div',{class:'tk7l-import-teams'});
   for(const block of diff.blocks){
    const rows=diff.changes.filter(item=>item.team===block.team);
-   if(!rows.length)continue;
    const counts=['add','change','delete'].map(kind=>{
     const count=rows.filter(item=>item.kind===kind).length;
     return count?badge(kind,count):null;
    }).filter(Boolean);
-   const label='ทีม'+labels[block.team]+(selected.has(block.team)?' · '+block.slots[0]+' ×7':'');
-   const details=el('details',{class:'tk7l-import-team',open:selected.has(block.team)&&rows.some(item=>item.kind==='change')},
-    el('summary',{},el('span',{class:'tk7l-import-team-summary'},el('strong',{text:label}),el('span',{class:'tk7l-import-counts'},...counts))),
-    el('ul',{},...rows.map(item=>el('li',{class:item.kind,text:'#'+item.slot+' '+(item.before||'(ว่าง)')+' → '+(item.after||'(ว่าง)')}))));
-   output.append(details);
+   const names=block.slots.filter(Boolean);
+   const card=el('section',{class:'tk7l-import-team','data-team':block.team},
+    el('div',{class:'tk7l-import-team-summary'},el('strong',{text:'ทีม'+labels[block.team]}),
+     el('small',{text:names.length+'/7 คน'})),
+    !names.length?el('p',{class:'tk7l-import-empty',text:'ไม่มีรายชื่อ'}):selected.has(block.team)
+     ?el('p',{class:'tk7l-import-empty',text:names[0]+' ×7'})
+     :el('ol',{class:'tk7l-import-names'},...names.map(name=>el('li',{text:name}))));
+   if(rows.length)card.append(el('details',{},
+    el('summary',{},el('span',{class:'tk7l-import-team-summary'},el('span',{text:'รายการเปลี่ยนแปลง'}),el('span',{class:'tk7l-import-counts'},...counts))),
+    el('ul',{},...rows.map(item=>el('li',{class:item.kind,text:'#'+item.slot+' '+(item.before||'(ว่าง)')+' → '+(item.after||'(ว่าง)')})))));
+   teams.append(card);
   }
+  output.append(teams);
  }
  return {open,close};
 }};

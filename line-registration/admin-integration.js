@@ -70,7 +70,14 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>'',selectDefaultSetupDat
   .tk7l-action-icon{display:grid;place-items:center;flex:none;width:31px;height:31px}
   .tk7l-action-icon .tk7-icon{width:100%;height:100%;font-size:21px;line-height:1;filter:drop-shadow(0 1px 1px #00180e66)}
   .tk7l-action-label,.tk7l-log-heading{display:inline-flex;align-items:center;gap:5px;line-height:1.25}
-  .tk7l-import-actions{display:grid;gap:14px;margin-top:10px}
+  .tk7l-import-sheet .tk7l-sheet-head{justify-content:space-between!important;padding:18px 22px!important;border-bottom:1px solid #dce8de}
+  .tk7l-import-date{display:block;margin-top:2px;font-size:13px;color:#476352}
+  .tk7l-sheet .tk7l-import-body{padding-top:14px;padding-bottom:10px}
+  .tk7l-import-source{display:grid;gap:6px}
+  .tk7l-import-source textarea{width:100%;box-sizing:border-box;min-height:112px;resize:vertical;font:inherit}
+  .tk7l-import-status{margin:8px 0;color:#476352;font-size:14px}
+  .tk7l-import-date-confirm:not([hidden]){display:flex;align-items:center;gap:8px;padding:10px;background:#fff2e5;border-radius:8px}
+  .tk7l-import-actions{position:sticky;bottom:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:12px 16px max(16px,env(safe-area-inset-bottom));background:#fff;border-top:1px solid #dce8de}
   .tk7l-import-actions .btn{margin:0}
   .tk7l-import-suggestions:not(:empty){display:grid;gap:8px;margin:12px 0}
   .tk7l-import-suggestions label{display:flex;align-items:center;gap:9px;padding:10px;border:1px solid #c9e1d1;border-radius:10px;background:#e9f4ec;color:#174e30;cursor:pointer}
@@ -83,7 +90,19 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>'',selectDefaultSetupDat
   .tk7l-import-count.change{background:#e7eefb;color:#294e7e}
   .tk7l-import-count.delete{background:#fae5e3;color:#952c25}
   .tk7l-import-warning{margin:0;padding:8px 10px;border-radius:8px;background:#fff2e5;color:#80381b;font-size:13px}
-  .tk7l-import-team{border:1px solid #d6e3d8;border-radius:9px;background:#f7faf7}
+  .tk7l-import-preview-head,.tk7l-import-team>div{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px}
+  .tk7l-import-teams{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,245px),1fr));align-items:start;gap:10px}
+  .tk7l-import-team{min-width:0;overflow-wrap:anywhere;border:1px solid #d6e3d8;border-radius:12px;background:#f7faf7}
+  .tk7l-import-team>div{padding:8px 12px;background:#e5efe7;border-radius:11px 11px 0 0}
+  .tk7l-import-team>div small{color:#476352}
+  .tk7l-import-team[data-team="red"]>div{background:#f8e5e3}
+  .tk7l-import-team[data-team="blue"]>div,.tk7l-import-team[data-team="navy"]>div{background:#e5ecfa}
+  .tk7l-import-team[data-team="black"]>div{background:#e7e9e8}
+  .tk7l-import-team[data-team="yellow"]>div,.tk7l-import-team[data-team="orange"]>div{background:#fcf0d7}
+  .tk7l-import-team[data-team="pink"]>div,.tk7l-import-team[data-team="purple"]>div{background:#f3e6f6}
+  .tk7l-import-names{margin:8px 12px 8px 30px;padding:0;line-height:1.65}
+  .tk7l-import-empty{margin:8px 12px;color:#476352}
+  .tk7l-import-team details{border-top:1px solid #d6e3d8}
   .tk7l-import-team summary{padding:8px 10px;cursor:pointer}
   .tk7l-import-team-summary{display:inline-flex;align-items:center;flex-wrap:wrap;gap:6px 10px}
   .tk7l-import-team ul{margin:0;padding:0 12px 10px 30px;font-size:13px}
