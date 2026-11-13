@@ -76,7 +76,9 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>'',selectDefaultSetupDat
   .tk7l-import-source{display:grid;gap:6px}
   .tk7l-import-source textarea{width:100%;box-sizing:border-box;min-height:112px;resize:vertical;font:inherit}
   .tk7l-import-status{margin:8px 0;color:#476352;font-size:14px}
-  .tk7l-import-date-confirm:not([hidden]){display:flex;align-items:center;gap:8px;padding:10px;background:#fff2e5;border-radius:8px}
+  .tk7l-import-date-confirm:not([hidden]){display:flex;align-items:center;gap:12px;padding:12px;background:#fff2e5;border-radius:8px;cursor:pointer}
+  .tk7l-import-date-confirm input[type="checkbox"]{appearance:auto;flex:0 0 20px;width:20px;height:20px;margin:0;padding:0;box-shadow:none;accent-color:#1f7a43}
+  .tk7l-import-date-confirm small{display:block;color:#694b36}
   .tk7l-import-actions{position:sticky;bottom:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:12px 16px max(16px,env(safe-area-inset-bottom));background:#fff;border-top:1px solid #dce8de}
   .tk7l-import-actions .btn{margin:0}
   .tk7l-import-suggestions:not(:empty){display:grid;gap:8px;margin:12px 0}

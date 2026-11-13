@@ -13,7 +13,10 @@ globalThis.TK7RosterImportUI={create({el,getSession,refresh,rpc,canManage,setBus
   const generation=++sequence;trigger=document.activeElement;let plan=null,needsDate=false,previewEpoch=0;
   const input=el('textarea',{'aria-label':'วางข้อความรายชื่อจาก LINE',placeholder:'วางข้อความกลุ่มใหญ่หรือกลุ่มย่อย พร้อมเลขครบ 7 ช่องต่อทีม',maxLength:20000,rows:5});
   const notice=el('p',{class:'tk7l-import-status',role:'status',text:'วางข้อความเพื่อตรวจสอบรายชื่อ'});
-  const dateCheck=el('input',{type:'checkbox'}),dateConfirm=el('label',{class:'tk7l-import-date-confirm',hidden:true},dateCheck,el('span',{text:'ข้อความไม่มีวันที่ ยืนยันนำเข้าให้วันที่ '+chosen.match_date}));
+  const displayDate=chosen.match_date.split('-').reverse().join('/');
+  const dateCheck=el('input',{type:'checkbox'}),dateConfirm=el('label',{class:'tk7l-import-date-confirm',hidden:true},dateCheck,
+   el('span',{},el('strong',{text:'ยืนยันนำเข้าวันที่ '+displayDate}),
+    el('small',{text:'ข้อความจาก LINE ไม่มีวันที่'})));
   const suggestions=el('div',{class:'tk7l-import-suggestions'});
   let suggestionChecks=[];
   const output=el('div',{class:'tk7l-import-preview'});
@@ -106,7 +109,6 @@ globalThis.TK7RosterImportUI={create({el,getSession,refresh,rpc,canManage,setBus
    finally{busy=false;setBusy(false);input.disabled=false;review.disabled=false;dateCheck.disabled=false;suggestionChecks.forEach(check=>check.disabled=false);apply.disabled=!plan||(needsDate&&!dateCheck.checked);}
   };
   const actions=el('div',{class:'tk7l-import-actions'},review,apply);
-  const displayDate=chosen.match_date.split('-').reverse().join('/');
   modal.replaceChildren(el('section',{class:'tk7l-sheet tk7l-import-sheet'},
    el('div',{class:'tk7l-sheet-head'},el('div',{},el('strong',{text:'นำเข้าจาก LINE'}),el('small',{class:'tk7l-import-date',text:'วันแข่ง '+displayDate})),closeButton),
    el('div',{class:'tk7l-sheet-body tk7l-import-body'},
