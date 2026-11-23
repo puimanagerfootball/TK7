@@ -62,6 +62,11 @@ globalThis.TK7SpeedDial = (() => {
         const caption = document.createElement('span');
         caption.className = 'speed-dial-caption';
         caption.textContent = label;
+        const groupIcon=label==='เปิด–ปิดลงทะเบียน'?'unlock':label==='แชร์และนำเข้า'?'share':null;
+        if(groupIcon){
+            const decorativeIcon=globalThis.TK7Icons?.node(groupIcon);
+            if(decorativeIcon)caption.prepend(decorativeIcon);
+        }
         trigger.append(icon);
         if (!primary) trigger.append(caption);
         function position() {
