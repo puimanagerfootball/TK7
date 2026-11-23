@@ -1,5 +1,5 @@
 /* ==========================================================================
-   TK7 app logic (Ver 6.0.8)
+   TK7 app logic (Ver 6.0.9)
    แยกจาก index.html เพื่อแก้/ค้นหาง่ายขึ้น
    Sections (ค้นหาด้วย // --- SECTION:):
      CONFIG, AUTH, REGISTRATION, SCHEDULE, LINEUP, SETUP,
@@ -537,7 +537,7 @@
             const { data, error } = await db.from('match_days').select('*').eq('match_date', date).maybeSingle();
             if (error) {
                 console.error('Error fetching match day:', error);
-                return null;
+                throw Error('โหลดการตั้งค่าวันแข่งไม่สำเร็จ กรุณาเลือกวันอีกครั้ง');
             }
             appData[date] = data || null;
             return appData[date];
@@ -547,7 +547,12 @@
             if (!date) return;
             const matchDateInput = document.getElementById('match-date');
             if (matchDateInput) matchDateInput.value = date;
-            await ensureDateLoaded(date);
+            try {
+                await ensureDateLoaded(date);
+            } catch (error) {
+                if (matchDateInput?.value === date) showToast(error.message);
+                return;
+            }
             if (matchDateInput && matchDateInput.value !== date) return;
             updateGenerateButtonForDate(date);
             if (!canManage()) return;
@@ -1574,11 +1579,14 @@
             const templateContainer = document.getElementById('template-selector-container');
             const selector = document.getElementById('template-selector');
             const teamCount = document.querySelectorAll('.team-switch:checked').length;
+            const setupDate = document.getElementById('match-date')?.value;
+            const selectedTemplate = selector.value || appData[setupDate]?.settings?.templateId;
             
             const filtered = dbTemplates.filter(t => t.team_count === teamCount);
 
             if (filtered.length > 0) {
                 selector.innerHTML = filtered.map(t => `<option value="${escapeHtml(t.id)}">${escapeHtml(t.name)}</option>`).join('');
+                if (filtered.some(template => String(template.id) === String(selectedTemplate))) selector.value = selectedTemplate;
                 templateContainer.style.display = 'block';
             } else {
                 selector.innerHTML = '<option value="">(ไม่มี Template สำหรับจำนวนทีมนี้)</option>';

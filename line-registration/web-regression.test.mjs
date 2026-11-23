@@ -1,6 +1,28 @@
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import vm from 'node:vm';
 const source=fs.readFileSync(new URL('../js/app.js',import.meta.url),'utf8');
 const between=(a,b)=>source.slice(source.indexOf(a),source.indexOf(b,source.indexOf(a)));
+test('failed setup reads keep the form instead of resetting it to defaults',async()=>{
+ const input={value:'2026-11-27'},notices=[];
+ const context={document:{getElementById:()=>input},ensureDateLoaded:async()=>{throw Error('offline')},
+  showToast:text=>notices.push(text),resetSettingsForm:()=>assert.fail('must not reset'),
+  updateGenerateButtonForDate:()=>assert.fail('must not apply unavailable data')};
+ vm.createContext(context);
+ vm.runInContext(between('        async function prepareSetupFormForDate(','        async function loadInitialData('),context);
+ await context.prepareSetupFormForDate(input.value);
+ assert.deepEqual(notices,['offline']);
+});
+test('late template options preserve the saved fixture template',()=>{
+ const select={value:'',set innerHTML(value){this.value='first';}},container={style:{}};
+ const context={document:{getElementById:id=>id==='template-selector'?select:id==='match-date'?{value:'2026-11-27'}:container,querySelectorAll:()=>[{},{}]},
+  appData:{'2026-11-27':{settings:{templateId:'saved'}}},dbTemplates:[{id:'first',name:'First',team_count:2},{id:'saved',name:'Saved',team_count:2}],escapeHtml:value=>value};
+ vm.createContext(context);
+ vm.runInContext(between('        function updateTemplateSelector()','        function getCanonicallySortedTeams('),context);
+ context.updateTemplateSelector();
+ assert.equal(select.value,'saved');
+ select.value='first';
+ context.updateTemplateSelector();
+ assert.equal(select.value,'first');
+});
 test('score controls stage 3–1 and commit only the confirmed 3–2',()=>{
  const date='2026-11-13',writes=[];
  let confirmed=false;
