@@ -8,7 +8,7 @@
 
     #setup-content-wrapper {
         display: grid !important;
-        grid-template-columns: 1fr 1fr !important;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
         gap: 12px 20px !important;
         align-items: start;
     }
@@ -45,10 +45,12 @@
         margin-top: 4px !important;
     }
 
-    /* หน้าตารางแข่ง/บันทึกผล: 2 คอลัมน์ เรียงลงคอลัมน์ซ้ายก่อน แล้วค่อยขวา */
+}
+@media (min-width: 1024px) {
+    /* Fixtures flow down each column on wide screens. */
     #schedule-container, #scores-container {
         display: grid !important;
-        grid-template-columns: 1fr 1fr !important;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
         gap: 20px !important;
         grid-auto-flow: column;
     }
@@ -1448,4 +1450,45 @@ button, a, input, select, textarea, summary { touch-action: manipulation; }
  #auth-section .tk7-auth-label .tk7-icon-emoji, #auth-section .tk7-privacy-icon { width: 14px; height: 14px; font-size: 14px; }
  #auth-section .auth-user-controls > button { box-shadow: inset 0 1px 0 #ffffff30, 0 3px 0 var(--btn-lip, #28583a); }
  #auth-section .auth-user-controls > :is(button, .tk7-privacy-button):active:not(:disabled) { transform: translateY(2px); box-shadow: inset 0 1px 2px #102a1b25, 0 1px 0 var(--btn-lip, #153e2a); }
+}
+
+/* V6.1 responsive page layout. */
+#app .page, #setup-content-wrapper > *, .setup-right-col > *, #app .card { min-width: 0; }
+#app .page-header { align-items: center; flex-wrap: wrap; }
+#app .page-header h1 { min-width: 0; line-height: 1.3; overflow-wrap: anywhere; }
+#app .page-header .export-btn { margin-left: auto; }
+#app .date-selector-container { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; }
+#app .date-selector-container select { width: 100%; }
+#app .bottom-nav { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); }
+#app .nav-btn { width: 100%; }
+.tk7l-modal .tk7l-sheet { width: min(700px, 100%); }
+.tk7l-modal .tk7l-sheet input:not([type=checkbox]), .tk7l-modal .tk7l-sheet select, .tk7l-modal .tk7l-sheet textarea { max-width: 100%; }
+@media (min-width: 768px) and (max-width: 1100px) {
+ #auth-section { flex-wrap: wrap; }
+ #auth-section .auth-meta { flex: 1 1 100%; justify-content: flex-end; }
+ #auth-section .auth-user-controls { margin-left: auto; }
+}
+@media (min-width: 768px) and (max-width: 1023px) {
+ #schedule-container, #scores-container { display: grid; grid-template-columns: minmax(0, 1fr); grid-auto-flow: row; gap: 16px; }
+ #app .setup-settings-card .form-group { min-width: 0; }
+ #app .setup-settings-card input, #app .setup-settings-card select { min-width: 0; }
+}
+@media (max-width: 767px) {
+ #app .page-header h1 { flex-basis: 180px; }
+ #app .bottom-nav .nav-btn { font-size: clamp(10px, 2.7vw, 12px); }
+ .modal .modal-content { width: calc(100% - 24px); margin: 12px auto; }
+}
+@media (max-width: 380px) {
+ #app .page-header h1 { font-size: 1.05rem; }
+ #app .page-header .export-btn { padding-inline: 8px; font-size: 12px; }
+ #app .date-selector-container { gap: 6px; }
+ #app .template-info-badge { font-size: 10px; padding-inline: 5px; }
+}
+@media (max-height: 500px) and (orientation: landscape) {
+ #auth-section { padding-block: 4px; }
+ #auth-section .auth-meta { font-size: 10px; }
+ #auth-section .auth-user-controls { width: 100%; }
+ #app main { padding-top: 10px; }
+ #app .nav-btn { min-height: 48px; padding-block: 3px; }
+ .tk7l-modal .tk7l-sheet, .modal .modal-content { max-height: calc(100dvh - 16px); }
 }

@@ -10,8 +10,8 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="team-card.css?v=6.0.11">
-<link rel="stylesheet" href="privacy-control.css?v=6.0.11">
+<link rel="stylesheet" href="team-card.css?v=6.1.0">
+<link rel="stylesheet" href="privacy-control.css?v=6.1.0">
 <style>
 :root{
  --bg:#0e1f15;--pitch-a:#123a24;--pitch-b:#10331f;--card:#ffffff;--ink:#16241b;--muted:#5d6e63;--line:#e3ebe5;
@@ -209,7 +209,10 @@ button,a,input,select,textarea{touch-action:manipulation}
 .dates{scroll-snap-type:x proximity}
 .date{scroll-snap-align:start;min-height:48px}
 .schedule-image-preview,.account-row{min-width:0;overflow-wrap:anywhere}
-@media(min-width:900px){.wrap{max-width:860px}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(min-width:768px){.wrap{max-width:860px}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(min-width:768px) and (min-height:600px){.sheet{bottom:50%;transform:translateY(calc(50% + 100vh));border-radius:20px;max-height:85dvh}.sheet.show{transform:translateY(50%)}}
+@media(max-width:380px){.m-rows{grid-template-columns:minmax(0,1fr)}.move-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.toprow{justify-content:space-between}.toprow>.tk7-privacy-button{white-space:normal;min-width:0;max-width:calc(100% - 100px)}}
+@media(max-height:500px) and (orientation:landscape){.sheet{max-height:94dvh}.wrap{padding-top:8px}.sheet-head{padding-block:8px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
 </style>
 </head>
@@ -217,7 +220,7 @@ button,a,input,select,textarea{touch-action:manipulation}
 <div class="wrap">
  <header class="top">
   <div class="toprow"><a class="tk7-privacy-button" href="privacy.html" target="_blank" rel="noopener noreferrer" title="ดูรายละเอียด / Read privacy notice"><span class="tk7-privacy-icon" aria-hidden="true"><span data-tk7-icon="shield" aria-hidden="true"></span></span>ความเป็นส่วนตัว / Privacy</a><div class="lang" id="lang" role="group" aria-label="Language"><button type="button" data-lang="th">ไทย</button><button type="button" data-lang="en">EN</button></div></div>
-  <div class="account-row"><div id="line-account" aria-live="polite"></div><small>Ver 6.0.11</small></div>
+  <div class="account-row"><div id="line-account" aria-live="polite"></div><small>Ver 6.1.0</small></div>
   <nav class="dates" id="dates" aria-label="วันแข่ง"></nav>
   <div class="info" id="info"></div>
   <h1 id="title"> เลือกสีเสื้อ แล้วลงชื่อ</h1>
@@ -235,16 +238,16 @@ button,a,input,select,textarea{touch-action:manipulation}
 <div class="alert" id="alert" role="alertdialog" aria-modal="true"></div>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <script src="config.js"></script>
-<script src="share-launcher.js?v=6.0.11"></script>
-<script src="backdrop-guard.js?v=6.0.11"></script>
-<script src="schedule.js?v=6.0.11"></script>
-<script src="schedule-image.js?v=6.0.11"></script>
-<script src="browser-safety.js?v=6.0.11"></script>
-<script src="icons.js?v=6.0.11"></script>
-<script src="roster-summary.js?v=6.0.11"></script>
-<script src="name-paste.js?v=6.0.11"></script>
-<script src="registration.js?v=6.0.11"></script>
-<script type="module" src="share-menu.mjs?v=6.0.11"></script>
+<script src="share-launcher.js?v=6.1.0"></script>
+<script src="backdrop-guard.js?v=6.1.0"></script>
+<script src="schedule.js?v=6.1.0"></script>
+<script src="schedule-image.js?v=6.1.0"></script>
+<script src="browser-safety.js?v=6.1.0"></script>
+<script src="icons.js?v=6.1.0"></script>
+<script src="roster-summary.js?v=6.1.0"></script>
+<script src="name-paste.js?v=6.1.0"></script>
+<script src="registration.js?v=6.1.0"></script>
+<script type="module" src="share-menu.mjs?v=6.1.0"></script>
 </body>
 </html>
 

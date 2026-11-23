@@ -1,6 +1,20 @@
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import vm from 'node:vm';
 const source=fs.readFileSync(new URL('../js/app.js',import.meta.url),'utf8');
 const between=(a,b)=>source.slice(source.indexOf(a),source.indexOf(b,source.indexOf(a)));
+test('fixture column rows are cleared when resizing from desktop to tablet',()=>{
+ let wide=true;
+ const add={style:{}},container={style:{},querySelectorAll:()=>[1,2,3,4,5],querySelector:()=>add};
+ const context={window:{matchMedia:query=>{assert.equal(query,'(min-width: 1024px)');return {matches:wide}}}};
+ vm.createContext(context);
+ vm.runInContext(between('        function applyColumnMajorGrid(','        async function handleMainClick('),context);
+ context.applyColumnMajorGrid(container);
+ assert.equal(container.style.gridTemplateRows,'repeat(3, auto)');
+ assert.equal(add.style.gridRow,'4');
+ wide=false;
+ context.applyColumnMajorGrid(container);
+ assert.equal(container.style.gridTemplateRows,'');
+ assert.equal(add.style.gridRow,'');
+});
 test('failed setup reads keep the form instead of resetting it to defaults',async()=>{
  const input={value:'2026-11-27'},notices=[];
  const context={document:{getElementById:()=>input},ensureDateLoaded:async()=>{throw Error('offline')},
