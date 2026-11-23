@@ -84,7 +84,26 @@ test('Auth callback returns before starting any database refresh',async()=>{
 test('retired preview and legacy signup modals are absent',()=>{
  const html=fs.readFileSync(new URL('../index.html',import.meta.url),'utf8');for(const id of ['team-select-modal','share-image-modal'])assert.ok(!html.includes('id="'+id+'"'),id);
  for(const id of ['share-reg-modal','copy-reg-template-btn'])assert.ok(!html.includes('id="'+id+'"'),id);
- for(const name of ['isPhoneLikeDevice','desiredOrientationForPage'])assert.ok(source.includes('function '+name+'('));
+ assert.ok(!html.includes('id="orient-hint"'));
+ assert.ok(!source.includes('screen.orientation.lock'));
+});
+test('parallel image shares reuse one loader and a failed load can be retried',async()=>{
+ const scripts=[],timers=new Map();
+ const context={window:{},document:{head:{appendChild:s=>scripts.push(s)},createElement:()=>({remove(){}})},
+  setTimeout:fn=>{const key=Symbol();timers.set(key,fn);return key},clearTimeout:key=>timers.delete(key)};
+ vm.createContext(context);
+ vm.runInContext(between('        let html2canvasFlight =','        async function handleExport('),context);
+ const first=context.loadHtml2Canvas(),second=context.loadHtml2Canvas();
+ assert.equal(first,second);
+ assert.equal(scripts.length,1);
+ const failed=assert.rejects(first,/โหลดเครื่องมือสร้างรูปไม่สำเร็จ/);
+ scripts[0].onerror();
+ await failed;
+ const retry=context.loadHtml2Canvas();
+ assert.equal(scripts.length,2);
+ scripts[1].onload();
+ await retry;
+ assert.equal(timers.size,0);
 });
 test('root image sharing cancels without download and releases fallback object URLs',async()=>{
  const code=between('        async function shareImageBlob(', '        async function shareElementToLine(');let created=0,revoked=0,clicked=0;const timers=[];

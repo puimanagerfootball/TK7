@@ -1,5 +1,5 @@
 /* ==========================================================================
-   TK7 app logic (Ver 6.0.7)
+   TK7 app logic (Ver 6.0.8)
    แยกจาก index.html เพื่อแก้/ค้นหาง่ายขึ้น
    Sections (ค้นหาด้วย // --- SECTION:):
      CONFIG, AUTH, REGISTRATION, SCHEDULE, LINEUP, SETUP,
@@ -334,7 +334,6 @@
             };
 
             setupNavigation();
-            setupOrientationGuard();
             document.querySelector('#login-modal .close-modal-btn').addEventListener('click', () => loginModal.style.display = 'none');
             document.querySelector('#members-modal .close-modal-btn').addEventListener('click', () => membersModal.style.display = 'none');
             window.addEventListener('click', (event) => {
@@ -1112,7 +1111,7 @@
             if (!container) return;
             const cards = container.querySelectorAll(':scope > .match-card');
             const addBtn = container.querySelector(':scope > #add-match-btn');
-            const wide = window.matchMedia('(min-width: 768px), (orientation: landscape)').matches;
+            const wide = window.matchMedia('(min-width: 768px)').matches;
             if (!wide || cards.length === 0) {
                 container.style.gridTemplateRows = '';
                 if (addBtn) addBtn.style.gridRow = '';
@@ -1155,59 +1154,6 @@
             await updateScheduleInDB(newSchedule, { toastMessage: 'อัปเดตคู่เปิดสนามแล้ว' });
         }
 
-        function isPhoneLikeDevice() {
-            const ua = navigator.userAgent || '';
-            if (/Android|iPhone|iPod|Mobile/i.test(ua)) return true;
-            if (/iPad/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) return true;
-            return window.matchMedia('(max-width: 920px) and (hover: none)').matches;
-        }
-
-        function desiredOrientationForPage(pageId) {
-            return pageId === 'page-leaderboard' ? 'landscape' : 'portrait';
-        }
-
-        function updateOrientHint() {
-            const hint = document.getElementById('orient-hint');
-            const textEl = document.getElementById('orient-hint-text');
-            if (!hint || !textEl) return;
-            if (!isPhoneLikeDevice()) {
-                document.body.classList.remove('wrong-orient', 'force-orient-portrait', 'force-orient-landscape');
-                return;
-            }
-            const needLandscape = document.body.classList.contains('force-orient-landscape');
-            const isLandscape = window.matchMedia('(orientation: landscape)').matches;
-            const wrong = needLandscape ? !isLandscape : isLandscape;
-            document.body.classList.toggle('wrong-orient', wrong);
-            textEl.textContent = needLandscape
-                ? 'หมุนเครื่องเป็นแนวนอน\nเพื่อดูตารางคะแนน'
-                : 'หมุนเครื่องเป็นแนวตั้ง';
-        }
-
-        async function applyPageOrientation(pageId = activePage) {
-            const mobile = isPhoneLikeDevice();
-            const want = desiredOrientationForPage(pageId);
-            document.body.classList.toggle('force-orient-portrait', mobile && want === 'portrait');
-            document.body.classList.toggle('force-orient-landscape', mobile && want === 'landscape');
-            updateOrientHint();
-
-            if (!mobile || !screen.orientation) return;
-            try {
-                if (typeof screen.orientation.lock === 'function') {
-                    await screen.orientation.lock(want);
-                }
-            } catch (_) {
-                /* iOS / บางเบราว์เซอร์ล็อกไม่ได้ — ใช้ overlay แทน */
-            }
-        }
-
-        function setupOrientationGuard() {
-            window.addEventListener('orientationchange', () => applyPageOrientation(activePage));
-            window.addEventListener('resize', () => updateOrientHint());
-            if (screen.orientation && typeof screen.orientation.addEventListener === 'function') {
-                screen.orientation.addEventListener('change', () => updateOrientHint());
-            }
-        }
-
         function setActivePage(pageId) { 
             if (!canManage() && pageId === 'page-setup') { alert(currentUser ? 'บัญชีของคุณยังไม่ได้รับอนุมัติจาก Superadmin' : 'คุณต้องเข้าสู่ระบบผู้ดูแลเพื่อเข้าถึงหน้านี้'); if (!currentUser) loginModal.style.display = 'block'; return; } 
             if (activePage === 'page-scores' && pageId !== 'page-scores') flushScoreSave();
@@ -1218,7 +1164,6 @@
             contentContainer.scrollTop = 0;
             renderVisiblePage(currentDateKey);
             if (pageId === 'page-setup') loadSetupTemplates();
-            applyPageOrientation(pageId);
         }
 
 // --- SECTION: LINEUP ---
@@ -1719,18 +1664,31 @@
         }
         
 // --- SECTION: SHARE/EXPORT ---
-        let html2canvasLoaded = false;
+        let html2canvasFlight = null;
         function loadHtml2Canvas() {
-            return new Promise((resolve, reject) => {
-                if (html2canvasLoaded) { resolve(); return; }
+            if (typeof window.html2canvas === 'function') return Promise.resolve();
+            if (html2canvasFlight) return html2canvasFlight;
+            html2canvasFlight = new Promise((resolve, reject) => {
                 const script = document.createElement('script');
+                const timeout = setTimeout(() => {
+                    script.remove();
+                    reject(Error('โหลดเครื่องมือสร้างรูปนานเกินไป กรุณาลองอีกครั้ง'));
+                }, 15000);
                 script.src = 'line-registration/vendor/html2canvas-1.4.1.min.js';
                 script.integrity = 'sha384-ZZ1pncU3bQe8y31yfZdMFdSpttDoPmOZg2wguVK9almUodir1PghgT0eY7Mrty8H';
                 script.crossOrigin = 'anonymous';
-                script.onload = () => { html2canvasLoaded = true; resolve(); };
-                script.onerror = reject;
+                script.onload = () => { clearTimeout(timeout); resolve(); };
+                script.onerror = () => {
+                    clearTimeout(timeout);
+                    script.remove();
+                    reject(Error('โหลดเครื่องมือสร้างรูปไม่สำเร็จ กรุณาลองอีกครั้ง'));
+                };
                 document.head.appendChild(script);
+            }).catch(error => {
+                html2canvasFlight = null;
+                throw error;
             });
+            return html2canvasFlight;
         }
 
         async function handleExport(elementId, filename, buttonElement) {

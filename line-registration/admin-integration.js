@@ -635,7 +635,7 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>'',selectDefaultSetupDat
  },true);
  new IntersectionObserver(es=>{if(es.some(e=>e.isIntersecting))load()}).observe(card);
  const setupVisible=()=>!!$('page-setup')?.offsetParent;
- setInterval(()=>{if(!document.hidden&&setupVisible()&&!document.activeElement?.closest?.('#page-setup select'))load()},20000);
+ setInterval(()=>{if(!document.hidden&&setupVisible()&&!document.activeElement?.closest?.('#page-setup input,#page-setup select,#page-setup textarea'))load()},20000);
  document.querySelectorAll('.nav-btn').forEach(b=>b.addEventListener('click',()=>setTimeout(()=>setupVisible()&&load(),200)));
  db.auth.onAuthStateChange?.(()=>setTimeout(()=>{if(!canManage())closeRosterSummary();load()},1200));
 }};
