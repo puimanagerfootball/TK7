@@ -323,11 +323,15 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>'',selectDefaultSetupDat
   const summary=actionButton('list','ส่งสรุป (กลุ่มใหญ่)',{class:'tk7l-summary-all',disabled:!s,onclick:()=>openRosterSummary('all')});
   const teamSummary=actionButton('shirt','ส่งสรุป (กลุ่มย่อย)',{class:'tk7l-summary-team',disabled:!s,onclick:()=>openRosterSummary('team')});
   const importButton=actionButton('import','นำเข้าจาก LINE',{class:'tk7l-import',disabled:!s||!s.is_open,onclick:importer.open});
-  // Opening comes first; summaries remain available after registration closes.
-  const primary=s?.is_open?share:main;
-  const ordered=s?.is_open?[share,teamSummary,summary,importButton,main,del]:[main,share,teamSummary,summary,importButton,del];
-  actions.append(...ordered);
-  globalThis.TK7SpeedDial?.mount(actions,'ลงทะเบียน',primary);
+  // Keep registration management separate from outgoing sharing actions.
+  const management=el('div',{class:'tk7l-actions-group'},main,importButton,del);
+  const sharing=el('div',{class:'tk7l-actions-group'},share,teamSummary,summary);
+  actions.append(
+   el('section',{class:'tk7l-action-section'},el('h3',{text:'เปิด–ปิดลงทะเบียน'}),management),
+   el('section',{class:'tk7l-action-section'},el('h3',{text:'แชร์'}),sharing)
+  );
+  globalThis.TK7SpeedDial?.mount(management,'จัดการลงทะเบียน',main);
+  globalThis.TK7SpeedDial?.mount(sharing,'แชร์และส่งสรุป',share);
   renderDateTabs();renderTeams(s);renderLog(s);pullFormFrom(s);
  }
 

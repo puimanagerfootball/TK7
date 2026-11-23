@@ -1,19 +1,24 @@
 /* Registration actions: one source for sizing, shape and menu placement. */
-#tk7-line-card .tk7l-actions.speed-dial-host {
+#tk7-line-card .tk7l-actions-group.speed-dial-host {
     display: grid;
     grid-template-columns: minmax(0,1fr) 52px;
     grid-auto-rows: auto;
-    width: min(100%,360px);
+    width: 100%;
     align-self: flex-start;
     align-items: start;
     gap: 12px;
     padding-bottom: 4px;
 }
-#tk7-line-card .tk7l-actions > .tk7l-action {
+#tk7-line-card .tk7l-actions-group > .tk7l-action {
     min-height: 52px;
     border-radius: 14px;
     padding: 10px 14px;
 }
+#tk7-line-card .tk7l-actions { gap: 16px; grid-auto-rows: auto; }
+.tk7l-action-section { min-width: 0; padding: 16px; border: 1px solid #dce7de; border-radius: 16px; background: #f8fbf8; }
+.tk7l-action-section h3 { margin: 0 0 12px; color: #385943; font: 500 14px/1.4 Kanit,system-ui,sans-serif; }
+.tk7l-actions-group { display: grid; gap: 12px; min-width: 0; }
+@media(max-width:680px) { #tk7-line-card .tk7l-actions { grid-template-columns: minmax(0,1fr); gap: 12px; } .tk7l-action-section { padding: 12px; } }
 .speed-dial-trigger {
     display: grid; place-items: center;
     width: 52px; height: 52px; min-width: 52px; padding: 0;
