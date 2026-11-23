@@ -80,6 +80,10 @@
 .lineup-share-menu > .speed-dial-trigger .speed-dial-plus { width: 26px; height: 26px; font-size: 22px; }
 .lineup-share-menu .speed-dial-panel > button { display: flex; align-items: center; justify-content: center; min-height: 48px; width: 100%; padding: 10px 14px; border: 1px solid #ccddcf; border-radius: 12px; background: #eaf4ed; color: #1b6037; font: 500 15px/1.4 Kanit,system-ui,sans-serif; cursor: pointer; box-shadow: none; }
 .lineup-share-menu .speed-dial-panel > button:disabled { opacity: .5; cursor: default; }
+.lineup-share-menu .speed-dial-panel > button { gap: 12px; justify-content: flex-start; }
+.media-share-icon { display: block; width: 30px; height: 30px; flex: none; }
+.media-rec { display: inline-flex; align-items: center; justify-content: center; gap: 4px; min-width: 42px; min-height: 30px; padding: 3px 5px; border-radius: 7px; background: #fff1f1; color: #bd252f; font: 700 10px/1 system-ui,sans-serif; }
+.media-rec i { width: 8px; height: 8px; border-radius: 50%; background: #e53945; }
 #page-lineup .lineup-main-controls { grid-template-columns: repeat(2,minmax(0,1fr)); }
 #page-lineup .lineup-main-controls > select { grid-column: auto; }
 @media(prefers-reduced-motion:no-preference) { .speed-dial-panel:popover-open { animation: tk7-pop 160ms var(--motion-ease) backwards; } }
