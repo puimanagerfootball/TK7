@@ -118,6 +118,60 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 }
 
 /* Consistent controls without moving the surrounding content. */
+#app .page-header {
+    display: grid; grid-template-columns: minmax(0,1fr) auto;
+    align-items: center; gap: 12px; margin-bottom: 18px;
+}
+#app .page-header h1 {
+    margin: 0; text-align: left; justify-content: flex-start;
+    font-size: clamp(20px,2.5vw,28px); line-height: 1.35;
+    overflow-wrap: normal;
+}
+#setup-content-wrapper > .page-header { text-align: left; }
+#app .page-header .export-btn { margin: 0; min-height: 44px; }
+#app :is(#schedule-container,#scores-container) { display: grid; gap: 16px; }
+#app :is(#schedule-container,#scores-container) > .match-card { margin-bottom: 0; }
+#app .date-selector-container select { min-height: 46px; }
+#app .date-selector-container .delete-day-btn { width: 46px; height: 46px; }
+#app .match-body, #app .interactive-controls { min-width: 0; }
+#app .match-body > .team-emblem { width: 100%; min-width: 0; max-width: none; }
+#app .match-header { display: flex; flex-wrap: wrap; align-items: center; row-gap: 8px; }
+#app .match-header > span { display: inline-flex; align-items: center; gap: 5px; }
+#app #auth-section { gap: 12px; }
+#app #auth-section .auth-meta { min-width: 0; flex: 1; }
+#app #user-info { max-width: min(45vw,300px); }
+#app .auth-user-controls { align-items: stretch; gap: 8px; }
+#app .auth-user-controls > :is(button,.tk7-privacy-button) { box-sizing: border-box; min-height: 44px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; }
+.modal .modal-content { box-sizing: border-box; width: min(560px,calc(100% - 24px)); margin: max(12px,5dvh) auto; }
+.lineup-main-controls > :is(select,button) { box-sizing: border-box; }
+@media(max-width:767px) {
+    #app .page-header { gap: 8px; margin-bottom: 14px; }
+    #app .page-header h1 { font-size: clamp(18px,4.8vw,24px); }
+    #app .page-header .export-btn { font-size: 12px; padding-inline: 10px; }
+    #app #auth-section { flex-wrap: wrap; padding: 10px 12px; }
+    #app #auth-section .auth-meta { flex: 1 1 160px; justify-content: flex-start; }
+    #app #auth-section .auth-meta { flex-basis: 100%; }
+    #app .auth-user-controls { width: 100%; }
+    #app #user-info { max-width: calc(100vw - 130px); }
+    #app .date-selector-container { margin-bottom: 14px; gap: 8px; }
+    #app .card { border-radius: 16px; }
+    #app .bottom-nav .nav-btn { min-height: 62px; gap: 4px; line-height: 1.25; }
+    #app :is(#schedule-container,#scores-container) { gap: 12px; }
+}
+@media(max-width:380px) {
+    #page-schedule .date-selector-container { grid-template-columns: minmax(0,1fr) 46px; }
+    #page-schedule .template-info-badge { grid-row: 2; grid-column: 1 / -1; justify-self: start; }
+    #page-schedule .delete-day-btn { grid-column: 2; grid-row: 1; }
+    #app .page-header h1 { font-size: 18px; }
+    .lineup-main-controls { grid-template-columns: repeat(2,minmax(0,1fr)); }
+    .lineup-main-controls > select { grid-column: 1 / -1; }
+}
+@media(max-height:500px) and (orientation:landscape) {
+    #app .bottom-nav .nav-btn { min-height: 46px; }
+    #app .bottom-nav .nav-btn .icon { min-height: 22px; }
+    #app .bottom-nav .tk7-icon-emoji { font-size: 20px; height: 22px; }
+    .modal .modal-content { margin: 8px auto; max-height: calc(100dvh - 16px); }
+}
 .speed-dial-host { display: flex !important; justify-content: flex-end; }
 .speed-dial-trigger, #auth-section .speed-dial-trigger {
     display: inline-flex; align-items: center; justify-content: center; gap: 10px;

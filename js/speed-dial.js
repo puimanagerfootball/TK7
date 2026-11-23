@@ -51,4 +51,12 @@ globalThis.TK7SpeedDial = (() => {
     }
     return { mount };
 })();
-globalThis.TK7SpeedDial.mount(document.querySelector('.auth-user-controls'), 'เมนูบัญชี');
+// Do not leave a menu anchored to stale coordinates after rotation or keyboard resize.
+if (typeof window !== 'undefined') {
+    const dismiss = () => document.querySelectorAll('.speed-dial-panel:popover-open').forEach(panel => panel.hidePopover());
+    window.addEventListener('resize', dismiss, { passive: true });
+    window.visualViewport?.addEventListener('resize', dismiss, { passive: true });
+    document.addEventListener('scroll', event => {
+        if (!event.target?.closest?.('.speed-dial-panel')) dismiss();
+    }, { passive: true, capture: true });
+}

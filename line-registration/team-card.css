@@ -58,6 +58,8 @@
 .tk7-team-card .cta:active:not(:disabled){background:#d2e9da}
 .tk7-team-card .recolor-btn{min-height:34px}
 .tk7-team-card .count{font-variant-numeric:tabular-nums}
+.tk7-team-card .band{height:auto;min-height:56px;padding-block:8px}
+.tk7-team-card .band .shirt,.tk7-team-card .band .count,.tk7-team-card .band .fold{flex-shrink:0}
 .tk7-team-card .prow:focus-visible,.tk7-team-card .recolor-btn:focus-visible{outline:3px solid #185aa6;outline-offset:-3px}
 @media(hover:hover){.tk7-team-card .prow:not(.empty):hover{background:#edf5ef}.tk7-team-card .prow.on:hover{background:#d7eddf}}
 @media(prefers-reduced-motion:reduce){.tk7-team-card,.tk7-team-card .prow{transition:none}.tk7-team-card .prow.fresh,.tk7-team-card .chip.fresh{animation:none}}
