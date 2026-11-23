@@ -1492,3 +1492,21 @@ button, a, input, select, textarea, summary { touch-action: manipulation; }
  #app .nav-btn { min-height: 48px; padding-block: 3px; }
  .tk7l-modal .tk7l-sheet, .modal .modal-content { max-height: calc(100dvh - 16px); }
 }
+
+/* Portrait standings keep every statistic visible in one team card. */
+@media (max-width: 600px) {
+ #page-leaderboard .leaderboard-container { background: transparent; border: 0; box-shadow: none; overflow: visible; }
+ #page-leaderboard .leaderboard-table { display: block; min-width: 0; width: 100%; table-layout: auto; }
+ #page-leaderboard .leaderboard-table thead { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+ #page-leaderboard .leaderboard-table tbody { display: grid; gap: 12px; }
+ #page-leaderboard .leaderboard-table tbody tr { display: grid; grid-template-columns: repeat(7,minmax(0,1fr)); align-items: center; gap: 10px 3px; padding: 12px; border-radius: 16px; background: var(--surface-color); border: 1px solid var(--border-color); box-shadow: var(--depth-1); }
+ #page-leaderboard .leaderboard-table td { display: block; width: auto; min-width: 0; padding: 0; border: 0; font-size: 15px; }
+ #page-leaderboard .leaderboard-table td:first-child { grid-row: 1; grid-column: 1; width: auto; font-weight: 700; font-size: 20px; }
+ #page-leaderboard .leaderboard-table .team-name { grid-row: 1; grid-column: 2 / 6; width: auto; position: static; background: transparent; }
+ #page-leaderboard .leaderboard-table .team-emblem { width: 100%; max-width: none; min-width: 0; font-size: 14px; }
+ #page-leaderboard .leaderboard-table td:last-child { grid-row: 1; grid-column: 6 / 8; color: #174e30; }
+ #page-leaderboard .leaderboard-table td:last-child strong { display: block; font-size: 25px; line-height: 1.2; }
+ #page-leaderboard .leaderboard-table td:last-child::after { content: 'คะแนน'; display: block; font-size: 11px; }
+ #page-leaderboard .leaderboard-table td[data-label] { grid-row: 2; padding-top: 8px; border-top: 1px solid var(--border-color); }
+ #page-leaderboard .leaderboard-table td[data-label]::before { content: attr(data-label); display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 2px; }
+}

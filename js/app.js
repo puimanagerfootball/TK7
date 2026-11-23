@@ -1,5 +1,5 @@
 /* ==========================================================================
-   TK7 app logic (Ver 6.1.0)
+   TK7 app logic (Ver 6.1.1)
    แยกจาก index.html เพื่อแก้/ค้นหาง่ายขึ้น
    Sections (ค้นหาด้วย // --- SECTION:):
      CONFIG, AUTH, REGISTRATION, SCHEDULE, LINEUP, SETUP,
@@ -2184,7 +2184,7 @@
             const stats = calculateLeaderboard(date); 
             const sortedTeams = Object.values(stats).sort((a, b) => { if (b.pts !== a.pts) return b.pts - a.pts; if (b.gd !== a.gd) return b.gd - a.gd; if (b.gf !== a.gf) return b.gf - a.gf; return a.name.localeCompare(b.name); }); 
 
-            const html = `<table class="leaderboard-table"><thead><tr><th>#</th><th class="team-name">ทีม</th><th>แข่ง</th><th>ชนะ</th><th>เสมอ</th><th>แพ้</th><th>ได้</th><th>เสีย</th><th>+/-</th><th>คะแนน</th></tr></thead><tbody>${sortedTeams.map((team, index) => `<tr><td>${index + 1}</td><td class="team-name"><div class="team-emblem ${team.slug}">${team.name}</div></td><td>${team.p}</td><td>${team.w}</td><td>${team.d}</td><td>${team.l}</td><td>${team.gf}</td><td>${team.ga}</td><td>${team.gd}</td><td><strong>${team.pts}</strong></td></tr>`).join('')}</tbody></table>`;
+            const html = `<table class="leaderboard-table" role="table" aria-label="ตารางคะแนน"><thead><tr role="row"><th role="columnheader" scope="col">#</th><th class="team-name" role="columnheader" scope="col">ทีม</th><th role="columnheader" scope="col">แข่ง</th><th role="columnheader" scope="col">ชนะ</th><th role="columnheader" scope="col">เสมอ</th><th role="columnheader" scope="col">แพ้</th><th role="columnheader" scope="col">ได้</th><th role="columnheader" scope="col">เสีย</th><th role="columnheader" scope="col">+/-</th><th role="columnheader" scope="col">คะแนน</th></tr></thead><tbody>${sortedTeams.map((team, index) => `<tr role="row"><td role="cell">${index + 1}</td><td class="team-name" role="cell"><div class="team-emblem ${team.slug}">${team.name}</div></td><td role="cell" data-label="แข่ง">${team.p}</td><td role="cell" data-label="ชนะ">${team.w}</td><td role="cell" data-label="เสมอ">${team.d}</td><td role="cell" data-label="แพ้">${team.l}</td><td role="cell" data-label="ได้">${team.gf}</td><td role="cell" data-label="เสีย">${team.ga}</td><td role="cell" data-label="+/-">${team.gd}</td><td role="cell"><strong>${team.pts}</strong></td></tr>`).join('')}</tbody></table>`;
             renderWithMorph(container, html); 
         }
 
