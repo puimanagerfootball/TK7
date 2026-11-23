@@ -3,3 +3,6 @@
 .tk7-privacy-button:focus-visible{outline:3px solid #a7d779;outline-offset:3px}
 .toprow>.tk7-privacy-button{margin-right:auto}
 .tk7-privacy-icon{display:grid;place-items:center;flex:none;width:1.25em;height:1.25em;line-height:1}
+button.tk7-has-action-icon:not([hidden]){display:inline-flex;align-items:center;justify-content:center;gap:7px}
+.tk7-has-action-icon>.tk7-icon{display:inline-grid;place-items:center;flex:none;width:1.2em;height:1.2em;line-height:1}
+summary.tk7-has-action-icon>.tk7-icon{margin-right:7px;vertical-align:-.15em}
