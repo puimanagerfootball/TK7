@@ -1,5 +1,5 @@
 /* ==========================================================================
-   TK7 app logic (Ver 6.4.2)
+   TK7 app logic (Ver 6.5.0)
    แยกจาก index.html เพื่อแก้/ค้นหาง่ายขึ้น
    Sections (ค้นหาด้วย // --- SECTION:):
      CONFIG, AUTH, REGISTRATION, SCHEDULE, LINEUP, SETUP,
@@ -407,10 +407,12 @@
             const isLogin = tab === 'login';
             document.getElementById('auth-tab-login').classList.toggle('active', isLogin);
             document.getElementById('auth-tab-signup').classList.toggle('active', !isLogin);
+            document.getElementById('auth-tab-login').setAttribute('aria-pressed', String(isLogin));
+            document.getElementById('auth-tab-signup').setAttribute('aria-pressed', String(!isLogin));
             document.getElementById('login-form').style.display = isLogin ? 'block' : 'none';
             document.getElementById('signup-form').style.display = isLogin ? 'none' : 'block';
             document.getElementById('forgot-password-wrap').style.display = isLogin ? 'block' : 'none';
-            document.getElementById('auth-modal-title').replaceChildren(globalThis.TK7Icons?.node(isLogin?'lock':'edit')||'', isLogin?' เข้าสู่ระบบ':' สมัคร Admin');
+            document.getElementById('auth-modal-title').replaceChildren(globalThis.TK7Icons?.node(isLogin?'lock':'edit')||'', isLogin?' เข้าสู่ระบบ':' สมัครสมาชิกผู้ดูแล');
         }
 
         let profileLoadSequence = 0;

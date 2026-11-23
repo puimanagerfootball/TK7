@@ -31,7 +31,7 @@ globalThis.TK7SpeedDial = (() => {
         trigger.setAttribute('aria-label', label);
         const icon = document.createElement('span');
         icon.className = 'speed-dial-plus';
-        icon.textContent = primary ? '⌄' : '+';
+        icon.textContent = '+';
         icon.setAttribute('aria-hidden', 'true');
         const caption = document.createElement('span');
         caption.textContent = label;
