@@ -31,7 +31,8 @@ test('speed dial keeps the original actions, permissions and handlers', () => {
     action.disabled = true; action.onclick = () => 'original';
     root.append(action); mount(root, 'Account');
     const [trigger, panel] = root.children;
-    assert.equal(panel.children[0], action);
+    assert.equal(panel.children[1], action);
+    assert.equal(panel.children[0].children[1].attributes['aria-label'], 'ปิดเมนู');
     assert.equal(action.disabled, true);
     assert.equal(action.onclick(), 'original');
     assert.equal(trigger.attributes['aria-controls'], panel.id);
@@ -46,7 +47,7 @@ test('split button leaves the primary action directly available', () => {
     const root = new Element(), primary = new Element('button'), secondary = new Element('button');
     root.append(primary, secondary); mount(root, 'More', primary);
     assert.equal(root.children[0], primary);
-    assert.equal(root.children[2].children[0], secondary);
+    assert.equal(root.children[2].children[1], secondary);
     assert.equal(root.children[1].attributes['aria-label'], 'More');
 });
 

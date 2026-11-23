@@ -190,6 +190,9 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 }
 .speed-dial-panel:popover-open { display: grid; grid-template-columns: minmax(0,1fr); gap: 12px; }
 .speed-dial-panel::backdrop { background: #102b171a; }
+.speed-dial-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 0 10px; border-bottom: 1px solid #dbe7de; color: #17482d; }
+.speed-dial-heading strong { font: 600 16px Kanit,system-ui,sans-serif; }
+#tk7-line-card .speed-dial-close { display: grid; place-items: center; flex: none; width: 44px; height: 44px; margin: 0; border: 0; border-radius: 50%; background: #e2eee5; color: #254f36; font: 26px/1 system-ui; cursor: pointer; box-shadow: none; }
 #auth-section .speed-dial-panel > :is(button,a), #tk7-line-card .speed-dial-panel > button {
     display: flex; align-items: center; justify-content: flex-start; gap: 10px;
     box-sizing: border-box; width: 100%; min-height: 48px; height: auto; margin: 0;
@@ -201,7 +204,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .speed-dial-host .speed-dial-trigger:focus-visible { outline: 3px solid #185aa6; outline-offset: 4px; }
 .speed-dial-host.speed-dial-split { display: grid !important; grid-template-columns: minmax(0,1fr) 52px; gap: 3px; }
 #tk7-line-card .speed-dial-split > .tk7l-action { border-radius: 12px 0 0 12px; min-height: 52px; }
-.speed-dial-split > .speed-dial-trigger { padding: 0; min-height: 52px; border-radius: 0 12px 12px 0; width: 52px; }
+.speed-dial-split > .speed-dial-trigger { padding: 0; min-height: 52px; border-radius: 0 999px 999px 0; width: 52px; }
 .speed-dial-split .speed-dial-plus { background: transparent; color: white; font-size: 25px; }
 .speed-dial-split .speed-dial-trigger[aria-expanded=true] .speed-dial-plus { transform: rotate(180deg); }
 @media(max-width:767px) {

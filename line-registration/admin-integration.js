@@ -302,7 +302,7 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>'',selectDefaultSetupDat
  function render(){
   const s=session();const c=cfg();
   actions.replaceChildren();
-  const share=actionButton('share','แชร์ลงทะเบียนผ่านระบบ',{class:'tk7l-share',onclick:openCardShare});
+  const share=actionButton('share','แชร์ลงทะเบียน',{class:'tk7l-share',disabled:!s?.is_open,onclick:openCardShare});
   main.replaceChildren(...actionLabel(s?.is_open?'lock':'unlock',s?.is_open?'ปิดลงทะเบียน':'เปิดลงทะเบียน'));
   main.disabled=!c.group_id||!date();
   main.onclick=()=>act(main,async()=>{
@@ -323,8 +323,11 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>'',selectDefaultSetupDat
   const summary=actionButton('list','ส่งสรุป (กลุ่มใหญ่)',{class:'tk7l-summary-all',disabled:!s,onclick:()=>openRosterSummary('all')});
   const teamSummary=actionButton('shirt','ส่งสรุป (กลุ่มย่อย)',{class:'tk7l-summary-team',disabled:!s,onclick:()=>openRosterSummary('team')});
   const importButton=actionButton('import','นำเข้าจาก LINE',{class:'tk7l-import',disabled:!s||!s.is_open,onclick:importer.open});
-  actions.append(share,importButton,summary,teamSummary,main,del);
-  globalThis.TK7SpeedDial?.mount(actions,'คำสั่งลงทะเบียนเพิ่มเติม',share);
+  // Opening comes first; summaries remain available after registration closes.
+  const primary=s?.is_open?share:main;
+  const ordered=s?.is_open?[share,teamSummary,summary,importButton,main,del]:[main,share,teamSummary,summary,importButton,del];
+  actions.append(...ordered);
+  globalThis.TK7SpeedDial?.mount(actions,'ลงทะเบียน',primary);
   renderDateTabs();renderTeams(s);renderLog(s);pullFormFrom(s);
  }
 
