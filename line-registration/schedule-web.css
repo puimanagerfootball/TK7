@@ -1438,3 +1438,14 @@ button, a, input, select, textarea, summary { touch-action: manipulation; }
  .score-btn[data-op="-1"] { grid-column: 1; grid-row: 2; }
  .score-btn[data-op="1"] { grid-column: 2; grid-row: 2; }
 }
+
+/* Equal mobile header controls, including the privacy link. */
+@media (max-width: 767px) {
+ #auth-section .auth-user-controls { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); align-items: stretch; gap: 8px; width: 100%; padding-bottom: 4px; }
+ #auth-section .auth-user-controls > :is(button, .tk7-privacy-button) { box-sizing: border-box; width: 100%; height: 44px; min-height: 44px; min-width: 0; margin: 0; padding: 4px; border: 0; border-radius: 10px; font-size: 11px; font-weight: 600; line-height: 1.2; text-align: center; white-space: nowrap; vertical-align: middle; }
+ #auth-section .tk7-privacy-button { gap: 4px; box-shadow: inset 0 1px 0 #ffffff30, 0 3px 0 #153e2a; }
+ #auth-section .tk7-auth-label { justify-content: center; gap: 4px; }
+ #auth-section .tk7-auth-label .tk7-icon-emoji, #auth-section .tk7-privacy-icon { width: 14px; height: 14px; font-size: 14px; }
+ #auth-section .auth-user-controls > button { box-shadow: inset 0 1px 0 #ffffff30, 0 3px 0 var(--btn-lip, #28583a); }
+ #auth-section .auth-user-controls > :is(button, .tk7-privacy-button):active:not(:disabled) { transform: translateY(2px); box-shadow: inset 0 1px 2px #102a1b25, 0 1px 0 var(--btn-lip, #153e2a); }
+}
