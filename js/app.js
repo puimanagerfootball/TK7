@@ -1,5 +1,5 @@
 /* ==========================================================================
-   TK7 app logic (Ver 6.1.1)
+   TK7 app logic (Ver 6.2.0)
    แยกจาก index.html เพื่อแก้/ค้นหาง่ายขึ้น
    Sections (ค้นหาด้วย // --- SECTION:):
      CONFIG, AUTH, REGISTRATION, SCHEDULE, LINEUP, SETUP,
@@ -1165,6 +1165,7 @@
         }
 
         function setActivePage(pageId) { 
+            if (pageId !== 'page-lineup') window.TK7Tactics?.stop();
             if (!canManage() && pageId === 'page-setup') { alert(currentUser ? 'บัญชีของคุณยังไม่ได้รับอนุมัติจาก Superadmin' : 'คุณต้องเข้าสู่ระบบผู้ดูแลเพื่อเข้าถึงหน้านี้'); if (!currentUser) loginModal.style.display = 'block'; return; } 
             if (activePage === 'page-scores' && pageId !== 'page-scores') flushScoreSave();
             activePage = pageId; shouldRestoreScroll = false; 
@@ -1334,6 +1335,7 @@
                 pitch.appendChild(el);
             });
             applyLineupPieceStyles(pitch, lineupTeamSlug);
+            window.TK7Tactics?.mount(pitch, lineupTeamSlug + ':' + lineupFormationId);
         }
 
         async function shareHelpInfographic() {
@@ -1386,6 +1388,7 @@
         }
 
         async function shareCurrentLineup() {
+            window.TK7Tactics?.stop();
             rememberLineupDraft();
             const btn = document.getElementById('share-lineup-btn');
             const originalText = btn.innerHTML;
