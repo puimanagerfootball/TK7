@@ -1,5 +1,5 @@
 /* ==========================================================================
-   TK7 app logic (Ver 6.2.1)
+   TK7 app logic (Ver 6.3.0)
    แยกจาก index.html เพื่อแก้/ค้นหาง่ายขึ้น
    Sections (ค้นหาด้วย // --- SECTION:):
      CONFIG, AUTH, REGISTRATION, SCHEDULE, LINEUP, SETUP,
@@ -1335,7 +1335,10 @@
                 pitch.appendChild(el);
             });
             applyLineupPieceStyles(pitch, lineupTeamSlug);
-            window.TK7Tactics?.mount(pitch, lineupTeamSlug + ':' + lineupFormationId);
+            window.TK7Tactics?.mount(pitch, lineupTeamSlug + ':' + lineupFormationId, {
+                teamName: TEAMS.find(team => team.slug === lineupTeamSlug)?.name || lineupTeamSlug,
+                formation: formation.name
+            });
         }
 
         async function shareHelpInfographic() {

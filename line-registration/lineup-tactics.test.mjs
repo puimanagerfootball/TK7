@@ -39,16 +39,14 @@ function harness({ reduced = false } = {}) {
         'lineup-reset-points', 'lineup-duration', 'lineup-tactic-hint'];
     const nodes = Object.fromEntries(ids.map(id => [id, new Node()]));
     nodes['lineup-duration'].value = '4000';
-    const modes = ['name', 'move', 'route'].map(mode => {
-        const button = new Node();
-        button.dataset.tacticMode = mode;
-        return button;
-    });
-    nodes['lineup-tools'].querySelectorAll = () => modes;
+    const timers = new Map();
     const document = new Node();
     document.getElementById = id => nodes[id];
     document.createElement = document.createElementNS = () => new Node();
-    const context = { document, AbortController, structuredClone, window: { matchMedia: () => ({ matches: reduced }) } };
+    const context = { document, AbortController, structuredClone, Date,
+        setTimeout: fn => { const id = Symbol(); timers.set(id, fn); return id; },
+        clearTimeout: id => timers.delete(id),
+        window: { matchMedia: () => ({ matches: reduced }) } };
     vm.createContext(context);
     vm.runInContext(source, context);
     const pitch = new Node();
@@ -57,6 +55,7 @@ function harness({ reduced = false } = {}) {
         slot.dataset.slotId = id;
         slot.textContent = 'Player ' + id;
         slot.style = { left: (30 + i * 40) + '%', top: '50%' };
+        slot.click = () => { slot.edits = (slot.edits || 0) + 1; };
         return slot;
     });
     pitch.querySelectorAll = () => slots;
@@ -65,14 +64,24 @@ function harness({ reduced = false } = {}) {
     pitch.setPointerCapture = () => {};
     pitch.hasPointerCapture = () => false;
     context.TK7Tactics.mount(pitch, 'green:2-3-1');
-    return { editor: context.TK7Tactics, nodes, modes, pitch, slots };
+    return { editor: context.TK7Tactics, nodes, pitch, slots, hold: () => [...timers.values()][0]?.(), timers };
+}
+
+async function routeTo(h, index, x, y) {
+    h.nodes['lineup-runner'].value = h.slots[index].dataset.slotId;
+    await h.nodes['lineup-runner'].fire('change');
+    const pointer = { target: h.slots[index], button: 0, isPrimary: true, pointerId: 1,
+        clientX: parseFloat(h.slots[index].style.left), clientY: 50 };
+    await h.pitch.fire('pointerdown', pointer);
+    await h.pitch.fire('pointermove', { ...pointer, clientX: x, clientY: y });
+    await h.pitch.fire('pointerup', { ...pointer, clientX: x, clientY: y });
 }
 
 test('dragging clamps a player inside the pitch and a cancelled drag restores the point', async () => {
     const h = harness();
-    await h.modes[1].fire('click');
-    const pointer = { target: h.slots[0], button: 0, isPrimary: true, pointerId: 1 };
+    const pointer = { target: h.slots[0], button: 0, isPrimary: true, pointerId: 1, clientX: 30, clientY: 50 };
     await h.pitch.fire('pointerdown', pointer);
+    h.hold();
     await h.pitch.fire('pointermove', { ...pointer, clientX: -10, clientY: 120 });
     assert.equal(h.slots[0].style.left, '12%');
     assert.equal(h.slots[0].style.top, '92%');
@@ -83,11 +92,9 @@ test('dragging clamps a player inside the pitch and a cancelled drag restores th
 
 test('two players animate their selected routes together and stop restores their starts', async () => {
     const h = harness();
-    await h.modes[2].fire('click');
-    await h.pitch.fire('click', { target: h.slots[1] });
-    h.nodes['lineup-runner'].value = 'b';
-    await h.nodes['lineup-runner'].fire('change');
-    await h.pitch.fire('click', { clientX: 30, clientY: 50 });
+    await routeTo(h, 0, 70, 50);
+    await routeTo(h, 1, 30, 50);
+    assert.equal(h.slots[0].style.left, '30%');
     const calls = [], finished = [];
     for (const slot of h.slots) {
         slot.animate = (frames, options) => {
@@ -112,8 +119,7 @@ test('two players animate their selected routes together and stop restores their
 
 test('reduced motion shows the end point and drafts remain separate by team', async () => {
     const h = harness({ reduced: true });
-    await h.modes[2].fire('click');
-    await h.pitch.fire('click', { clientX: 60, clientY: 35 });
+    await routeTo(h, 0, 60, 35);
     await h.nodes['lineup-play'].fire('click');
     assert.equal(h.slots[0].style.left, '60%');
     h.editor.stop();
@@ -121,4 +127,18 @@ test('reduced motion shows the end point and drafts remain separate by team', as
     assert.equal(h.nodes['lineup-play'].disabled, true);
     h.editor.mount(h.pitch, 'green:2-3-1');
     assert.equal(h.nodes['lineup-play'].disabled, false);
+});
+
+test('one tap selects and a second touch tap edits the player name', async () => {
+    const h = harness();
+    const pointer = { target: h.slots[0], button: 0, isPrimary: true, pointerId: 1,
+        pointerType: 'touch', clientX: 30, clientY: 50 };
+    await h.pitch.fire('pointerdown', pointer);
+    await h.pitch.fire('pointerup', pointer);
+    assert.equal(h.nodes['lineup-runner'].value, 'a');
+    assert.equal(h.slots[0].edits, undefined);
+    await h.pitch.fire('pointerdown', pointer);
+    await h.pitch.fire('pointerup', pointer);
+    assert.equal(h.slots[0].edits, 1);
+    assert.equal(h.timers.size, 0);
 });
