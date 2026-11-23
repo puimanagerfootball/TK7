@@ -1,5 +1,5 @@
 /* ==========================================================================
-   TK7 app logic (Ver 6.2.0)
+   TK7 app logic (Ver 6.2.1)
    แยกจาก index.html เพื่อแก้/ค้นหาง่ายขึ้น
    Sections (ค้นหาด้วย // --- SECTION:):
      CONFIG, AUTH, REGISTRATION, SCHEDULE, LINEUP, SETUP,
@@ -2187,7 +2187,7 @@
             const stats = calculateLeaderboard(date); 
             const sortedTeams = Object.values(stats).sort((a, b) => { if (b.pts !== a.pts) return b.pts - a.pts; if (b.gd !== a.gd) return b.gd - a.gd; if (b.gf !== a.gf) return b.gf - a.gf; return a.name.localeCompare(b.name); }); 
 
-            const html = `<table class="leaderboard-table" role="table" aria-label="ตารางคะแนน"><thead><tr role="row"><th role="columnheader" scope="col">#</th><th class="team-name" role="columnheader" scope="col">ทีม</th><th role="columnheader" scope="col">แข่ง</th><th role="columnheader" scope="col">ชนะ</th><th role="columnheader" scope="col">เสมอ</th><th role="columnheader" scope="col">แพ้</th><th role="columnheader" scope="col">ได้</th><th role="columnheader" scope="col">เสีย</th><th role="columnheader" scope="col">+/-</th><th role="columnheader" scope="col">คะแนน</th></tr></thead><tbody>${sortedTeams.map((team, index) => `<tr role="row"><td role="cell">${index + 1}</td><td class="team-name" role="cell"><div class="team-emblem ${team.slug}">${team.name}</div></td><td role="cell" data-label="แข่ง">${team.p}</td><td role="cell" data-label="ชนะ">${team.w}</td><td role="cell" data-label="เสมอ">${team.d}</td><td role="cell" data-label="แพ้">${team.l}</td><td role="cell" data-label="ได้">${team.gf}</td><td role="cell" data-label="เสีย">${team.ga}</td><td role="cell" data-label="+/-">${team.gd}</td><td role="cell"><strong>${team.pts}</strong></td></tr>`).join('')}</tbody></table>`;
+            const html = `<table class="leaderboard-table" role="table" aria-label="ตารางคะแนน"><thead><tr role="row"><th role="columnheader" scope="col">#</th><th class="team-name" role="columnheader" scope="col">ทีม</th><th role="columnheader" scope="col">แข่ง</th><th role="columnheader" scope="col">ชนะ</th><th role="columnheader" scope="col">เสมอ</th><th role="columnheader" scope="col">แพ้</th><th role="columnheader" scope="col">ได้</th><th role="columnheader" scope="col">เสีย</th><th role="columnheader" scope="col">+/-</th><th role="columnheader" scope="col">คะแนน</th></tr></thead><tbody>${sortedTeams.map((team, index) => `<tr role="row"><td role="cell">${index + 1}</td><td class="team-name" role="cell"><div class="team-emblem ${team.slug}"><span class="standing-team-full">${team.name}</span><span class="standing-team-short">${escapeHtml(team.name.replace(/^ทีม/, ""))}</span></div></td><td role="cell" data-label="แข่ง">${team.p}</td><td role="cell" data-label="ชนะ">${team.w}</td><td role="cell" data-label="เสมอ">${team.d}</td><td role="cell" data-label="แพ้">${team.l}</td><td role="cell" data-label="ได้">${team.gf}</td><td role="cell" data-label="เสีย">${team.ga}</td><td role="cell" data-label="+/-">${team.gd}</td><td role="cell"><strong>${team.pts}</strong></td></tr>`).join('')}</tbody></table>`;
             renderWithMorph(container, html); 
         }
 
