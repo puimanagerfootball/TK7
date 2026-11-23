@@ -303,17 +303,23 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>'',selectDefaultSetupDat
   const s=session();const c=cfg();
   actions.replaceChildren();
   const share=actionButton('share','แชร์ลงทะเบียน',{class:'tk7l-share',disabled:!s?.is_open,onclick:openCardShare});
-  main.replaceChildren(...actionLabel(s?.is_open?'lock':'unlock',s?.is_open?'ปิดลงทะเบียน':'เปิดลงทะเบียน'));
-  main.disabled=!c.group_id||!date();
+  main.replaceChildren(...actionLabel('unlock','เปิดลงทะเบียน'));
+  main.disabled=!c.group_id||!date()||!!s?.is_open;
   main.onclick=()=>act(main,async()=>{
    if(!s){
     const sid=await rpc('tk7_admin_open_session',{p_date:date(),p_time_per_match:minutes(),p_start_time:startTime(),p_open:true});
     await rpc('tk7_admin_set_preset',{p_session:sid,p_teams:checkedTeams()});await logWeb(sid,'open','เปิดรับลงชื่อ');
     return 'เปิดลงทะเบียนแล้ว';
    }
-   await rpc('tk7_admin_set_open',{p_session:s.id,p_open:!s.is_open});
-   await logWeb(s.id,s.is_open?'close':'reopen',s.is_open?'ปิดรับลงชื่อ':'เปิดรับลงชื่ออีกครั้ง');
-   return s.is_open?'ปิดลงทะเบียนแล้ว':'เปิดลงทะเบียนแล้ว';
+   await rpc('tk7_admin_set_open',{p_session:s.id,p_open:true});
+   await logWeb(s.id,'reopen','เปิดรับลงชื่ออีกครั้ง');
+   return 'เปิดลงทะเบียนแล้ว';
+  });
+  const closeRegistration=actionButton('lock','ปิดลงทะเบียน',{class:'tk7l-main',disabled:!s?.is_open});
+  closeRegistration.onclick=()=>act(closeRegistration,async()=>{
+   await rpc('tk7_admin_set_open',{p_session:s.id,p_open:false});
+   await logWeb(s.id,'close','ปิดรับลงชื่อ');
+   return 'ปิดลงทะเบียนแล้ว';
   });
   const del=actionButton('trash','ลบวันลงทะเบียน',{class:'tk7l-danger',disabled:!s});
   del.onclick=()=>{
@@ -324,14 +330,14 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>'',selectDefaultSetupDat
   const teamSummary=actionButton('shirt','ส่งสรุป (กลุ่มย่อย)',{class:'tk7l-summary-team',disabled:!s,onclick:()=>openRosterSummary('team')});
   const importButton=actionButton('import','นำเข้าจาก LINE',{class:'tk7l-import',disabled:!s||!s.is_open,onclick:importer.open});
   // Keep registration management separate from outgoing sharing actions.
-  const management=el('div',{class:'tk7l-actions-group'},main,importButton,del);
-  const sharing=el('div',{class:'tk7l-actions-group'},share,teamSummary,summary);
+  const management=el('div',{class:'tk7l-actions-group'},main,closeRegistration,del);
+  const sharing=el('div',{class:'tk7l-actions-group'},share,summary,teamSummary,importButton);
   actions.append(
-   el('section',{class:'tk7l-action-section'},el('h3',{text:'เปิด–ปิดลงทะเบียน'}),management),
-   el('section',{class:'tk7l-action-section'},el('h3',{text:'แชร์'}),sharing)
+   el('section',{class:'tk7l-action-section'},management),
+   el('section',{class:'tk7l-action-section'},sharing)
   );
-  globalThis.TK7SpeedDial?.mount(management,'จัดการลงทะเบียน',main);
-  globalThis.TK7SpeedDial?.mount(sharing,'แชร์และส่งสรุป',share);
+  globalThis.TK7SpeedDial?.mount(management,'เปิด–ปิดลงทะเบียน');
+  globalThis.TK7SpeedDial?.mount(sharing,'แชร์และนำเข้า');
   renderDateTabs();renderTeams(s);renderLog(s);pullFormFrom(s);
  }
 
@@ -617,7 +623,7 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>'',selectDefaultSetupDat
   btn.disabled=true;mutating=true;refreshOverview.invalidate();say('กำลังบันทึก…');
   try{const msg=await fn();const refreshed=await load(true);if(refreshed!==false)say(msg)}
   catch(e){say(errText(e),true);btn.disabled=false}
-  finally{mutating=false;if(btn===main)btn.disabled=!cfg().group_id||!date();else if(btn.isConnected)btn.disabled=false;}
+  finally{mutating=false;if(btn===main)btn.disabled=!cfg().group_id||!date()||!!session()?.is_open;else if(btn.isConnected)btn.disabled=false;}
  }
 
  // events

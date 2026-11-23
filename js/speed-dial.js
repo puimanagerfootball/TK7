@@ -60,6 +60,7 @@ globalThis.TK7SpeedDial = (() => {
         icon.textContent = '+';
         icon.setAttribute('aria-hidden', 'true');
         const caption = document.createElement('span');
+        caption.className = 'speed-dial-caption';
         caption.textContent = label;
         trigger.append(icon);
         if (!primary) trigger.append(caption);
