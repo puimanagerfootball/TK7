@@ -1,5 +1,5 @@
 /* ==========================================================================
-   TK7 app logic (Ver 6.5.6)
+   TK7 app logic (Ver 6.5.7)
    แยกจาก index.html เพื่อแก้/ค้นหาง่ายขึ้น
    Sections (ค้นหาด้วย // --- SECTION:):
      CONFIG, AUTH, REGISTRATION, SCHEDULE, LINEUP, SETUP,
@@ -325,6 +325,14 @@
             document.getElementById('export-leaderboard-btn').addEventListener('click', (e) => handleExport('leaderboard-container', `TK7-Leaderboard-${currentDateKey}.png`, e.currentTarget));
             document.getElementById('share-lineup-btn').addEventListener('click', shareCurrentLineup);
             globalThis.TK7SpeedDial?.mount(document.getElementById('lineup-share-menu'),'แชร์');
+            const lineupShareTrigger=document.querySelector('#lineup-share-menu > .speed-dial-trigger');
+            if(lineupShareTrigger){
+                lineupShareTrigger.classList.add('export-btn','line-share-btn');
+                lineupShareTrigger.setAttribute('aria-label','แชร์ LINE');
+                lineupShareTrigger.querySelector('.speed-dial-caption').textContent='แชร์ LINE';
+                const lineLogo=document.querySelector('#export-schedule-btn .line-icon');
+                if(lineLogo)lineupShareTrigger.prepend(lineLogo.cloneNode(true));
+            }
 
             // ตั้งค่าปุ่มสำหรับ Template
             document.getElementById('manage-templates-btn').onclick = openTemplateManager;
