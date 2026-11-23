@@ -324,6 +324,7 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>'',selectDefaultSetupDat
   const teamSummary=actionButton('shirt','ส่งสรุป (กลุ่มย่อย)',{class:'tk7l-summary-team',disabled:!s,onclick:()=>openRosterSummary('team')});
   const importButton=actionButton('import','นำเข้าจาก LINE',{class:'tk7l-import',disabled:!s||!s.is_open,onclick:importer.open});
   actions.append(share,importButton,summary,teamSummary,main,del);
+  globalThis.TK7SpeedDial?.mount(actions,'คำสั่งลงทะเบียนเพิ่มเติม',share);
   renderDateTabs();renderTeams(s);renderLog(s);pullFormFrom(s);
  }
 
