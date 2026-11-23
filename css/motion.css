@@ -200,10 +200,19 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
     #app .page-header { gap: 8px; margin-bottom: 14px; }
     #app .page-header h1 { font-size: clamp(18px,4.8vw,24px); }
     #app .page-header .export-btn { font-size: 12px; padding-inline: 10px; }
-    #app #auth-section { flex-wrap: wrap; padding: 10px 12px; }
-    #app #auth-section .auth-meta { flex: 1 1 160px; justify-content: flex-start; }
-    #app #auth-section .auth-meta { flex-basis: 100%; }
-    #app .auth-user-controls { width: 100%; }
+    #app #auth-section {
+        display: grid; grid-template-columns: minmax(0,1fr); grid-template-rows: auto auto;
+        width: 100%; min-width: 0; padding: 10px 12px; gap: 10px;
+    }
+    #app #auth-section .auth-meta { flex: none; width: 100%; min-width: 0; justify-content: flex-start; }
+    #app #auth-section .auth-user-controls {
+        width: 100%; min-width: 0; max-width: 100%;
+        display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0,1fr);
+        justify-content: stretch; gap: 8px;
+    }
+    #app #auth-section .auth-user-controls > :is(button,.tk7-privacy-button) {
+        min-width: 0; width: 100%; max-width: 100%; white-space: normal; overflow-wrap: anywhere;
+    }
     #app #user-info { max-width: calc(100vw - 130px); }
     #app .date-selector-container { margin-bottom: 14px; gap: 8px; }
     #app .card { border-radius: 16px; }
