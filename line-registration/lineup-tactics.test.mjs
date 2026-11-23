@@ -129,10 +129,11 @@ test('reduced motion shows the end point and drafts remain separate by team', as
     assert.equal(h.nodes['lineup-play'].disabled, false);
 });
 
-test('one tap selects and a second touch tap edits the player name', async () => {
+test('one click selects and a second click edits for touch and captured mouse pointers', async () => {
+ for (const pointerType of ['touch', 'mouse']) {
     const h = harness();
     const pointer = { target: h.slots[0], button: 0, isPrimary: true, pointerId: 1,
-        pointerType: 'touch', clientX: 30, clientY: 50 };
+        pointerType, clientX: 30, clientY: 50 };
     await h.pitch.fire('pointerdown', pointer);
     await h.pitch.fire('pointerup', pointer);
     assert.equal(h.nodes['lineup-runner'].value, 'a');
@@ -141,4 +142,5 @@ test('one tap selects and a second touch tap edits the player name', async () =>
     await h.pitch.fire('pointerup', pointer);
     assert.equal(h.slots[0].edits, 1);
     assert.equal(h.timers.size, 0);
+ }
 });

@@ -186,7 +186,7 @@ globalThis.TK7Tactics = (() => {
             if (event.type === 'pointerup' && finished.kind === 'pending') {
                 selected = finished.id;
                 runner.value = selected;
-                if (event.pointerType === 'touch' && lastTap?.id === selected && Date.now() - lastTap.time < 350) {
+                if (lastTap?.id === selected && Date.now() - lastTap.time < 350) {
                     lastTap = null;
                     editName(slots.find(slot => slot.dataset.slotId === selected));
                     return;
