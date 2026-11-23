@@ -97,6 +97,7 @@ globalThis.TK7Tactics = (() => {
                 const slot = slots.find(slot => slot.dataset.slotId === selected);
                 const label = slot?.textContent.trim().replace(/\s+/g, ' ') || '';
                 selectedLabel.textContent = 'ทางวิ่ง · ' + label;
+                selectedLabel.title = label;
                 clear.setAttribute('aria-label', 'ล้างทางวิ่งของ ' + label);
             }
             reset.disabled = playing;
@@ -126,7 +127,7 @@ globalThis.TK7Tactics = (() => {
         }
 
         function coordinates(event) {
-            const bounds = pitch.getBoundingClientRect();
+            const bounds = drag?.bounds || pitch.getBoundingClientRect();
             return point((event.clientX - bounds.left) / bounds.width * 100,
                 (event.clientY - bounds.top) / bounds.height * 100);
         }
@@ -149,7 +150,8 @@ globalThis.TK7Tactics = (() => {
             const id = slot.dataset.slotId;
             drag = { id, pointer: event.pointerId, original: { ...draft.positions[id] },
                 route: structuredClone(draft.routes[id] || []), kind: 'pending',
-                canRoute: selected === id, startX: event.clientX, startY: event.clientY };
+                canRoute: selected === id, startX: event.clientX, startY: event.clientY,
+                bounds: pitch.getBoundingClientRect() };
             pitch.setPointerCapture(event.pointerId);
             pressTimer = setTimeout(() => {
                 if (!drag || drag.pointer !== event.pointerId) return;

@@ -137,6 +137,21 @@ test('clearing one selected route preserves the other player route and the playe
     assert.equal(h.nodes['lineup-clear-route'].disabled, false);
 });
 
+test('a route uses the original pitch bounds even when surrounding controls change its offset', async () => {
+    const h = harness();
+    h.nodes['lineup-runner'].value = 'a';
+    await h.nodes['lineup-runner'].fire('change');
+    const pointer = { target: h.slots[0], button: 0, isPrimary: true,
+        pointerId: 1, clientX: 30, clientY: 50 };
+    await h.pitch.fire('pointerdown', pointer);
+    h.pitch.getBoundingClientRect = () => ({ left: 0, top: 40, width: 100, height: 100 });
+    await h.pitch.fire('pointermove', { ...pointer, clientX: 70, clientY: 30 });
+    const path = h.pitch.children[0].children[0];
+    assert.equal(path.attributes.points, '30,50 70,30');
+    await h.pitch.fire('pointerup', { ...pointer, clientX: 70, clientY: 30 });
+    assert.equal(h.slots[0].style.left, '30%');
+});
+
 test('reduced motion shows the end point and drafts remain separate by team', async () => {
     const h = harness({ reduced: true });
     await routeTo(h, 0, 60, 35);

@@ -1545,7 +1545,8 @@ button, a, input, select, textarea, summary { touch-action: manipulation; }
 .lineup-options[open] .lineup-route-controls { padding: 12px; border-radius: 12px; background: #dce8d7; }
 .lineup-tools { gap: 4px; margin-bottom: 6px; }
 
-.lineup-selected-route:not([hidden]) { display: flex; justify-content: space-between; align-items: center; gap: 10px; max-width: 420px; margin: 0 auto 10px; font-size: 13px; color: #2f503b; }
-.lineup-selected-route span { min-width: 0; overflow-wrap: anywhere; }
+.lineup-route-space { height: 54px; }
+.lineup-selected-route:not([hidden]) { display: flex; justify-content: space-between; align-items: center; gap: 10px; height: 44px; max-width: 420px; margin: 0 auto 10px; font-size: 13px; color: #2f503b; }
+.lineup-selected-route span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .lineup-selected-route button { flex-shrink: 0; min-height: 44px; border: 1px solid #c7d5c6; border-radius: 9px; padding: 7px 10px; background: #edf3e9; color: #365740; font: inherit; cursor: pointer; }
 .lineup-selected-route button:disabled { opacity: .5; cursor: default; }
