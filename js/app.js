@@ -1,5 +1,5 @@
 /* ==========================================================================
-   TK7 app logic (Ver 6.3.1)
+   TK7 app logic (Ver 6.3.2)
    แยกจาก index.html เพื่อแก้/ค้นหาง่ายขึ้น
    Sections (ค้นหาด้วย // --- SECTION:):
      CONFIG, AUTH, REGISTRATION, SCHEDULE, LINEUP, SETUP,
@@ -1238,12 +1238,11 @@
 
             const formBox = document.getElementById('formation-chips');
             formBox.innerHTML = FORMATIONS.map(f =>
-                `<button type="button" class="formation-chip ${f.id === lineupFormationId ? 'active' : ''}" data-id="${f.id}">${f.name}</button>`
+                `<option value="${f.id}" ${f.id === lineupFormationId ? 'selected' : ''}>${f.name}</option>`
             ).join('');
-            formBox.querySelectorAll('.formation-chip').forEach(btn => {
-                btn.onclick = () => {
+            formBox.onchange = () => {
                     const oldNames = { ...lineupNames };
-                    lineupFormationId = btn.dataset.id;
+                    lineupFormationId = formBox.value;
                     const formation = getCurrentFormation();
                     lineupNames = emptyNamesForFormation(formation);
                     formation.slots.forEach((s, i) => {
@@ -1252,9 +1251,7 @@
                     });
                     rememberLineupDraft();
                     renderLineupPitchAndNames();
-                    formBox.querySelectorAll('.formation-chip').forEach(b => b.classList.toggle('active', b.dataset.id === lineupFormationId));
-                };
-            });
+            };
 
             renderLineupPitchAndNames();
         }

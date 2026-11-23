@@ -1523,7 +1523,7 @@ button, a, input, select, textarea, summary { touch-action: manipulation; }
 .pitch[data-tactic-mode=move] .pitch-slot:active { cursor: grabbing; }
 .pitch .tactic-selected .slot-dot-face { outline: 3px solid #fff; outline-offset: 3px; }
 .pitch-slot:focus-visible { outline: 3px solid #ffe478; outline-offset: 3px; border-radius: 12px; }
-@media (min-width: 1024px) { .lineup-route-controls { grid-template-columns: repeat(3,minmax(0,1fr)); } }
+
 
 .pitch[data-tactic-mode] .pitch-slot { touch-action: none; user-select: none; -webkit-user-select: none; }
 .pitch[data-tactic-mode] .slot-name-input { touch-action: manipulation; user-select: text; -webkit-user-select: text; }
@@ -1536,3 +1536,16 @@ button, a, input, select, textarea, summary { touch-action: manipulation; }
 .lineup-video-actions button, .lineup-video-actions a { display: grid; place-items: center; min-height: 44px; border: 1px solid #c2d4c3; border-radius: 10px; padding: 8px; background: #e1eddf; color: #19482c; font: inherit; text-decoration: none; cursor: pointer; }
 .lineup-video-actions button:first-child { background: #205f3d; color: #fff; }
 .lineup-video-actions button:disabled { opacity: .5; cursor: default; }
+
+.lineup-main-controls { display: grid; grid-template-columns: minmax(90px,.8fr) repeat(2,minmax(0,1fr)); align-items: stretch; gap: 8px; }
+.lineup-main-controls select, .lineup-main-controls button { width: 100%; min-width: 0; min-height: 44px; margin: 0; padding: 8px; border: 1px solid #a2baa6; border-radius: 10px; font: inherit; font-size: 14px; line-height: 1.2; }
+.lineup-main-controls button { background: #e8f1e5; color: #254d32; cursor: pointer; }
+.lineup-main-controls button:disabled { opacity: .5; cursor: default; }
+.lineup-options summary { cursor: pointer; width: fit-content; padding: 7px 0; font-size: 13px; color: #3f614b; }
+.lineup-options[open] .lineup-route-controls { padding: 12px; border-radius: 12px; background: #dce8d7; }
+.lineup-tools { gap: 4px; margin-bottom: 6px; }
+
+.lineup-selected-route:not([hidden]) { display: flex; justify-content: space-between; align-items: center; gap: 10px; max-width: 420px; margin: 0 auto 10px; font-size: 13px; color: #2f503b; }
+.lineup-selected-route span { min-width: 0; overflow-wrap: anywhere; }
+.lineup-selected-route button { flex-shrink: 0; min-height: 44px; border: 1px solid #c7d5c6; border-radius: 9px; padding: 7px 10px; background: #edf3e9; color: #365740; font: inherit; cursor: pointer; }
+.lineup-selected-route button:disabled { opacity: .5; cursor: default; }

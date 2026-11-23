@@ -23,6 +23,8 @@ globalThis.TK7Tactics = (() => {
         const runner = document.getElementById('lineup-runner');
         const play = document.getElementById('lineup-play');
         const clear = document.getElementById('lineup-clear-route');
+        const selectedRoute = document.getElementById('lineup-selected-route');
+        const selectedLabel = document.getElementById('lineup-selected-label');
         const reset = document.getElementById('lineup-reset-points');
         const duration = document.getElementById('lineup-duration');
         const video = document.getElementById('lineup-video');
@@ -90,6 +92,13 @@ globalThis.TK7Tactics = (() => {
             }
             pitch.dataset.tacticMode = drag?.kind === 'move' ? 'move' : 'gesture';
             clear.disabled = playing || !(draft.routes[selected]?.length);
+            if (selectedRoute) selectedRoute.hidden = !(draft.routes[selected]?.length);
+            if (selectedLabel) {
+                const slot = slots.find(slot => slot.dataset.slotId === selected);
+                const label = slot?.textContent.trim().replace(/\s+/g, ' ') || '';
+                selectedLabel.textContent = 'ทางวิ่ง · ' + label;
+                clear.setAttribute('aria-label', 'ล้างทางวิ่งของ ' + label);
+            }
             reset.disabled = playing;
             runner.disabled = playing;
             duration.disabled = playing;

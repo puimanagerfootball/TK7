@@ -36,7 +36,8 @@ class Node {
 
 function harness({ reduced = false } = {}) {
     const ids = ['lineup-tools', 'lineup-runner', 'lineup-play', 'lineup-clear-route',
-        'lineup-reset-points', 'lineup-duration', 'lineup-tactic-hint'];
+        'lineup-reset-points', 'lineup-duration', 'lineup-tactic-hint',
+        'lineup-selected-route', 'lineup-selected-label'];
     const nodes = Object.fromEntries(ids.map(id => [id, new Node()]));
     nodes['lineup-duration'].value = '4000';
     const timers = new Map();
@@ -115,6 +116,25 @@ test('two players animate their selected routes together and stop restores their
     assert.equal(h.slots[0].style.left, '30%');
     assert.equal(h.slots[1].style.left, '70%');
     assert.equal(h.nodes['lineup-play'].textContent, 'เล่นแผน');
+});
+
+test('clearing one selected route preserves the other player route and the player positions', async () => {
+    const h = harness();
+    await routeTo(h, 0, 70, 50);
+    await routeTo(h, 1, 30, 50);
+    h.nodes['lineup-runner'].value = 'a';
+    await h.nodes['lineup-runner'].fire('change');
+    assert.equal(h.nodes['lineup-selected-route'].hidden, false);
+    assert.match(h.nodes['lineup-selected-label'].textContent, /Player a/);
+    await h.nodes['lineup-clear-route'].fire('click');
+    assert.equal(h.nodes['lineup-selected-route'].hidden, true);
+    assert.equal(h.nodes['lineup-play'].disabled, false);
+    assert.equal(h.slots[0].style.left, '30%');
+    assert.equal(h.slots[1].style.left, '70%');
+    h.nodes['lineup-runner'].value = 'b';
+    await h.nodes['lineup-runner'].fire('change');
+    assert.equal(h.nodes['lineup-selected-route'].hidden, false);
+    assert.equal(h.nodes['lineup-clear-route'].disabled, false);
 });
 
 test('reduced motion shows the end point and drafts remain separate by team', async () => {
