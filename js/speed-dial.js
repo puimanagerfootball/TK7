@@ -1,6 +1,32 @@
 /* Reuse the original controls and their permission checks inside a compact dial. */
 globalThis.TK7SpeedDial = (() => {
     let sequence = 0;
+    function placement({ viewportWidth, viewportHeight, bottom = viewportHeight, anchor, height }) {
+        const gap = 12;
+        const width = Math.min(viewportWidth <= 600 ? 360 : 300, viewportWidth - gap * 2);
+        const maxHeight = Math.max(44, bottom - gap * 2);
+        const actualHeight = Math.min(height, maxHeight);
+        let left, top;
+        if (viewportWidth <= 600) {
+            left = (viewportWidth - width) / 2;
+            top = bottom - gap - actualHeight;
+        } else if (anchor.right + gap + width <= viewportWidth - gap) {
+            left = anchor.right + gap;
+            top = anchor.top;
+        } else if (anchor.left - gap - width >= gap) {
+            left = anchor.left - gap - width;
+            top = anchor.top;
+        } else {
+            left = anchor.right - width;
+            top = anchor.bottom + gap + actualHeight <= bottom - gap
+                ? anchor.bottom + gap : anchor.top - gap - actualHeight;
+        }
+        return {
+            width, maxHeight,
+            left: Math.max(gap, Math.min(left, viewportWidth - width - gap)),
+            top: Math.max(gap, Math.min(top, bottom - actualHeight - gap))
+        };
+    }
     function mount(root, label = 'เมนูเพิ่มเติม', primary = null) {
         if (!root || root.querySelector('.speed-dial-trigger')) return;
         // Older browsers retain the ordinary controls.
@@ -39,11 +65,15 @@ globalThis.TK7SpeedDial = (() => {
         if (!primary) trigger.append(caption);
         function position() {
             const bounds = trigger.getBoundingClientRect();
-            const width = Math.min(330, innerWidth - 24);
-            panel.style.width = width + 'px';
-            const height = panel.getBoundingClientRect().height;
-            panel.style.left = Math.max(12, Math.min(bounds.right - width, innerWidth - width - 12)) + 'px';
-            panel.style.top = Math.max(12, Math.min(bounds.bottom + 10, innerHeight - height - 12)) + 'px';
+            const nav = document.querySelector('.bottom-nav')?.getBoundingClientRect();
+            const bottom = nav?.top > 0 ? Math.min(innerHeight, nav.top) : innerHeight;
+            const input = { viewportWidth: innerWidth, viewportHeight: innerHeight, bottom, anchor: bounds };
+            const initial = placement({ ...input, height: 0 });
+            panel.style.width = initial.width + 'px';
+            panel.style.maxHeight = initial.maxHeight + 'px';
+            const result = placement({ ...input, height: panel.getBoundingClientRect().height });
+            panel.style.left = result.left + 'px';
+            panel.style.top = result.top + 'px';
         }
         trigger.onclick = () => {
             if (panel.matches(':popover-open')) panel.hidePopover();
@@ -60,7 +90,7 @@ globalThis.TK7SpeedDial = (() => {
         root.classList.toggle('speed-dial-split', !!primary);
         root.append(trigger, panel);
     }
-    return { mount };
+    return { mount, placement };
 })();
 // Do not leave a menu anchored to stale coordinates after rotation or keyboard resize.
 if (typeof window !== 'undefined') {

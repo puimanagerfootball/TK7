@@ -1,0 +1,68 @@
+/* Registration actions: one source for sizing, shape and menu placement. */
+#tk7-line-card .tk7l-actions.speed-dial-host {
+    display: grid;
+    grid-template-columns: minmax(0,1fr) 52px;
+    grid-auto-rows: auto;
+    width: min(100%,360px);
+    align-self: flex-start;
+    align-items: start;
+    gap: 12px;
+    padding-bottom: 4px;
+}
+#tk7-line-card .tk7l-actions > .tk7l-action {
+    min-height: 52px;
+    border-radius: 14px;
+    padding: 10px 14px;
+}
+.speed-dial-trigger {
+    display: grid; place-items: center;
+    width: 52px; height: 52px; min-width: 52px; padding: 0;
+    border: 1px solid #4831bb; border-radius: 50%;
+    background: #5941dc; color: #fff;
+    box-shadow: 0 3px 0 #3c289f,0 5px 14px #40318b26;
+    cursor: pointer; -webkit-tap-highlight-color: transparent;
+}
+.speed-dial-plus { display: block; font: 30px/1 system-ui; transition: transform 180ms ease; }
+.speed-dial-trigger[aria-expanded=true] .speed-dial-plus { transform: rotate(45deg); }
+.speed-dial-panel {
+    position: fixed; inset: auto; margin: 0; box-sizing: border-box;
+    padding: 12px; max-width: calc(100vw - 24px); overflow: auto;
+    border: 1px solid #d4e2d7; border-radius: 20px;
+    background: #f8fbf8; color: #23432e;
+    box-shadow: 0 12px 36px #0b30252b;
+    overscroll-behavior: contain; scrollbar-width: thin;
+}
+.speed-dial-panel:popover-open { display: grid; grid-template-columns: minmax(0,1fr); gap: 8px; }
+.speed-dial-panel::backdrop { background: #102b170d; }
+.speed-dial-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-bottom: 8px; border-bottom: 1px solid #e0e9e2; }
+.speed-dial-heading strong { font: 600 15px Kanit,system-ui,sans-serif; }
+#tk7-line-card .speed-dial-close {
+    display: grid; place-items: center; flex: none;
+    width: 44px; height: 44px; margin: 0; padding: 0;
+    border: 0; border-radius: 50%; background: #e8f0e9; color: #315c40;
+    font: 25px/1 system-ui; box-shadow: none; cursor: pointer;
+}
+#tk7-line-card .speed-dial-panel > .tk7l-action {
+    --fan-indent: 0px;
+    display: flex; align-items: center; justify-content: flex-start; gap: 12px;
+    width: calc(100% - var(--fan-indent)); min-width: 0; min-height: 48px;
+    margin: 0 0 0 var(--fan-indent); padding: 2px 4px;
+    border: 0; border-radius: 12px; background: transparent; color: #294a36;
+    box-shadow: none; transform: none; text-align: left;
+    font: 500 14px/1.4 Kanit,system-ui,sans-serif;
+}
+#tk7-line-card .speed-dial-panel > .tk7l-action:nth-child(3),
+#tk7-line-card .speed-dial-panel > .tk7l-action:nth-last-child(2) { --fan-indent: 10px; }
+#tk7-line-card .speed-dial-panel > .tk7l-action:nth-child(4) { --fan-indent: 20px; }
+#tk7-line-card .speed-dial-panel .tk7l-action-icon {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: var(--action-face); color: white;
+    box-shadow: 0 2px 0 var(--action-edge),0 3px 7px #102d2214;
+}
+#tk7-line-card .speed-dial-panel .tk7l-action-icon .tk7-icon { width: 23px; height: 23px; font-size: 22px; filter: none; }
+#tk7-line-card .speed-dial-panel > .tk7l-action:hover:not(:disabled) { background: #edf4ee; box-shadow: none; transform: none; filter: none; }
+#tk7-line-card .speed-dial-panel > .tk7l-action:active:not(:disabled) { background: #e2eee5; box-shadow: none; transform: none; }
+#tk7-line-card .speed-dial-panel > .tk7l-action:disabled { opacity: .45; background: transparent; box-shadow: none; }
+.speed-dial-host :focus-visible { outline: 3px solid #185aa6; outline-offset: 3px; }
+@media(prefers-reduced-motion:no-preference) { .speed-dial-panel:popover-open { animation: tk7-pop 160ms var(--motion-ease) backwards; } }
+@media(prefers-reduced-motion:reduce) { .speed-dial-plus { transition: none; } }
