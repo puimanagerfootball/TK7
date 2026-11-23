@@ -65,9 +65,9 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>'',selectDefaultSetupDat
   .tk7l-sum{font-size:15px;line-height:1.6;margin:0;color:#2d4a37}
   .tk7l-sum b{font-weight:600}
   .tk7l-hint{font-size:13px;line-height:1.6;margin:0;color:#5f7466}
-  .tk7l-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px 10px;padding-bottom:4px}
+  .tk7l-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 12px;padding-bottom:6px;grid-auto-rows:1fr}
   #tk7-line-card .tk7l-action{display:flex;align-items:center;gap:9px;min-width:0;min-height:48px;margin:0;padding:8px 11px;border:1px solid var(--action-edge);border-radius:12px;background:var(--action-face);color:#fff;box-shadow:inset 0 1px 0 #ffffff38,0 4px 0 var(--action-edge),0 6px 10px #112a2426;font:inherit;font-size:clamp(12px,1.5vw,15px);font-weight:600;line-height:1.25;text-align:left;overflow-wrap:anywhere;cursor:pointer;transition:transform .12s,box-shadow .12s,filter .12s}
-  .tk7l-action-icon{display:grid;place-items:center;flex:none;width:31px;height:31px}
+  .tk7l-action-icon{display:grid;place-items:center;flex:none;width:32px;height:32px;border-radius:9px;background:#ffffff1f;box-shadow:inset 0 1px 0 #ffffff25}
   .tk7l-action-icon .tk7-icon{width:100%;height:100%;font-size:21px;line-height:1;filter:drop-shadow(0 1px 1px #00180e66)}
   .tk7l-action-label,.tk7l-log-heading{display:inline-flex;align-items:center;gap:5px;line-height:1.25}
   .tk7l-import-sheet .tk7l-sheet-head{justify-content:space-between!important;padding:18px 22px!important;border-bottom:1px solid #dce8de}
