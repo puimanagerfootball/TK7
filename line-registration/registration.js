@@ -125,6 +125,12 @@ function renderInfo(){
 }
 async function openRosterSummary(mode='all'){
  const sid=sessionId;if(!sid||busy)return;
+ if(window.TK7NativeRosterShare?.request({
+  mode,english:lang==='en',isCurrent:()=>sessionId===sid&&!busy,
+  getSnapshot:()=>({match_date:roster?.matchDate,start_time:roster?.startTime,is_open:roster?.isOpen,preset_teams:roster?.presetTeams,roster}),
+  teams:COLORS.filter(([t])=>(roster?.presetTeams||[]).includes(t)||(roster?.entries||[]).some(e=>e.team===t)).map(([slug])=>({slug,label:label(slug)})),
+  onSent:()=>toast(lang==='en'?'Player summary sent':'ส่งสรุปรายชื่อแล้ว'),onError:error=>toast(error.message)
+ }))return;
  const english=lang==='en';
  const preview=el('textarea',{readonly:true,'aria-label':english?'Player summary':'ข้อความสรุปรายชื่อ',style:'width:100%;min-height:280px;box-sizing:border-box;resize:vertical;padding:12px;border:1px solid #c8dacc;border-radius:12px;background:#fff;color:#162b20;font:inherit;font-size:15px;line-height:1.6'});
  const notice=el('p',{class:'hint',role:'status',text:english?'Loading latest players…':'กำลังอ่านรายชื่อล่าสุด…'});

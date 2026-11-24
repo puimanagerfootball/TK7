@@ -1,8 +1,8 @@
 import {buildMenuMessage,shareAvailability} from './share-card.mjs?v=20261103-root-share';
 
-export function createDirectShare({liffId,loadSdk,redirectUri}){
+export function createDirectShare({liffId,loadSdk,redirectUri,now=Date.now}){
  const configured=typeof liffId==='string'&&/^\d+-[A-Za-z0-9]+$/.test(liffId)&&liffId!=='2012278818-W0pIi2y0';
- let sdk,state=configured?'loading':'unconfigured',failure,loginPending=false;
+ let sdk,state=configured?'loading':'unconfigured',failure,loginRetryAt=0;
  const ready=configured?Promise.resolve().then(loadSdk).then(async value=>{
   sdk=value;await sdk.init({liffId});state='ready';
  }).catch(error=>{failure=error;state='failed';}):Promise.resolve();
@@ -18,13 +18,13 @@ export function createDirectShare({liffId,loadSdk,redirectUri}){
    if(!Array.isArray(messages)||messages.length<1||messages.length>5)throw Error('Invalid sharing messages');
    if(!sdk.isLoggedIn()){
     if(sdk.isInClient?.())throw Error('เซสชัน LINE ยังไม่พร้อม กรุณาปิดแล้วเปิด TK7 ผ่าน LINE ใหม่');
-    if(!loginPending){
-     loginPending=true;
-     try{sdk.login({redirectUri});}catch(error){loginPending=false;throw error;}
+    if(now()>=loginRetryAt){
+     loginRetryAt=now()+15000;
+     try{sdk.login({redirectUri});}catch(error){loginRetryAt=0;throw error;}
     }
     return Promise.resolve({login:true});
    }
-   loginPending=false;
+   loginRetryAt=0;
    const diagnostic=shareAvailability(sdk);
    if(!diagnostic.available)throw Error('LINE ยังไม่พร้อมแชร์ / LINE sharing unavailable.\n'+JSON.stringify(diagnostic));
    return sdk.shareTargetPicker(messages);

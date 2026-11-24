@@ -3,6 +3,15 @@
 .tk7-privacy-button:focus-visible{outline:3px solid #a7d779;outline-offset:3px}
 .toprow>.tk7-privacy-button{margin-right:auto}
 .tk7-privacy-icon{display:grid;place-items:center;flex:none;width:1.25em;height:1.25em;line-height:1}
+:where([hidden]){display:none!important}
+.tk7-native-team-picker{box-sizing:border-box;width:min(360px,calc(100% - 24px));max-height:calc(100dvh - 32px);margin:auto;padding:18px;border:1px solid #d5e2d8;border-radius:20px;background:#f8fbf7;color:#214830;overflow:auto;font:inherit}
+.tk7-native-team-picker::backdrop{background:#12342180}
+.tk7-native-picker-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+.tk7-native-picker-head>button{width:40px;height:40px;border:0;border-radius:50%;background:#e6efe6;color:#31583c;font:24px/1 system-ui;cursor:pointer}
+.tk7-native-team-choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.tk7-native-team-choices>button{display:flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:10px;border:1px solid #c6dcca;border-radius:12px;background:#edf5ed;color:#235b38;font:inherit;cursor:pointer}
+.tk7-native-colour{flex:none;width:13px;height:13px;border:1px solid #173c2433;border-radius:50%}
+.tk7-native-team-picker button:disabled{opacity:.5;cursor:default}
 button.tk7-has-action-icon:not([hidden]){display:inline-flex;align-items:center;justify-content:center;gap:7px}
 .tk7-has-action-icon>.tk7-icon{display:inline-grid;place-items:center;flex:none;width:1.2em;height:1.2em;line-height:1}
 summary.tk7-has-action-icon>.tk7-icon{margin-right:7px;vertical-align:-.15em}

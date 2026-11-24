@@ -29,7 +29,15 @@ globalThis.TK7LineupMedia = (() => {
         }
     }
     function remember(message) {
-        try { sessionStorage.setItem(pendingKey, JSON.stringify({ message, expires: Date.now() + lifetime * 1000 })); } catch {}
+        let expires=Date.now()+lifetime*1000;
+        try {
+            const previous=JSON.parse(sessionStorage.getItem(pendingKey)||'null');
+            if(Number.isFinite(previous?.expires)&&previous.message?.originalContentUrl===message.originalContentUrl&&
+                previous.message?.previewImageUrl===message.previewImageUrl){
+                expires=Math.min(expires,previous.expires);
+            }
+        }catch{}
+        try { sessionStorage.setItem(pendingKey, JSON.stringify({ message, expires })); } catch {}
     }
     function pending() {
         try {

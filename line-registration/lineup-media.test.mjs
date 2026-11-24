@@ -65,3 +65,16 @@ test('login resume accepts only unexpired video URLs in the private media bucket
     api.forget();
     assert.equal(cache.size, 0);
 });
+
+test('retrying a share never extends the expiry of the same signed video links',async()=>{
+    const { api,args,cache }=harness();
+    const message=await api.upload(args);
+    api.remember(message);
+    const key=[...cache.keys()][0],expires=Date.now()+1000;
+    cache.set(key,JSON.stringify({message,expires}));
+    api.remember(message);
+    assert.equal(JSON.parse(cache.get(key)).expires,expires);
+    cache.set(key,JSON.stringify({message,expires:1}));
+    api.remember(message);
+    assert.equal(api.pending(),null);
+});

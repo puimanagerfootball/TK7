@@ -388,6 +388,11 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>'',selectDefaultSetupDat
  async function openRosterSummary(mode='all'){
   if(!canManage()||summarySending)return;
   const chosen=session();if(!chosen)return;
+  if(window.TK7NativeRosterShare?.request({
+   mode,getSnapshot:()=>session(),isCurrent:()=>canManage()&&session()?.id===chosen.id&&!mutating,
+   teams:ORDER.filter(t=>(chosen.preset_teams||[]).includes(t)||(chosen.roster?.entries||[]).some(e=>e.team===t)).map(slug=>({slug,label:COLORS[slug]})),
+   onSent:()=>say('ส่งสรุปรายชื่อแล้ว'),onError:error=>say(errText(error),true)
+  }))return;
   const sequence=++summarySequence;summaryTrigger=document.activeElement;
   const preview=el('textarea',{readonly:true,'aria-label':'ข้อความสรุปรายชื่อ',style:'min-height:280px;resize:vertical;font-size:15px;line-height:1.6'});
   const notice=el('p',{role:'status',text:'กำลังอ่านรายชื่อล่าสุด…'});
