@@ -43,7 +43,11 @@ globalThis.TK7NativeRosterShare = (() => {
                     sending=false;
                     dialog?.querySelectorAll('button').forEach(button=>button.disabled=false);
                 });
-            }catch(error){sending=false;onError(error);}
+            }catch(error){
+                sending=false;
+                dialog?.querySelectorAll('button').forEach(button=>button.disabled=false);
+                onError(error);
+            }
         }
         if(mode==='all'){send(null);return true;}
         if(!teams.length){onError(Error(english?'No team available.':'ยังไม่มีทีมให้ส่งสรุป'));return true;}

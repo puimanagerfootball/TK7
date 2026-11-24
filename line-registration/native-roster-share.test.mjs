@@ -54,6 +54,13 @@ test('LIFF desktop team selection sends directly and cancellation keeps choices'
     await settle();assert.equal(dialog.open,true);
     assert.equal(dialog.children[1].children[0].disabled,false);
 });
+test('synchronous LINE failure restores team buttons for retry',()=>{
+    const {api,env}=harness({mobile:false});let errors=0;
+    api.request({mode:'team',teams:[{slug:'blue',label:'Blue'}],getSnapshot:()=>({text:'Roster'}),sendText:()=>{throw Error('LINE loading');},onError:()=>errors++},env);
+    const dialog=env.document.body.children[0],button=dialog.children[1].children[0];
+    button.onclick();assert.equal(errors,1);assert.equal(button.disabled,false);
+    button.onclick();assert.equal(errors,2);assert.equal(button.disabled,false);
+});
 
 test('iPad with a trackpad still uses mobile sharing while Windows touch keeps desktop flow',()=>{
     const {api,env}=harness({mobile:false});
