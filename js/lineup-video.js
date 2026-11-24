@@ -1,6 +1,11 @@
 // Render tactical clips on a canvas so recording does not repeatedly capture the DOM.
 globalThis.TK7LineupVideo = (() => {
+    const paths = new WeakMap();
     function positionAt(player, progress) {
+        if(globalThis.TK7Path){
+            if(!paths.has(player))paths.set(player,globalThis.TK7Path.prepare(player.start,player.route));
+            return globalThis.TK7Path.position(paths.get(player),progress);
+        }
         const points = [player.start, ...player.route];
         if (points.length === 1) return player.start;
         const offset = Math.max(0, Math.min(1, progress)) * (points.length - 1);
@@ -41,25 +46,6 @@ globalThis.TK7LineupVideo = (() => {
             context.strokeRect(left + fieldWidth * .22, goalY, fieldWidth * .56, 132);
         }
         for (const player of plan.players) {
-            if (!player.route.length) continue;
-            const path = [player.start, ...player.route].map(location);
-            context.strokeStyle = '#ffe478';
-            context.lineWidth = 3;
-            context.setLineDash([8, 6]);
-            context.beginPath();
-            path.forEach(([x, y], index) => index ? context.lineTo(x, y) : context.moveTo(x, y));
-            context.stroke();
-            context.setLineDash([]);
-            const [x, y] = path[path.length - 1];
-            const [beforeX, beforeY] = path[path.length - 2];
-            const angle = Math.atan2(y - beforeY, x - beforeX);
-            context.beginPath();
-            context.moveTo(x - 14 * Math.cos(angle - .5), y - 14 * Math.sin(angle - .5));
-            context.lineTo(x, y);
-            context.lineTo(x - 14 * Math.cos(angle + .5), y - 14 * Math.sin(angle + .5));
-            context.stroke();
-        }
-        for (const player of plan.players) {
             const [x, y] = location(positionAt(player, progress));
             context.beginPath();
             context.arc(x, y, 24, 0, Math.PI * 2);
@@ -95,7 +81,7 @@ globalThis.TK7LineupVideo = (() => {
         return new Promise((resolve, reject) => {
             let stream, recorder, frame, deadline, settled = false;
             const chunks = [];
-            const context = canvas.getContext('2d');
+            const context = canvas.getContext('2d', { alpha: false });
             const finish = error => {
                 if (settled) return;
                 settled = true;
@@ -126,14 +112,20 @@ globalThis.TK7LineupVideo = (() => {
                 recorder.onstop = () => finish();
                 const start = performance.now();
                 const total = plan.duration + 1300;
+                let lastFrame = -1, lastProgress = -1;
                 recorder.start();
                 const paint = now => {
                     if (settled) return;
                     const elapsed = now - start;
                     try {
-                        draw(context, plan, Math.max(0, Math.min(1, (elapsed - 500) / plan.duration)));
+                        const frameNumber=Math.floor(elapsed*30/1000);
+                        if(frameNumber!==lastFrame){
+                            draw(context, plan, Math.max(0, Math.min(1, (elapsed - 500) / plan.duration)));
+                            lastFrame=frameNumber;
+                        }
                     } catch (error) { finish(error); return; }
-                    status.textContent = 'กำลังสร้างวิดีโอ ' + Math.min(99, Math.floor(elapsed / total * 100)) + '%';
+                    const progress=Math.min(99,Math.floor(elapsed/total*100));
+                    if(progress!==lastProgress){status.textContent='กำลังสร้างวิดีโอ '+progress+'%';lastProgress=progress;}
                     if (elapsed >= total) { recorder.stop(); return; }
                     frame = requestAnimationFrame(paint);
                 };
@@ -229,6 +221,8 @@ globalThis.TK7LineupVideo = (() => {
             const canvas = document.createElement('canvas');
             canvas.width = 720;
             canvas.height = 1024;
+            if(document.fonts?.ready)await document.fonts.ready;
+            if(controller.signal.aborted)return;
             const blob = await record(canvas, plan, controller.signal, status);
             if (controller.signal.aborted) return;
             videoBlob = blob;

@@ -1,5 +1,5 @@
 /* ==========================================================================
-   TK7 app logic (Ver 6.7.4)
+   TK7 app logic (Ver 6.8.0)
    แยกจาก index.html เพื่อแก้/ค้นหาง่ายขึ้น
    Sections (ค้นหาด้วย // --- SECTION:):
      CONFIG, AUTH, REGISTRATION, SCHEDULE, LINEUP, SETUP,

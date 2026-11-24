@@ -37,7 +37,7 @@ class Node {
 function harness({ reduced = false } = {}) {
     const ids = ['lineup-tools', 'lineup-runner', 'lineup-play', 'lineup-clear-route',
         'lineup-reset-points', 'lineup-duration', 'lineup-tactic-hint',
-        'lineup-selected-route', 'lineup-selected-label'];
+        'lineup-selected-route', 'lineup-selected-label', 'lineup-mode-move', 'lineup-mode-route'];
     const nodes = Object.fromEntries(ids.map(id => [id, new Node()]));
     nodes['lineup-duration'].value = '4000';
     const timers = new Map();
@@ -69,6 +69,7 @@ function harness({ reduced = false } = {}) {
 }
 
 async function routeTo(h, index, x, y) {
+    await h.nodes['lineup-mode-route'].fire('click');
     h.nodes['lineup-runner'].value = h.slots[index].dataset.slotId;
     await h.nodes['lineup-runner'].fire('change');
     const pointer = { target: h.slots[index], button: 0, isPrimary: true, pointerId: 1,
@@ -77,6 +78,31 @@ async function routeTo(h, index, x, y) {
     await h.pitch.fire('pointermove', { ...pointer, clientX: x, clientY: y });
     await h.pitch.fire('pointerup', { ...pointer, clientX: x, clientY: y });
 }
+
+test('default dragging moves immediately without holding and preserves the grab offset', async()=>{
+    const h=harness();
+    const pointer={target:h.slots[0],button:0,isPrimary:true,pointerId:1,clientX:35,clientY:55};
+    await h.pitch.fire('pointerdown',pointer);
+    await h.pitch.fire('pointermove',{...pointer,clientX:55,clientY:65});
+    assert.equal(h.slots[0].style.left,'50%');
+    assert.equal(h.slots[0].style.top,'60%');
+    await h.pitch.fire('pointerup',{...pointer,clientX:55,clientY:65});
+    assert.equal(h.nodes['lineup-play'].disabled,true);
+});
+
+test('route mode works on an unselected player and does not create arrowheads',async()=>{
+    const h=harness();
+    await h.nodes['lineup-mode-route'].fire('click');
+    const pointer={target:h.slots[1],button:0,isPrimary:true,pointerId:1,clientX:70,clientY:50};
+    await h.pitch.fire('pointerdown',pointer);
+    await h.pitch.fire('pointermove',{...pointer,clientX:45,clientY:25});
+    await h.pitch.fire('pointerup',{...pointer,clientX:45,clientY:25});
+    assert.equal(h.slots[1].style.left,'70%');
+    assert.equal(h.nodes['lineup-play'].disabled,false);
+    assert.equal(h.pitch.children[0].children.length,1);
+    await h.nodes['lineup-mode-move'].fire('click');
+    assert.equal(h.pitch.children[0].children.length,0);
+});
 
 test('dragging clamps a player inside the pitch and a cancelled drag restores the point', async () => {
     const h = harness();
@@ -108,8 +134,8 @@ test('two players animate their selected routes together and stop restores their
     }
     const playing = h.nodes['lineup-play'].fire('click');
     assert.equal(calls.length, 2);
-    assert.equal(calls[0].frames[1].left, '70%');
-    assert.equal(calls[1].frames[1].left, '30%');
+    assert.equal(calls[0].frames[1].transform, 'translate(-50%,-50%) translate(40px,0px)');
+    assert.equal(calls[1].frames[1].transform, 'translate(-50%,-50%) translate(-40px,0px)');
     assert.equal(calls[0].options.duration, 4000);
     h.editor.stop();
     await playing;
@@ -139,6 +165,7 @@ test('clearing one selected route preserves the other player route and the playe
 
 test('a route uses the original pitch bounds even when surrounding controls change its offset', async () => {
     const h = harness();
+    await h.nodes['lineup-mode-route'].fire('click');
     h.nodes['lineup-runner'].value = 'a';
     await h.nodes['lineup-runner'].fire('change');
     const pointer = { target: h.slots[0], button: 0, isPrimary: true,

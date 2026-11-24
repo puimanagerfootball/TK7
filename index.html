@@ -20,11 +20,11 @@
 
     <script src="vendor/supabase-2.119.0.js" integrity="sha384-uteMfOloLDGt042uDz+xHGF3ym63/WQ6rFq7murQRG8Ih7QrXGEGNtWd8688sb4O" crossorigin="anonymous"></script>
     <script src="vendor/morphdom-2.7.0.min.js" integrity="sha384-GvO679xZge/ZQsypeI50Wg7FqQIjFNfdoVpniNdlJ0H3z/+RxLNIUBMDhvtU018w" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="css/app.css?v=6.7.4">
-    <link rel="stylesheet" href="css/motion.css?v=6.7.4">
-    <link rel="stylesheet" href="css/speed-dial.css?v=6.7.4">
-    <link rel="stylesheet" href="line-registration/team-card.css?v=6.7.4">
-    <link rel="stylesheet" href="line-registration/privacy-control.css?v=6.7.4">
+    <link rel="stylesheet" href="css/app.css?v=6.8.0">
+    <link rel="stylesheet" href="css/motion.css?v=6.8.0">
+    <link rel="stylesheet" href="css/speed-dial.css?v=6.8.0">
+    <link rel="stylesheet" href="line-registration/team-card.css?v=6.8.0">
+    <link rel="stylesheet" href="line-registration/privacy-control.css?v=6.8.0">
 </head>
 <body>
     <svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute;overflow:hidden" aria-hidden="true">
@@ -51,7 +51,7 @@
     <div id="app">
         <div id="auth-section">
     <div class="auth-meta">
-        <span class="version-tag">Ver 6.7.4</span>
+        <span class="version-tag">Ver 6.8.0</span>
         <span id="user-info"></span>
     </div>
     <div class="auth-user-controls">
@@ -154,6 +154,10 @@
                 <div class="card lineup-compact-card">
                     <h2><span data-tk7-icon="settings" aria-hidden="true"></span>แผนการเล่น</h2>
                     <div class="lineup-tools" id="lineup-tools" aria-label="เครื่องมือจัดตำแหน่ง">
+                        <div class="lineup-gesture-switch" role="group" aria-label="โหมดลากผู้เล่น">
+                            <button type="button" id="lineup-mode-move" aria-pressed="true"><span data-tk7-icon="users" aria-hidden="true"></span>ย้ายตำแหน่ง</button>
+                            <button type="button" id="lineup-mode-route" aria-pressed="false"><span data-tk7-icon="edit" aria-hidden="true"></span>ทางวิ่ง</button>
+                        </div>
                         <div class="lineup-main-controls">
                             <select id="formation-chips" aria-label="แผนการเล่น"></select>
                             <button type="button" id="lineup-play">เล่นแผน</button>
@@ -167,7 +171,7 @@
                             </div>
                         </details>
                     </div>
-                    <p class="lineup-hint" id="lineup-tactic-hint" role="status">แตะสองครั้งใส่ชื่อ · กดค้างแล้วลากเพื่อย้าย · เลือกแล้วลากเพื่อวาดทางวิ่ง</p>
+                    <p class="lineup-hint lineup-status-only" id="lineup-tactic-hint" role="status"></p>
                     <div class="lineup-route-space">
                         <div id="lineup-selected-route" class="lineup-selected-route" hidden>
                             <span id="lineup-selected-label"></span>
@@ -395,23 +399,24 @@
         </div>
     </div>
 
-    <script src="line-registration/direct-share-config.js?v=6.7.4" defer></script>
-    <script type="module" src="line-registration/direct-share.mjs?v=6.7.4"></script>
-    <script src="line-registration/backdrop-guard.js?v=6.7.4" defer></script>
-    <script src="line-registration/icons.js?v=6.7.4" defer></script>
-    <script src="line-registration/roster-summary.js?v=6.7.4" defer></script>
-    <script src="line-registration/name-paste.js?v=6.7.4" defer></script>
-    <script src="line-registration/roster-text.js?v=6.7.4" defer></script>
-    <script src="js/roster-import-ui.js?v=6.7.4" defer></script>
-    <script src="js/speed-dial.js?v=6.7.4" defer></script>
-    <script src="line-registration/admin-integration.js?v=6.7.4" defer></script>
-    <script src="line-registration/browser-safety.js?v=6.7.4" defer></script>
-    <script src="js/match-stats.js?v=6.7.4" defer></script>
-    <script src="js/score-writer.js?v=6.7.4" defer></script>
-    <script src="js/lineup-tactics.js?v=6.7.4" defer></script>
-    <script src="js/lineup-media.js?v=6.7.4" defer></script>
-    <script src="js/lineup-video.js?v=6.7.4" defer></script>
-    <script src="js/app.js?v=6.7.4" defer></script>
+    <script src="line-registration/direct-share-config.js?v=6.8.0" defer></script>
+    <script type="module" src="line-registration/direct-share.mjs?v=6.8.0"></script>
+    <script src="line-registration/backdrop-guard.js?v=6.8.0" defer></script>
+    <script src="line-registration/icons.js?v=6.8.0" defer></script>
+    <script src="line-registration/roster-summary.js?v=6.8.0" defer></script>
+    <script src="line-registration/name-paste.js?v=6.8.0" defer></script>
+    <script src="line-registration/roster-text.js?v=6.8.0" defer></script>
+    <script src="js/roster-import-ui.js?v=6.8.0" defer></script>
+    <script src="js/speed-dial.js?v=6.8.0" defer></script>
+    <script src="line-registration/admin-integration.js?v=6.8.0" defer></script>
+    <script src="line-registration/browser-safety.js?v=6.8.0" defer></script>
+    <script src="js/match-stats.js?v=6.8.0" defer></script>
+    <script src="js/score-writer.js?v=6.8.0" defer></script>
+    <script src="js/lineup-path.js?v=6.8.0" defer></script>
+    <script src="js/lineup-tactics.js?v=6.8.0" defer></script>
+    <script src="js/lineup-media.js?v=6.8.0" defer></script>
+    <script src="js/lineup-video.js?v=6.8.0" defer></script>
+    <script src="js/app.js?v=6.8.0" defer></script>
 
     <div id="template-manager-modal" class="modal">
         <div class="modal-content" style="max-width: 600px;">

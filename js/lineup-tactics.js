@@ -46,6 +46,9 @@ globalThis.TK7Tactics = (() => {
         let animations = [];
         let playing = false;
         let playback = 0;
+        let gestureMode = 'move';
+        const modeMove = document.getElementById('lineup-mode-move');
+        const modeRoute = document.getElementById('lineup-mode-route');
 
         const placeholder = document.createElement('option');
         placeholder.value = '';
@@ -68,7 +71,7 @@ globalThis.TK7Tactics = (() => {
                 Object.assign(slot.style, frame(draft.positions[id] || defaults[id]));
                 slot.classList.toggle('tactic-selected', id === selected);
                 const route = draft.routes[id] || [];
-                if (!route.length) continue;
+                if (!route.length || playing || gestureMode !== 'route' || id !== selected) continue;
                 const path = svgNode('polyline');
                 const positions = [draft.positions[id] || defaults[id], ...route];
                 path.setAttribute('points', positions.map(p => p.x + ',' + p.y).join(' '));
@@ -78,19 +81,13 @@ globalThis.TK7Tactics = (() => {
                 path.setAttribute('stroke-width', '.65');
                 path.setAttribute('stroke-dasharray', '1.5 1');
                 overlay.append(path);
-                const end = route[route.length - 1];
-                const previous = positions[positions.length - 2];
-                const angle = Math.atan2(end.y - previous.y, end.x - previous.x);
-                const arrow = svgNode('path');
-                const wing = offset => (end.x - 2.3 * Math.cos(angle + offset)) + ' ' +
-                    (end.y - 2.3 * Math.sin(angle + offset));
-                arrow.setAttribute('d', 'M ' + wing(-0.5) + ' L ' + end.x + ' ' + end.y + ' L ' + wing(0.5));
-                arrow.setAttribute('fill', 'none');
-                arrow.setAttribute('stroke', '#ffe478');
-                arrow.setAttribute('stroke-width', '.65');
-                overlay.append(arrow);
+
             }
-            pitch.dataset.tacticMode = drag?.kind === 'move' ? 'move' : 'gesture';
+            pitch.dataset.tacticMode = gestureMode;
+            modeMove?.setAttribute('aria-pressed',String(gestureMode === 'move'));
+            modeRoute?.setAttribute('aria-pressed',String(gestureMode === 'route'));
+            if(modeMove)modeMove.disabled=playing;
+            if(modeRoute)modeRoute.disabled=playing;
             clear.disabled = playing || !(draft.routes[selected]?.length);
             if (selectedRoute) selectedRoute.hidden = !(draft.routes[selected]?.length);
             if (selectedLabel) {
@@ -105,11 +102,11 @@ globalThis.TK7Tactics = (() => {
             duration.disabled = playing;
             play.disabled = !playing && !Object.values(draft.routes).some(route => route.length);
             if (video) video.disabled = playing || !Object.values(draft.routes).some(route => route.length);
-            play.textContent = playing ? 'หยุด / กลับจุดเริ่ม' : 'เล่นแผน';
+            const playLabel=playing?'หยุด':'เล่นแผน';
+            if(play.dataset.tacticLabel!==playLabel){play.textContent=playLabel;play.dataset.tacticLabel=playLabel;}
             play.setAttribute('aria-pressed', String(playing));
-            hint.textContent = playing ? 'กำลังเล่นแผน กดหยุดเพื่อกลับจุดเริ่ม'
-                : drag?.kind === 'move' ? 'ลากเพื่อปรับตำแหน่ง'
-                : 'แตะสองครั้งใส่ชื่อ · กดค้างแล้วลากเพื่อย้าย · เลือกแล้วลากเพื่อวาดทางวิ่ง';
+            const message=playing?'กำลังเล่นแผน':gestureMode==='route'?'โหมดทางวิ่ง':'โหมดย้ายตำแหน่ง';
+            if(hint.textContent!==message)hint.textContent=message;
         }
 
         function stop() {
@@ -150,10 +147,10 @@ globalThis.TK7Tactics = (() => {
             const id = slot.dataset.slotId;
             drag = { id, pointer: event.pointerId, original: { ...draft.positions[id] },
                 route: structuredClone(draft.routes[id] || []), kind: 'pending',
-                canRoute: selected === id, startX: event.clientX, startY: event.clientY,
+                canRoute: gestureMode === 'route', startX: event.clientX, startY: event.clientY,
                 bounds: pitch.getBoundingClientRect() };
             pitch.setPointerCapture(event.pointerId);
-            pressTimer = setTimeout(() => {
+            if(gestureMode === 'move')pressTimer = setTimeout(() => {
                 if (!drag || drag.pointer !== event.pointerId) return;
                 drag.kind = 'move';
                 selected = id;
@@ -168,11 +165,15 @@ globalThis.TK7Tactics = (() => {
             const moved = Math.hypot(event.clientX - drag.startX, event.clientY - drag.startY) > 7;
             if (drag.kind === 'pending' && moved) {
                 cancelPress();
-                drag.kind = drag.canRoute ? 'route' : 'ignore';
+                drag.kind = drag.canRoute ? 'route' : 'move';
+                selected = drag.id;
+                runner.value = selected;
                 if (drag.kind === 'route') draft.routes[drag.id] = [];
                 lastTap = null;
             }
-            if (drag.kind === 'move') draft.positions[drag.id] = coordinates(event);
+            if (drag.kind === 'move') draft.positions[drag.id] = point(
+                drag.original.x+(event.clientX-drag.startX)/drag.bounds.width*100,
+                drag.original.y+(event.clientY-drag.startY)/drag.bounds.height*100);
             if (drag.kind === 'route') {
                 const route = draft.routes[drag.id];
                 const next = coordinates(event);
@@ -191,6 +192,13 @@ globalThis.TK7Tactics = (() => {
             if (event.type === 'pointercancel' || event.type === 'lostpointercapture') {
                 draft.positions[finished.id] = finished.original;
                 draft.routes[finished.id] = finished.route;
+            }
+            if(event.type==='pointerup'&&finished.kind==='route'){
+                const route=draft.routes[finished.id], end=coordinates(event);
+                const last=route[route.length-1];
+                if(!last||Math.hypot(end.x-last.x,end.y-last.y)>.01){
+                    if(route.length<60)route.push(end);else route[route.length-1]=end;
+                }
             }
             drag = null;
             if (pitch.hasPointerCapture(event.pointerId)) pitch.releasePointerCapture(event.pointerId);
@@ -241,6 +249,8 @@ globalThis.TK7Tactics = (() => {
             draft.positions[id] = point(current.x + x, current.y + y);
             draw();
         });
+        if(modeMove)listen(modeMove,'click',()=>{stop();gestureMode='move';draw();});
+        if(modeRoute)listen(modeRoute,'click',()=>{stop();gestureMode='route';draw();});
         listen(runner, 'change', () => { selected = runner.value; draw(); });
         listen(clear, 'click', () => { delete draft.routes[selected]; draw(); });
         listen(reset, 'click', () => {
@@ -266,12 +276,18 @@ globalThis.TK7Tactics = (() => {
             }
             animations = moving.map(slot => {
                 const id = slot.dataset.slotId;
-                return slot.animate([draft.positions[id], ...draft.routes[id]].map(frame),
+                const start=draft.positions[id], bounds=pitch.getBoundingClientRect();
+                const path=globalThis.TK7Path?.prepare(start,draft.routes[id]) || [start,...draft.routes[id]];
+                return slot.animate(path.map(point=>({
+                    transform:'translate(-50%,-50%) translate('+((point.x-start.x)/100*bounds.width)+'px,'+((point.y-start.y)/100*bounds.height)+'px)',
+                    ...(point.offset === undefined ? {} : {offset:point.offset})
+                })),
                     { duration: Number(duration.value) || 4000, easing: 'linear', fill: 'forwards' });
             });
             await Promise.allSettled(animations.map(animation => animation.finished));
             if (ticket === playback) stop();
         });
+        if(window.addEventListener)listen(window,'resize',()=>{if(playing)stop();});
         listen(document, 'visibilitychange', () => { if (document.hidden) stop(); });
         active = {
             stop,
