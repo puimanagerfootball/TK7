@@ -57,6 +57,7 @@
     font: 25px/1 system-ui; box-shadow: none; cursor: pointer;
 }
 #tk7-line-card .speed-dial-panel > .tk7l-action {
+    text-decoration: none;
     --fan-indent: 0px;
     display: flex; align-items: center; justify-content: flex-start; gap: 12px;
     width: calc(100% - var(--fan-indent)); min-width: 0; min-height: 48px;
