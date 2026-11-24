@@ -120,7 +120,14 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 }
 
 /* Consistent controls without moving the surrounding content. */
-#page-lineup #lineup-tools.lineup-toolbar { position: relative; max-width: 400px; display: grid; grid-template-columns: minmax(76px,1fr) repeat(3,44px); align-items: center; gap: 8px; padding: 6px; margin: 0 auto 8px; border: 1px solid #d4e2d3; border-radius: 14px; background: #e8f0e4; }
+#page-lineup .lineup-time-control { position: relative; display: flex; align-items: center; gap: 5px; height: 44px; margin: 0; padding: 0 8px; border-radius: 10px; color: #375c43; }
+#page-lineup .lineup-time-control > svg { display: block; width: 19px; height: 22px; flex: none; pointer-events: none; }
+#page-lineup .lineup-time-control > select { appearance: none; box-sizing: border-box; width: 100%; min-width: 0; min-height: 44px; height: 44px; margin: 0; padding: 0 12px 0 0; border: 0; border-radius: 0; background: transparent; color: inherit; box-shadow: none; font: 500 14px/1 Kanit,system-ui,sans-serif; cursor: pointer; }
+#page-lineup .lineup-time-control::after { content: ''; position: absolute; right: 7px; top: 18px; width: 5px; height: 5px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: rotate(45deg); pointer-events: none; }
+#page-lineup .lineup-time-control:focus-within { outline: 3px solid #185aa6; outline-offset: 2px; }
+#page-lineup .lineup-time-control > select:focus-visible { outline: none; }
+@media(max-width:600px) { #page-lineup .lineup-time-control { height: 40px; padding-inline: 4px; gap: 3px; } #page-lineup .lineup-time-control > select { min-height: 40px; height: 40px; font-size: 13px; } #page-lineup .lineup-time-control::after { top: 16px; right: 5px; } #page-lineup .lineup-time-control > svg { width: 17px; height: 20px; } }
+#page-lineup #lineup-tools.lineup-toolbar { position: relative; max-width: 400px; display: grid; grid-template-columns: minmax(76px,1fr) repeat(2,44px) 76px; align-items: center; gap: 8px; padding: 6px; margin: 0 auto 8px; border: 1px solid #d4e2d3; border-radius: 14px; background: #e8f0e4; }
 #page-lineup .lineup-toolbar > button,#page-lineup .lineup-toolbar summary { display: grid; place-items: center; box-sizing: border-box; width: 44px; height: 44px; min-height: 44px; padding: 0; margin: 0; border: 0; border-radius: 10px; background: transparent; color: #375c43; box-shadow: none; cursor: pointer; font: inherit; list-style: none; }
 #page-lineup .lineup-toolbar summary::before { content: none; }
 #page-lineup .lineup-toolbar summary::-webkit-details-marker { display: none; }
@@ -133,7 +140,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 #page-lineup .lineup-toolbar .lineup-route-controls label { display: block; font-size: 13px; }
 #page-lineup .lineup-toolbar #lineup-runner[hidden] { display: none; }
 #page-lineup .lineup-selected-route button { display: grid; place-items: center; width: 40px; height: 40px; min-height: 40px; padding: 0; }
-@media(max-width:600px) { #page-lineup #lineup-tools.lineup-toolbar { grid-template-columns: minmax(56px,1fr) repeat(3,36px); gap: 3px; padding: 4px; } #page-lineup .lineup-toolbar > button,#page-lineup .lineup-toolbar summary { width: 36px; height: 40px; min-height: 40px; } #page-lineup .lineup-toolbar .tk7-icon { width: 20px; height: 20px; font-size: 18px; } #page-lineup .lineup-toolbar #formation-chips { min-height: 40px; font-size: 12px; padding-inline: 4px; } }
+@media(max-width:600px) { #page-lineup #lineup-tools.lineup-toolbar { grid-template-columns: minmax(56px,1fr) repeat(2,36px) 64px; gap: 3px; padding: 4px; } #page-lineup .lineup-toolbar > button,#page-lineup .lineup-toolbar summary { width: 36px; height: 40px; min-height: 40px; } #page-lineup .lineup-toolbar .tk7-icon { width: 20px; height: 20px; font-size: 18px; } #page-lineup .lineup-toolbar #formation-chips { min-height: 40px; font-size: 12px; padding-inline: 4px; } }
 .lineup-gesture-switch { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 4px; padding: 4px; margin-bottom: 10px; border-radius: 14px; background: #e2ece0; }
 .lineup-gesture-switch button { display: inline-flex; justify-content: center; align-items: center; gap: 8px; min-height: 44px; border: 0; border-radius: 10px; padding: 8px; background: transparent; color: #45654d; font: 500 14px/1.4 Kanit,system-ui,sans-serif; cursor: pointer; }
 .lineup-gesture-switch button[aria-pressed=true] { background: white; color: #17653b; box-shadow: 0 2px 5px #143d201c; }
@@ -151,9 +158,6 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 #page-lineup #lineup-play { background: #167343; border-color: #0f5b32; color: white; box-shadow: 0 3px 0 #0b4c2a; }
 #page-lineup #lineup-video { background: #5161ac; border-color: #424f92; color: white; box-shadow: 0 3px 0 #35427d; }
 #page-lineup .lineup-main-controls button:disabled { opacity: .55; box-shadow: none; }
-#page-lineup .lineup-options summary { min-height: 44px; display: flex; align-items: center; color: #375b42; }
-#page-lineup .lineup-options summary::before { content: '+'; display: inline-block; margin-right: 8px; font: 20px/1 system-ui; }
-#page-lineup .lineup-options[open] summary::before { content: '−'; }
 #page-lineup .lineup-hint { font-size: 13px; line-height: 1.6; color: #506959; max-width: 560px; margin: 12px auto 0; }
 #page-lineup .lineup-route-space { max-width: 560px; margin-inline: auto; }
 #login-modal .auth-card { width: min(440px,calc(100% - 24px)); padding: 30px; border: 1px solid #d5e2d8; border-radius: 24px; background: #fff; box-shadow: 0 24px 70px #08281e40; color: #203d2b; }
