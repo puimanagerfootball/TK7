@@ -120,13 +120,20 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 }
 
 /* Consistent controls without moving the surrounding content. */
-#page-lineup .lineup-time-control { position: relative; display: flex; align-items: center; gap: 5px; height: 44px; margin: 0; padding: 0 8px; border-radius: 10px; color: #375c43; }
-#page-lineup .lineup-time-control > svg { display: block; width: 19px; height: 22px; flex: none; pointer-events: none; }
-#page-lineup .lineup-time-control > select { appearance: none; box-sizing: border-box; width: 100%; min-width: 0; min-height: 44px; height: 44px; margin: 0; padding: 0 12px 0 0; border: 0; border-radius: 0; background: transparent; color: inherit; box-shadow: none; font: 500 14px/1 Kanit,system-ui,sans-serif; cursor: pointer; }
-#page-lineup .lineup-time-control::after { content: ''; position: absolute; right: 7px; top: 18px; width: 5px; height: 5px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: rotate(45deg); pointer-events: none; }
-#page-lineup .lineup-time-control:focus-within { outline: 3px solid #185aa6; outline-offset: 2px; }
-#page-lineup .lineup-time-control > select:focus-visible { outline: none; }
-@media(max-width:600px) { #page-lineup .lineup-time-control { height: 40px; padding-inline: 4px; gap: 3px; } #page-lineup .lineup-time-control > select { min-height: 40px; height: 40px; font-size: 13px; } #page-lineup .lineup-time-control::after { top: 16px; right: 5px; } #page-lineup .lineup-time-control > svg { width: 17px; height: 20px; } }
+#page-lineup .lineup-time-control { position:relative;min-width:0;height:44px;color:#375c43; }
+#page-lineup #lineup-duration-trigger { display:flex;align-items:center;justify-content:center;gap:5px;width:100%;height:44px;min-height:44px;padding:0 7px;border:0;border-radius:10px;background:transparent;color:inherit;font:500 14px/1 Kanit,system-ui;cursor:pointer; }
+#lineup-duration-trigger>svg { display:block;width:19px;height:22px;flex:none; }
+.time-chevron { width:5px;height:5px;margin-left:3px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg); }
+#lineup-duration-trigger[aria-expanded=true] { background:#fff;box-shadow:0 1px 5px #173c241f; }
+#lineup-duration-trigger:disabled { opacity:.4;cursor:default; }
+.lineup-duration-menu { position:fixed;inset:auto;margin:0;padding:6px;display:none;box-sizing:border-box;overflow:auto;border:1px solid #d0dfd2;border-radius:14px;background:#f8fbf6;color:#315c3e;box-shadow:0 8px 24px #173d2526; }
+.lineup-duration-menu:popover-open { display:grid;gap:4px; }
+#page-lineup .lineup-duration-menu>button { display:flex;align-items:center;justify-content:space-between;width:100%;min-height:42px;padding:9px 12px;border:0;border-radius:9px;background:transparent;color:inherit;font:500 15px/1.4 Kanit,system-ui;cursor:pointer; }
+#page-lineup .lineup-duration-menu>button[aria-pressed=true] { background:#deeee1;color:#176b3d; }
+.lineup-duration-menu>button[aria-pressed=true]::after { content:'✓';font-weight:700; }
+#page-lineup .lineup-duration-menu>button:hover { background:#e7f0e4; }
+#page-lineup .lineup-time-control select[hidden] { display:none; }
+@media(max-width:600px) { #page-lineup .lineup-time-control { height:40px; } #page-lineup #lineup-duration-trigger { height:40px;min-height:40px;padding:0 3px;font-size:13px;gap:3px; } #lineup-duration-trigger>svg { width:17px;height:20px; } }
 #page-lineup #lineup-tools.lineup-toolbar { position: relative; max-width: 400px; display: grid; grid-template-columns: minmax(76px,1fr) repeat(2,44px) 76px; align-items: center; gap: 8px; padding: 6px; margin: 0 auto 8px; border: 1px solid #d4e2d3; border-radius: 14px; background: #e8f0e4; }
 #page-lineup .lineup-toolbar > button,#page-lineup .lineup-toolbar summary { display: grid; place-items: center; box-sizing: border-box; width: 44px; height: 44px; min-height: 44px; padding: 0; margin: 0; border: 0; border-radius: 10px; background: transparent; color: #375c43; box-shadow: none; cursor: pointer; font: inherit; list-style: none; }
 #page-lineup .lineup-toolbar summary::before { content: none; }

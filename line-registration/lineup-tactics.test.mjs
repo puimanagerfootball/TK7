@@ -30,11 +30,11 @@ class Node {
     append(node) { this.children.push(node); }
     replaceChildren(...nodes) { this.children = nodes; }
     remove() {}
-    closest(selector) { return selector === '.pitch-slot' && this.dataset.slotId ? this : null; }
+    closest(selector) { return (selector === '.pitch-slot' && this.dataset.slotId || selector === '[data-duration]' && this.dataset.duration) ? this : null; }
     matches() { return false; }
 }
 
-function harness({ reduced = false } = {}) {
+function harness({ reduced = false, durationPicker = false } = {}) {
     const ids = ['lineup-tools', 'lineup-runner', 'lineup-play', 'lineup-clear-route',
         'lineup-reset-points', 'lineup-duration', 'lineup-tactic-hint',
         'lineup-selected-route', 'lineup-selected-label'];
@@ -42,9 +42,23 @@ function harness({ reduced = false } = {}) {
     nodes['lineup-duration'].value = '4000';
     const timers = new Map();
     const document = new Node();
+    document.querySelector=()=>null;
     document.getElementById = id => nodes[id];
     document.createElement = document.createElementNS = () => new Node();
-    const context = { document, AbortController, structuredClone, Date,
+    if(durationPicker){
+        for(const id of ['lineup-duration-trigger','lineup-duration-menu','lineup-duration-value'])nodes[id]=new Node();
+        const menu=nodes['lineup-duration-menu'],trigger=nodes['lineup-duration-trigger'];
+        menu.options=['2000','4000','6000'].map(value=>{const option=new Node();option.dataset.duration=value;option.focus=()=>document.activeElement=option;return option;});
+        menu.querySelectorAll=()=>menu.options;
+        menu.showPopover=()=>{menu.open=true;menu.fire('toggle',{newState:'open'});};
+        menu.hidePopover=()=>{menu.open=false;menu.fire('toggle',{newState:'closed'});};
+        menu.matches=()=>menu.open;
+        menu.contains=node=>menu.options.includes(node);
+        menu.getBoundingClientRect=()=>({height:150});
+        trigger.getBoundingClientRect=()=>({left:250,right:326,top:100,bottom:144});
+        trigger.focus=()=>document.activeElement=trigger;
+    }
+    const context = { document, AbortController, structuredClone, Date, innerWidth:390,innerHeight:844,
         setTimeout: fn => { const id = Symbol(); timers.set(id, fn); return id; },
         clearTimeout: id => timers.delete(id),
         window: { matchMedia: () => ({ matches: reduced }) } };
@@ -67,6 +81,26 @@ function harness({ reduced = false } = {}) {
     context.TK7Tactics.mount(pitch, 'green:2-3-1');
     return { editor: context.TK7Tactics, nodes, pitch, slots, hold: () => [...timers.values()][0]?.(), timers };
 }
+
+test('duration menu selects and highlights the chosen time and locks during playback',async()=>{
+    const h=harness({reduced:true,durationPicker:true});
+    const trigger=h.nodes['lineup-duration-trigger'],menu=h.nodes['lineup-duration-menu'];
+    await trigger.fire('click');
+    assert.equal(menu.open,true);
+    assert.equal(menu.style.width,'144px');
+    assert.equal(menu.options[1].attributes['aria-pressed'],'true');
+    await menu.fire('click',{target:menu.options[0]});
+    assert.equal(menu.open,false);
+    assert.equal(h.nodes['lineup-duration'].value,'2000');
+    assert.equal(h.nodes['lineup-duration-value'].textContent,'2s');
+    assert.equal(menu.options[0].attributes['aria-pressed'],'true');
+    assert.equal(menu.options[1].attributes['aria-pressed'],'false');
+    await routeTo(h,0,70,50);
+    await h.nodes['lineup-play'].fire('click');
+    assert.equal(trigger.disabled,true);
+    h.editor.stop();
+    assert.equal(trigger.disabled,false);
+});
 
 async function routeTo(h, index, x, y) {
     h.nodes['lineup-runner'].value = h.slots[index].dataset.slotId;

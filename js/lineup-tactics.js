@@ -27,6 +27,9 @@ globalThis.TK7Tactics = (() => {
         const selectedLabel = document.getElementById('lineup-selected-label');
         const reset = document.getElementById('lineup-reset-points');
         const duration = document.getElementById('lineup-duration');
+        const durationTrigger = document.getElementById('lineup-duration-trigger');
+        const durationMenu = document.getElementById('lineup-duration-menu');
+        const durationValue = document.getElementById('lineup-duration-value');
         const video = document.getElementById('lineup-video');
         const hint = document.getElementById('lineup-tactic-hint');
         const events = new AbortController();
@@ -93,6 +96,7 @@ globalThis.TK7Tactics = (() => {
             reset.disabled = playing;
             runner.disabled = playing;
             duration.disabled = playing;
+            if(durationTrigger)durationTrigger.disabled=playing;
             play.disabled = !playing && !Object.values(draft.routes).some(route => route.length);
             if (video) video.disabled = playing || !Object.values(draft.routes).some(route => route.length);
             const playLabel=playing?'หยุด':'เล่นแผน';
@@ -248,6 +252,48 @@ globalThis.TK7Tactics = (() => {
             draw();
         });
         listen(runner, 'change', () => { selected = runner.value; draw(); });
+        if(durationTrigger&&durationMenu&&typeof durationMenu.showPopover==='function'){
+            const options=[...durationMenu.querySelectorAll('[data-duration]')];
+            const sync=()=>{
+                durationValue.textContent=Number(duration.value)/1000+'s';
+                durationTrigger.setAttribute('aria-label','ระยะเวลา '+Number(duration.value)/1000+' วินาที');
+                options.forEach(option=>option.setAttribute('aria-pressed',String(option.dataset.duration===duration.value)));
+            };
+            const close=()=>{if(durationMenu.matches(':popover-open'))durationMenu.hidePopover();};
+            const open=()=>{
+                if(playing)return;
+                durationMenu.showPopover();
+                const bounds=durationTrigger.getBoundingClientRect();
+                const bottom=document.querySelector?.('.bottom-nav')?.getBoundingClientRect().top||innerHeight;
+                const width=Math.min(144,innerWidth-24);
+                durationMenu.style.width=width+'px';
+                durationMenu.style.maxHeight=Math.max(44,bottom-24)+'px';
+                const height=durationMenu.getBoundingClientRect().height;
+                durationMenu.style.left=Math.max(12,Math.min(bounds.right-width,innerWidth-width-12))+'px';
+                durationMenu.style.top=Math.max(12,Math.min(bounds.bottom+8+height<=bottom-12?bounds.bottom+8:bounds.top-height-8,bottom-height-12))+'px';
+                options.find(option=>option.dataset.duration===duration.value)?.focus();
+            };
+            listen(durationTrigger,'click',()=>durationMenu.matches(':popover-open')?close():open());
+            listen(durationMenu,'toggle',event=>durationTrigger.setAttribute('aria-expanded',String(event.newState==='open')));
+            listen(durationMenu,'click',event=>{
+                const option=event.target.closest('[data-duration]');
+                if(!options.includes(option)||playing)return;
+                duration.value=option.dataset.duration;sync();close();durationTrigger.focus();
+            });
+            listen(durationMenu,'keydown',event=>{
+                if(event.key==='Escape'){event.preventDefault();close();durationTrigger.focus();return;}
+                if(!['ArrowDown','ArrowUp','Home','End'].includes(event.key))return;
+                event.preventDefault();
+                const current=options.indexOf(document.activeElement);
+                const index=event.key==='Home'?0:event.key==='End'?options.length-1:(current+(event.key==='ArrowDown'?1:-1)+options.length)%options.length;
+                options[index].focus();
+            });
+            listen(duration,'change',sync);
+            if(window.addEventListener)listen(window,'resize',close);
+            listen(document,'scroll',event=>{if(!durationMenu.contains(event.target))close();},{capture:true,passive:true});
+            events.signal.addEventListener('abort',close,{once:true});
+            sync();
+        }else if(durationTrigger){durationTrigger.hidden=true;duration.hidden=false;}
         listen(clear, 'click', () => { delete draft.routes[selected]; draw(); });
         listen(reset, 'click', () => {
             draft.positions = structuredClone(defaults);
