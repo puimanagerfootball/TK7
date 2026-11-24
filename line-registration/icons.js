@@ -30,6 +30,8 @@
   play:'▶️', stop:'⏹️', reset:'↩️', download:'📥', logout:'🚪', link:'🔗', close:'✕', move:'↔️'
  };
  const artwork={
+  shield:'<path d="M12 2 3 6v6c0 5 5 8 9 10 4-2 9-5 9-10V6z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="m8 12 3 3 5-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>',
+  help:'<g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 8.5a2.6 2.6 0 1 1 4 2.3c-1 .6-1.5 1-1.5 2.2m0 3h.01"/></g>',
   play:'<path d="M7 4v16l14-8z" fill="currentColor"/>',
   stop:'<rect x="5" y="5" width="14" height="14" rx="2" fill="currentColor"/>',
   reset:'<g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10a9 9 0 1 1 1 8M3 4v6h6"/></g>',
