@@ -120,7 +120,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 }
 
 /* Consistent controls without moving the surrounding content. */
-#page-lineup #lineup-tools.lineup-toolbar { position: relative; display: grid; grid-template-columns: minmax(76px,1fr) repeat(5,44px); align-items: center; gap: 8px; padding: 6px; margin: 0 auto 8px; border: 1px solid #d4e2d3; border-radius: 14px; background: #e8f0e4; }
+#page-lineup #lineup-tools.lineup-toolbar { position: relative; max-width: 400px; display: grid; grid-template-columns: minmax(76px,1fr) repeat(3,44px); align-items: center; gap: 8px; padding: 6px; margin: 0 auto 8px; border: 1px solid #d4e2d3; border-radius: 14px; background: #e8f0e4; }
 #page-lineup .lineup-toolbar > button,#page-lineup .lineup-toolbar summary { display: grid; place-items: center; box-sizing: border-box; width: 44px; height: 44px; min-height: 44px; padding: 0; margin: 0; border: 0; border-radius: 10px; background: transparent; color: #375c43; box-shadow: none; cursor: pointer; font: inherit; list-style: none; }
 #page-lineup .lineup-toolbar summary::before { content: none; }
 #page-lineup .lineup-toolbar summary::-webkit-details-marker { display: none; }
@@ -133,7 +133,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 #page-lineup .lineup-toolbar .lineup-route-controls label { display: block; font-size: 13px; }
 #page-lineup .lineup-toolbar #lineup-runner[hidden] { display: none; }
 #page-lineup .lineup-selected-route button { display: grid; place-items: center; width: 40px; height: 40px; min-height: 40px; padding: 0; }
-@media(max-width:600px) { #page-lineup #lineup-tools.lineup-toolbar { grid-template-columns: minmax(56px,1fr) repeat(5,36px); gap: 3px; padding: 4px; } #page-lineup .lineup-toolbar > button,#page-lineup .lineup-toolbar summary { width: 36px; height: 40px; min-height: 40px; } #page-lineup .lineup-toolbar .tk7-icon { width: 20px; height: 20px; font-size: 18px; } #page-lineup .lineup-toolbar #formation-chips { min-height: 40px; font-size: 12px; padding-inline: 4px; } }
+@media(max-width:600px) { #page-lineup #lineup-tools.lineup-toolbar { grid-template-columns: minmax(56px,1fr) repeat(3,36px); gap: 3px; padding: 4px; } #page-lineup .lineup-toolbar > button,#page-lineup .lineup-toolbar summary { width: 36px; height: 40px; min-height: 40px; } #page-lineup .lineup-toolbar .tk7-icon { width: 20px; height: 20px; font-size: 18px; } #page-lineup .lineup-toolbar #formation-chips { min-height: 40px; font-size: 12px; padding-inline: 4px; } }
 .lineup-gesture-switch { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 4px; padding: 4px; margin-bottom: 10px; border-radius: 14px; background: #e2ece0; }
 .lineup-gesture-switch button { display: inline-flex; justify-content: center; align-items: center; gap: 8px; min-height: 44px; border: 0; border-radius: 10px; padding: 8px; background: transparent; color: #45654d; font: 500 14px/1.4 Kanit,system-ui,sans-serif; cursor: pointer; }
 .lineup-gesture-switch button[aria-pressed=true] { background: white; color: #17653b; box-shadow: 0 2px 5px #143d201c; }

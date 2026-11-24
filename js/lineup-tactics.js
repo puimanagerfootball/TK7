@@ -46,9 +46,6 @@ globalThis.TK7Tactics = (() => {
         let animations = [];
         let playing = false;
         let playback = 0;
-        let gestureMode = 'move';
-        const modeMove = document.getElementById('lineup-mode-move');
-        const modeRoute = document.getElementById('lineup-mode-route');
 
         const placeholder = document.createElement('option');
         placeholder.value = '';
@@ -71,9 +68,9 @@ globalThis.TK7Tactics = (() => {
                 Object.assign(slot.style, frame(draft.positions[id] || defaults[id]));
                 slot.classList.toggle('tactic-selected', id === selected);
                 const route = draft.routes[id] || [];
-                if (!route.length || playing || gestureMode !== 'route' || id !== selected) continue;
+                if (!route.length || playing) continue;
                 const path = svgNode('polyline');
-                const positions = [draft.positions[id] || defaults[id], ...route];
+                const positions = globalThis.TK7Path?.prepare(draft.positions[id] || defaults[id],route) || [draft.positions[id] || defaults[id], ...route];
                 path.setAttribute('points', positions.map(p => p.x + ',' + p.y).join(' '));
                 path.setAttribute('class', id === selected ? 'selected-route' : '');
                 path.setAttribute('fill', 'none');
@@ -83,11 +80,7 @@ globalThis.TK7Tactics = (() => {
                 overlay.append(path);
 
             }
-            pitch.dataset.tacticMode = gestureMode;
-            modeMove?.setAttribute('aria-pressed',String(gestureMode === 'move'));
-            modeRoute?.setAttribute('aria-pressed',String(gestureMode === 'route'));
-            if(modeMove)modeMove.disabled=playing;
-            if(modeRoute)modeRoute.disabled=playing;
+            pitch.dataset.tacticMode = drag?.kind === 'move' ? 'move' : 'route';
             clear.disabled = playing || !(draft.routes[selected]?.length);
             if (selectedRoute) selectedRoute.hidden = !(draft.routes[selected]?.length);
             if (selectedLabel) {
@@ -110,7 +103,7 @@ globalThis.TK7Tactics = (() => {
                 play.dataset.tacticLabel=playLabel;
             }
             play.setAttribute('aria-pressed', String(playing));
-            const message=playing?'กำลังเล่นแผน':gestureMode==='route'?'โหมดทางวิ่ง':'โหมดย้ายตำแหน่ง';
+            const message=playing?'กำลังเล่นแผน':drag?.kind==='move'?'ย้ายตำแหน่ง':'จัดทางวิ่ง';
             if(hint.textContent!==message)hint.textContent=message;
         }
 
@@ -152,10 +145,10 @@ globalThis.TK7Tactics = (() => {
             const id = slot.dataset.slotId;
             drag = { id, pointer: event.pointerId, original: { ...draft.positions[id] },
                 route: structuredClone(draft.routes[id] || []), kind: 'pending',
-                canRoute: gestureMode === 'route', startX: event.clientX, startY: event.clientY,
+                startX: event.clientX, startY: event.clientY,
                 bounds: pitch.getBoundingClientRect() };
             pitch.setPointerCapture(event.pointerId);
-            if(gestureMode === 'move')pressTimer = setTimeout(() => {
+            pressTimer = setTimeout(() => {
                 if (!drag || drag.pointer !== event.pointerId) return;
                 drag.kind = 'move';
                 selected = id;
@@ -170,7 +163,7 @@ globalThis.TK7Tactics = (() => {
             const moved = Math.hypot(event.clientX - drag.startX, event.clientY - drag.startY) > 7;
             if (drag.kind === 'pending' && moved) {
                 cancelPress();
-                drag.kind = drag.canRoute ? 'route' : 'move';
+                drag.kind = 'route';
                 selected = drag.id;
                 runner.value = selected;
                 if (drag.kind === 'route') draft.routes[drag.id] = [];
@@ -254,8 +247,6 @@ globalThis.TK7Tactics = (() => {
             draft.positions[id] = point(current.x + x, current.y + y);
             draw();
         });
-        if(modeMove)listen(modeMove,'click',()=>{stop();gestureMode='move';draw();});
-        if(modeRoute)listen(modeRoute,'click',()=>{stop();gestureMode='route';draw();});
         listen(runner, 'change', () => { selected = runner.value; draw(); });
         listen(clear, 'click', () => { delete draft.routes[selected]; draw(); });
         listen(reset, 'click', () => {

@@ -1,5 +1,5 @@
 /* ==========================================================================
-   TK7 app logic (Ver 6.8.1)
+   TK7 app logic (Ver 6.8.2)
    แยกจาก index.html เพื่อแก้/ค้นหาง่ายขึ้น
    Sections (ค้นหาด้วย // --- SECTION:):
      CONFIG, AUTH, REGISTRATION, SCHEDULE, LINEUP, SETUP,
@@ -1439,6 +1439,7 @@
             pitchWrap.className = 'pitch-wrap';
             const pitchClone = pitch.cloneNode(true);
             pitchClone.id = 'lineup-pitch-export';
+            pitchClone.querySelectorAll('.lineup-routes').forEach(route=>route.remove());
             pitchClone.querySelectorAll('.pitch-slot').forEach(el => el.classList.remove('active'));
             pitchClone.querySelectorAll('.slot-name-input').forEach(inp => {
                 const span = document.createElement('div');
