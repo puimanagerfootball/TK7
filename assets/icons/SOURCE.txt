@@ -1,0 +1,4 @@
+Source: https://cdn-icons-png.flaticon.com/512/861/861512.png
+This is the existing TK7 app icon previously referenced by index.html and manifest.json.
+icon-512.png: original downloaded PNG.
+icon-192.png and icon-180.png: resized app and Apple touch variants.
