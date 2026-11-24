@@ -379,55 +379,16 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>'',selectDefaultSetupDat
  }
 
  // ป็อปอัพทีม: รายชื่อ (ชื่อละบรรทัด) + เปลี่ยนสีทั้งทีม
- const summaryModal=el('div',{class:'tk7l-modal',role:'dialog','aria-modal':'true','aria-label':'สรุปรายชื่อจากระบบ',hidden:true});
- document.body.append(summaryModal);
- let summarySequence=0,summarySending=false,summaryTrigger=null;
- function closeRosterSummary(){if(summarySending)return;summarySequence++;summaryModal.hidden=true;summaryModal.replaceChildren();summaryTrigger?.focus?.()}
- window.TK7Backdrop.install(summaryModal,e=>e.target===summaryModal,closeRosterSummary);
- document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!summaryModal.hidden)closeRosterSummary()});
  async function openRosterSummary(mode='all'){
-  if(!canManage()||summarySending)return;
+  if(!canManage())return;
   const chosen=session();if(!chosen)return;
   if(window.TK7NativeRosterShare?.request({
    mode,getSnapshot:()=>session(),isCurrent:()=>canManage()&&session()?.id===chosen.id&&!mutating,
    teams:ORDER.filter(t=>(chosen.preset_teams||[]).includes(t)||(chosen.roster?.entries||[]).some(e=>e.team===t)).map(slug=>({slug,label:COLORS[slug]})),
    onSent:()=>say('ส่งสรุปรายชื่อแล้ว'),onError:error=>say(errText(error),true)
   }))return;
-  const sequence=++summarySequence;summaryTrigger=document.activeElement;
-  const preview=el('textarea',{readonly:true,'aria-label':'ข้อความสรุปรายชื่อ',style:'min-height:280px;resize:vertical;font-size:15px;line-height:1.6'});
-  const notice=el('p',{role:'status',text:'กำลังอ่านรายชื่อล่าสุด…'});
-  const send=el('button',{type:'button',class:'btn btn-primary',text:'เลือกแชตหรือกลุ่ม LINE',disabled:true});
-  const colour=mode==='team'?el('select',{'aria-label':'เลือกทีมสำหรับกลุ่มย่อย',disabled:true}):null;
-  const close=el('button',{type:'button',class:'tk7l-x',text:'✕','aria-label':'ปิด',onclick:closeRosterSummary});
-  summaryModal.replaceChildren(el('section',{class:'tk7l-sheet'},el('div',{class:'tk7l-sheet-head'},el('strong',{text:mode==='team'?'ส่งสรุปกลุ่มย่อย':'ส่งสรุปกลุ่มใหญ่'}),close),el('div',{class:'tk7l-sheet-body'},colour,preview,notice,send)));
-  summaryModal.hidden=false;
-  try{
-   if(!await load(true))throw Error('อ่านรายชื่อล่าสุดไม่สำเร็จ กรุณาปิดแล้วเปิดสรุปใหม่');
-   if(sequence!==summarySequence)return;
-   const latest=session();if(!canManage()||latest?.id!==chosen.id)throw Error('วันที่หรือสิทธิ์เปลี่ยนแล้ว กรุณาปิดแล้วเปิดสรุปใหม่');
-   if(colour){
-    for(const slug of ORDER.filter(t=>(latest.preset_teams||[]).includes(t)||(latest.roster?.entries||[]).some(e=>e.team===t)))colour.append(el('option',{value:slug,text:'ทีม'+COLORS[slug]}));
-    if(!colour.children.length)throw Error('ยังไม่มีสีทีมให้ส่งสรุปกลุ่มย่อย');
-    colour.value=colour.children[0].value;colour.disabled=false;
-   }
-   let text='';const updateText=()=>{text=window.TK7RosterSummary.build(latest,{team:colour?.value||null});preview.value=text;};updateText();if(colour)colour.onchange=updateText;send.disabled=false;
-   notice.textContent='ตรวจรายชื่อก่อนส่ง';
-   send.onclick=async()=>{
-    if(summarySending||!canManage()||session()?.id!==chosen.id){notice.textContent='วันที่หรือสิทธิ์เปลี่ยนแล้ว กรุณาเปิดสรุปใหม่';return;}
-    summarySending=true;send.disabled=true;notice.textContent='กำลังเปิดหน้าเลือกผู้รับ…';
-    if(colour)colour.disabled=true;
-    try{
-     const direct=window.TK7DirectShare;if(!direct?.configured)throw Error('LINE ยังไม่พร้อม กรุณาปิดแล้วเปิดสรุปใหม่');
-     // The picker is invoked in this click, without awaiting a data read first.
-     const result=await direct.share([{type:'text',text}]);
-     if(result?.status==='success'){summarySending=false;closeRosterSummary();say('ส่งสรุปรายชื่อแล้ว');}
-     else notice.textContent=result?.login?'เข้าสู่ระบบ LINE แล้วเปิดสรุปและกดส่งอีกครั้ง':'ยกเลิกการส่ง';
-    }catch(error){notice.textContent=errText(error)}
-    finally{summarySending=false;send.disabled=false;if(colour)colour.disabled=false;}
-   };
-  }catch(error){if(sequence===summarySequence)notice.textContent=errText(error)}
+  say('LINE ยังไม่พร้อม กรุณาลองอีกครั้ง',true);
  }
-
  let teamBusy=false,teamTrigger=null,teamBackdrop=null,activeJoinSlug=null;
  const modal=el('div',{class:'tk7l-modal',role:'dialog','aria-modal':'true',hidden:true});
  window.TK7Backdrop.install(modal,e=>e.target===modal||e.target.classList?.contains('tk7l-join-dim'),closeTeam);
@@ -660,6 +621,6 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>'',selectDefaultSetupDat
  const setupVisible=()=>!!$('page-setup')?.offsetParent;
  setInterval(()=>{if(!document.hidden&&setupVisible()&&!document.activeElement?.closest?.('#page-setup input,#page-setup select,#page-setup textarea'))load()},20000);
  document.querySelectorAll('.nav-btn').forEach(b=>b.addEventListener('click',()=>setTimeout(()=>setupVisible()&&load(),200)));
- db.auth.onAuthStateChange?.(()=>setTimeout(()=>{if(!canManage())closeRosterSummary();load()},1200));
+ db.auth.onAuthStateChange?.(()=>setTimeout(()=>{load()},1200));
 }};
 

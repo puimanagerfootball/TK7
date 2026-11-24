@@ -150,14 +150,9 @@ globalThis.TK7LineupVideo = (() => {
         preview.controls = true;
         preview.playsInline = true;
         preview.hidden = true;
-        const share = document.createElement('button');
-        share.type = 'button';
-        share.textContent = 'แชร์ผ่านเครื่อง';
-        share.disabled = true;
-        share.hidden = true;
         const lineShare = document.createElement('button');
         lineShare.type = 'button';
-        lineShare.textContent = 'เตรียมส่ง LINE';
+        lineShare.textContent = 'ส่ง LINE';
         lineShare.disabled = true;
         const download = document.createElement('a');
         download.textContent = 'ดาวน์โหลด MP4';
@@ -168,7 +163,7 @@ globalThis.TK7LineupVideo = (() => {
         close.textContent = 'ปิด';
         const actions = document.createElement('div');
         actions.className = 'lineup-video-actions';
-        actions.append(lineShare, share, download, close);
+        actions.append(lineShare, download, close);
         dialog.append(title, preview, status, actions);
         document.body.append(dialog);
         dialog.showModal();
@@ -177,16 +172,26 @@ globalThis.TK7LineupVideo = (() => {
         let message = prepared;
         let videoBlob = null;
         let poster = null;
+        let nativeFile = null;
+        async function prepareLine(){
+            status.textContent = 'กำลังเตรียมไฟล์สำหรับส่ง LINE…';
+            message = await globalThis.TK7UploadTactics(videoBlob, poster);
+            if(controller.signal.aborted)return;
+            globalThis.TK7LineupMedia.remember(message);
+            lineShare.textContent = 'ส่ง LINE';
+            lineShare.disabled = false;
+            status.textContent = 'พร้อมส่ง · เลือกแชต LINE ได้เลย';
+        }
         lineShare.onclick = async () => {
             lineShare.disabled = true;
             try {
+                if(nativeFile){
+                    // File sharing must start in this click; never upload or log in first.
+                    await navigator.share({files:[nativeFile],title:'TK7 · แผนการวิ่ง'});
+                    dialog.close();return;
+                }
                 if (!message) {
-                    status.textContent = 'กำลังอัปโหลดวิดีโอและภาพตัวอย่าง…';
-                    message = await globalThis.TK7UploadTactics(videoBlob, poster);
-                    if (controller.signal.aborted) return;
-                    globalThis.TK7LineupMedia.remember(message);
-                    lineShare.textContent = 'เลือกแชต LINE';
-                    status.textContent = 'พร้อมส่ง กดเลือกแชต LINE · ลิงก์ไฟล์มีอายุ 7 วัน';
+                    await prepareLine();
                     return;
                 }
                 // Invoke the picker in this click, before any asynchronous work.
@@ -196,7 +201,7 @@ globalThis.TK7LineupVideo = (() => {
                 if (result?.status === 'success') dialog.close();
                 else if (!result?.login) status.textContent = 'ยังไม่ได้ส่ง เลือกแชต LINE เพื่อลองอีกครั้ง';
             } catch (error) {
-                if (!controller.signal.aborted) status.textContent = 'ส่ง LINE ไม่สำเร็จ: ' + error.message;
+                if (!controller.signal.aborted && error.name !== 'AbortError') status.textContent = 'ส่ง LINE ไม่สำเร็จ: ' + error.message;
             } finally { if (!controller.signal.aborted) lineShare.disabled = false; }
         };
         close.onclick = () => dialog.close();
@@ -213,7 +218,7 @@ globalThis.TK7LineupVideo = (() => {
                 preview.src = prepared.originalContentUrl;
                 preview.poster = prepared.previewImageUrl;
                 preview.hidden = false;
-                lineShare.textContent = 'เลือกแชต LINE';
+                lineShare.textContent = 'ส่ง LINE';
                 lineShare.disabled = false;
                 status.textContent = 'วิดีโอพร้อมแล้ว กดเลือกแชต LINE เพื่อส่ง';
                 return;
@@ -237,16 +242,17 @@ globalThis.TK7LineupVideo = (() => {
             download.hidden = false;
             const file = new File([blob], 'TK7-Tactics.mp4', { type: 'video/mp4' });
             const canShare = navigator.canShare?.({ files: [file] }) && !!navigator.share;
-            share.disabled = !canShare;
-            share.hidden = !canShare;
-            lineShare.disabled = false;
-            status.textContent = 'เตรียมส่ง LINE จะอัปโหลดไฟล์ส่วนตัว พร้อมลิงก์ชั่วคราว 7 วัน';
-            share.onclick = async () => {
-                share.disabled = true;
-                try { await navigator.share({ files: [file], title: 'TK7 · แผนการวิ่ง' }); dialog.close(); }
-                catch (error) { if (error.name !== 'AbortError') status.textContent = 'แชร์ไม่สำเร็จ ลองใหม่หรือดาวน์โหลด MP4'; }
-                finally { share.disabled = false; }
-            };
+            if(canShare && globalThis.TK7NativeRosterShare?.available()){
+                nativeFile=file;
+                lineShare.disabled=false;
+                status.textContent='พร้อมส่ง · เลือก LINE จากเมนูแชร์ของเครื่อง';
+            }else{
+                // Prepare once while the result is displayed, then one click opens LINE.
+                try{await prepareLine();}
+                catch(error){
+                    if(!controller.signal.aborted){lineShare.disabled=false;status.textContent='เตรียมส่งไม่สำเร็จ กดส่ง LINE เพื่อลองใหม่ หรือดาวน์โหลด MP4';}
+                }
+            }
         } catch (error) {
             if (!controller.signal.aborted) status.textContent = error.message;
         }

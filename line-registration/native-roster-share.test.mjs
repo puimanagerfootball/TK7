@@ -33,10 +33,26 @@ test('all-team mobile summary invokes system sharing in the original click, with
     await settle();assert.equal(sent,1);
 });
 
-test('desktop sharing keeps the existing preview and LINE flow',()=>{
+test('desktop without a LINE transport leaves the fallback available',()=>{
     const {api,env,calls}=harness({mobile:false});
     assert.equal(api.request({getSnapshot:()=>({text:'Roster'})},env),false);
     assert.equal(calls.length,0);
+});
+test('desktop opens LINE directly in the click without creating a preview',async()=>{
+    const {api,env}=harness({mobile:false});const messages=[];let sent=0;
+    env.TK7DirectShare={configured:true,share:value=>{messages.push(value);return Promise.resolve({status:'success'});}};
+    api.request({getSnapshot:()=>({text:'Desktop roster'}),onSent:()=>sent++},env);
+    assert.equal(messages[0][0].text,'Desktop roster');
+    assert.equal(env.document.body.children.length,0);
+    await settle();assert.equal(sent,1);
+});
+test('LIFF desktop team selection sends directly and cancellation keeps choices',async()=>{
+    const {api,env}=harness({mobile:false});let text='Current';const messages=[];
+    api.request({mode:'team',teams:[{slug:'blue',label:'Blue'}],getSnapshot:()=>({text}),sendText:value=>{messages.push(value);return Promise.resolve();}},env);
+    const dialog=env.document.body.children[0];text='Latest';
+    dialog.children[1].children[0].onclick();assert.equal(messages[0],'Latest blue');
+    await settle();assert.equal(dialog.open,true);
+    assert.equal(dialog.children[1].children[0].disabled,false);
 });
 
 test('iPad with a trackpad still uses mobile sharing while Windows touch keeps desktop flow',()=>{

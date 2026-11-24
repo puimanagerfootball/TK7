@@ -8,16 +8,22 @@ globalThis.TK7NativeRosterShare = (() => {
             device.maxTouchPoints>0&&/Android|iPhone|iPad|Macintosh/i.test(device.userAgent||'');
     }
     function share(text,env=globalThis){
-        if(!available(env))throw Error('เมนูแชร์ของเครื่องยังไม่พร้อม');
         if(typeof text!=='string'||!text.trim())throw Error('ไม่มีข้อความสรุป');
+        if(!available(env)){
+            if(!env.TK7DirectShare?.configured)throw Error('LINE ยังไม่พร้อม กรุณาลองอีกครั้ง');
+            return env.TK7DirectShare.share([{type:'text',text}]).then(result=>{
+                if(result?.login)throw Error('เข้าสู่ระบบ LINE แล้วกดส่งสรุปอีกครั้ง');
+                return {status:result?.status==='success'?'success':'cancelled'};
+            });
+        }
         // Keep this invocation synchronous to retain transient user activation.
         return env.navigator.share({text}).then(()=>({status:'success'}),error=>{
             if(error?.name==='AbortError')return {status:'cancelled'};
             throw error;
         });
     }
-    function request({mode='all',getSnapshot,isCurrent=()=>true,teams=[],english=false,onSent=()=>{},onError=()=>{}},env=globalThis){
-        if(!available(env))return false;
+    function request({mode='all',getSnapshot,isCurrent=()=>true,teams=[],english=false,onSent=()=>{},onError=()=>{},sendText},env=globalThis){
+        if(!available(env)&&!env.TK7DirectShare?.configured&&!sendText)return false;
         if(sending||currentDialog)return true;
         let dialog=null;
         function send(team){
@@ -27,8 +33,9 @@ globalThis.TK7NativeRosterShare = (() => {
                 const text=env.TK7RosterSummary.build(getSnapshot(),{team});
                 sending=true;
                 dialog?.querySelectorAll('button').forEach(button=>button.disabled=true);
-                share(text,env).then(result=>{
-                    if(result.status==='success'){
+                const delivery=!available(env)&&sendText?sendText(text):share(text,env);
+                Promise.resolve(delivery).then(result=>{
+                    if(result?.status==='success'){
                         if(dialog?.open)dialog.close();
                         onSent();
                     }

@@ -15,22 +15,20 @@ test('custom summary shares invoke the LINE picker synchronously, without replac
  const calls=[];const sdk={init:async()=>{},isLoggedIn:()=>true,isApiAvailable:()=>true,getContext:()=>({}),shareTargetPicker:messages=>{calls.push(messages);return Promise.resolve({status:'success'})}};
  const direct=createDirectShare({liffId:'2012278818-Summary',loadSdk:async()=>sdk,redirectUri:'https://example.test'});await direct.ready;const messages=[{type:'text',text:build(session())}];const result=direct.share(messages);assert.equal(calls.length,1);assert.deepEqual(calls[0],messages);await result;await direct.share();assert.equal(calls[1][0].type,'flex');assert.throws(()=>direct.share([]),/Invalid/);
 });
-class Node{
- constructor(tag,props={},children=[]){this.tag=tag;Object.assign(this,props);this.children=children.flat().filter(Boolean);this.textContent=props.text||'';this.hidden=props.hidden||false;this.disabled=props.disabled||false;}
- append(...children){this.children.push(...children.flat())}replaceChildren(...children){this.children=children.flat()}focus(){}
- all(tag){return this.children.flatMap(child=>[...(child.tag===tag?[child]:[]),...child.all(tag)])}
-}
-function ui({success=true,shareStatus='success',shareError=false}={}){
- let current=session();const sent=[];const body=new Node('body');const context={window:{TK7Backdrop:{install(){}},TK7RosterSummary:globalThis.TK7RosterSummary,TK7DirectShare:{configured:true,share:messages=>{sent.push(messages);return shareError?Promise.reject(Error('share failed')):Promise.resolve({status:shareStatus})}}},document:{body,activeElement:null,addEventListener(){}},el:(tag,props,...children)=>new Node(tag,props,children),canManage:()=>true,session:()=>current,load:async()=>success,say(){},errText:e=>e.message,navigator:{clipboard:{writeText:async()=>{}}}};
- vm.createContext(context);const source=fs.readFileSync(new URL('admin-integration.js',import.meta.url),'utf8');vm.runInContext(source.slice(source.indexOf(' const summaryModal='),source.indexOf(' let teamBusy=')),context);
- return {context,sent,modal:body.children[0],changeDate:()=>current={...current,id:'other'}};
-}
-test('preview fetches before enabling send and never sends automatically; recipient selection starts only on click',async()=>{
- const h=ui();await h.context.openRosterSummary();assert.equal(h.sent.length,0);assert.match(h.modal.all('textarea')[0].value,/Alice/);assert.equal(h.modal.all('button').length,2);const send=h.modal.all('button').find(b=>b.text==='เลือกแชตหรือกลุ่ม LINE');const promise=send.onclick();assert.equal(h.sent.length,1);await promise;assert.equal(h.modal.hidden,true);
-});
-test('a failed refresh or a changed match date cannot share an incorrect roster',async()=>{
- const failed=ui({success:false});await failed.context.openRosterSummary();assert.equal(failed.modal.all('button').find(b=>b.text==='เลือกแชตหรือกลุ่ม LINE').disabled,true);
- const h=ui();await h.context.openRosterSummary();h.changeDate();await h.modal.all('button').find(b=>b.text==='เลือกแชตหรือกลุ่ม LINE').onclick();assert.equal(h.sent.length,0);
-});
 
-test('web cancellation and share failure leave the summary open for retry',async()=>{for(const options of [{shareStatus:'cancelled'},{shareError:true}]){const h=ui(options);await h.context.openRosterSummary();await h.modal.all('button').find(b=>b.text==='เลือกแชตหรือกลุ่ม LINE').onclick();assert.equal(h.modal.hidden,false);assert.match(h.modal.all('textarea')[0].value,/Alice/)}});
+function integration(){
+ let current=session(),options,permission=true;const notices=[];
+ const context={window:{TK7NativeRosterShare:{request:value=>{options=value;return true;}}},canManage:()=>permission,session:()=>current,mutating:false,ORDER:['green','red'],COLORS:{green:'เขียว',red:'แดง'},say:value=>notices.push(value),errText:e=>e.message};
+ vm.createContext(context);const source=fs.readFileSync(new URL('admin-integration.js',import.meta.url),'utf8');
+ vm.runInContext(source.slice(source.indexOf(' async function openRosterSummary('),source.indexOf(' let teamBusy=')),context);
+ return {context,get options(){return options;},changeDate:()=>current={...current,id:'other'},revoke:()=>permission=false};
+}
+test('web summary delegates directly with selected teams and no preview or refresh',async()=>{
+ const h=integration();await h.context.openRosterSummary('team');
+ assert.equal(h.options.mode,'team');assert.equal(h.options.teams.length,2);
+ assert.equal(h.options.getSnapshot().id,'session');assert.equal(h.options.isCurrent(),true);
+});
+test('web direct summary guards changed dates and revoked permission',async()=>{
+ const h=integration();await h.context.openRosterSummary();h.changeDate();assert.equal(h.options.isCurrent(),false);
+ const other=integration();await other.context.openRosterSummary();other.revoke();assert.equal(other.options.isCurrent(),false);
+});
