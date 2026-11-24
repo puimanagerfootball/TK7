@@ -30,7 +30,7 @@
   play:'▶️', stop:'⏹️', reset:'↩️', download:'📥', logout:'🚪', link:'🔗', close:'✕'
  };
  const artwork={
-  logout:'<g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4H4v16h6m4-12 4 4-4 4m-6-4h14"/></g>',
+  logout:'<g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4H4v16h6M15 8l4 4-4 4M8 12h11"/></g>',
   share:'<g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3h7v7m0-7L10 14"/><path d="M11 5H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-6"/></g>',
   import:'<g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v11m-4-4 4 4 4-4M4 13v7h16v-7"/><path d="M4 15h4l2 3h4l2-3h4"/></g>',
   lock:'<g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3m-4 5v2"/></g>',
