@@ -55,8 +55,8 @@
 }
 .nav-btn.active::after { transform: scaleX(1); }
 .nav-btn .icon { transition: transform 220ms var(--motion-ease); }
-.nav-btn .tk7-icon-emoji { display: grid; place-items: center; border-radius: 50%; background: var(--icon-accent,#edf4e8); box-shadow: inset 0 1px 0 #ffffffa0,0 2px 5px #183f2314; filter: none; }
-.nav-btn.active .tk7-icon-emoji { box-shadow: inset 0 1px 0 #ffffffc0,0 3px 8px #163d2426; }
+.nav-btn .tk7-icon-emoji { display: grid; place-items: center; padding: 0; border-radius: 0; background: none; box-shadow: none; filter: none; }
+.nav-btn.active .tk7-icon-emoji { box-shadow: none; }
 .nav-btn { border-radius: 14px 14px 0 0; }
 .nav-btn.active { background: #e1efdb; color: #174e30; }
 .btn, .export-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 46px; line-height: 1.3; }

@@ -68,8 +68,8 @@
 #tk7-line-card .speed-dial-panel .tk7l-action-icon {
     display: grid; place-items: center; flex: none; padding: 0; line-height: 1;
     width: 40px; height: 40px; border-radius: 50%;
-    background: var(--action-face); color: white;
-    box-shadow: 0 2px 0 var(--action-edge),0 3px 7px #102d2214;
+    background: none; color: #244c33;
+    box-shadow: none;
 }
 #tk7-line-card .speed-dial-panel .tk7l-action-icon .tk7-icon { display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; line-height: 1; font-size: 22px; filter: none; }
 #tk7-line-card .speed-dial-panel > .tk7l-action:hover:not(:disabled) { background: #edf4ee; box-shadow: none; transform: none; filter: none; }
@@ -77,7 +77,7 @@
 #tk7-line-card .speed-dial-panel > .tk7l-action:disabled { opacity: .45; background: transparent; box-shadow: none; }
 #tk7-line-card .tk7l-open { --action-face:#197346; --action-edge:#0f512f; --action-disabled:#628570; }
 #tk7-line-card .tk7l-close { --action-face:#b56b12; --action-edge:#784608; --action-disabled:#8c765a; }
-#tk7-line-card .speed-dial-panel .tk7l-action-icon { border:1px solid #ffffff45; box-shadow:inset 0 1px 0 #ffffff30,0 2px 0 var(--action-edge),0 4px 8px #102d221c; }
+#tk7-line-card .speed-dial-panel .tk7l-action-icon { border:0; background:none; border-radius:0; box-shadow:none; }
 .speed-dial-host :focus-visible { outline: 3px solid #185aa6; outline-offset: 3px; }
 .lineup-share-menu { width: auto; min-width: 0; }
 .lineup-share-menu > .speed-dial-trigger { display: inline-flex; justify-content: center; gap: 8px; width: auto; min-height: 44px; padding: 10px 14px; border-radius: 12px; background: #06c755; border-color: #05ad49; font-size: 14px; box-shadow: 0 3px 0 #047a32; }
@@ -87,7 +87,7 @@
 .lineup-share-menu .speed-dial-panel > button:disabled { opacity: .5; cursor: default; }
 .lineup-share-menu .speed-dial-panel > button { gap: 12px; justify-content: flex-start; }
 .media-share-icon { display: block; width: 30px; height: 30px; flex: none; }
-.media-rec { display: inline-flex; align-items: center; justify-content: center; gap: 4px; min-width: 42px; min-height: 30px; padding: 3px 5px; border-radius: 7px; background: #fff1f1; color: #bd252f; font: 700 10px/1 system-ui,sans-serif; }
+.media-rec { display: inline-flex; align-items: center; justify-content: center; gap: 4px; min-width: 42px; min-height: 30px; padding: 0; background: none; color: #bd252f; font: 700 10px/1 system-ui,sans-serif; }
 .media-rec i { width: 8px; height: 8px; border-radius: 50%; background: #e53945; }
 #page-lineup .lineup-main-controls { grid-template-columns: repeat(2,minmax(0,1fr)); }
 #page-lineup .lineup-main-controls > select { grid-column: auto; }

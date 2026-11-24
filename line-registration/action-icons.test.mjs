@@ -41,3 +41,13 @@ test('decorating repeated renders preserves existing icons and player controls',
     api.decorateAction(control);
     assert.equal(count, 1);
 });
+
+test('primary command SVGs inherit the readable label colour on light and dark controls', () => {
+    const { html } = icons();
+    for (const command of ['share','import','lock','unlock','trash','save','users']) {
+        const markup = html(command);
+        assert.match(markup, /<svg/);
+        assert.match(markup, /stroke="currentColor"/);
+        assert.match(markup, /aria-hidden="true"/);
+    }
+});
