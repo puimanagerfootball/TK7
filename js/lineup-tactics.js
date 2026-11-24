@@ -93,7 +93,7 @@ globalThis.TK7Tactics = (() => {
             if (selectedLabel) {
                 const slot = slots.find(slot => slot.dataset.slotId === selected);
                 const label = slot?.textContent.trim().replace(/\s+/g, ' ') || '';
-                selectedLabel.textContent = 'ทางวิ่ง · ' + label;
+                selectedLabel.textContent = label;
                 selectedLabel.title = label;
                 clear.setAttribute('aria-label', 'ล้างทางวิ่งของ ' + label);
             }
@@ -103,7 +103,12 @@ globalThis.TK7Tactics = (() => {
             play.disabled = !playing && !Object.values(draft.routes).some(route => route.length);
             if (video) video.disabled = playing || !Object.values(draft.routes).some(route => route.length);
             const playLabel=playing?'หยุด':'เล่นแผน';
-            if(play.dataset.tacticLabel!==playLabel){play.textContent=playLabel;play.dataset.tacticLabel=playLabel;}
+            if(play.dataset.tacticLabel!==playLabel){
+                const icon=globalThis.TK7Icons?.node(playing?'stop':'play');
+                if(icon)play.replaceChildren(icon);else play.textContent=playing?'■':'▶';
+                play.setAttribute('aria-label',playLabel);play.setAttribute('title',playLabel);
+                play.dataset.tacticLabel=playLabel;
+            }
             play.setAttribute('aria-pressed', String(playing));
             const message=playing?'กำลังเล่นแผน':gestureMode==='route'?'โหมดทางวิ่ง':'โหมดย้ายตำแหน่ง';
             if(hint.textContent!==message)hint.textContent=message;

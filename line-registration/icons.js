@@ -27,9 +27,13 @@
   warning:'⚠️',
   palette:'🎨',
   bell:'🔔',
-  play:'▶️', stop:'⏹️', reset:'↩️', download:'📥', logout:'🚪', link:'🔗', close:'✕'
+  play:'▶️', stop:'⏹️', reset:'↩️', download:'📥', logout:'🚪', link:'🔗', close:'✕', move:'↔️'
  };
  const artwork={
+  play:'<path d="M7 4v16l14-8z" fill="currentColor"/>',
+  stop:'<rect x="5" y="5" width="14" height="14" rx="2" fill="currentColor"/>',
+  reset:'<g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10a9 9 0 1 1 1 8M3 4v6h6"/></g>',
+  move:'<g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M3 12h18M8 7l4-4 4 4M8 17l4 4 4-4M7 8l-4 4 4 4M17 8l4 4-4 4"/></g>',
   logout:'<g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4H4v16h6M15 8l4 4-4 4M8 12h11"/></g>',
   share:'<g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3h7v7m0-7L10 14"/><path d="M11 5H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-6"/></g>',
   import:'<g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v11m-4-4 4 4 4-4M4 13v7h16v-7"/><path d="M4 15h4l2 3h4l2-3h4"/></g>',

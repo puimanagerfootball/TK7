@@ -141,7 +141,8 @@ test('two players animate their selected routes together and stop restores their
     await playing;
     assert.equal(h.slots[0].style.left, '30%');
     assert.equal(h.slots[1].style.left, '70%');
-    assert.equal(h.nodes['lineup-play'].textContent, 'เล่นแผน');
+    assert.equal(h.nodes['lineup-play'].attributes['aria-label'], 'เล่นแผน');
+    assert.equal(h.nodes['lineup-play'].textContent, '▶');
 });
 
 test('clearing one selected route preserves the other player route and the player positions', async () => {
