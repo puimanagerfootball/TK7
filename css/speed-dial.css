@@ -75,6 +75,9 @@
 #tk7-line-card .speed-dial-panel > .tk7l-action:hover:not(:disabled) { background: #edf4ee; box-shadow: none; transform: none; filter: none; }
 #tk7-line-card .speed-dial-panel > .tk7l-action:active:not(:disabled) { background: #e2eee5; box-shadow: none; transform: none; }
 #tk7-line-card .speed-dial-panel > .tk7l-action:disabled { opacity: .45; background: transparent; box-shadow: none; }
+#tk7-line-card .tk7l-open { --action-face:#197346; --action-edge:#0f512f; --action-disabled:#628570; }
+#tk7-line-card .tk7l-close { --action-face:#b56b12; --action-edge:#784608; --action-disabled:#8c765a; }
+#tk7-line-card .speed-dial-panel .tk7l-action-icon { border:1px solid #ffffff45; box-shadow:inset 0 1px 0 #ffffff30,0 2px 0 var(--action-edge),0 4px 8px #102d221c; }
 .speed-dial-host :focus-visible { outline: 3px solid #185aa6; outline-offset: 3px; }
 .lineup-share-menu { width: auto; min-width: 0; }
 .lineup-share-menu > .speed-dial-trigger { display: inline-flex; justify-content: center; gap: 8px; width: auto; min-height: 44px; padding: 10px 14px; border-radius: 12px; background: #06c755; border-color: #05ad49; font-size: 14px; box-shadow: 0 3px 0 #047a32; }
@@ -88,5 +91,14 @@
 .media-rec i { width: 8px; height: 8px; border-radius: 50%; background: #e53945; }
 #page-lineup .lineup-main-controls { grid-template-columns: repeat(2,minmax(0,1fr)); }
 #page-lineup .lineup-main-controls > select { grid-column: auto; }
-@media(prefers-reduced-motion:no-preference) { .speed-dial-panel:popover-open { animation: tk7-pop 160ms var(--motion-ease) backwards; } }
+@media(prefers-reduced-motion:no-preference) {
+    .speed-dial-panel:popover-open { animation: tk7-pop 180ms var(--motion-ease) backwards; }
+    .speed-dial-panel:popover-open > button { animation: tk7-menu-item 160ms var(--motion-ease) backwards; }
+    .speed-dial-panel:popover-open > button:nth-child(3) { animation-delay: 20ms; }
+    .speed-dial-panel:popover-open > button:nth-child(4) { animation-delay: 40ms; }
+    .speed-dial-panel:popover-open > button:nth-child(n+5) { animation-delay: 60ms; }
+}
+@keyframes tk7-menu-item { from { opacity: 0; translate: 0 4px; } to { opacity: 1; translate: 0 0; } }
+.speed-dial-trigger { transition: filter 140ms ease,box-shadow 140ms ease; }
+.speed-dial-trigger:active { box-shadow: 0 1px 0 #173a2b; filter: brightness(.96); }
 @media(prefers-reduced-motion:reduce) { .speed-dial-plus { transition: none; } }

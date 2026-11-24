@@ -198,7 +198,7 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>'',selectDefaultSetupDat
   const {class:variant='',...options}=props;
   return el('button',{type:'button',class:('tk7l-action '+variant).trim(),...options},actionLabel(icon,label));
  };
- const main=actionButton('unlock','เปิดลงทะเบียน',{class:'tk7l-main'});
+ const main=actionButton('unlock','เปิดลงทะเบียน',{class:'tk7l-main tk7l-open'});
  const actions=el('div',{class:'tk7l-actions'});
  const status=el('p',{class:'tk7l-status',role:'status'});
  const connectionMessage=el('span',{role:'status'});
@@ -315,7 +315,7 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>'',selectDefaultSetupDat
    await logWeb(s.id,'reopen','เปิดรับลงชื่ออีกครั้ง');
    return 'เปิดลงทะเบียนแล้ว';
   });
-  const closeRegistration=actionButton('lock','ปิดลงทะเบียน',{class:'tk7l-main',disabled:!s?.is_open});
+  const closeRegistration=actionButton('lock','ปิดลงทะเบียน',{class:'tk7l-main tk7l-close',disabled:!s?.is_open});
   closeRegistration.onclick=()=>act(closeRegistration,async()=>{
    await rpc('tk7_admin_set_open',{p_session:s.id,p_open:false});
    await logWeb(s.id,'close','ปิดรับลงชื่อ');

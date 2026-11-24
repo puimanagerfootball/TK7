@@ -58,6 +58,9 @@
 .tk7-team-card .cta:active:not(:disabled){background:#d2e9da}
 .tk7-team-card .recolor-btn{min-height:34px}
 .tk7-team-card .count{font-variant-numeric:tabular-nums}
+.tk7-team-card .band .name{font-weight:600;letter-spacing:0}
+.tk7-team-card .cta{transition:background-color 140ms ease,border-color 140ms ease}
+.tk7-team-card .cta:focus-visible{outline:3px solid #185aa6;outline-offset:-3px}
 .tk7-team-card .band{height:auto;min-height:56px;padding-block:8px}
 .tk7-team-card .band .shirt,.tk7-team-card .band .count,.tk7-team-card .band .fold{flex-shrink:0}
 .tk7-team-card .prow:focus-visible,.tk7-team-card .recolor-btn:focus-visible{outline:3px solid #185aa6;outline-offset:-3px}

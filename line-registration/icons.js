@@ -31,7 +31,7 @@
  };
  function html(name) {
   if(!Object.hasOwn(emoji,name))return '';
-  return '<span class="tk7-icon tk7-icon-emoji" aria-hidden="true">'+emoji[name]+'</span>';
+  return '<span class="tk7-icon tk7-icon-emoji tk7-icon-'+name+'" aria-hidden="true">'+emoji[name]+'</span>';
  }
  function node(name) {
   const template=document.createElement('template');

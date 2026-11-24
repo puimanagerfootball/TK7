@@ -76,8 +76,8 @@
             --bg-pitch-a: #4fa84a;
             --bg-pitch-b: #3d8b37;
             /* การ์ดเขียวนวล — ไม่ขาวจัด */
-            --surface-color: #c5d9bf;
-            --surface-raised: #b8ceb0;
+            --surface-color: #dce8d6;
+            --surface-raised: #cbdcc2;
             --primary-color: #7eb3e0;
             --primary-variant: #3d6b4a;
             --secondary-color: #3d6b4a;
@@ -88,8 +88,8 @@
             --border-color: rgba(61, 107, 74, 0.18);
             --shadow-color: rgba(20, 50, 24, 0.16);
             --depth-1: 0 2px 6px rgba(20, 50, 24, 0.1);
-            --depth-2: 0 6px 18px rgba(20, 50, 24, 0.12), 0 2px 4px rgba(20, 50, 24, 0.06);
-            --depth-3: 0 12px 28px rgba(20, 50, 24, 0.16), 0 4px 8px rgba(20, 50, 24, 0.08);
+            --depth-2: 0 4px 14px rgba(20, 50, 24, 0.09), 0 1px 3px rgba(20, 50, 24, 0.05);
+            --depth-3: 0 8px 22px rgba(20, 50, 24, 0.12), 0 2px 5px rgba(20, 50, 24, 0.06);
             --inset-well: inset 0 1px 3px rgba(20, 50, 24, 0.07);
             --bevel-top: inset 0 1px 0 rgba(255,255,255,0.9);
             /* สีทีมชัด ทึบ — ไม่ไล่โทน */

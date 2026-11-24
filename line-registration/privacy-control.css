@@ -6,3 +6,9 @@
 button.tk7-has-action-icon:not([hidden]){display:inline-flex;align-items:center;justify-content:center;gap:7px}
 .tk7-has-action-icon>.tk7-icon{display:inline-grid;place-items:center;flex:none;width:1.2em;height:1.2em;line-height:1}
 summary.tk7-has-action-icon>.tk7-icon{margin-right:7px;vertical-align:-.15em}
+.tk7-icon-unlock,.tk7-icon-check,.tk7-icon-save{--icon-accent:#e3f4e8;--icon-ink:#176b3c}
+.tk7-icon-share,.tk7-icon-import,.tk7-icon-calendar,.tk7-icon-phone{--icon-accent:#e3efff;--icon-ink:#245ea8}
+.tk7-icon-lock,.tk7-icon-reset,.tk7-icon-warning{--icon-accent:#fff0d6;--icon-ink:#965100}
+.tk7-icon-trash,.tk7-icon-logout,.tk7-icon-stop{--icon-accent:#ffe6e6;--icon-ink:#a72b33}
+.tk7-icon-shirt,.tk7-icon-settings,.tk7-icon-palette{--icon-accent:#eee7fc;--icon-ink:#6240a1}
+.tk7-has-action-icon>.tk7-icon{width:1.5em;height:1.5em;border-radius:50%;background:var(--icon-accent,#eef4ef);color:var(--icon-ink,#245b3e);font-size:1em}

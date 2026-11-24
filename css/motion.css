@@ -1,10 +1,12 @@
 /* Motion layer: CSS only, with no dependency on data or rendering events. */
 :root {
     --motion-ease: cubic-bezier(.22, 1, .36, 1);
+    --motion-fast: 140ms;
+    --motion-panel: 220ms;
 }
 
 @keyframes tk7-appear {
-    from { opacity: 0; transform: translateY(14px); }
+    from { opacity: 0; transform: translateY(6px); }
     to { opacity: 1; transform: translateY(0); }
 }
 @keyframes tk7-fade {
@@ -12,13 +14,12 @@
     to { opacity: 1; }
 }
 @keyframes tk7-pop {
-    from { opacity: 0; transform: translateY(18px) scale(.97); }
+    from { opacity: 0; transform: translateY(8px) scale(.99); }
     to { opacity: 1; transform: translateY(0) scale(1); }
 }
 @keyframes tk7-nav-bounce {
     0% { transform: translateY(0) scale(1); }
-    45% { transform: translateY(-5px) scale(1.1); }
-    75% { transform: translateY(1px) scale(.98); }
+    50% { transform: translateY(-2px) scale(1.04); }
     100% { transform: translateY(0) scale(1); }
 }
 @keyframes tk7-sunlight {
@@ -32,21 +33,12 @@
             radial-gradient(ellipse at 18% 15%, rgba(255, 239, 180, .24), transparent 55%),
             linear-gradient(180deg, rgba(255,255,255,.12), transparent 40%),
             linear-gradient(0deg, rgba(27,94,32,.12), transparent 35%);
-        animation: tk7-sunlight 1800ms ease-out both;
     }
-    .page.active { animation: tk7-fade 240ms ease-out; }
-    .page.active .page-header { animation: tk7-appear 480ms var(--motion-ease) backwards; }
-    .page.active .card {
-        animation: tk7-appear 320ms var(--motion-ease) backwards;
-        animation-delay: 40ms;
-    }
-    .page.active .card:nth-child(2) { animation-delay: 80ms; }
-    .page.active .card:nth-child(3) { animation-delay: 120ms; }
-    .page.active .card:nth-child(4) { animation-delay: 160ms; }
-    .page.active .card:nth-child(n+5) { animation-delay: 160ms; }
+    .page.active { animation: tk7-fade 180ms ease-out; }
+    .page.active .page-header { animation: tk7-appear var(--motion-panel) var(--motion-ease) backwards; }
     .modal { animation: tk7-fade 200ms ease-out; }
     .modal-content { animation: tk7-pop 220ms var(--motion-ease) backwards; }
-    .nav-btn.active .icon { animation: tk7-nav-bounce 280ms var(--motion-ease); }
+    .nav-btn.active .icon { animation: tk7-nav-bounce 220ms var(--motion-ease); }
 }
 
 .nav-btn { position: relative; }
@@ -63,11 +55,21 @@
 }
 .nav-btn.active::after { transform: scaleX(1); }
 .nav-btn .icon { transition: transform 220ms var(--motion-ease); }
+.nav-btn .tk7-icon-emoji { display: grid; place-items: center; border-radius: 50%; background: var(--icon-accent,#edf4e8); box-shadow: inset 0 1px 0 #ffffffa0,0 2px 5px #183f2314; filter: none; }
+.nav-btn.active .tk7-icon-emoji { box-shadow: inset 0 1px 0 #ffffffc0,0 3px 8px #163d2426; }
 .nav-btn { border-radius: 14px 14px 0 0; }
 .nav-btn.active { background: #e1efdb; color: #174e30; }
 .btn, .export-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 46px; line-height: 1.3; }
 .btn .tk7-icon, .export-btn .tk7-icon { flex: 0 0 auto; }
 .card { border-radius: 20px; }
+.card h2 { font-weight: 600; letter-spacing: 0; }
+.card input:not([type=checkbox]), .card select { border-color: #aabea5; }
+.match-header { font-variant-numeric: tabular-nums; }
+.match-card .team-emblem { box-shadow: 0 3px 0 var(--emblem-lip,#183d2440),0 4px 9px #10291812; }
+#app .bottom-nav { background: #e0eadb; }
+.tk7l-action-section { transition: border-color var(--motion-fast) ease; }
+.tk7l-action-section:focus-within { border-color: #8bb59a; }
+.btn, .export-btn { transition: transform var(--motion-fast) var(--motion-ease),filter var(--motion-fast) ease,box-shadow var(--motion-fast) ease; }
 .card:hover { transform: none; }
 .page-header { gap: 12px; }
 .score-action-btn, .score-btn { transition: transform 140ms var(--motion-ease), box-shadow 140ms ease, filter 140ms ease; }
@@ -92,7 +94,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
     .formation-chip:not(:disabled):hover, .lineup-team-dot:not(:disabled):hover {
         transform: translateY(-2px) scale(1.04);
     }
-    .team-toggle:hover .team-emblem { transform: rotate(-4deg) scale(1.04); }
+    .team-toggle:hover .team-emblem { transform: translateY(-1px); }
 }
 @media (hover: none) {
     .card:hover { transform: none; box-shadow: var(--depth-2); }
