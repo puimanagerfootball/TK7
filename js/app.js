@@ -1,5 +1,5 @@
 /* ==========================================================================
-   TK7 app logic (Ver 6.9.4)
+   TK7 app logic (Ver 6.9.5)
    แยกจาก index.html เพื่อแก้/ค้นหาง่ายขึ้น
    Sections (ค้นหาด้วย // --- SECTION:):
      CONFIG, AUTH, REGISTRATION, SCHEDULE, LINEUP, SETUP,
@@ -681,7 +681,9 @@
                 list.innerHTML = '<p style="text-align:center;color:var(--text-muted);">ยังไม่มีสมาชิก</p>';
                 return;
             }
-            list.innerHTML = data.map(p => {
+            const pendingCount=data.filter(p=>p.status!=='approved'&&p.status!=='rejected').length;
+            const ordered=[...data].sort((a,b)=>({pending:0,approved:1,rejected:2}[a.status]??0)-({pending:0,approved:1,rejected:2}[b.status]??0));
+            list.innerHTML = '<div class="member-summary"><span>สมาชิก '+data.length+' คน</span><span>รออนุมัติ '+pendingCount+' คน</span></div>'+ordered.map(p => {
                 const statusLabel = p.status === 'approved' ? 'อนุมัติแล้ว' : (p.status === 'rejected' ? 'ปฏิเสธ' : 'รออนุมัติ');
                 const roleLabel = p.role === 'superadmin' ? 'Superadmin' : 'Admin';
                 const isSelf = currentUser && p.id === currentUser.id;
@@ -691,25 +693,21 @@
                 let actions = '';
                 if (p.role !== 'superadmin') {
                     if (p.status !== 'approved') {
-                        actions += `<button type="button" class="export-btn member-approve-btn" data-id="${safeId}" style="background:#06C755;color:#fff;">อนุมัติ</button>`;
+                        actions += `<button type="button" class="export-btn member-approve-btn" data-id="${safeId}" ><span data-tk7-icon="check" aria-hidden="true"></span> อนุมัติ</button>`;
                     }
                     if (p.status !== 'rejected') {
-                        actions += `<button type="button" class="export-btn member-reject-btn" data-id="${safeId}" style="background:#ef5350;color:#fff;">ปฏิเสธ</button>`;
+                        actions += `<button type="button" class="export-btn member-reject-btn" data-id="${safeId}" ><span data-tk7-icon="close" aria-hidden="true"></span> ปฏิเสธ</button>`;
                     }
                     if (p.status === 'approved') {
-                        actions += `<button type="button" class="export-btn member-pending-btn" data-id="${safeId}">พักสิทธิ์</button>`;
+                        actions += `<button type="button" class="export-btn member-pending-btn" data-id="${safeId}"><span data-tk7-icon="lock" aria-hidden="true"></span> พักสิทธิ์</button>`;
                     }
                 }
-                return `<div class="card" style="margin-bottom:10px;padding:12px;">
-                    <div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center;">
-                        <div>
-                            <div style="font-weight:600;">${safeName} ${isSelf ? '(คุณ)' : ''}</div>
-                            <div style="font-size:12px;color:var(--text-muted);">${safeEmail}</div>
-                            <div style="font-size:12px;margin-top:4px;">${roleLabel} · ${statusLabel}</div>
-                        </div>
-                        <div style="display:flex;gap:6px;flex-wrap:wrap;">${actions}</div>
-                    </div>
-                </div>`;
+                const statusClass=['approved','rejected'].includes(p.status)?p.status:'pending';
+                return `<article class="member-card">
+                    <div class="member-identity"><div class="member-name">${safeName} ${isSelf ? '<small>คุณ</small>' : ''}</div><div class="member-email">${safeEmail}</div></div>
+                    <div class="member-badges"><span class="member-role">${roleLabel}</span><span class="member-status ${statusClass}">${statusLabel}</span></div>
+                    ${actions ? '<div class="member-actions">'+actions+'</div>' : ''}
+                </article>`;
             }).join('');
 
             list.querySelectorAll('.member-approve-btn').forEach(btn => btn.onclick = () => updateMemberStatus(btn.dataset.id, 'approved'));

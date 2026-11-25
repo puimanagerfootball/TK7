@@ -1,0 +1,44 @@
+/* Shared account controls retain the desktop palette at every viewport. */
+#app #auth-section .auth-user-controls>.tk7-privacy-button{background:#245b3e;color:#fff;border-color:#18422d;box-shadow:0 3px 0 #153e2a}
+#app #auth-section .auth-user-controls>#help-btn{background:#fdd835;color:#3e2723;border-color:transparent;box-shadow:0 3px 0 #c49000}
+#app #auth-section .auth-user-controls>:is(#members-btn,#login-btn){background:#64b5f6;color:#0d3d6b;border-color:transparent;box-shadow:0 3px 0 #1565c0}
+#app #auth-section .auth-user-controls>#logout-btn{background:#ef5350;color:#fff;border-color:transparent;box-shadow:0 3px 0 #b72e2b}
+#app #auth-section .auth-user-controls>:is(button,a):focus-visible{outline:3px solid #174f83;outline-offset:4px}
+#app #auth-section .auth-user-controls .tk7-icon{color:inherit;background:none;box-shadow:none;align-self:center}
+#app #auth-section .auth-user-controls>:is(button,a):active:not(:disabled){transform:translateY(2px);filter:brightness(.96)}
+#help-modal .modal-content,#members-modal .modal-content{background:#f8fbf8;color:#203c2b;border:1px solid #d9e6dc;border-radius:24px;box-shadow:0 20px 70px #10291c40;width:min(800px,calc(100% - 24px));max-height:calc(100dvh - 32px);margin:16px auto;padding:24px;overflow:auto;overscroll-behavior:contain}
+#members-modal .modal-content{max-width:640px}
+#members-modal h2,#help-modal .help-modal-toolbar h2{display:flex;align-items:center;gap:10px;text-align:left;color:#1d5134;font-size:22px;line-height:1.4}
+#members-modal h2{margin:0 44px 6px 0}
+.support-intro{font-size:14px;color:#607368;margin:0 42px 22px 0;line-height:1.6}
+#help-modal .help-modal-toolbar{border-bottom:1px solid #dce7de;padding-bottom:16px;margin-bottom:0;gap:12px;flex-wrap:wrap}
+#help-modal .help-scroll{min-height:0;scrollbar-gutter:stable}
+#help-modal .help-infographic{border:0;background:transparent;padding:22px 0 4px}
+#help-modal .help-hero{text-align:left;padding:0 0 20px;margin:0 0 22px}
+#help-modal .help-hero .brand{font-size:26px;letter-spacing:0;color:#1d5134}
+#help-modal .help-hero .tagline{font-size:14px;line-height:1.7;color:#607368}
+#help-modal .help-section{margin-top:26px}
+#help-modal .help-section h3{font-size:17px;margin-bottom:14px;line-height:1.5}
+#help-modal .help-section .num{background:#215e3c;width:28px;height:28px}
+#help-modal .help-grid{gap:12px;grid-template-columns:repeat(2,minmax(0,1fr))}
+#help-modal .help-card,#help-modal .role-pill{background:#fff;border:1px solid #dce8df;box-shadow:none;border-radius:16px;padding:18px;text-align:left}
+#help-modal .help-card .title{display:flex;align-items:center;gap:9px;font-size:16px;color:#214b33;margin:0 0 10px}
+#help-modal .help-card p:not(.title),#help-modal .role-pill p{font-size:14px;line-height:1.8;margin:0;color:#53685b}
+#help-modal .role-name{font-size:15px;color:#214b33;margin-bottom:8px}
+#help-modal .help-note{padding:14px 16px;border:1px solid #f1ddb6;background:#fff8eb;color:#755322;font-size:13px;line-height:1.75;margin-top:14px}
+#help-modal .help-footer{color:#6a7b70;font-size:12px;border-top:1px solid #dce8df;margin-top:24px;padding-top:18px}
+.member-summary{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;padding:12px 16px;background:#eaf3ed;color:#2b6540;border-radius:12px;font-size:13px;margin-bottom:14px}
+.member-card{background:#fff;border:1px solid #dbe6de;border-radius:16px;padding:18px;margin-bottom:12px;display:grid;gap:12px}
+.member-name{font-size:17px;font-weight:600;color:#22472f;overflow-wrap:anywhere;line-height:1.5}
+.member-name small{font-size:11px;background:#edf3ef;border-radius:6px;padding:2px 6px;margin-left:6px;font-weight:500}
+.member-email{font-size:13px;color:#697b70;overflow-wrap:anywhere;margin-top:3px;line-height:1.6}
+.member-badges{display:flex;flex-wrap:wrap;gap:7px;font-size:12px}
+.member-badges>span{padding:4px 10px;border-radius:999px;line-height:1.5}
+.member-role{background:#eef2f8;color:#456082}.member-status.approved{background:#e7f5ec;color:#23663d}.member-status.pending{background:#fff2d7;color:#855b12}.member-status.rejected{background:#fdecee;color:#a13842}
+.member-actions{display:flex;flex-wrap:wrap;gap:9px;border-top:1px solid #edf1ee;padding-top:13px}
+#members-list .member-actions button{display:inline-flex;align-items:center;justify-content:center;gap:6px;margin:0;padding:8px 12px;min-height:40px;border-radius:10px;font-size:13px;box-shadow:none;border:1px solid #d5e1d9;background:#f0f5f1;color:#385943}
+#members-list .member-actions .member-approve-btn{background:#216e43;color:#fff;border-color:#216e43}
+#members-list .member-actions .member-reject-btn{background:#fff1f1;color:#ae3940;border-color:#efcdd0}
+#help-modal .close-modal-btn,#members-modal .close-modal-btn{position:absolute;right:16px;top:16px;display:grid;place-items:center;width:40px;height:40px;min-height:40px;margin:0;padding:0;border:0;border-radius:50%;background:#e8f0ea;color:#3c654b;font:26px/1 system-ui;cursor:pointer;box-shadow:none}
+@media(max-width:560px){#help-modal .modal-content,#members-modal .modal-content{padding:20px 16px;border-radius:20px}#help-modal .help-grid,#help-modal .help-roles{grid-template-columns:1fr}#help-modal .help-card,#help-modal .role-pill{padding:16px}#help-modal .help-modal-toolbar h2,#members-modal h2{font-size:20px}#help-modal .help-hero .brand{font-size:24px}.member-actions>button{flex:1;min-width:90px}}
+@media(prefers-reduced-motion:reduce){#app #auth-section .auth-user-controls>:is(button,a){transition:none}}

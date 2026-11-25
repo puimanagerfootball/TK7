@@ -10,21 +10,22 @@
  <meta name="theme-color" content="#4a9c42">
 
     <meta name="apple-mobile-web-app-title" content="TK7">
-    <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/icon-32.png?v=6.9.4">
-    <link rel="icon" type="image/png" sizes="48x48" href="assets/icons/icon-48.png?v=6.9.4">
-    <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/icon-180.png?v=6.9.4">
-    <link rel="manifest" href="manifest.json?v=6.9.4">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/icon-32.png?v=6.9.5">
+    <link rel="icon" type="image/png" sizes="48x48" href="assets/icons/icon-48.png?v=6.9.5">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/icon-180.png?v=6.9.5">
+    <link rel="manifest" href="manifest.json?v=6.9.5">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600;700&display=swap" rel="stylesheet">
 
     <script src="vendor/supabase-2.119.0.js" integrity="sha384-uteMfOloLDGt042uDz+xHGF3ym63/WQ6rFq7murQRG8Ih7QrXGEGNtWd8688sb4O" crossorigin="anonymous"></script>
     <script src="vendor/morphdom-2.7.0.min.js" integrity="sha384-GvO679xZge/ZQsypeI50Wg7FqQIjFNfdoVpniNdlJ0H3z/+RxLNIUBMDhvtU018w" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="css/app.css?v=6.9.4">
-    <link rel="stylesheet" href="css/motion.css?v=6.9.4">
-    <link rel="stylesheet" href="css/speed-dial.css?v=6.9.4">
-    <link rel="stylesheet" href="line-registration/team-card.css?v=6.9.4">
-    <link rel="stylesheet" href="line-registration/privacy-control.css?v=6.9.4">
+    <link rel="stylesheet" href="css/app.css?v=6.9.5">
+    <link rel="stylesheet" href="css/motion.css?v=6.9.5">
+    <link rel="stylesheet" href="css/support-panels.css?v=6.9.5">
+    <link rel="stylesheet" href="css/speed-dial.css?v=6.9.5">
+    <link rel="stylesheet" href="line-registration/team-card.css?v=6.9.5">
+    <link rel="stylesheet" href="line-registration/privacy-control.css?v=6.9.5">
 </head>
 <body>
     <svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute;overflow:hidden" aria-hidden="true">
@@ -51,7 +52,7 @@
     <div id="app">
         <div id="auth-section">
     <div class="auth-meta">
-        <span class="version-tag">Ver 6.9.4</span>
+        <span class="version-tag">Ver 6.9.5</span>
         <span id="user-info"></span>
     </div>
     <div class="auth-user-controls">
@@ -203,7 +204,7 @@
     <div id="login-modal" class="modal">
     <div class="modal-content auth-card">
         <button type="button" class="close-modal-btn auth-close" aria-label="ปิดหน้าต่างเข้าสู่ระบบ">×</button>
-        <div class="auth-brand"><img src="assets/icons/icon-192.png?v=6.9.4" width="64" height="64" alt="ตราสโมสร TK7"><div><strong>TK7</strong><span>FRIDAY NIGHT FOOTBALL</span></div></div>
+        <div class="auth-brand"><img src="assets/icons/icon-192.png?v=6.9.5" width="64" height="64" alt="ตราสโมสร TK7"><div><strong>TK7</strong><span>FRIDAY NIGHT FOOTBALL</span></div></div>
         <p class="auth-welcome">จัดทีม วางแผน พร้อมลงสนาม</p>
         <h2 id="auth-modal-title"><span data-tk7-icon="lock" aria-hidden="true"></span> เข้าสู่ระบบ</h2>
         <div class="share-mode-btns auth-switch" style="margin-top: 0;" aria-label="เลือกเข้าสู่ระบบหรือสมัครสมาชิก">
@@ -229,11 +230,8 @@
     </div>
 </div>
 
-    <div id="members-modal" class="modal">
-        <div class="modal-content" style="max-width: 560px;">
-            <span class="close-modal-btn">×</span>
-            <h2><span data-tk7-icon="users" aria-hidden="true"></span> จัดการสมาชิก</h2>
-            <p style="text-align: center; color: var(--text-muted); font-size: 13px; margin-bottom: 12px;">อนุมัติ Admin ที่สมัครเข้ามา</p>
+    <div id="members-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="members-title">
+        <div class="modal-content"><button type="button" class="close-modal-btn" aria-label="ปิดสมาชิก">×</button><h2 id="members-title"><span data-tk7-icon="users" aria-hidden="true"></span> สมาชิกและสิทธิ์</h2><p class="support-intro">ตรวจคำขอสมัคร และจัดการสิทธิ์ผู้ดูแลระบบ</p>
             <div id="members-list"></div>
         </div>
     </div>
@@ -259,163 +257,54 @@
         </form>
     </div>
 </div>
-    <div id="help-modal" class="modal">
+    <div id="help-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="help-title">
         <div class="modal-content">
-            <span class="close-modal-btn">×</span>
+            <button type="button" class="close-modal-btn" aria-label="ปิดวิธีใช้">×</button>
             <div class="help-modal-toolbar">
-                <h2><span data-tk7-icon="help" aria-hidden="true"></span> วิธีใช้งาน TK7</h2>
+                <h2 id="help-title"><span data-tk7-icon="help" aria-hidden="true"></span> วิธีใช้งาน TK7</h2>
                 <button type="button" id="share-help-btn" class="export-btn line-share-btn"><svg class="line-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63s-.281.63-.627.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63.349 0 .631.285.631.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.3C24 4.857 18.615.726 12 .726S0 4.857 0 10.3c0 4.812 4.269 8.842 10.03 9.608.391.084.922.258 1.057.469.122.192.08.492.039.682l-.169.975c-.052.303-.231 1.185 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.3"/></svg><span>แชร์รูป</span></button>
             </div>
             <div class="help-scroll">
                 <div id="help-infographic" class="help-infographic">
-                    <div class="help-hero">
-                        <p class="brand">TK7 FridayNight</p>
-                        <p class="tagline">คู่มือใช้งานฉบับย่อ — จัดการทีม · ตารางแข่ง · ผล · คะแนน · แผนการเล่น</p>
-                        <div class="help-flow">
-                            <div class="help-flow-step">1 ตั้งค่า</div>
-                            <div class="help-flow-arrow">→</div>
-                            <div class="help-flow-step">2 ตาราง</div>
-                            <div class="help-flow-arrow">→</div>
-                            <div class="help-flow-step">3 บันทึกผล</div>
-                            <div class="help-flow-arrow">→</div>
-                            <div class="help-flow-step">4 คะแนน</div>
-                        </div>
-                    </div>
-
-                    <div class="help-section">
-                        <h3><span class="num">1</span> ใครทำอะไรได้บ้าง</h3>
-                        <div class="help-roles">
-                            <div class="role-pill">
-                                <div class="role-name">ผู้เยี่ยมชม</div>
-                                <p>ดูตาราง / ผล / คะแนน · จัดตำแหน่งชั่วคราว · แชร์รูปได้ — แก้ข้อมูลไม่ได้</p>
-                            </div>
-                            <div class="role-pill">
-                                <div class="role-name">Admin (อนุมัติแล้ว)</div>
-                                <p>ตั้งค่าทีม สร้างตาราง แก้คู่แข่ง บันทึกผล แชร์ลงทะเบียน LINE</p>
-                            </div>
-                            <div class="role-pill">
-                                <div class="role-name">Superadmin</div>
-                                <p>ทำได้ทุกอย่างของ Admin + ปุ่ม สมาชิก เพื่ออนุมัติ Admin ใหม่</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="help-section">
-                        <h3><span class="num">2</span> เมนูด้านล่าง 5 หน้า</h3>
-                        <div class="help-grid">
-                            <div class="help-card">
-                                <p class="title"><span data-tk7-icon="settings" aria-hidden="true"></span> จัดการทีม</p>
-                                <ol>
-                                    <li>เลือกวัน / เวลาเริ่ม / นาทีต่อแมตช์</li>
-                                    <li>ติ๊กทีมที่ลงแข่ง</li>
-                                    <li>เลือกรูปแบบ + แตะสีทีมหรือกดสุ่มคู่เปิด แล้วกดบันทึก / อัปเดต</li>
-                                    <li>หลังสร้างแล้ว เปลี่ยนคู่เปิดได้ที่ตารางแข่งเช่นกัน</li>
-                                    <li>แชร์รูปแบบลงทะเบียน LINE ได้</li>
-                                    <li>โหมดอัปเดต: วางกลุ่มใหญ่ + กลุ่มย่อย → รวมชื่อคัดลอกกลับ LINE</li>
-                                </ol>
-                                <div class="help-note">เห็นเมนูนี้เฉพาะ Admin ที่อนุมัติแล้ว</div>
-                            </div>
-                            <div class="help-card">
-                                <p class="title"><span data-tk7-icon="calendar" aria-hidden="true"></span> ตารางแข่ง</p>
-                                <ol>
-                                    <li>เลือกวันจาก dropdown</li>
-                                    <li>ดูคู่แข่ง + เวลาแต่ละแมตช์</li>
-                                    <li>Admin: เลื่อนขึ้นเป็นคู่เปิด / เพิ่ม / ลบแมตช์</li>
-                                    <li>กด แชร์ LINE เพื่อส่งรูปตาราง</li>
-                                </ol>
-                            </div>
-                            <div class="help-card">
-                                <p class="title"><span data-tk7-icon="ball" aria-hidden="true"></span> จัดตำแหน่ง</p>
-                                <ol>
-                                    <li>เลือกทีม (ครบทุกสี)</li>
-                                    <li>เลือกแผน เช่น 2-3-1</li>
-                                    <li>คลิกวงกลมบนสนาม → พิมพ์ชื่อ → Enter</li>
-                                    <li>แชร์รูปแผนได้ทันที</li>
-                                </ol>
-                                <div class="help-note">ชื่อบนสนามไม่บันทึกลงระบบ — รีเฟรชแล้วหาย</div>
-                            </div>
-                            <div class="help-card">
-                                <p class="title"><span data-tk7-icon="edit" aria-hidden="true"></span> บันทึกผล + <span data-tk7-icon="trophy" aria-hidden="true"></span> คะแนน</p>
-                                <ol>
-                                    <li>บันทึกผล: กด +/− หรือพิมพ์สกอร์</li>
-                                    <li>ตารางคะแนนคำนวณให้อัตโนมัติ</li>
-                                    <li>เรียงตามแต้ม / ผลต่างประตู</li>
-                                    <li>แชร์รูปผลหรือตารางคะแนนได้</li>
-                                </ol>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="help-section">
-                        <h3><span class="num">3</span> สมัคร Admin / เข้าสู่ระบบ</h3>
-                        <div class="help-grid">
-                            <div class="help-card">
-                                <p class="title">สมัครใช้งาน</p>
-                                <ol>
-                                    <li>กด เข้าสู่ระบบ → แท็บ สมัคร Admin</li>
-                                    <li>กรอกชื่อ อีเมล รหัสผ่าน</li>
-                                    <li>รอ Superadmin กดอนุมัติ</li>
-                                    <li>อนุมัติแล้วจึงจัดการตารางได้</li>
-                                </ol>
-                            </div>
-                            <div class="help-card">
-                                <p class="title">ลืมรหัสผ่าน</p>
-                                <ol>
-                                    <li>ในหน้าเข้าสู่ระบบ กด ลืมรหัสผ่าน</li>
-                                    <li>กรอกอีเมล → เปิดลิงก์ในอีเมล</li>
-                                    <li>ตั้งรหัสใหม่ → ล็อกอินอีกครั้ง</li>
-                                </ol>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="help-section">
-                        <h3><span class="num">4</span> แชร์ไป LINE</h3>
-                        <div class="help-grid">
-                            <div class="help-card">
-                                <p class="title">ข้อความ / รูป</p>
-                                <ul>
-                                    <li>กดแชร์แล้วระบบ<b>คัดลอกอัตโนมัติ</b></li>
-                                    <li>เปิด LINE → วางในแชทได้เลย</li>
-                                    <li>อยากได้ไฟล์ค่อยกด ดาวน์โหลดรูป</li>
-                                </ul>
-                            </div>
-                            <div class="help-card">
-                                <p class="title">วางยังไง</p>
-                                <ul>
-                                    <li>PC: Ctrl+V ในแชท LINE</li>
-                                    <li>มือถือ: กดค้างในแชท → วาง</li>
-                                    <li>อยากได้ไฟล์ค่อยกด ดาวน์โหลดรูป</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-
+<div class="help-hero"><p class="brand">เริ่มใช้งาน TK7</p><p class="tagline">จัดทีม ลงชื่อ และติดตามการแข่งขันในที่เดียว</p></div>
+<section class="help-section"><h3><span class="num">1</span> จัดการแข่งขัน</h3><div class="help-grid">
+<article class="help-card"><p class="title"><span data-tk7-icon="settings" aria-hidden="true"></span> จัดการทีม</p><p>เลือกวันแข่ง ตั้งสีทีมและเวลา แล้วเปิดลงทะเบียนเมื่อพร้อมรับรายชื่อ</p></article>
+<article class="help-card"><p class="title"><span data-tk7-icon="calendar" aria-hidden="true"></span> ตารางแข่งขัน</p><p>เลือกคู่เปิดสนาม กดสุ่มด้วยปุ่ม VS หรือเลือกทีมเอง แล้วกดบันทึกตาราง</p></article>
+<article class="help-card"><p class="title"><span data-tk7-icon="edit" aria-hidden="true"></span> บันทึกผล</p><p>ปรับคะแนนทั้งสองฝั่งให้ครบ แล้วกดสัญลักษณ์บันทึกตรงกลาง เมื่อบันทึกแล้วปุ่มจะเปลี่ยนเป็นรีเซ็ต</p></article>
+<article class="help-card"><p class="title"><span data-tk7-icon="trophy" aria-hidden="true"></span> ตารางคะแนน</p><p>ดูอันดับ คะแนน และผลต่างประตูของวันที่เลือกได้ทั้งมือถือและคอม</p></article>
+</div></section>
+<section class="help-section"><h3><span class="num">2</span> ลงชื่อและแชร์</h3><div class="help-grid">
+<article class="help-card"><p class="title"><span data-tk7-icon="users" aria-hidden="true"></span> รายชื่อผู้เล่น</p><p>เปิดเมนูลงทะเบียนเพื่อเปิด–ปิดรับรายชื่อ เมนูแชร์และนำเข้าใช้ส่งสรุปกลุ่มใหญ่ กลุ่มย่อย หรือนำเข้าข้อความจาก LINE</p></article>
+<article class="help-card"><p class="title"><span data-tk7-icon="share" aria-hidden="true"></span> ส่งผ่าน LINE</p><p>มือถือกดส่งสรุปแล้วเลือก LINE จากเมนูแชร์เครื่อง คอมเลือกแชต LINE ได้เลย กลุ่มย่อยเลือกสีทีมก่อนส่ง</p></article>
+<article class="help-card"><p class="title"><span data-tk7-icon="shirt" aria-hidden="true"></span> แผนการเล่น</p><p>ลากจากผู้เล่นเพื่อวาดทางวิ่ง กดค้างแล้วลากเพื่อย้ายตำแหน่ง แตะสองครั้งเพื่อใส่ชื่อ กดเล่นเพื่อดูการเคลื่อนไหว</p></article>
+<article class="help-card"><p class="title"><span data-tk7-icon="play" aria-hidden="true"></span> ภาพและวิดีโอ</p><p>ใช้ปุ่มแชร์ LINE เพื่อเลือกภาพหรือวิดีโอ วิดีโอพร้อมแล้วกดส่ง LINE หากเครื่องไม่มีตัวเลือกแชร์ไฟล์ ให้ดาวน์โหลดแล้วส่งในแชต</p></article>
+</div><p class="help-note">ก่อนยืนยันนำเข้าจาก LINE ให้ตรวจวันที่ สีทีม และรายการเพิ่ม–ลบทุกครั้ง</p></section>
+<section class="help-section"><h3><span class="num">3</span> บัญชีและสิทธิ์</h3><div class="help-roles"><div class="role-pill"><div class="role-name">ผู้เยี่ยมชม</div><p>ดูตาราง ผล และคะแนน ใช้แผนการเล่นชั่วคราวและแชร์ภาพได้</p></div><div class="role-pill"><div class="role-name">Admin</div><p>สมัครแล้วรออนุมัติ จึงจัดการทีม รายชื่อ ตาราง และผลแข่งขันได้</p></div><div class="role-pill"><div class="role-name">Superadmin</div><p>จัดการแข่งขันและอนุมัติหรือพักสิทธิ์ Admin ผ่านเมนูสมาชิก</p></div></div><p class="help-note">ลืมรหัสผ่าน: เปิดหน้าเข้าสู่ระบบ เลือกลืมรหัสผ่าน แล้วตั้งรหัสใหม่ผ่านลิงก์ในอีเมล</p></section>
                     <div class="help-footer">TK7 FridayNight · กดปุ่ม <span data-tk7-icon="help" aria-hidden="true"></span> วิธีใช้ มุมบนขวาได้ทุกเมื่อ</div>
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="line-registration/direct-share-config.js?v=6.9.4" defer></script>
-    <script type="module" src="line-registration/direct-share.mjs?v=6.9.4"></script>
-    <script src="line-registration/backdrop-guard.js?v=6.9.4" defer></script>
-    <script src="line-registration/icons.js?v=6.9.4" defer></script>
-    <script src="line-registration/roster-summary.js?v=6.9.4" defer></script>
-    <script src="line-registration/native-roster-share.js?v=6.9.4" defer></script>
-    <script src="line-registration/name-paste.js?v=6.9.4" defer></script>
-    <script src="line-registration/roster-text.js?v=6.9.4" defer></script>
-    <script src="js/roster-import-ui.js?v=6.9.4" defer></script>
-    <script src="js/speed-dial.js?v=6.9.4" defer></script>
-    <script src="line-registration/admin-integration.js?v=6.9.4" defer></script>
-    <script src="line-registration/browser-safety.js?v=6.9.4" defer></script>
-    <script src="js/match-stats.js?v=6.9.4" defer></script>
-    <script src="js/score-writer.js?v=6.9.4" defer></script>
-    <script src="js/lineup-path.js?v=6.9.4" defer></script>
-    <script src="js/lineup-tactics.js?v=6.9.4" defer></script>
-    <script src="js/lineup-media.js?v=6.9.4" defer></script>
-    <script src="js/lineup-video.js?v=6.9.4" defer></script>
-    <script src="js/app.js?v=6.9.4" defer></script>
+    <script src="line-registration/direct-share-config.js?v=6.9.5" defer></script>
+    <script type="module" src="line-registration/direct-share.mjs?v=6.9.5"></script>
+    <script src="line-registration/backdrop-guard.js?v=6.9.5" defer></script>
+    <script src="line-registration/icons.js?v=6.9.5" defer></script>
+    <script src="line-registration/roster-summary.js?v=6.9.5" defer></script>
+    <script src="line-registration/native-roster-share.js?v=6.9.5" defer></script>
+    <script src="line-registration/name-paste.js?v=6.9.5" defer></script>
+    <script src="line-registration/roster-text.js?v=6.9.5" defer></script>
+    <script src="js/roster-import-ui.js?v=6.9.5" defer></script>
+    <script src="js/speed-dial.js?v=6.9.5" defer></script>
+    <script src="line-registration/admin-integration.js?v=6.9.5" defer></script>
+    <script src="line-registration/browser-safety.js?v=6.9.5" defer></script>
+    <script src="js/match-stats.js?v=6.9.5" defer></script>
+    <script src="js/score-writer.js?v=6.9.5" defer></script>
+    <script src="js/lineup-path.js?v=6.9.5" defer></script>
+    <script src="js/lineup-tactics.js?v=6.9.5" defer></script>
+    <script src="js/lineup-media.js?v=6.9.5" defer></script>
+    <script src="js/lineup-video.js?v=6.9.5" defer></script>
+    <script src="js/app.js?v=6.9.5" defer></script>
 
     <div id="template-manager-modal" class="modal">
         <div class="modal-content" style="max-width: 600px;">
