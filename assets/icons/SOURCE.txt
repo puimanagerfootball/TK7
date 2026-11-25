@@ -1,5 +1,1 @@
-TK7 badge concept C, selected by the site owner.
-Generated concept refinement, 2026-11-25.
-tk7-badge-master.png: production master with transparent outer margin.
-icon-32/48/180/192/512.png: high-quality resized exports of the same badge.
-Replaces the previous externally sourced football icon.
+TK7 flaming football badge, final owner-approved design, 2026-11-25. Orange, forest green and white; thick white circular rim; no lettering. tk7-badge-master.png is the generated production master. icon-32/48/180/192/512.png are high-quality resized exports. Registration route uses identical copies.
