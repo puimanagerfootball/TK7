@@ -170,7 +170,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 #login-modal .auth-card { width: min(440px,calc(100% - 24px)); padding: 30px; border: 1px solid #d5e2d8; border-radius: 24px; background: #fff; box-shadow: 0 24px 70px #08281e40; color: #203d2b; }
 #login-modal .auth-close { position: absolute; top: 12px; right: 12px; display: grid; place-items: center; width: 40px; height: 40px; padding: 0; border: 0; border-radius: 50%; background: #eff4ef; color: #42614e; font: 26px/1 system-ui; cursor: pointer; }
 .auth-brand { display: flex; align-items: center; gap: 12px; padding-right: 28px; margin-bottom: 18px; }
-.auth-brand > svg { flex: none; width: 52px; height: 58px; padding: 6px; border-radius: 12px; background: #145b37; color: white; box-sizing: border-box; }
+.auth-brand > img { flex: none; width: 64px; height: 64px; object-fit: contain; }
 .auth-brand strong { display: block; font: 700 28px/1.2 Kanit,system-ui; color: #164c30; letter-spacing: .03em; }
 .auth-brand span { display: block; font: 600 10px/1.5 system-ui; letter-spacing: .1em; color: #698271; }
 .auth-welcome { color: #6a7e70; font-size: 13px; margin: 0 0 8px; }

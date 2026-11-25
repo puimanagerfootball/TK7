@@ -10,6 +10,8 @@ const files=['register.html','privacy.html','privacy-control.css','config.js','s
 for(const file of files){const target=path.join(destination,file);fs.mkdirSync(path.dirname(target),{recursive:true});fs.copyFileSync(path.join(source,file),target)}
 fs.copyFileSync(path.join(source,'register.html'),path.join(destination,'index.html'));
 fs.copyFileSync(path.join(root,'version.json'),path.join(destination,'version.json'));
+fs.mkdirSync(path.join(destination,'assets/icons'),{recursive:true});
+for(const size of [32,48,180,192,512])fs.copyFileSync(path.join(root,'assets/icons',`icon-${size}.png`),path.join(destination,'assets/icons',`icon-${size}.png`));
 // These server/admin modules were copied by the former broad *.js copy step.
 for(const file of ['security.js','admin-integration.js']){
  const target=path.join(destination,file);if(fs.existsSync(target))fs.unlinkSync(target);
