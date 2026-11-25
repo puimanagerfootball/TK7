@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import {createHash} from 'node:crypto';
 const root=new URL('../',import.meta.url);
 
 test('manifest icons are local valid PNGs matching their declared dimensions',()=>{
@@ -15,6 +16,15 @@ test('manifest icons are local valid PNGs matching their declared dimensions',()
         assert.equal(png.subarray(0,8).toString('hex'),'89504e470d0a1a0a');
         assert.equal(png.readUInt32BE(16),size);
         assert.equal(png.readUInt32BE(20),size);
+    }
+});
+
+test('installed app icon URLs identify the current artwork so updates invalidate old icons',()=>{
+    const manifest=JSON.parse(fs.readFileSync(new URL('manifest.json',root),'utf8'));
+    for(const icon of manifest.icons){
+        const url=new URL(icon.src,root);
+        const hash=createHash('sha256').update(fs.readFileSync(url)).digest('hex').slice(0,12);
+        assert.equal(url.searchParams.get('v'),hash);
     }
 });
 
