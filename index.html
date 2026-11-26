@@ -10,64 +10,24 @@
  <meta name="theme-color" content="#103d2b">
 
     <meta name="apple-mobile-web-app-title" content="TK7">
-    <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/icon-32.png?v=6.9.8">
-    <link rel="icon" type="image/png" sizes="48x48" href="assets/icons/icon-48.png?v=6.9.8">
-    <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/icon-180.png?v=6.9.8">
-    <link rel="manifest" href="manifest.json?v=6.9.8">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/icon-32.png?v=6.9.9">
+    <link rel="icon" type="image/png" sizes="48x48" href="assets/icons/icon-48.png?v=6.9.9">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/icon-180.png?v=6.9.9">
+    <link rel="manifest" href="manifest.json?v=6.9.9">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600;700&display=swap" rel="stylesheet">
 
     <script src="vendor/supabase-2.119.0.js" integrity="sha384-uteMfOloLDGt042uDz+xHGF3ym63/WQ6rFq7murQRG8Ih7QrXGEGNtWd8688sb4O" crossorigin="anonymous"></script>
     <script src="vendor/morphdom-2.7.0.min.js" integrity="sha384-GvO679xZge/ZQsypeI50Wg7FqQIjFNfdoVpniNdlJ0H3z/+RxLNIUBMDhvtU018w" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="css/app.css?v=6.9.8">
-    <link rel="stylesheet" href="css/motion.css?v=6.9.8">
-    <link rel="stylesheet" href="css/support-panels.css?v=6.9.8">
-    <link rel="stylesheet" href="css/speed-dial.css?v=6.9.8">
-    <link rel="stylesheet" href="line-registration/team-card.css?v=6.9.8">
-    <link rel="stylesheet" href="line-registration/privacy-control.css?v=6.9.8">
-<style id="tk7-startup-style">
-.tk7-startup{position:fixed;inset:0;z-index:10000;display:grid;place-content:center;justify-items:center;gap:20px;pointer-events:none;background:#103d2b;color:#fff;opacity:1;transition:opacity .16s ease-out;animation:tk7-launch-safety .001s linear 1.2s forwards;overflow:hidden;contain:layout paint}
-.tk7-startup::before{content:"";position:absolute;width:min(72vw,440px);aspect-ratio:1;left:50%;top:50%;transform:translate(-50%,-50%);border:1px solid #ffffff0a;border-radius:50%;box-shadow:0 0 0 65px #ffffff03,0 0 0 130px #ffffff02}
-.tk7-launch-brand{position:relative;width:clamp(136px,34vw,192px);aspect-ratio:1;overflow:hidden;border-radius:50%;animation:tk7-logo-arrive .65s cubic-bezier(.16,1,.3,1) both;filter:drop-shadow(0 12px 22px #001e1740)}
-.tk7-launch-brand img{display:block;width:100%;height:100%;object-fit:contain}
-.tk7-launch-brand::after{content:"";position:absolute;inset:-50%;background:linear-gradient(110deg,transparent 42%,#ffa43b38 49%,#ffffff70 50%,#ffa43b38 51%,transparent 58%);transform:translateX(-70%);animation:tk7-launch-glint .8s ease-out both}
-.tk7-startup p{position:relative;margin:0;font:600 11px/1.5 system-ui,sans-serif;letter-spacing:.24em;color:#d4e7dc}
-.tk7-startup.is-leaving{opacity:0}
-@keyframes tk7-logo-arrive{from{transform:scale(.94);opacity:.65}to{transform:scale(1);opacity:1}}
-@keyframes tk7-launch-glint{to{transform:translateX(70%)}}
-@keyframes tk7-launch-safety{to{opacity:0;visibility:hidden}}
-@media(prefers-reduced-motion:reduce){.tk7-startup{display:none!important}}
-</style>
+    <link rel="stylesheet" href="css/app.css?v=6.9.9">
+    <link rel="stylesheet" href="css/motion.css?v=6.9.9">
+    <link rel="stylesheet" href="css/support-panels.css?v=6.9.9">
+    <link rel="stylesheet" href="css/speed-dial.css?v=6.9.9">
+    <link rel="stylesheet" href="line-registration/team-card.css?v=6.9.9">
+    <link rel="stylesheet" href="line-registration/privacy-control.css?v=6.9.9">
 </head>
 <body>
-<script id="tk7-startup-script">
-(() => {
-    if (!window.matchMedia?.('(display-mode: standalone)').matches && !navigator.standalone) return;
-    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
-    const overlay = document.createElement('div');
-    overlay.className = 'tk7-startup';
-    overlay.setAttribute('aria-hidden','true');
-    overlay.innerHTML = '<div class="tk7-launch-brand"><img src="assets/icons/icon-192.png?v=6.9.8" width="192" height="192" alt="" decoding="async"></div><p>TK7 FOOTBALL</p>';
-    document.body.append(overlay);
-    let finished = false, safety;
-    const finish = () => {
-        if (finished) return;
-        finished = true;
-        clearTimeout(safety);
-        overlay.classList.add('is-leaving');
-        document.removeEventListener('pointerdown',finish,true);
-        document.removeEventListener('focusin',finish,true);
-        window.removeEventListener('pagehide',finish);
-        setTimeout(() => overlay.remove(),180);
-    };
-    window.TK7Startup = { finish };
-    document.addEventListener('pointerdown',finish,{capture:true,once:true});
-    document.addEventListener('focusin',finish,{capture:true,once:true});
-    window.addEventListener('pagehide',finish,{once:true});
-    safety = setTimeout(finish,1000);
-})();
-</script>
     <svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute;overflow:hidden" aria-hidden="true">
         <symbol id="icon-football-pitch" viewBox="0 0 24 24">
             <rect x="1.5" y="1" width="21" height="22" rx="3" fill="#0d3b12"/>
@@ -92,7 +52,7 @@
     <div id="app">
         <div id="auth-section">
     <div class="auth-meta">
-        <span class="version-tag">Ver 6.9.8</span>
+        <span class="version-tag">Ver 6.9.9</span>
         <span id="user-info"></span>
     </div>
     <div class="auth-user-controls">
@@ -244,7 +204,7 @@
     <div id="login-modal" class="modal">
     <div class="modal-content auth-card">
         <button type="button" class="close-modal-btn auth-close" aria-label="ปิดหน้าต่างเข้าสู่ระบบ">×</button>
-        <div class="auth-brand"><img src="assets/icons/icon-192.png?v=6.9.8" width="64" height="64" alt="ตราสโมสร TK7"><div><strong>TK7</strong><span>FRIDAY NIGHT FOOTBALL</span></div></div>
+        <div class="auth-brand"><img src="assets/icons/icon-192.png?v=6.9.9" width="64" height="64" alt="ตราสโมสร TK7"><div><strong>TK7</strong><span>FRIDAY NIGHT FOOTBALL</span></div></div>
         <p class="auth-welcome">จัดทีม วางแผน พร้อมลงสนาม</p>
         <h2 id="auth-modal-title"><span data-tk7-icon="lock" aria-hidden="true"></span> เข้าสู่ระบบ</h2>
         <div class="share-mode-btns auth-switch" style="margin-top: 0;" aria-label="เลือกเข้าสู่ระบบหรือสมัครสมาชิก">
@@ -326,25 +286,25 @@
         </div>
     </div>
 
-    <script src="line-registration/direct-share-config.js?v=6.9.8" defer></script>
-    <script type="module" src="line-registration/direct-share.mjs?v=6.9.8"></script>
-    <script src="line-registration/backdrop-guard.js?v=6.9.8" defer></script>
-    <script src="line-registration/icons.js?v=6.9.8" defer></script>
-    <script src="line-registration/roster-summary.js?v=6.9.8" defer></script>
-    <script src="line-registration/native-roster-share.js?v=6.9.8" defer></script>
-    <script src="line-registration/name-paste.js?v=6.9.8" defer></script>
-    <script src="line-registration/roster-text.js?v=6.9.8" defer></script>
-    <script src="js/roster-import-ui.js?v=6.9.8" defer></script>
-    <script src="js/speed-dial.js?v=6.9.8" defer></script>
-    <script src="line-registration/admin-integration.js?v=6.9.8" defer></script>
-    <script src="line-registration/browser-safety.js?v=6.9.8" defer></script>
-    <script src="js/match-stats.js?v=6.9.8" defer></script>
-    <script src="js/score-writer.js?v=6.9.8" defer></script>
-    <script src="js/lineup-path.js?v=6.9.8" defer></script>
-    <script src="js/lineup-tactics.js?v=6.9.8" defer></script>
-    <script src="js/lineup-media.js?v=6.9.8" defer></script>
-    <script src="js/lineup-video.js?v=6.9.8" defer></script>
-    <script src="js/app.js?v=6.9.8" defer></script>
+    <script src="line-registration/direct-share-config.js?v=6.9.9" defer></script>
+    <script type="module" src="line-registration/direct-share.mjs?v=6.9.9"></script>
+    <script src="line-registration/backdrop-guard.js?v=6.9.9" defer></script>
+    <script src="line-registration/icons.js?v=6.9.9" defer></script>
+    <script src="line-registration/roster-summary.js?v=6.9.9" defer></script>
+    <script src="line-registration/native-roster-share.js?v=6.9.9" defer></script>
+    <script src="line-registration/name-paste.js?v=6.9.9" defer></script>
+    <script src="line-registration/roster-text.js?v=6.9.9" defer></script>
+    <script src="js/roster-import-ui.js?v=6.9.9" defer></script>
+    <script src="js/speed-dial.js?v=6.9.9" defer></script>
+    <script src="line-registration/admin-integration.js?v=6.9.9" defer></script>
+    <script src="line-registration/browser-safety.js?v=6.9.9" defer></script>
+    <script src="js/match-stats.js?v=6.9.9" defer></script>
+    <script src="js/score-writer.js?v=6.9.9" defer></script>
+    <script src="js/lineup-path.js?v=6.9.9" defer></script>
+    <script src="js/lineup-tactics.js?v=6.9.9" defer></script>
+    <script src="js/lineup-media.js?v=6.9.9" defer></script>
+    <script src="js/lineup-video.js?v=6.9.9" defer></script>
+    <script src="js/app.js?v=6.9.9" defer></script>
 
     <div id="template-manager-modal" class="modal">
         <div class="modal-content" style="max-width: 600px;">
