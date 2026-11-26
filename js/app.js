@@ -1,5 +1,5 @@
 /* ==========================================================================
-   TK7 app logic (Ver 7.0.1)
+   TK7 app logic (Ver 7.0.2)
    แยกจาก index.html เพื่อแก้/ค้นหาง่ายขึ้น
    Sections (ค้นหาด้วย // --- SECTION:):
      CONFIG, AUTH, REGISTRATION, SCHEDULE, LINEUP, SETUP,
@@ -1875,7 +1875,13 @@
                 contentClone.style.boxSizing = 'border-box';
                 const matchCards = contentClone.querySelectorAll('.match-card');
                 if (matchCards.length > 0) {
-                    contentClone.style.gridTemplateRows = `repeat(${Math.ceil(matchCards.length / 2)}, auto)`;
+                    const rows = Math.ceil(matchCards.length / 2);
+                    contentClone.style.gridTemplateRows = `repeat(${rows}, auto)`;
+                    const guide = document.createElement('div');
+                    guide.className = 'export-reading-order';
+                    const range = (start,end) => 'แมตช์ ' + (start === end ? start : start + '–' + end) + ' ↓';
+                    guide.innerHTML = '<span>' + range(1,rows) + '</span>' + (rows < matchCards.length ? '<span>' + range(rows+1,matchCards.length) + '</span>' : '');
+                    headerDiv.appendChild(guide);
                 }
             }
             exportWrapper.style.width = (elementId === 'leaderboard-container') ? '1100px' : '860px';

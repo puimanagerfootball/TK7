@@ -1287,7 +1287,7 @@
             display: grid !important;
             grid-template-columns: 1fr 1fr !important;
             gap: 16px !important;
-            grid-auto-flow: column;
+            grid-auto-flow: column !important;
             width: 100% !important;
             margin: 0 auto !important;
             box-sizing: border-box !important;
@@ -1561,3 +1561,9 @@ button, a, input, select, textarea, summary { touch-action: manipulation; }
 .lineup-selected-route span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .lineup-selected-route button { flex-shrink: 0; min-height: 44px; border: 1px solid #c7d5c6; border-radius: 9px; padding: 7px 10px; background: #edf3e9; color: #365740; font: inherit; cursor: pointer; }
 .lineup-selected-route button:disabled { opacity: .5; cursor: default; }
+
+/* Shared images read down the left column, then down the right column. */
+.export-reading-order{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;margin:18px 0 0;text-align:left}
+.export-reading-order>span{display:block;padding:8px 14px;border:1px solid #ffffff4a;border-radius:10px;background:#123c29d9;color:#fff;font-size:14px;font-weight:600;line-height:1.4;text-shadow:none}
+.temp-export-container .export-mode-grid .match-header{align-items:center;min-height:36px;gap:10px}
+.temp-export-container .export-mode-grid .match-header>span:first-child{display:inline-flex;align-items:center;min-height:28px;padding:4px 10px;border:1px solid #8eaf8a;border-radius:8px;background:#eff7e9;color:#194b2b;font-size:15px;font-weight:700;line-height:1.4}
