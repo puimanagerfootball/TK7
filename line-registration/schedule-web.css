@@ -1563,7 +1563,7 @@ button, a, input, select, textarea, summary { touch-action: manipulation; }
 .lineup-selected-route button:disabled { opacity: .5; cursor: default; }
 
 /* Shared images read down the left column, then down the right column. */
-.export-reading-order{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;margin:18px 0 0;text-align:left}
-.export-reading-order>span{display:block;padding:8px 14px;border:1px solid #ffffff4a;border-radius:10px;background:#123c29d9;color:#fff;font-size:14px;font-weight:600;line-height:1.4;text-shadow:none}
-.temp-export-container .export-mode-grid .match-header{align-items:center;min-height:36px;gap:10px}
-.temp-export-container .export-mode-grid .match-header>span:first-child{display:inline-flex;align-items:center;min-height:28px;padding:4px 10px;border:1px solid #8eaf8a;border-radius:8px;background:#eff7e9;color:#194b2b;font-size:15px;font-weight:700;line-height:1.4}
+.temp-export-container .export-mode-grid .match-header{display:flex;justify-content:space-between;align-items:center;min-height:40px;gap:12px;padding-bottom:10px}
+.temp-export-container .export-mode-grid .match-header>span:first-child{display:inline-flex;align-items:center;min-height:30px;padding:4px 10px;border:1px solid #8eaf8a;border-radius:8px;background:#eff7e9;color:#194b2b;font-size:15px;font-weight:700;line-height:1.4}
+
+.temp-export-container .export-mode-grid .match-header>span:last-child{display:inline-flex;align-items:center;justify-content:flex-end;min-height:30px;padding:4px 2px;color:#355941;font-size:14px;font-weight:600;font-variant-numeric:tabular-nums;line-height:1.4;white-space:nowrap}

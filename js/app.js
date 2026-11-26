@@ -1,5 +1,5 @@
 /* ==========================================================================
-   TK7 app logic (Ver 7.0.2)
+   TK7 app logic (Ver 7.0.3)
    แยกจาก index.html เพื่อแก้/ค้นหาง่ายขึ้น
    Sections (ค้นหาด้วย // --- SECTION:):
      CONFIG, AUTH, REGISTRATION, SCHEDULE, LINEUP, SETUP,
@@ -1873,15 +1873,19 @@
                 contentClone.style.width = '100%';
                 contentClone.style.margin = '0 auto';
                 contentClone.style.boxSizing = 'border-box';
+                contentClone.querySelectorAll('.match-card .match-header').forEach(header => {
+                    const parts = header.querySelectorAll(':scope > span');
+                    if (parts[0]) parts[0].textContent = parts[0].textContent.replace(/^แมตช์ที่\s*/, 'แมตช์ ');
+                    if (parts[1]) {
+                        parts[1].querySelectorAll('.tk7-icon').forEach(icon => icon.remove());
+                        parts[1].textContent = parts[1].textContent.trim();
+                    }
+                });
                 const matchCards = contentClone.querySelectorAll('.match-card');
                 if (matchCards.length > 0) {
                     const rows = Math.ceil(matchCards.length / 2);
                     contentClone.style.gridTemplateRows = `repeat(${rows}, auto)`;
-                    const guide = document.createElement('div');
-                    guide.className = 'export-reading-order';
-                    const range = (start,end) => 'แมตช์ ' + (start === end ? start : start + '–' + end) + ' ↓';
-                    guide.innerHTML = '<span>' + range(1,rows) + '</span>' + (rows < matchCards.length ? '<span>' + range(rows+1,matchCards.length) + '</span>' : '');
-                    headerDiv.appendChild(guide);
+
                 }
             }
             exportWrapper.style.width = (elementId === 'leaderboard-container') ? '1100px' : '860px';
