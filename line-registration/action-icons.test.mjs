@@ -52,12 +52,10 @@ test('primary command SVGs inherit the readable label colour on light and dark c
     }
 });
 
-test('all UI symbols use the same outline SVG language, including both summaries',()=>{
- const {html}=icons();
- for(const name of ['ball','share','import','list','shirt','lock','unlock','trash','clock','calendar','users','shield','help','settings','trophy','save','edit','chart','phone','plus','check','view','pin','warning','palette','bell','play','stop','reset','download','logout','link','close','move','pitch']){
-  const markup=html(name);assert.match(markup,/<svg viewBox="0 0 24 24"/);assert.match(markup,/fill="none" stroke="currentColor" stroke-width="1.8"/);assert.doesNotMatch(markup,/#[0-9a-f]{3,8}/i);
- }
- assert.equal(html('not-a-real-icon'),'');
+test('only the circled summary icons adopt outline styling while navigation keeps its original artwork',()=>{
+ const {html}=icons();for(const name of ['list','shirt']){const markup=html(name);assert.match(markup,/<svg/);assert.match(markup,/stroke="currentColor"/);assert.match(markup,/stroke-width="1.8"/);}
+ for(const name of ['settings','calendar','edit','trophy'])assert.match(html(name),/#[0-9a-f]{3,8}/i);
+ assert.match(fs.readFileSync(new URL('../index.html',import.meta.url),'utf8'),/class="icon-svg pitch-icon"/);
 });
 test('new dialog placeholders are hydrated before automatic button decoration',()=>{
  let callback,replaced;

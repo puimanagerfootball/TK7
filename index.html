@@ -10,28 +10,49 @@
  <meta name="theme-color" content="#103d2b">
 
     <meta name="apple-mobile-web-app-title" content="TK7">
-    <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/icon-32.png?v=7.0.0">
-    <link rel="icon" type="image/png" sizes="48x48" href="assets/icons/icon-48.png?v=7.0.0">
-    <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/icon-180.png?v=7.0.0">
-    <link rel="manifest" href="manifest.json?v=7.0.0">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/icon-32.png?v=7.0.1">
+    <link rel="icon" type="image/png" sizes="48x48" href="assets/icons/icon-48.png?v=7.0.1">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/icon-180.png?v=7.0.1">
+    <link rel="manifest" href="manifest.json?v=7.0.1">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600;700&display=swap" rel="stylesheet">
 
     <script src="vendor/supabase-2.119.0.js" integrity="sha384-uteMfOloLDGt042uDz+xHGF3ym63/WQ6rFq7murQRG8Ih7QrXGEGNtWd8688sb4O" crossorigin="anonymous"></script>
     <script src="vendor/morphdom-2.7.0.min.js" integrity="sha384-GvO679xZge/ZQsypeI50Wg7FqQIjFNfdoVpniNdlJ0H3z/+RxLNIUBMDhvtU018w" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="css/app.css?v=7.0.0">
-    <link rel="stylesheet" href="css/motion.css?v=7.0.0">
-    <link rel="stylesheet" href="css/support-panels.css?v=7.0.0">
-    <link rel="stylesheet" href="css/speed-dial.css?v=7.0.0">
-    <link rel="stylesheet" href="line-registration/team-card.css?v=7.0.0">
-    <link rel="stylesheet" href="line-registration/privacy-control.css?v=7.0.0">
+    <link rel="stylesheet" href="css/app.css?v=7.0.1">
+    <link rel="stylesheet" href="css/motion.css?v=7.0.1">
+    <link rel="stylesheet" href="css/support-panels.css?v=7.0.1">
+    <link rel="stylesheet" href="css/speed-dial.css?v=7.0.1">
+    <link rel="stylesheet" href="line-registration/team-card.css?v=7.0.1">
+    <link rel="stylesheet" href="line-registration/privacy-control.css?v=7.0.1">
 </head>
 <body>
-<div id="app">
+    <svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute;overflow:hidden" aria-hidden="true">
+        <symbol id="icon-football-pitch" viewBox="0 0 24 24">
+            <rect x="1.5" y="1" width="21" height="22" rx="3" fill="#0d3b12"/>
+            <rect x="2.2" y="1.7" width="19.6" height="20.6" rx="2.2" fill="#2e7d32"/>
+            <rect x="2.2" y="1.7" width="19.6" height="10.3" rx="2.2" fill="#43a047"/>
+            <rect x="2.2" y="1.7" width="19.6" height="3.4" fill="#81c784" opacity=".28"/>
+            <rect x="2.2" y="8.5" width="19.6" height="3.4" fill="#81c784" opacity=".18"/>
+            <rect x="2.2" y="15.3" width="19.6" height="3.4" fill="#81c784" opacity=".18"/>
+            <rect x="3.2" y="2.7" width="17.6" height="18.6" rx="1.2" fill="none" stroke="#fff" stroke-width="1.15"/>
+            <line x1="3.2" y1="12" x2="20.8" y2="12" stroke="#fff" stroke-width="1.05"/>
+            <circle cx="12" cy="12" r="3.1" fill="none" stroke="#fff" stroke-width="1.05"/>
+            <circle cx="12" cy="12" r="0.85" fill="#fff"/>
+            <rect x="7.2" y="2.7" width="9.6" height="4.2" fill="none" stroke="#fff" stroke-width=".95"/>
+            <rect x="7.2" y="17.1" width="9.6" height="4.2" fill="none" stroke="#fff" stroke-width=".95"/>
+            <rect x="9.4" y="2.7" width="5.2" height="1.7" fill="none" stroke="#fff" stroke-width=".85"/>
+            <rect x="9.4" y="19.6" width="5.2" height="1.7" fill="none" stroke="#fff" stroke-width=".85"/>
+            <path d="M9.2 6.9a2.8 2.8 0 0 0 5.6 0" fill="none" stroke="#fff" stroke-width=".8"/>
+            <path d="M9.2 17.1a2.8 2.8 0 0 1 5.6 0" fill="none" stroke="#fff" stroke-width=".8"/>
+        </symbol>
+    </svg>
+
+    <div id="app">
         <div id="auth-section">
     <div class="auth-meta">
-        <span class="version-tag">Ver 7.0.0</span>
+        <span class="version-tag">Ver 7.0.1</span>
         <span id="user-info"></span>
     </div>
     <div class="auth-user-controls">
@@ -124,7 +145,7 @@
 
             <div id="page-lineup" class="page">
                 <div class="page-header">
-                    <h1><span data-tk7-icon="pitch" aria-hidden="true"></span>จัดตำแหน่ง</h1>
+                    <h1><svg class="page-title-icon pitch-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-football-pitch"/></svg>จัดตำแหน่ง</h1>
                     <div id="lineup-share-menu" class="lineup-share-menu"><button id="share-lineup-btn" class="export-btn" type="button"><svg class="media-share-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6l1.5-2h5L16 6h4a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z" fill="#2879b9"/><circle cx="12" cy="13" r="5" fill="#fff"/><circle cx="12" cy="13" r="3" fill="#164c78"/><circle cx="19" cy="9" r="1" fill="#d7efff"/></svg><span>แชร์ภาพ</span></button><button type="button" id="lineup-video"><span class="media-rec" aria-hidden="true"><i></i>REC</span><span>แชร์วิดีโอ</span></button></div>
                 </div>
                 <div class="card lineup-compact-card">
@@ -174,7 +195,7 @@
         <nav class="bottom-nav">
             <button class="nav-btn" data-page="page-setup"><span class="icon"><span data-tk7-icon="settings" aria-hidden="true"></span></span>จัดการทีม</button>
             <button class="nav-btn" data-page="page-schedule"><span class="icon"><span data-tk7-icon="calendar" aria-hidden="true"></span></span>ตารางแข่ง</button>
-            <button class="nav-btn" data-page="page-lineup"><span class="icon"><span data-tk7-icon="pitch" aria-hidden="true"></span></span>จัดตำแหน่ง</button>
+            <button class="nav-btn" data-page="page-lineup"><span class="icon"><svg class="icon-svg pitch-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-football-pitch"/></svg></span>จัดตำแหน่ง</button>
             <button class="nav-btn" data-page="page-scores"><span class="icon"><span data-tk7-icon="edit" aria-hidden="true"></span></span>บันทึกผล</button>
             <button class="nav-btn" data-page="page-leaderboard"><span class="icon"><span data-tk7-icon="trophy" aria-hidden="true"></span></span>ตารางคะแนน</button>
         </nav>
@@ -183,7 +204,7 @@
     <div id="login-modal" class="modal">
     <div class="modal-content auth-card">
         <button type="button" class="close-modal-btn auth-close" aria-label="ปิดหน้าต่างเข้าสู่ระบบ">×</button>
-        <div class="auth-brand"><img src="assets/icons/icon-192.png?v=7.0.0" width="64" height="64" alt="ตราสโมสร TK7"><div><strong>TK7</strong><span>FRIDAY NIGHT FOOTBALL</span></div></div>
+        <div class="auth-brand"><img src="assets/icons/icon-192.png?v=7.0.1" width="64" height="64" alt="ตราสโมสร TK7"><div><strong>TK7</strong><span>FRIDAY NIGHT FOOTBALL</span></div></div>
         <p class="auth-welcome">จัดทีม วางแผน พร้อมลงสนาม</p>
         <h2 id="auth-modal-title"><span data-tk7-icon="lock" aria-hidden="true"></span> เข้าสู่ระบบ</h2>
         <div class="share-mode-btns auth-switch" style="margin-top: 0;" aria-label="เลือกเข้าสู่ระบบหรือสมัครสมาชิก">
@@ -265,25 +286,25 @@
         </div>
     </div>
 
-    <script src="line-registration/direct-share-config.js?v=7.0.0" defer></script>
-    <script type="module" src="line-registration/direct-share.mjs?v=7.0.0"></script>
-    <script src="line-registration/backdrop-guard.js?v=7.0.0" defer></script>
-    <script src="line-registration/icons.js?v=7.0.0" defer></script>
-    <script src="line-registration/roster-summary.js?v=7.0.0" defer></script>
-    <script src="line-registration/native-roster-share.js?v=7.0.0" defer></script>
-    <script src="line-registration/name-paste.js?v=7.0.0" defer></script>
-    <script src="line-registration/roster-text.js?v=7.0.0" defer></script>
-    <script src="js/roster-import-ui.js?v=7.0.0" defer></script>
-    <script src="js/speed-dial.js?v=7.0.0" defer></script>
-    <script src="line-registration/admin-integration.js?v=7.0.0" defer></script>
-    <script src="line-registration/browser-safety.js?v=7.0.0" defer></script>
-    <script src="js/match-stats.js?v=7.0.0" defer></script>
-    <script src="js/score-writer.js?v=7.0.0" defer></script>
-    <script src="js/lineup-path.js?v=7.0.0" defer></script>
-    <script src="js/lineup-tactics.js?v=7.0.0" defer></script>
-    <script src="js/lineup-media.js?v=7.0.0" defer></script>
-    <script src="js/lineup-video.js?v=7.0.0" defer></script>
-    <script src="js/app.js?v=7.0.0" defer></script>
+    <script src="line-registration/direct-share-config.js?v=7.0.1" defer></script>
+    <script type="module" src="line-registration/direct-share.mjs?v=7.0.1"></script>
+    <script src="line-registration/backdrop-guard.js?v=7.0.1" defer></script>
+    <script src="line-registration/icons.js?v=7.0.1" defer></script>
+    <script src="line-registration/roster-summary.js?v=7.0.1" defer></script>
+    <script src="line-registration/native-roster-share.js?v=7.0.1" defer></script>
+    <script src="line-registration/name-paste.js?v=7.0.1" defer></script>
+    <script src="line-registration/roster-text.js?v=7.0.1" defer></script>
+    <script src="js/roster-import-ui.js?v=7.0.1" defer></script>
+    <script src="js/speed-dial.js?v=7.0.1" defer></script>
+    <script src="line-registration/admin-integration.js?v=7.0.1" defer></script>
+    <script src="line-registration/browser-safety.js?v=7.0.1" defer></script>
+    <script src="js/match-stats.js?v=7.0.1" defer></script>
+    <script src="js/score-writer.js?v=7.0.1" defer></script>
+    <script src="js/lineup-path.js?v=7.0.1" defer></script>
+    <script src="js/lineup-tactics.js?v=7.0.1" defer></script>
+    <script src="js/lineup-media.js?v=7.0.1" defer></script>
+    <script src="js/lineup-video.js?v=7.0.1" defer></script>
+    <script src="js/app.js?v=7.0.1" defer></script>
 
     <div id="template-manager-modal" class="modal">
         <div class="modal-content" style="max-width: 600px;">

@@ -13,3 +13,7 @@ test('custom app launch overlay is absent while native splash branding remains',
  const main=fs.readFileSync(new URL('../index.html',import.meta.url),'utf8');assert.ok(!main.includes('tk7-startup'));assert.ok(!fs.readFileSync(new URL('../js/app.js',import.meta.url),'utf8').includes('TK7Startup'));
  const manifest=JSON.parse(fs.readFileSync(new URL('../manifest.json',import.meta.url),'utf8'));assert.equal(manifest.background_color,'#103d2b');assert.equal(manifest.icons.length,2);
 });
+
+test('privacy always offers an accessible return to the topic index in either language',()=>{
+ assert.match(html,/<a class="privacy-to-top" href="#privacy-index">/);assert.ok(html.includes('กลับสารบัญ'));assert.ok(html.includes('Back to topics'));assert.ok(html.includes('safe-area-inset-bottom'));assert.ok(html.includes('id="privacy-index" class="privacy-index" tabindex="-1"'));
+});
