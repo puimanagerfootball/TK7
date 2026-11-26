@@ -51,3 +51,19 @@ test('primary command SVGs inherit the readable label colour on light and dark c
         assert.match(markup, /aria-hidden="true"/);
     }
 });
+
+test('all UI symbols use the same outline SVG language, including both summaries',()=>{
+ const {html}=icons();
+ for(const name of ['ball','share','import','list','shirt','lock','unlock','trash','clock','calendar','users','shield','help','settings','trophy','save','edit','chart','phone','plus','check','view','pin','warning','palette','bell','play','stop','reset','download','logout','link','close','move','pitch']){
+  const markup=html(name);assert.match(markup,/<svg viewBox="0 0 24 24"/);assert.match(markup,/fill="none" stroke="currentColor" stroke-width="1.8"/);assert.doesNotMatch(markup,/#[0-9a-f]{3,8}/i);
+ }
+ assert.equal(html('not-a-real-icon'),'');
+});
+test('new dialog placeholders are hydrated before automatic button decoration',()=>{
+ let callback,replaced;
+ const placeholder={dataset:{tk7Icon:'list'},replaceWith:icon=>replaced=icon};
+ const control={nodeType:1,textContent:'ส่งสรุป (กลุ่มใหญ่)',matches:selector=>selector==='button,summary',querySelectorAll:selector=>selector==='[data-tk7-icon]'?[placeholder]:[],querySelector:()=>replaced,prepend(){throw Error('duplicate decoration');}};
+ const document={body:{},querySelectorAll:()=>[],createElement:()=>({content:{firstElementChild:null},set innerHTML(value){this.content.firstElementChild={markup:value};}})};
+ const context={document,MutationObserver:class{constructor(fn){callback=fn;}observe(){}}};vm.createContext(context);vm.runInContext(fs.readFileSync(new URL('icons.js',import.meta.url),'utf8'),context);
+ callback([{target:{},addedNodes:[control]}]);assert.match(replaced.markup,/tk7-icon-list/);assert.match(replaced.markup,/<svg/);
+});
