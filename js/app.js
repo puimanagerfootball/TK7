@@ -1,5 +1,5 @@
 /* ==========================================================================
-   TK7 app logic (Ver 6.9.7)
+   TK7 app logic (Ver 6.9.8)
    แยกจาก index.html เพื่อแก้/ค้นหาง่ายขึ้น
    Sections (ค้นหาด้วย // --- SECTION:):
      CONFIG, AUTH, REGISTRATION, SCHEDULE, LINEUP, SETUP,
@@ -2538,5 +2538,5 @@ document.getElementById('reset-password-form').onsubmit = async (e) => {
                 input.dispatchEvent(new CustomEvent('change',{bubbles:true,detail:{registrationDefault:true}}));
             }
         });
-        initializeApp();
+        initializeApp().finally(() => window.TK7Startup?.finish());
     });
