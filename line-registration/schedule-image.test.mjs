@@ -13,8 +13,8 @@ test('embedded browser sync exceptions fall back to download',async()=>{let down
 test('shared images keep column order and clean match/time headers without range banners',()=>{
  for(const count of [20,21,1]){
   const day=S.normalize({match_date:'2026-11-27',settings:{startTime:'20:15',timePerMatch:8},schedule:Array.from({length:count},()=>({home:'green',away:'red'}))});
-  const before=JSON.stringify(day);const html=I.buildDocument(day,'');assert.ok(!html.includes('export-reading-order'));assert.ok(!html.includes('tk7-icon-clock'));assert.ok(html.includes('<span>20:15</span>'));
-  const numbers=[...html.matchAll(/MATCH (\d+)/g)].map(m=>Number(m[1]));assert.deepEqual(numbers,Array.from({length:count},(_,i)=>i+1));assert.equal(JSON.stringify(day),before);
+  const before=JSON.stringify(day);const html=I.buildDocument(day,'');assert.ok(!html.includes('export-reading-order'));assert.ok(!html.includes('tk7-icon-clock'));assert.ok(html.includes('<span>20:15</span>'));assert.ok(html.includes('<span>แมตซ์ที่ 1</span>'));
+  const numbers=[...html.matchAll(/แมตซ์ที่ (\d+)/g)].map(m=>Number(m[1]));assert.deepEqual(numbers,Array.from({length:count},(_,i)=>i+1));assert.equal(JSON.stringify(day),before);
  }
 });
 test('export column flow takes priority over responsive screen layout rules',()=>{
