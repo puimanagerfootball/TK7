@@ -332,10 +332,6 @@ window.TK7Admin={mount({db,canManage,getDisplayName=()=>'',selectDefaultSetupDat
   // Keep registration management separate from outgoing sharing actions.
   const management=el('div',{class:'tk7l-actions-group'},main,closeRegistration,del);
   const sharing=el('div',{class:'tk7l-actions-group'},share,summary,teamSummary,importButton);
-  const direct=window.TK7DirectShare;
-  if(direct?.liffUrl&&direct.isInClient!==true&&window.matchMedia?.('(pointer: coarse)').matches){
-   sharing.append(el('a',{class:'tk7l-action tk7l-share',href:direct.liffUrl},actionLabel('phone','เปิดใน LINE')));
-  }
   actions.append(
    el('section',{class:'tk7l-action-section'},management),
    el('section',{class:'tk7l-action-section'},sharing)
