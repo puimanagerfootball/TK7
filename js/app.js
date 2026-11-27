@@ -1,5 +1,5 @@
 /* ==========================================================================
-   TK7 app logic (Ver 7.0.5)
+   TK7 app logic (Ver 7.0.6)
    แยกจาก index.html เพื่อแก้/ค้นหาง่ายขึ้น
    Sections (ค้นหาด้วย // --- SECTION:):
      CONFIG, AUTH, REGISTRATION, SCHEDULE, LINEUP, SETUP,
@@ -1875,7 +1875,17 @@
                 contentClone.style.boxSizing = 'border-box';
                 contentClone.querySelectorAll('.match-card .match-header').forEach(header => {
                     const parts = header.querySelectorAll(':scope > span');
-                    if (parts[0]) parts[0].textContent = parts[0].textContent.replace(/^แมตช์(?:ที่)?\s*/, 'แมตซ์ที่ ');
+                    if (parts[0]) {
+                        const match = parts[0].textContent.match(/^แมตช์(?:ที่)?\s*(\d+)$/);
+                        if (match) {
+                            const label = document.createElement('span');
+                            label.textContent = 'แมตซ์ที่';
+                            const number = document.createElement('span');
+                            number.className = 'export-match-index';
+                            number.textContent = match[1];
+                            parts[0].replaceChildren(label, number);
+                        }
+                    }
                     if (parts[1]) {
                         parts[1].querySelectorAll('.tk7-icon').forEach(icon => icon.remove());
                         parts[1].textContent = parts[1].textContent.trim();

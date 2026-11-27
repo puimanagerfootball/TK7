@@ -13,11 +13,17 @@ test('embedded browser sync exceptions fall back to download',async()=>{let down
 test('shared images keep column order and clean match/time headers without range banners',()=>{
  for(const count of [20,21,1]){
   const day=S.normalize({match_date:'2026-11-27',settings:{startTime:'20:15',timePerMatch:8},schedule:Array.from({length:count},()=>({home:'green',away:'red'}))});
-  const before=JSON.stringify(day);const html=I.buildDocument(day,'');assert.ok(!html.includes('export-reading-order'));assert.ok(!html.includes('tk7-icon-clock'));assert.ok(html.includes('<span>20:15</span>'));assert.ok(html.includes('<span>แมตซ์ที่ 1</span>'));
-  const numbers=[...html.matchAll(/แมตซ์ที่ (\d+)/g)].map(m=>Number(m[1]));assert.deepEqual(numbers,Array.from({length:count},(_,i)=>i+1));assert.equal(JSON.stringify(day),before);
+  const before=JSON.stringify(day);const html=I.buildDocument(day,'');assert.ok(!html.includes('export-reading-order'));assert.ok(!html.includes('tk7-icon-clock'));assert.ok(html.includes('<span>20:15</span>'));assert.ok(html.includes('<span>แมตซ์ที่</span><span class="export-match-index">1</span>'));
+  const numbers=[...html.matchAll(/class="export-match-index">(\d+)</g)].map(m=>Number(m[1]));assert.deepEqual(numbers,Array.from({length:count},(_,i)=>i+1));assert.equal(JSON.stringify(day),before);
  }
 });
 test('export column flow takes priority over responsive screen layout rules',()=>{
  const css=fs.readFileSync(new URL('../css/app.css',import.meta.url),'utf8');const exportRule=css.match(/\.export-mode-grid\s*\{([^}]+)\}/)[1];assert.match(exportRule,/grid-auto-flow:\s*column\s*!important/);
  assert.match(css,/\.temp-export-container \.export-mode-grid \.match-header>span:first-child/);
+});
+
+test('exported labels use separate word and number boxes with a physical gap',()=>{
+ const css=fs.readFileSync(new URL('../css/app.css',import.meta.url),'utf8');
+ const rule=css.match(/\.temp-export-container \.export-match-index\s*\{([^}]+)\}/)[1];assert.match(rule,/margin-left:\s*8px/);
+ const html=I.buildDocument(schedule,'');assert.equal((html.match(/class="export-match-index"/g)||[]).length,20);
 });
