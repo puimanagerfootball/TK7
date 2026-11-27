@@ -1,5 +1,5 @@
 /* ==========================================================================
-   TK7 app logic (Ver 7.0.6)
+   TK7 app logic (Ver 7.0.7)
    แยกจาก index.html เพื่อแก้/ค้นหาง่ายขึ้น
    Sections (ค้นหาด้วย // --- SECTION:):
      CONFIG, AUTH, REGISTRATION, SCHEDULE, LINEUP, SETUP,
@@ -2328,11 +2328,19 @@
             div.className = "match-input-row";
             div.style = "display:flex; gap:10px; margin-bottom:8px; align-items:center;";
             div.innerHTML = `
-                <input type="number" class="h-n" placeholder="ทีมที่" style="width:70px" value="${h}"> 
+                <input type="number" class="h-n" placeholder="ทีมที่" style="width:70px">
                 <span style="color:var(--text-muted)">VS</span> 
-                <input type="number" class="a-n" placeholder="ทีมที่" style="width:70px" value="${a}">
+                <input type="number" class="a-n" placeholder="ทีมที่" style="width:70px">
                 <button class="remove-row-btn" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:18px; padding:0 5px;">✕</button>
             `;
+            // Saved templates are untrusted: never interpolate their values into HTML.
+            const teamNumber = value => {
+                if (typeof value !== 'number' && typeof value !== 'string') return '';
+                const number = Number(value);
+                return Number.isInteger(number) && number >= 1 && number <= TEAMS.length ? number : '';
+            };
+            div.querySelector('.h-n').value = teamNumber(h);
+            div.querySelector('.a-n').value = teamNumber(a);
             // กด x เพื่อลบแถวนี้
             div.querySelector('.remove-row-btn').onclick = () => div.remove();
             container.appendChild(div);
