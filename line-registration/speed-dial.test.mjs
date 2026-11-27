@@ -73,10 +73,18 @@ for (const [width, height] of [[320,568],[360,640],[390,844],[844,390],[768,1024
     });
 }
 
-test('desktop menu uses available space beside the trigger', () => {
+test('desktop menu is centered directly below its own trigger', () => {
     const { placement } = harness();
     const result = placement({ viewportWidth: 1440, viewportHeight: 900, bottom: 820,
         anchor: { left: 350, right: 402, top: 300, bottom: 352 }, height: 360 });
-    assert.ok(result.left >= 414);
-    assert.equal(result.top, 300);
+    assert.equal(result.left + result.width / 2, 376);
+    assert.equal(result.top, 364);
+});
+
+test('a low trigger opens its menu above itself instead of across the adjacent group', () => {
+    const { placement } = harness();
+    const result = placement({viewportWidth:1440,viewportHeight:900,bottom:820,
+        anchor:{left:800,right:1300,top:650,bottom:710},height:360});
+    assert.equal(result.left + result.width / 2, 1050);
+    assert.equal(result.top + 360, 638);
 });

@@ -4,23 +4,13 @@ globalThis.TK7SpeedDial = (() => {
     function placement({ viewportWidth, viewportHeight, bottom = viewportHeight, anchor, height }) {
         const gap = 12;
         const width = Math.min(viewportWidth <= 600 ? 360 : 300, viewportWidth - gap * 2);
-        const maxHeight = Math.max(44, bottom - gap * 2);
+        const above = Math.max(0, anchor.top - gap * 2);
+        const below = Math.max(0, bottom - anchor.bottom - gap * 2);
+        const opensBelow = height <= below || (height > above && below >= above);
+        const maxHeight = Math.max(44, Math.min(bottom - gap * 2, opensBelow ? below : above));
         const actualHeight = Math.min(height, maxHeight);
-        let left, top;
-        if (viewportWidth <= 600) {
-            left = (viewportWidth - width) / 2;
-            top = bottom - gap - actualHeight;
-        } else if (anchor.right + gap + width <= viewportWidth - gap) {
-            left = anchor.right + gap;
-            top = anchor.top;
-        } else if (anchor.left - gap - width >= gap) {
-            left = anchor.left - gap - width;
-            top = anchor.top;
-        } else {
-            left = anchor.right - width;
-            top = anchor.bottom + gap + actualHeight <= bottom - gap
-                ? anchor.bottom + gap : anchor.top - gap - actualHeight;
-        }
+        const left = (anchor.left + anchor.right - width) / 2;
+        const top = opensBelow ? anchor.bottom + gap : anchor.top - gap - actualHeight;
         return {
             width, maxHeight,
             left: Math.max(gap, Math.min(left, viewportWidth - width - gap)),
@@ -76,8 +66,10 @@ globalThis.TK7SpeedDial = (() => {
             const input = { viewportWidth: innerWidth, viewportHeight: innerHeight, bottom, anchor: bounds };
             const initial = placement({ ...input, height: 0 });
             panel.style.width = initial.width + 'px';
-            panel.style.maxHeight = initial.maxHeight + 'px';
+            // Measure the full menu before choosing the side with enough space.
+            panel.style.maxHeight = Math.max(44, bottom - 24) + 'px';
             const result = placement({ ...input, height: panel.getBoundingClientRect().height });
+            panel.style.maxHeight = result.maxHeight + 'px';
             panel.style.left = result.left + 'px';
             panel.style.top = result.top + 'px';
         }
