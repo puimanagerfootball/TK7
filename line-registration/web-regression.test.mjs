@@ -72,11 +72,11 @@ test('refreshing the date list preserves the independent setup and schedule sele
  const context={
   db:{from:()=>({select:()=>({order:async()=>({data:dates.map(match_date=>({match_date}))})})})},
   matchDayLoadSeq:0,currentDateKey:today,datePreference:kind=>({view:scheduleDay,setup:setupDay})[kind],
-  todayDateKey:()=>today,updateDateSelectorsUI(){},loadDataForDate:async d=>calls.push(['view',d]),
+  todayDateKey:()=>today,updateDateSelectorsUI(){},loadDataForDate:async d=>{context.currentDateKey=d;context.matchDayLoadSeq++;calls.push(['view',d]);},
   document:{getElementById:()=>input},prepareSetupFormForDate:async d=>calls.push(['setup',d]),
   activePage:'page-schedule',canManage:()=>true,setActivePage(){}
  };
- vm.runInNewContext(between('        async function loadInitialData(','        function formatAuthError('),context);
+ vm.runInNewContext(between('        let initialDataLoadSeq','        function formatAuthError('),context);
  await context.loadInitialData();
  assert.deepEqual(calls,[['view',scheduleDay],['setup',setupDay]]);
  calls.length=0;

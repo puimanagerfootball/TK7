@@ -1,5 +1,5 @@
 /* ==========================================================================
-   TK7 app logic (Ver 7.0.7)
+   TK7 app logic (Ver 7.0.8)
    แยกจาก index.html เพื่อแก้/ค้นหาง่ายขึ้น
    Sections (ค้นหาด้วย // --- SECTION:):
      CONFIG, AUTH, REGISTRATION, SCHEDULE, LINEUP, SETUP,
@@ -547,16 +547,25 @@
             }
         }
 
+        const setupDayFlights = new Map();
         async function ensureDateLoaded(date) {
             if (!date) return null;
             if (Object.prototype.hasOwnProperty.call(appData, date)) return appData[date];
-            const { data, error } = await db.from('match_days').select('*').eq('match_date', date).maybeSingle();
-            if (error) {
-                console.error('Error fetching match day:', error);
-                throw Error('โหลดการตั้งค่าวันแข่งไม่สำเร็จ กรุณาเลือกวันอีกครั้ง');
-            }
-            appData[date] = data || null;
-            return appData[date];
+            if (setupDayFlights.has(date)) return setupDayFlights.get(date);
+            const flight = (async () => {
+                const { data, error } = await db.from('match_days').select('*').eq('match_date', date).maybeSingle();
+                // A foreground refresh or score edit may have supplied a newer day while this read was pending.
+                if (Object.prototype.hasOwnProperty.call(appData, date)) return appData[date];
+                if (error) {
+                    console.error('Error fetching match day:', error);
+                    throw Error('โหลดการตั้งค่าวันแข่งไม่สำเร็จ กรุณาเลือกวันอีกครั้ง');
+                }
+                appData[date] = data || null;
+                return appData[date];
+            })();
+            setupDayFlights.set(date, flight);
+            try { return await flight; }
+            finally { if (setupDayFlights.get(date) === flight) setupDayFlights.delete(date); }
         }
 
         async function prepareSetupFormForDate(date) {
@@ -578,9 +587,14 @@
             document.dispatchEvent(new CustomEvent('tk7:setup-date-ready', { detail: { date } }));
         }
 
+        let initialDataLoadSeq = 0;
         async function loadInitialData(options = {}) {
+            const sequence = ++initialDataLoadSeq;
+            const startingViewSequence = matchDayLoadSeq;
+            const startingSetupDate = document.getElementById('match-date')?.value;
             const { preferDate = null } = options;
             const { data: datesData, error } = await db.from('match_days').select('match_date').order('match_date', { ascending: false });
+            if (sequence !== initialDataLoadSeq || startingViewSequence !== matchDayLoadSeq) return;
             if (error) { console.error("Error fetching dates:", error); return; }
             const availableDates = datesData.map(d => d.match_date);
             const today = todayDateKey();
@@ -589,7 +603,9 @@
                 || availableDates[0] || today;
             if (preferDate === viewDate) datePreference('view', viewDate);
             await loadDataForDate(viewDate, { syncSetupDate: false });
+            if (sequence !== initialDataLoadSeq || matchDayLoadSeq !== startingViewSequence + 1 || currentDateKey !== viewDate) return;
             const setupDate = document.getElementById('match-date')?.value;
+            if (setupDate !== startingSetupDate) return;
             if (preferDate) {
                 setupDateChosen = true;
                 datePreference('setup', preferDate);
@@ -2040,7 +2056,23 @@
             renderSchedulePreview(false);
         }
 
-        async function deleteDay() { if (!canManage()) return alert('ต้องเป็นผู้ดูแลที่อนุมัติแล้วเท่านั้น'); const dateToDelete = document.getElementById('schedule-date-selector').value; if (dateToDelete && confirm(`คุณแน่ใจหรือไม่ว่าต้องการลบข้อมูลของวันที่ ${dateToDelete} ทั้งหมด?`)) { const { error } = await db.from('match_days').delete().eq('match_date', dateToDelete); if (error) { alert('เกิดข้อผิดพลาด: ' + error.message); } else { showToast('ลบข้อมูลเรียบร้อยแล้ว'); await loadInitialData(); } } }
+        let deletingDay = false;
+        async function deleteDay() {
+            if (!canManage()) return alert('ต้องเป็นผู้ดูแลที่อนุมัติแล้วเท่านั้น');
+            if (deletingDay) return;
+            const dateToDelete = document.getElementById('schedule-date-selector').value;
+            if (!dateToDelete || !confirm('คุณแน่ใจหรือไม่ว่าต้องการลบข้อมูลของวันที่ '+dateToDelete+' ทั้งหมด?')) return;
+            deletingDay = true;
+            try {
+                if (!await flushScoreSave(dateToDelete)) return;
+                await window.TK7ScoreWriter.deleteFixture(db, {date: dateToDelete, version: appData[dateToDelete]?.updated_at});
+                delete appData[dateToDelete];
+                for (const key of scoreEdits.keys()) if (key.startsWith(dateToDelete+'#')) scoreEdits.delete(key);
+                showToast('ลบข้อมูลเรียบร้อยแล้ว');
+                await loadInitialData();
+            } catch (error) { alert('เกิดข้อผิดพลาด: '+error.message); }
+            finally { deletingDay = false; }
+        }
         
         function updateDateSelectorsUI(dates) {
             const dateList = Array.isArray(dates) ? [...dates] : [];
@@ -2229,8 +2261,8 @@
             if (Number.isNaN(idx) || !dayData.schedule[idx]) return;
             let safeValue = value;
             if (safeValue !== null) {
-                safeValue = Number.parseInt(safeValue, 10);
-                if (Number.isNaN(safeValue) || safeValue < 0) safeValue = 0;
+                safeValue = Number(safeValue);
+                if (!Number.isSafeInteger(safeValue) || safeValue < 0) return;
             }
             if (!['home','away'].includes(team)) return;
             const match=dayData.schedule[idx], current=scoreEditFor(date,idx,match)||match;
@@ -2271,8 +2303,13 @@
         function updateScoreFromInput(input) {
             const { index, team } = input.dataset;
             if (input.value === '') { updateScore(index, team, null); return; }
-            const parsed = Number.parseInt(input.value, 10);
-            updateScore(index, team, Number.isNaN(parsed) ? 0 : Math.max(0, parsed));
+            const parsed = Number(input.value);
+            if (!/^\d+$/.test(input.value) || !Number.isSafeInteger(parsed)) {
+                patchMatchScoreCardUI(Number(index));
+                showToast('กรอกคะแนนเป็นจำนวนเต็มตั้งแต่ 0 ขึ้นไป');
+                return;
+            }
+            updateScore(index, team, parsed);
         }
         function resetScore(index) {
             if (!canManage() || pendingPasswordRecovery) return;
